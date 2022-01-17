@@ -307,7 +307,10 @@ namespace Aurora.Settings
         //HyperX range is 1400-1499
         [Description("HyperX Alloy Elite RGB")]
         HyperX_Alloy_Elite_RGB = 1400,
- 
+
+        //Durgod range is 1500-1599
+        [Description("Durgod K320 Nebula RGB")]
+        Durgod_K320_RGB = 1500,
     }
 
     public enum PreferredKeyboardLocalization
