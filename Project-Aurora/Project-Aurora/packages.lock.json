@@ -44,6 +44,15 @@
         "resolved": "6.5.1",
         "contentHash": "DEw9rPG5vrpaK4vPPze0f4q6Zd0mfzjGNKy49nrmINkftIHpkyf8KH+uC/qF8y6v1askPWu9NbJS9bkmN5wXaA=="
       },
+      "H.NotifyIcon.Wpf": {
+        "type": "Direct",
+        "requested": "[2.0.64, )",
+        "resolved": "2.0.64",
+        "contentHash": "qyca0TtnY0mGqHoNyRDws1Pd4hGZjTNbpsUIKtDUBBMd3cerCNXr5U8gvHxfWBjk+nANAboo3ZTLFDRc/wfZOg==",
+        "dependencies": {
+          "H.NotifyIcon": "2.0.64"
+        }
+      },
       "hidlibrary": {
         "type": "Direct",
         "requested": "[3.3.40, )",
@@ -156,12 +165,6 @@
           "SharpDX": "4.0.1"
         }
       },
-      "SignedBuild-Hardcodet.NotifyIcon.Wpf": {
-        "type": "Direct",
-        "requested": "[1.0.5, )",
-        "resolved": "1.0.5",
-        "contentHash": "60oQYobbGYPoJdQPxw2LufexZpR8j9AXNPnRgFwTKjeXbuQE47BL9vA14uxUwXxiIBCAvp/YElLJGzIEkiZA3A=="
-      },
       "SmartThreadPool.dll": {
         "type": "Direct",
         "requested": "[2.3.0, )",
@@ -231,6 +234,11 @@
         "type": "Transitive",
         "resolved": "1.3.0",
         "contentHash": "a3ATP2CAiAQdcnj5mBgyhqyjoAiCXjuiLY8x3yAmo2Uacs7ecKvre8sc30dcgfN9YGAM9s9dvBIlyqisJLg1ew=="
+      },
+      "H.NotifyIcon": {
+        "type": "Transitive",
+        "resolved": "2.0.64",
+        "contentHash": "Qi6HOyrapaYaX0MEbZFBq7Rd7iblpGD88Y/i11u2JJvCFCA5+Pzkv07j7Tk/xvUabWjS65wg95Xe7BYjfwQQeg=="
       },
       "HidSharp": {
         "type": "Transitive",
