@@ -1,4 +1,4 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -305,7 +305,7 @@ namespace Aurora
 
             if (!shownHiddenMessage)
             {
-                trayicon.ShowBalloonTip("Aurora", "This program is now hidden in the tray.", BalloonIcon.None);
+                trayicon.ShowNotification("Aurora", "This program is now hidden in the tray.");
                 shownHiddenMessage = true;
             }
 
