@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SBAuroraReactive;
 
-SBAuroraReactive.LEDManager manager = new();
+LEDManager manager = new();
 
 using (manager)
 {
-    SBAuroraReactive.EnumeratedDevice[] devices = manager.EnumConnectedDevices();
+    EnumeratedDevice[] devices = manager.EnumConnectedDevices();
     Console.WriteLine($"Found {devices.Length} connected SB devices:");
     for (int i = 0; i < devices.Length; i++)
     {
-        SBAuroraReactive.EnumeratedDevice currDev = devices[i];
+        EnumeratedDevice currDev = devices[i];
         Console.WriteLine($"{i}: '{currDev.friendlyName}'({currDev.deviceId.vid:X4},{currDev.deviceId.pid}) with {currDev.totalNumLeds} LEDs");
     }
 
@@ -20,32 +17,34 @@ using (manager)
         return;
 
     int theDevNum = -1;
-    for (; ; )
+    while (true)
     {
         Console.WriteLine("Choose number of device to open:");
         string chosenDevNumStr = Console.ReadLine();
-        if (!Int32.TryParse(chosenDevNumStr, out theDevNum) || theDevNum < 0 || theDevNum >= devices.Length)
-            Console.WriteLine("Invalid device number specified (" + chosenDevNumStr + ")!");
-        else
+        if (int.TryParse(chosenDevNumStr, out theDevNum) && theDevNum >= 0 && theDevNum < devices.Length)
             break;
+
+        Console.WriteLine("Invalid device number specified (" + chosenDevNumStr + ")!");
     }
 
-    SBAuroraReactive.EnumeratedDevice devInfo = devices[theDevNum];
+    EnumeratedDevice devInfo = devices[theDevNum];
     Console.WriteLine("Opening device idx {0}...", theDevNum);
 
     bool deviceOpened = false;
     const int numGroupColumns = 2;
     uint[] groupArr = new uint[devInfo.totalNumLeds * numGroupColumns];
+
     for (uint i = 0; i < devInfo.totalNumLeds; i++)
     {
         groupArr[(i * numGroupColumns) + 0] = 1; //1 LED in group
         groupArr[(i * numGroupColumns) + 1] = i; //TODO: make proper array using real indices
     }
-    SBAuroraReactive.LedPattern[] patternArr = new SBAuroraReactive.LedPattern[devInfo.totalNumLeds];
-    for (uint i = 0; i < devInfo.totalNumLeds; i++)
-        patternArr[i] = SBAuroraReactive.LedPattern.Static;
 
-    SBAuroraReactive.LedColour[] colorArr = new SBAuroraReactive.LedColour[devInfo.totalNumLeds];
+    LedPattern[] patternArr = new LedPattern[devInfo.totalNumLeds];
+    for (uint i = 0; i < devInfo.totalNumLeds; i++)
+        patternArr[i] = LedPattern.Static;
+
+    LedColour[] colorArr = new LedColour[devInfo.totalNumLeds];
     for (uint i = 0; i < devInfo.totalNumLeds; i++)
     {
         colorArr[i].a = 0;
@@ -54,22 +53,27 @@ using (manager)
         colorArr[i].b = 0;
     }
 
-    SBAuroraReactive.LedSettings ledSettings = new();
-    ledSettings.persistentInDevice = false;
-    ledSettings.globalPatternMode = false;
-    ledSettings.pattern = SBAuroraReactive.LedPattern.Static;
-    ledSettings.payloadData = new SBAuroraReactive.LedPayloadData();
+    LedSettings ledSettings = new()
+    {
+        persistentInDevice = false,
+        globalPatternMode = false,
+        pattern = LedPattern.Static,
+        payloadData = new LedPayloadData()
+    };
+
     try
     {
         manager.OpenDevice(devInfo, false);
         deviceOpened = true;
         Console.WriteLine("Device opened.");
 
-        SBAuroraReactive.TimerSettings timerSettings = new();
-        timerSettings.dueTimeMs = 0;
-        timerSettings.periodicTimeDesiredMs = 33; //30fps
+        TimerSettings timerSettings = new()
+        {
+            dueTimeMs = 0,
+            periodicTimeDesiredMs = 33 //30fps
+        };
 
-        SBAuroraReactive.LEDManager.PeriodicTimerDelegate timerCode = (uint timerPeriodMs, ulong currentTimeTickMs, ulong totalTimeElapsedMs) =>
+        int timerCode(uint timerPeriodMs, ulong currentTimeTickMs, ulong totalTimeElapsedMs)
         {
             uint currentLedToLight = (uint)((totalTimeElapsedMs / (ulong)(timerPeriodMs)) % (ulong)(devInfo.totalNumLeds));
             for (uint i = 0; i < devInfo.totalNumLeds; i++)
@@ -95,7 +99,7 @@ using (manager)
             manager.SetLedSettings(ledSettings);
             ledSettings.payloadData = manager.LedPayloadCleanup(ledSettings.payloadData.Value, devInfo.totalNumLeds);
             return 0;
-        };
+        }
 
         timerSettings = manager.RegisterTimerCallback(timerCode, timerSettings);
         Console.WriteLine("Timer running.");
