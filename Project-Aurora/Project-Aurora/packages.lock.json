@@ -1915,6 +1915,15 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "aurora-lightfxwrapper": {
+        "type": "Project"
+      },
+      "aurora-logiledwrapper": {
+        "type": "Project"
+      },
+      "aurora-razerledwrapper": {
+        "type": "Project"
+      },
       "colorbox": {
         "type": "Project",
         "dependencies": {
