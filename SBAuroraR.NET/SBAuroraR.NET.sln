@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.168
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SBAuroraReactive", "SBAuroraReactive\SBAuroraReactive.vcxproj", "{053A704B-5C79-4CDE-B1FC-B952051ACAA0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSBAurora", "TestSBAurora\TestSBAurora.csproj", "{893ACCE2-1CA9-445E-94B6-E1A1949481F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSBAurora", "TestSBAurora\TestSBAurora.csproj", "{893ACCE2-1CA9-445E-94B6-E1A1949481F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,12 +23,12 @@ Global
 		{053A704B-5C79-4CDE-B1FC-B952051ACAA0}.Release|x64.Build.0 = Release|x64
 		{053A704B-5C79-4CDE-B1FC-B952051ACAA0}.Release|x86.ActiveCfg = Release|Win32
 		{053A704B-5C79-4CDE-B1FC-B952051ACAA0}.Release|x86.Build.0 = Release|Win32
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x64.ActiveCfg = Debug|x64
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x64.Build.0 = Debug|x64
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x86.ActiveCfg = Debug|x86
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x86.Build.0 = Debug|x86
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.ActiveCfg = Release|x64
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.Build.0 = Release|x64
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x64.Build.0 = Debug|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x86.Build.0 = Debug|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.ActiveCfg = Release|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.Build.0 = Release|Any CPU
 		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.ActiveCfg = Release|x86
 		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
