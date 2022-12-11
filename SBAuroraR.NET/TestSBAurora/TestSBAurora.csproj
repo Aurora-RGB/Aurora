@@ -4,6 +4,7 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
 		<IsWebBootstrapper>false</IsWebBootstrapper>
+		<DebugType>portable</DebugType>
 		
 		<PublishUrl>publish\</PublishUrl>
 		<Install>true</Install>
@@ -26,26 +27,7 @@
 		
 		<OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
 		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-		<Prefer32Bit>true</Prefer32Bit>
-		<!--<PostBuildEvent>xcopy /I /Y "$(TargetPath)" "..\..\Build\$(Configuration)\$(Platform)\"</PostBuildEvent>-->
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-		<DebugType>portable</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-	  <DebugType>portable</DebugType>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-	  <DebugType>portable</DebugType>
+		<AnalysisLevel>6.0-all</AnalysisLevel>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\SBAuroraReactive\SBAuroraReactive.vcxproj" />

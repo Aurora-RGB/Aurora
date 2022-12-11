@@ -29,8 +29,8 @@ Global
 		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Debug|x86.Build.0 = Debug|Any CPU
 		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.ActiveCfg = Release|Any CPU
 		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x64.Build.0 = Release|Any CPU
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.ActiveCfg = Release|x86
-		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.Build.0 = Release|x86
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.ActiveCfg = Release|Any CPU
+		{893ACCE2-1CA9-445E-94B6-E1A1949481F3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
