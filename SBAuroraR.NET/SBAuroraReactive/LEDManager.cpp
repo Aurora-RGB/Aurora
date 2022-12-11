@@ -21,14 +21,14 @@ array<SBAuroraReactive::EnumeratedDevice>^ SBAuroraReactive::LEDManager::EnumCon
 		{
 			USHORT usVendorID = 0;
 			USHORT usProductID = 0;
-			wchar_t serialNoBuf[256] ={ 0 };
-			wchar_t deviceInstanceBuf[256] ={ 0 };
-			DWORD sizeOfSerialNoBuf = (DWORD)array_countof(serialNoBuf)-1;
-			DWORD sizeOfDeviceInstanceBuf = (DWORD)array_countof(deviceInstanceBuf)-1;
+			wchar_t serialNoBuf[256] = { 0 };
+			wchar_t deviceInstanceBuf[256] = { 0 };
+			DWORD sizeOfSerialNoBuf = (DWORD)array_countof(serialNoBuf) - 1;
+			DWORD sizeOfDeviceInstanceBuf = (DWORD)array_countof(deviceInstanceBuf) - 1;
 			USHORT usLedInfoFlag = 0;
 			USHORT usTotalNumLeds = 0;
-			wchar_t deviceFriendlyNameBuf[256] ={ 0 };
-			DWORD sizeOfDeviceFriendlyNameBuf = (DWORD)array_countof(deviceFriendlyNameBuf)-1;
+			wchar_t deviceFriendlyNameBuf[256] = { 0 };
+			DWORD sizeOfDeviceFriendlyNameBuf = (DWORD)array_countof(deviceFriendlyNameBuf) - 1;
 			DWORD dwFlag = 0;
 			HRESULT hr = m_Instance->EnumConnectedDevices(
 				currIdx, &usVendorID, &usProductID,
@@ -59,7 +59,7 @@ array<SBAuroraReactive::EnumeratedDevice>^ SBAuroraReactive::LEDManager::EnumCon
 				currIdx++;
 			}
 		}
-	}	
+	}
 
 	return tempList->ToArray();
 }
@@ -191,9 +191,9 @@ SBAuroraReactive::LedPayloadData SBAuroraReactive::LEDManager::LedPayloadInitial
 }
 
 SBAuroraReactive::LedPayloadData SBAuroraReactive::LEDManager::LedPayloadFillupAll(
-	LedPayloadData srcPayload, 
-	u32 numLedGroups, array<LedPattern>^ patternArr, 
-	u32 ledGroupingStride, array<u32>^ groupingArr, 
+	LedPayloadData srcPayload,
+	u32 numLedGroups, array<LedPattern>^ patternArr,
+	u32 ledGroupingStride, array<u32>^ groupingArr,
 	u32 numColourLayers, u32 colourLayersStride, array<LedColour>^ ledColoursArr)
 {
 	pin_ptr<LedPattern> patternArrPinned = &patternArr[0];
@@ -271,7 +271,7 @@ SBAuroraReactive::LedPayloadData SBAuroraReactive::LEDManager::LedPayloadFillupL
 	param.colourLayer.bRed = colourLayer.r;
 	param.colourLayer.bGreen = colourLayer.g;
 	param.colourLayer.bBlue = colourLayer.b;
-	param.colourLayer.bAlpha = colourLayer.a;	
+	param.colourLayer.bAlpha = colourLayer.a;
 	param.pLedInfo = (PCTColourLayerForMultipleLedGroups)&srcPayload;
 
 	return RunPrepareLedInfo(m_Instance, reversedDirection ? CTLEDINFOCMD_FillupLedColourInReversedDirection : CTLEDINFOCMD_FillupLedColour, &param);
@@ -393,7 +393,7 @@ void SBAuroraReactive::LEDManager::SetLedSettings(LedSettings^ settingsData)
 
 		hr = m_Instance->ExecuteCommand(CTLEDMGRCMD_SetLedSettings, (LPARAM)&param, dwFlag);
 	}
-	
+
 	if (!SUCCEEDED(hr))
 		throw gcnew System::Runtime::InteropServices::ExternalException("Error in ICTLEDMgr::SetLedSettings", hr);
 }

@@ -14,4 +14,6 @@ typedef std::uint64_t u64;
 typedef std::uintptr_t uptr;
 
 template<typename T, size_t ARR_SIZE>
-size_t array_countof(T(&)[ARR_SIZE]) { return ARR_SIZE; }
+size_t array_countof(T(&)[ARR_SIZE]) {
+	return ARR_SIZE;
+}

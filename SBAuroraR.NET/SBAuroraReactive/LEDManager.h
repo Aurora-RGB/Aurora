@@ -7,7 +7,7 @@
 
 using namespace System;
 
-namespace SBAuroraReactive 
+namespace SBAuroraReactive
 {
 	public value struct DeviceId
 	{
@@ -132,13 +132,17 @@ namespace SBAuroraReactive
 	{
 	public:
 		LEDManager();
-		virtual ~LEDManager() { invalidate(); }
+		virtual ~LEDManager() {
+			invalidate();
+		}
 	protected:
-		!LEDManager() { invalidate(); }
+		!LEDManager() {
+			invalidate();
+		}
 
 	public:
 		array<EnumeratedDevice>^ EnumConnectedDevices();
-		
+
 		u32 OpenDevice(EnumeratedDevice devInfo, bool reverseLeds);
 		void CloseDevice();
 
@@ -172,9 +176,9 @@ namespace SBAuroraReactive
 
 		LedPayloadData LedPayloadInitialize(LedPayloadData srcPayload, u32 maxNumLedGroups, u32 maxNumLedsInEachGroup, u32 maxNumColourLayersInEachGroup);
 		LedPayloadData LedPayloadFillupAll(LedPayloadData srcPayload,
-			u32 numLedGroups, array<LedPattern>^ patternArr,
-			u32 ledGroupingStride, array<u32>^ groupingArr,
-			u32 numColourLayers, u32 colourLayersStride, array<LedColour>^ ledColoursArr);
+										   u32 numLedGroups, array<LedPattern>^ patternArr,
+										   u32 ledGroupingStride, array<u32>^ groupingArr,
+										   u32 numColourLayers, u32 colourLayersStride, array<LedColour>^ ledColoursArr);
 		LedPayloadData LedPayloadFillupNumLedGroups(LedPayloadData srcPayload, u32 numLedGroups);
 		LedPayloadData LedPayloadFillupGroupLedPattern(LedPayloadData srcPayload, u32 ledGroupIndex, LedPattern patternType);
 		LedPayloadData LedPayloadFillupNumLedsInGroup(LedPayloadData srcPayload, u32 ledGroupIndex, u32 numLedsInGroup);
@@ -184,7 +188,7 @@ namespace SBAuroraReactive
 		LedPayloadData LedPayloadCleanup(LedPayloadData srcPayload, u32 maxNumLedGroups);
 
 		void SetLedSettings(LedSettings^ settingsData);
-	
+
 	private:
 		void invalidate()
 		{

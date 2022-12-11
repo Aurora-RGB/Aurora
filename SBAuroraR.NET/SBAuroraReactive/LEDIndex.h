@@ -22,10 +22,10 @@ namespace SBAuroraReactive
 
 	public enum class Keyboard_LEDIndex : unsigned int
 	{
-		Esc				= 0,	// 0x00
-		F1				= 1,	// 0x01
-		F2				= 2,	// 0x02
-		F3				= 3,	// 0x03
+		Esc = 0,	// 0x00
+		F1 = 1,	// 0x01
+		F2 = 2,	// 0x02
+		F3 = 3,	// 0x03
 		F4 = 4,	// 0x04
 		F5 = 5,	// 0x05
 		F6 = 6,	// 0x06
@@ -79,11 +79,11 @@ namespace SBAuroraReactive
 		L = 54,	// 0x36
 		Semicolon = 55,	// 0x37
 		Apostrophe = 56,	// 0x38
-		NonUS57	= 57, // --> Applicable for German and Nordic keyboards (which is the key on the left of the Enter key).
+		NonUS57 = 57, // --> Applicable for German and Nordic keyboards (which is the key on the left of the Enter key).
 		Enter = 58,	// 0x3A
 		M4 = 59,	// 0x3B
 		LeftShift = 60,	// 0x3C
-		NonUS61	= 61, // --> Applicable for German and Nordic keyboards (which is the key on the right of the Left Shift key).
+		NonUS61 = 61, // --> Applicable for German and Nordic keyboards (which is the key on the right of the Left Shift key).
 		Z = 62,	// 0x3E
 		X = 63,	// 0x3F
 		C = 64,	// 0x40
