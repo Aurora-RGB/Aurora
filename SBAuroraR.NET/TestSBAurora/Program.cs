@@ -28,7 +28,7 @@ using (manager)
     }
 
     EnumeratedDevice devInfo = devices[theDevNum];
-    Console.WriteLine("Opening device idx {0}...", theDevNum);
+    Console.WriteLine($"Opening device idx {theDevNum}...");
 
     bool deviceOpened = false;
     const int numGroupColumns = 2;
