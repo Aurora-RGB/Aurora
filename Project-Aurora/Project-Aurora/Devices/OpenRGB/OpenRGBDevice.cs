@@ -1,12 +1,12 @@
-﻿using Aurora.Settings;
+﻿using Aurora.Modules.ProcessMonitor;
+using Aurora.Settings;
+using Microsoft.Scripting.Utils;
 using OpenRGB.NET;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
-using Aurora.Modules.ProcessMonitor;
-using Microsoft.Scripting.Utils;
 using Color = System.Drawing.Color;
 using DK = Aurora.Devices.DeviceKeys;
 using OpenRGBColor = OpenRGB.NET.Color;
@@ -36,7 +36,7 @@ namespace Aurora.Devices.OpenRGB
                 var ip = Global.Configuration.VarRegistry.GetVariable<string>($"{DeviceName}_ip");
                 var port = Global.Configuration.VarRegistry.GetVariable<int>($"{DeviceName}_port");
                 var connectSleepTimeSeconds = Global.Configuration.VarRegistry.GetVariable<int>($"{DeviceName}_connect_sleep_time");
-                
+
                 bool openrgbRunning = false;
                 var processMonitor = RunningProcessMonitor.Instance;
                 void OnProcessMonitorOnRunningProcessesChanged(object o, RunningProcessChanged runningProcessChanged)
@@ -52,7 +52,7 @@ namespace Aurora.Devices.OpenRGB
                     openrgbRunning = true;
                 }
                 processMonitor.RunningProcessesChanged += OnProcessMonitorOnRunningProcessesChanged;
-                
+
                 int remainingMillis = connectSleepTimeSeconds * 1000;
                 while (!openrgbRunning)
                 {
@@ -114,10 +114,10 @@ namespace Aurora.Devices.OpenRGB
             {
                 return;
             }
-            
+
             _devices = new List<HelperOpenRgbDevice>();
             Queue<DeviceKeys> mouseLights = new Queue<DeviceKeys>(OpenRgbKeyNames.MouseLights);
-            
+
             var fallbackKey = Global.Configuration.VarRegistry.GetVariable<DK>($"{DeviceName}_fallback_key");
             lock (_updateLock)
             {
@@ -223,8 +223,8 @@ namespace Aurora.Devices.OpenRGB
         {
             lock (_updateLock)
                 return from device in _devices
-                    from zone in device.OrgbDevice.Zones
-                    select CalibrationName(device, zone);
+                       from zone in device.OrgbDevice.Zones
+                       select CalibrationName(device, zone);
         }
 
         private string CalibrationName(HelperOpenRgbDevice device, Zone zone)
@@ -260,22 +260,40 @@ namespace Aurora.Devices.OpenRGB
         {
             for (var ledIndex = 0; ledIndex < OrgbDevice.Leds.Length; ledIndex++)
             {
+                DeviceKeys devKey = fallbackKey;
                 var orgbKeyName = OrgbDevice.Leds[ledIndex].Name;
-                if (OrgbDevice.Type == OpenRGBDeviceType.Mouse && (orgbKeyName.Equals("Logo") || orgbKeyName.Equals("Logo LED")))
+
+                var resultKey =
+                    OpenRgbKeyNames.KeyNames.TryGetValue(orgbKeyName, out devKey) ||
+                    OpenRgbKeyNames.KeyNames.TryGetValue("Key: " + orgbKeyName, out devKey) ||
+                    OpenRgbKeyNames.KeyNames.TryGetValue(orgbKeyName.Replace(" LED", ""), out devKey) ||
+                    OpenRgbKeyNames.KeyNames.TryGetValue("Key: " + orgbKeyName.Replace(" LED", ""), out devKey);
+
+                if (OrgbDevice.Type == OpenRGBDeviceType.Mouse)
                 {
-                    Mapping[ledIndex] = DeviceKeys.Peripheral_Logo;
+                    // Remove LED postfix
+                    orgbKeyName = orgbKeyName.Replace(" LED", "");
+
+                    if (orgbKeyName.Equals("Logo"))
+                    {
+                        resultKey = true;
+                        devKey = DeviceKeys.Peripheral_Logo;
+                    }
+                    else if (orgbKeyName.Equals("Primary"))
+                    {
+                        // Tested with Logitech G502
+                        resultKey = true;
+                        devKey = DeviceKeys.PERIPHERAL_DPI;
+                    }
+                    else if (orgbKeyName.Equals("Underglow"))
+                    {
+                        // Tested with Asus PUGIO
+                        resultKey = true;
+                        devKey = DeviceKeys.Peripheral_FrontLight;
+                    }
                 }
-                else if (OpenRgbKeyNames.KeyNames.TryGetValue(orgbKeyName, out var devKey) ||
-                         OpenRgbKeyNames.KeyNames.TryGetValue(orgbKeyName.Replace(" LED", ""), out devKey) ||
-                         OpenRgbKeyNames.KeyNames.TryGetValue("Key: " + orgbKeyName, out devKey)
-                        )
-                {
-                    Mapping[ledIndex] = devKey;
-                }
-                else
-                {
-                    Mapping[ledIndex] = fallbackKey;
-                }
+
+                Mapping[ledIndex] = resultKey ? devKey : fallbackKey;
             }
 
             //if we have the option enabled,
