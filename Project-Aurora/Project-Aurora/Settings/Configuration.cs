@@ -716,7 +716,7 @@ namespace Aurora.Settings
             {"Aurora.Devices.Asus.AsusDevice" , typeof(AsusDevice)},
             {"Aurora.Devices.CoolerMaster.CoolerMasterDevice", typeof(CoolerMasterRgbNetDevice)},
             {"Aurora.Devices.AtmoOrbDevice.AtmoOrbDevice", typeof(AtmoOrbDevice)},
-            {"Aurora.Devices.OpenRGB", typeof(OpenRgbAuroraDevice)},
+            {"Aurora.Devices.OpenRGB", typeof(OpenRGBDevice)},
         };
 
         private static readonly List<string> Discard = new()
