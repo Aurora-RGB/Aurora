@@ -25,7 +25,7 @@ public class UpdateManager
     private float _downloadProgress;
     private float _extractProgress;
     private int? _previousPercentage;
-    private int _secondsLeft = 15;
+    private int _secondsLeft = 3;
 
     public readonly Release LatestRelease;
     private readonly LogEntry _downloadLogEntry = new("Download 0%");
