@@ -165,23 +165,30 @@ public static class RazerChromaUtils
                             </devices>
                             """;
 
+        List<Task> tasks = [];
         var chromaPath = GetChromaPath();
-        var length = File.Open(chromaPath + "\\Devices.xml", FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
-        if (length <= file.Length)
-        {
-            return;
-        }
-
-        List<Task> tasks = new();
         if (chromaPath != null)
         {
-            tasks.Add(File.WriteAllTextAsync(chromaPath + "\\Devices.xml", file));
+            var length = File.Open(Path.Combine(chromaPath, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
+            if (length <= file.Length)
+            {
+                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath, "Devices.xml"), file));
+            }
         }
 
         var chromaPath64 = GetChromaPath64();
         if (chromaPath64 != null)
         {
-            tasks.Add(File.WriteAllTextAsync(chromaPath64 + "\\Devices.xml", file));
+            var length64 = File.Open(Path.Combine(chromaPath64, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
+            if (length64 <= file.Length)
+            {
+                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath64, "Devices.xml"), file));
+            }
+        }
+
+        if (tasks.Count > 0)
+        {
+            return;
         }
 
         await Task.WhenAll(tasks.ToArray());
