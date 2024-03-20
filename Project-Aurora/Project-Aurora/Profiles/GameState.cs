@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text.Json.Serialization.Metadata;
 using AuroraRgb.Nodes;
 using AuroraRgb.Utils;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace AuroraRgb.Profiles;
@@ -11,7 +13,6 @@ namespace AuroraRgb.Profiles;
 /// A class representing various information retaining to the game.
 /// </summary>
 public interface IGameState {
-    JObject _ParsedData { get; }
     string Json { get; }        
     string GetNode(string name);
 
@@ -41,6 +42,7 @@ public class GameState : IGameState
     [GameStateIgnore] public JObject _ParsedData { get; }
     [GameStateIgnore] public string Json { get; }
 
+    [PublicAPI] // game profiles can still access this
     public LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
 
     /// <summary>
@@ -110,6 +112,99 @@ public class GameState : IGameState
     /// </summary>
     /// <returns>JSON String</returns>
     public override string ToString() => Json;
+}
+
+// WIP to be used for gso nodes with System.Text.Json parsing
+public class JsonGameState : IGameState
+{
+    //TODO replace this
+    public string Json { get; } = "";
+
+    private static readonly Dictionary<string, Func<object, string>> StringGetters = new();
+    private static readonly Dictionary<string, Func<object, double>> NumberGetters = new();
+    private static readonly Dictionary<string, Func<object, bool>> BoolGetters = new();
+    private static readonly Dictionary<string, Func<object, Enum>> EnumGetters = new();
+
+    protected static void PrepProps(IEnumerable<JsonPropertyInfo> jsonPropertyInfos, Func<object, object?>? parentGetter = null, string root = "")
+    {
+        foreach (var jsonPropertyInfo in jsonPropertyInfos)
+        {
+            var propType = jsonPropertyInfo.PropertyType;
+            if (propType.IsEnum)
+            {
+                EnumGetters[root + propType.Name] = p =>
+                {
+                    var parent = parentGetter?.Invoke(p) ?? p;
+                    return jsonPropertyInfo.Get!.Invoke(parent) as Enum;
+                };
+            }else if (propType.IsAssignableTo(typeof(string)))
+            {
+                StringGetters[root + propType.Name] = p =>
+                {
+                    var parent = parentGetter?.Invoke(p) ?? p;
+                    return jsonPropertyInfo.Get!.Invoke(parent) as string ?? string.Empty;
+                };
+            }else if (propType.IsAssignableTo(typeof(double)))
+            {
+                NumberGetters[root + propType.Name] = p =>
+                {
+                    var parent = parentGetter?.Invoke(p) ?? p;
+                    var o = jsonPropertyInfo.Get!.Invoke(parent);
+                    if (o == null)
+                    {
+                        return 0.0;
+                    }
+
+                    return (double)o;
+                };
+            }else if (propType.IsAssignableTo(typeof(bool)))
+            {
+                BoolGetters[root + propType.Name] = p =>
+                {
+                    var parent = parentGetter?.Invoke(p) ?? p;
+                    var o = jsonPropertyInfo.Get!.Invoke(parent);
+                    if (o == null)
+                    {
+                        return false;
+                    }
+
+                    return (bool)o;
+                };
+            }else if (propType.IsClass)
+            {
+                PrepProps(jsonPropertyInfo.Options.GetTypeInfo(propType).Properties, jsonPropertyInfo.Get, root + VariablePath.Seperator + jsonPropertyInfo.Name);
+            }
+        }
+    }
+    public string GetNode(string name)
+    {
+        return StringGetters[name].Invoke(this);
+    }
+
+    public double GetNumber(VariablePath path)
+    {
+        return NumberGetters[path.GsiPath].Invoke(this);
+    }
+
+    public bool GetBool(VariablePath path)
+    {
+        return BoolGetters[path.GsiPath].Invoke(this);
+    }
+
+    public string GetString(VariablePath path)
+    {
+        return GetNode(path.GsiPath);
+    }
+
+    public Enum GetEnum(VariablePath path)
+    {
+        return EnumGetters[path.GsiPath].Invoke(this);
+    }
+
+    public TEnum GetEnum<TEnum>(VariablePath path) where TEnum : Enum
+    {
+        return (TEnum)GetEnum(path);
+    }
 }
 
 /// <summary>

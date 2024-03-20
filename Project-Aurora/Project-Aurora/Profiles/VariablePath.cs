@@ -8,6 +8,7 @@ namespace AuroraRgb.Profiles;
 [JsonConverter(typeof(VariablePathConverter))]
 public class VariablePath
 {
+    public const string Seperator = "/";
     public static readonly VariablePath Empty = new("");
 
     private static readonly Dictionary<string, string> PathMigrations = new()
