@@ -152,7 +152,7 @@ public sealed class AuroraApp : IDisposable
     {
         Application.Current.Dispatcher.BeginInvoke(async () =>
         {
-            if (Application.Current.MainWindow is not ConfigUI mainWindow)
+            if (Application.Current.MainWindow is not ConfigUi mainWindow)
             {
                 var configUi = await CreateWindow();
                 Application.Current.MainWindow = configUi;
@@ -163,11 +163,11 @@ public sealed class AuroraApp : IDisposable
         });
     }
 
-    private async Task<ConfigUI> CreateWindow()
+    private async Task<ConfigUi> CreateWindow()
     {
         Global.logger.Information("Loading ConfigUI...");
         var stopwatch = Stopwatch.StartNew();
-        var configUi = new ConfigUI(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
+        var configUi = new ConfigUi(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
             LightingStateManagerModule.LightningStateManager, _controlInterface);
         Global.logger.Debug("new ConfigUI() took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);

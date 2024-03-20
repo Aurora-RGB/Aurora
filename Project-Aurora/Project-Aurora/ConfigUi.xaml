@@ -6,7 +6,7 @@
              xmlns:fluentWpf="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
              xmlns:auroraRgb="clr-namespace:AuroraRgb"
              xmlns:controls="clr-namespace:AuroraRgb.Settings.Controls"
-             x:Class="AuroraRgb.ConfigUI"
+             x:Class="AuroraRgb.ConfigUi"
              AcrylicWindowStyle="NoIcon"
              FallbackColor="#09000000"
              ExtendViewIntoTitleBar="True"

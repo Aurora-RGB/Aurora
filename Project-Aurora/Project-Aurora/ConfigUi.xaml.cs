@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -37,7 +36,7 @@ using Timer = System.Timers.Timer;
 namespace AuroraRgb;
 
 [DoNotNotify]
-partial class ConfigUI : INotifyPropertyChanged
+partial class ConfigUi : INotifyPropertyChanged
 {
     private readonly  Control_Settings _settingsControl;
     private readonly Control_LayerControlPresenter _layerPresenter = new();
@@ -60,7 +59,7 @@ partial class ConfigUI : INotifyPropertyChanged
     private readonly Func<Task> _keyboardTimerCallback;
 
     public static readonly DependencyProperty FocusedApplicationProperty = DependencyProperty.Register(
-        nameof(FocusedApplication), typeof(Application), typeof(ConfigUI),
+        nameof(FocusedApplication), typeof(Application), typeof(ConfigUi),
         new PropertyMetadata(null, FocusedProfileChanged));
 
     private readonly Task<KeyboardLayoutManager> _layoutManager;
@@ -100,7 +99,7 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private CancellationTokenSource _keyboardUpdateCancel = new();
 
-    public ConfigUI(Task<ChromaReader?> rzSdkManager, Task<PluginManager> pluginManager,
+    public ConfigUi(Task<ChromaReader?> rzSdkManager, Task<PluginManager> pluginManager,
         Task<KeyboardLayoutManager> layoutManager, Task<AuroraHttpListener?> httpListener,
         Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager, AuroraControlInterface controlInterface)
     {
@@ -487,10 +486,8 @@ partial class ConfigUI : INotifyPropertyChanged
 
         foreach (FrameworkElement ctrl in profiles_stack.Children)
         {
-            Image img = ctrl as Image ?? (ctrl is Grid ? ((Grid)ctrl).Children[0] as Image : null);
-            if (img == null) continue;
-            Application profile = img.Tag as Application;
-            if (profile == null) continue;
+            var img = ctrl as Image ?? (ctrl is Grid grid ? grid.Children[0] as Image : null);
+            if (img?.Tag is not Application profile) continue;
             img.Visibility = profile.Settings.Hidden && !value ? Visibility.Collapsed : Visibility.Visible;
             img.Opacity = profile.Settings.Hidden ? 0.5 : 1;
         }
@@ -498,7 +495,10 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private void mbtnHidden_Checked(object? sender, RoutedEventArgs e)
     {
-        MenuItem btn = (MenuItem)sender;
+        if (sender is not MenuItem btn)
+        {
+            return;
+        }
 
         if (cmenuProfiles.PlacementTarget is not Image img) return;
         img.Opacity = btn.IsChecked ? 0.5 : 1;
@@ -517,12 +517,12 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private void ContextMenu_Opened(object? sender, RoutedEventArgs e)
     {
-        ContextMenu context = (ContextMenu)e.OriginalSource;
+        var context = (ContextMenu)e.OriginalSource;
 
-        if (!(context.PlacementTarget is Image img))
+        if (context.PlacementTarget is not Image img)
             return;
 
-        Application profile = img.Tag as Application;
+        var profile = img.Tag as Application;
         context.DataContext = profile;
     }
 
@@ -564,8 +564,8 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private static void FocusedProfileChanged(DependencyObject source, DependencyPropertyChangedEventArgs e)
     {
-        ConfigUI th = (ConfigUI)source;
-        Application value = e.NewValue as Application;
+        var th = (ConfigUi)source;
+        var value = e.NewValue as Application;
 
         th.gridManagers.Visibility = value == null ? Visibility.Collapsed : Visibility.Visible;
 
@@ -582,14 +582,14 @@ partial class ConfigUI : INotifyPropertyChanged
             return;
         }
 
-        string name = (string)image.Tag;
+        var name = (string)image.Tag;
 
         var lightingStateManager = await _lightingStateManager;
-        if (!lightingStateManager.Events.ContainsKey(name)) return;
+        if (!lightingStateManager.Events.TryGetValue(name, out var value)) return;
+        var applicationName = (((Application)value).Settings as GenericApplicationSettings).ApplicationName;
         if (MessageBox.Show(
                 "Are you sure you want to delete profile for " +
-                (((Application)lightingStateManager.Events[name]).Settings as
-                    GenericApplicationSettings).ApplicationName + "?", "Remove Profile", MessageBoxButton.YesNo,
+                applicationName + "?", "Remove Profile", MessageBoxButton.YesNo,
                 MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
         var eventList = Global.Configuration.ProfileOrder
             .ToDictionary(x => x, x => lightingStateManager.Events[x])
@@ -602,11 +602,11 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private async void AddProfile_MouseDown(object? sender, MouseButtonEventArgs e)
     {
-        Window_ProcessSelection dialog = new Window_ProcessSelection { CheckCustomPathExists = true, ButtonLabel = "Add Profile", Title ="Add Profile" };
+        var dialog = new Window_ProcessSelection { CheckCustomPathExists = true, ButtonLabel = "Add Profile", Title ="Add Profile" };
         if (dialog.ShowDialog() != true || string.IsNullOrWhiteSpace(dialog.ChosenExecutablePath))
             return; // do not need to check if dialog is already in excluded_programs since it is a Set and only contains unique items by definition
 
-        string filename = Path.GetFileName(dialog.ChosenExecutablePath.ToLowerInvariant());
+        var filename = Path.GetFileName(dialog.ChosenExecutablePath.ToLowerInvariant());
 
         var lightingStateManager = await _lightingStateManager;
         if (lightingStateManager.Events.ContainsKey(filename))
@@ -620,11 +620,11 @@ partial class ConfigUI : INotifyPropertyChanged
             }
         }
 
-        GenericApplication genAppPm = new GenericApplication(filename);
+        var genAppPm = new GenericApplication(filename);
         genAppPm.Initialize();
         ((GenericApplicationSettings)genAppPm.Settings).ApplicationName = Path.GetFileNameWithoutExtension(filename);
 
-        Icon ico = System.Drawing.Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
+        var ico = System.Drawing.Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
 
         if (!Directory.Exists(genAppPm.GetProfileFolderPath()))
             Directory.CreateDirectory(genAppPm.GetProfileFolderPath());
@@ -652,13 +652,13 @@ partial class ConfigUI : INotifyPropertyChanged
     private void cmbtnOpenBitmapWindow_Clicked(object? sender, RoutedEventArgs e) => Window_BitmapView.Open();
     private void cmbtnOpenHttpDebugWindow_Clicked(object? sender, RoutedEventArgs e) =>Window_GSIHttpDebug.Open(_httpListener);
 
-    private void UpdateManagerStackFocus(object focusedElement, bool forced = false)
+    private void UpdateManagerStackFocus(object? focusedElement, bool forced = false)
     {
         if (focusedElement is not FrameworkElement element || (element.Equals(_selectedManager) && !forced)) return;
         _selectedManager = element;
         if(gridManagers.ActualHeight != 0)
             stackPanelManagers.Height = gridManagers.ActualHeight;
-        double totalHeight = stackPanelManagers.Height;
+        var totalHeight = stackPanelManagers.Height;
 
         foreach (FrameworkElement child in stackPanelManagers.Children)
         {
@@ -672,20 +672,20 @@ partial class ConfigUI : INotifyPropertyChanged
 
     private void ctrlLayerManager_PreviewMouseDown(object? sender, MouseButtonEventArgs e)
     {
-        if (!sender.Equals(_selectedManager))
+        if (_selectedManager != sender)
             SelectedControl = FocusedApplication.Profile.Layers.Count > 0 ? _layerPresenter : FocusedApplication.Control;
         UpdateManagerStackFocus(sender);
     }
 
     private void ctrlOverlayLayerManager_PreviewMouseDown(object? sender, MouseButtonEventArgs e) {
-        if (!sender.Equals(_selectedManager))
+        if (_selectedManager != sender)
             SelectedControl = FocusedApplication.Profile.OverlayLayers.Count > 0 ? _layerPresenter : FocusedApplication.Control;
         UpdateManagerStackFocus(sender);
     }
 
     private void ctrlProfileManager_PreviewMouseDown(object? sender, MouseButtonEventArgs e)
     {
-        if (!sender.Equals(_selectedManager))
+        if (_selectedManager != sender)
             SelectedControl = _profilePresenter;
         UpdateManagerStackFocus(sender);
     }
