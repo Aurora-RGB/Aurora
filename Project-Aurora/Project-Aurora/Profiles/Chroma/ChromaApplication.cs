@@ -49,9 +49,9 @@ public class ChromaApplication : Application
         RzHelper.ChromaAppChanged -= RzHelperOnChromaAppChanged;
     }
 
-    protected override void LoadSettings(Type settingsType)
+    protected override void LoadSettings()
     {
-        base.LoadSettings(settingsType);
+        base.LoadSettings();
 
         ((ChromaApplicationSettings)Settings).ExcludedPrograms.CollectionChanged += ExcludedProgramsOnCollectionChanged;
         FilterAndSetProcesses();

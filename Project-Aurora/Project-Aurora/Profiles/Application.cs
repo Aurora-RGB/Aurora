@@ -56,7 +56,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    protected Application(LightEventConfig config)
+    protected Application(LightEventConfig config) : base(Path.Combine(Global.AppDataDirectory, "Profiles", config.ID))
     {
         Config = config;
         SettingsSavePath = Path.Combine(GetProfileFolderPath(), "settings.json");
@@ -106,7 +106,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (Initialized)
             return Initialized;
 
-        LoadSettings(Config.SettingsType);
+        LoadSettings();
         LoadProfiles();
         Initialized = true;
         return Initialized;
@@ -616,16 +616,16 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (Disposed || Config == null)
             return;
 
-        SaveSettings(Config.SettingsType);
+        SaveSettings();
         SaveProfiles();
     }
 
-    protected override void LoadSettings(Type settingsType)
+    protected override void LoadSettings()
     {
-        base.LoadSettings(settingsType);
+        base.LoadSettings();
 
         Settings.PropertyChanged += (_, e) => {
-            SaveSettings(Config.SettingsType);
+            SaveSettings();
         };
     }
 
