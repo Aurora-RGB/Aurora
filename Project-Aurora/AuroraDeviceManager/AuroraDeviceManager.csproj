@@ -17,6 +17,9 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
         <WarningsAsErrors>CA2244</WarningsAsErrors>
+
+        <Configurations>Release;Debug</Configurations>
+        <Platforms>x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>

@@ -25,6 +25,9 @@
     <OutputPath>$(SolutionDir)..\Build\$(Configuration)\win10-x64</OutputPath>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
+
+    <Configurations>Release;Debug</Configurations>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">

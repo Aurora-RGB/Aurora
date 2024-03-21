@@ -2,18 +2,30 @@
 
     <PropertyGroup>
         <AssemblyName>Aurora</AssemblyName>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishSelfContained>true</PublishSelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+        <PublishTrimmed>true</PublishTrimmed>
+
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <UseRidGraph>true</UseRidGraph>
-        <OutputPath>$(SolutionDir)..\Project-Aurora\Build\$(Configuration)\win10-x64</OutputPath>
+        <OutputPath>$(SolutionDir)..\Build\$(Configuration)\win10-x64</OutputPath>
+        <Configurations>Release;Debug</Configurations>
+        <Platforms>x64</Platforms>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+        <Optimize>true</Optimize>
     </PropertyGroup>
 
     <ItemGroup>

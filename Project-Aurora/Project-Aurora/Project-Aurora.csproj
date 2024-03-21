@@ -23,11 +23,13 @@
     <ApplicationIcon>Resources\aurora_icon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
-    <Configurations>Debug;Release</Configurations>
+    <Configurations>Release;Debug</Configurations>
     <Nullable>enable</Nullable>
     <StartupObject>AuroraRgb.App</StartupObject>
     
     <WarningsAsErrors>CA2244;SYSLIB1054</WarningsAsErrors>
+    
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">

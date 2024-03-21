@@ -13,6 +13,8 @@
     <Product>Plugin-Example</Product>
     <Copyright>Copyright ©  2017</Copyright>
     <UseWPF>true</UseWPF>
+    <Configurations>Release;Debug</Configurations>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
