@@ -101,6 +101,7 @@ public partial class Control_Keybind
 
     private async void Control_Keybind_OnLoaded(object sender, RoutedEventArgs e)
     {
+        (await InputsModule.InputEvents).KeyDown -= InputEventsKeyDown;
         (await InputsModule.InputEvents).KeyDown += InputEventsKeyDown;
     }
 

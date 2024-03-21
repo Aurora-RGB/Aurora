@@ -100,6 +100,11 @@ public sealed class InputEvents : IInputEvents
     /// <returns>if input should be interrupted or not</returns>
     private bool DeviceOnKeyboardInput(RawKeyboard keyboardData)
     {
+        if (HasNoListener())
+        {
+            return false;
+        }
+
         try
         {
             var flags = keyboardData.Flags;
@@ -116,13 +121,9 @@ public sealed class InputEvents : IInputEvents
 
             var down = (flags & RawKeyboardFlags.Up) == 0;
             SetModifierKeys(key, down);
-            if (down)
+            if (!ProcessKeyList(down, key))
             {
-                _pressedKeySequence.Add(key);
-            }
-            else
-            {
-                _pressedKeySequence.RemoveAll(k => k == key);
+                return false;
             }
 
             PressedKeys = _pressedKeySequence.ToArray();
@@ -144,6 +145,33 @@ public sealed class InputEvents : IInputEvents
             Global.logger.Error(exc, "Exception while handling keyboard input");
             return false;
         }
+    }
+
+    private bool HasNoListener()
+    {
+        var noKeyDownListeners = KeyDown == null || KeyDown.GetInvocationList().Length == 0;
+        var noKeyUpListeners = KeyUp == null || KeyUp?.GetInvocationList().Length == 0;
+        return noKeyDownListeners && noKeyUpListeners;
+    }
+
+    private bool ProcessKeyList(bool down, Keys key)
+    {
+        if (down)
+        {
+            if (_pressedKeySequence.Contains(key))
+            {
+                // this key is already processed
+                return false;
+            }
+            _pressedKeySequence.Add(key);
+        }
+        else
+        {
+            var removed = _pressedKeySequence.Remove(key);
+            return removed;   // return if key is removed
+        }
+
+        return true;
     }
 
     private void SetModifierKeys(Keys key, bool down)

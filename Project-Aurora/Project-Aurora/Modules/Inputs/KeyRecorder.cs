@@ -9,7 +9,7 @@ public sealed class KeyRecorder : IDisposable
     private readonly IInputEvents _inputEvents;
     private string _recordingType = "";
     private bool _isSingleKey;
-    private List<DeviceKeys> _recordedKeys = new();
+    private List<DeviceKeys> _recordedKeys = [];
     public delegate void RecordingFinishedHandler(DeviceKeys[] resultingKeys);
     public event RecordingFinishedHandler? FinishedRecording;
 
