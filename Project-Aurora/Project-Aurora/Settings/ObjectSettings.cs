@@ -5,16 +5,20 @@ using Newtonsoft.Json;
 namespace AuroraRgb.Settings;
 
 [JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
-public class ObjectSettings<T>(string settingsSavePath)
-    where T : new()
+public class ObjectSettings<T>
 {
-    protected string SettingsSavePath { get; init; } = settingsSavePath;
-    public T? Settings { get; protected set; }
+    protected string SettingsSavePath { get; set; }
+    public T Settings { get; protected set; }
 
     public void SaveSettings()
     {
+        SaveSettings(typeof(T));
+    }
+
+    protected void SaveSettings(Type settingsType)
+    {
         if (Settings == null) {
-            Settings = new T();
+            Settings = (T)Activator.CreateInstance(settingsType);
             SettingsCreateHook();
         }
 
@@ -25,28 +29,33 @@ public class ObjectSettings<T>(string settingsSavePath)
         File.WriteAllText(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented }));
     }
 
-    /// <summary>A method that is called immediately after the settings being created. Can be overriden to provide specialized handling.</summary>
+    /// <summary>A method that is called immediately after the settings being created. Can be overriden to provide specalized handling.</summary>
     protected virtual void SettingsCreateHook() { }
 
-    protected virtual void LoadSettings()
+    protected void LoadSettings()
+    {
+        LoadSettings(typeof(T));
+    }
+
+    protected virtual void LoadSettings(Type settingsType)
     {
         if (File.Exists(SettingsSavePath))
         {
             try
             {
-                Settings = JsonConvert.DeserializeObject<T>(File.ReadAllText(SettingsSavePath), new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+                Settings = (T)JsonConvert.DeserializeObject(File.ReadAllText(SettingsSavePath), settingsType, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
                 if (Settings == null)
                 {
-                    SaveSettings();
+                    SaveSettings(settingsType);
                 }
             }
             catch (Exception exc)
             {
-                Global.logger.Error(exc, """Exception occured while loading \"{Name}\" Settings""", GetType().Name);
-                SaveSettings();
+                Global.logger.Error(exc, "Exception occured while loading \\\"{Name}\\\" Settings", GetType().Name);
+                SaveSettings(settingsType);
             }
         }
         else
-            SaveSettings();
+            SaveSettings(settingsType);
     }
 }
