@@ -13,7 +13,7 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <UseRidGraph>true</UseRidGraph>
-        <OutputPath>$(SolutionDir)..\Build\$(Configuration)\win10-x64</OutputPath>
+        <OutputPath>$(SolutionDir)..\Project-Aurora\Build\$(Configuration)\win10-x64</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
