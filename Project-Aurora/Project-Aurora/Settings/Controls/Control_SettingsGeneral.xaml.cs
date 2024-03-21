@@ -1,75 +1,31 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using AuroraRgb.Utils;
 using AuroraRgb.Utils.IpApi;
-using Microsoft.Win32.TaskScheduler;
 using Xceed.Wpf.Toolkit;
 
 namespace AuroraRgb.Settings.Controls;
 
 public partial class Control_SettingsGeneral
 {
-    private const string StartupTaskId = "AuroraStartup";
+    /// <summary>The excluded program the user has selected in the excluded list.</summary>
+    private string SelectedExcludedProgram { get; set; } = string.Empty;
     
     public Control_SettingsGeneral()
     {
         InitializeComponent();
 
         TransparencyCheckbox.IsEnabled = TransparencyComponent.UseMica;
-        
-        DataContext = Global.Configuration;
-
-        SetAutostartTask();
     }
 
-    private void SetAutostartTask()
+    private void Control_SettingsGeneral_OnLoaded(object sender, RoutedEventArgs e)
     {
-        try
-        {
-            using var service = new TaskService();
-            var task = service.FindTask(StartupTaskId);
-            var exePath = Assembly.GetExecutingAssembly().Location.Replace(".dll", ".exe");
-
-            var taskDefinition = task != null ? task.Definition : service.NewTask();
-
-            //Update path of startup task
-            taskDefinition.RegistrationInfo.Description = "Start Aurora on Startup";
-            taskDefinition.Actions.Clear();
-            taskDefinition.Actions.Add(new ExecAction(exePath, "-silent", Path.GetDirectoryName(exePath)));
-            if (task != null)
-            {
-                startDelayAmount.Value = task.Definition.Triggers.FirstOrDefault(t =>
-                    t.TriggerType == TaskTriggerType.Logon
-                ) is LogonTrigger trigger
-                    ? (int)trigger.Delay.TotalSeconds
-                    : 0;
-            }
-            else
-            {
-                taskDefinition.Triggers.Add(new LogonTrigger { Enabled = true });
-
-                taskDefinition.Principal.RunLevel = TaskRunLevel.Highest;
-                taskDefinition.Settings.DisallowStartIfOnBatteries = false;
-                taskDefinition.Settings.DisallowStartOnRemoteAppSession = false;
-                taskDefinition.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-            }
-
-            task = service.RootFolder.RegisterTaskDefinition(StartupTaskId, taskDefinition);
-            RunAtWinStartup.IsChecked = task.Enabled;
-        }
-        catch (Exception exc)
-        {
-            Global.logger.Error(exc, "Error caught when updating startup task");
-        }
+        DataContext = Global.Configuration;
+        RunAtWinStartup.IsChecked = AutoStartUtils.GetAutostartTask(out var delayAmount);
+        startDelayAmount.Value = delayAmount;
     }
-
-    /// <summary>The excluded program the user has selected in the excluded list.</summary>
-    public string SelectedExcludedProgram { get; set; }
 
     private void ExcludedAdd_Click(object? sender, RoutedEventArgs e)
     {
@@ -90,32 +46,19 @@ public partial class Control_SettingsGeneral
     private void RunAtWinStartup_Checked(object? sender, RoutedEventArgs e)
     {
         if (!IsLoaded || sender is not CheckBox checkBox) return;
-        try
-        {
-            using var ts = new TaskService();
-            //Find existing task
-            var task = ts.FindTask(StartupTaskId);
-            task.Enabled = checkBox.IsChecked.Value;
-        }
-        catch (Exception exc)
-        {
-            Global.logger.Error(exc, "RunAtWinStartup_Checked Exception: ");
-        }
+        AutoStartUtils.SetEnabled(checkBox.IsChecked.GetValueOrDefault());
     }
 
     private void HighPriorityCheckbox_Checked(object? sender, RoutedEventArgs e)
     {
+        if (!IsLoaded) return;
         Process.GetCurrentProcess().PriorityClass = Global.Configuration.HighPriority ? ProcessPriorityClass.High : ProcessPriorityClass.Normal;
     }
 
     private void StartDelayAmount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        using var service = new TaskService();
-        var task = service.FindTask(StartupTaskId);
-        if (task?.Definition.Triggers.FirstOrDefault(t => t.TriggerType == TaskTriggerType.Logon) is not
-            LogonTrigger trigger) return;
-        trigger.Delay = new TimeSpan(0, 0, ((IntegerUpDown)sender).Value ?? 0);
-        task.RegisterChanges();
+        if (!IsLoaded || sender is not IntegerUpDown integerUpDown) return;
+        AutoStartUtils.SetStartupDelay(integerUpDown.Value ?? 0);
     }
 
     private async void ResetLocation_Clicked(object sender, RoutedEventArgs e)

@@ -9,6 +9,7 @@
              xmlns:settings="clr-namespace:AuroraRgb.Settings"
              xmlns:audioCapture="clr-namespace:AuroraRgb.Modules.AudioCapture"
              xmlns:controls="clr-namespace:AuroraRgb.Settings.Controls"
+             Loaded="Control_SettingsGeneral_OnLoaded"
              mc:Ignorable="d">
     <UserControl.Resources>
         <utils1:StringFormatConverter Format="x {0:0.0}" x:Key="AwayEffectSpeedLabelFormatter" />

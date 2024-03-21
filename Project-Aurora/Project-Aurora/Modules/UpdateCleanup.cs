@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using AuroraRgb.Utils;
 using Lombok.NET;
 
 namespace AuroraRgb.Modules;
@@ -13,6 +14,7 @@ public partial class UpdateCleanup : AuroraModule
 {
     protected override Task Initialize()
     {
+        AutoStartUtils.GetAutostartTask(out _);
         if (!Global.Configuration.Migrations.Contains("net8v2"))
         {
             Net8V2Migration();
