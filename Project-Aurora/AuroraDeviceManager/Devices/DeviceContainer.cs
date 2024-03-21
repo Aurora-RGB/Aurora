@@ -18,7 +18,7 @@ public sealed class DeviceContainer : IDisposable
     private readonly SemaphoreSlim _actionLock = new(1);
 
     private readonly MemorySharedStruct<DeviceInformation> _deviceInformation;
-    private readonly MemorySharedArray<DeviceVariable> _deviceVariables;
+    private MemorySharedArray<DeviceVariable> _deviceVariables;
 
     private string SharedObjectName => Device.DeviceName;
 
@@ -153,7 +153,9 @@ public sealed class DeviceContainer : IDisposable
     {
         Global.DeviceConfig.VarRegistry.Combine(Device.RegisteredVariables);
 
+        _deviceVariables.Dispose();
         var deviceVariables = CreateSharedDeviceVariables();
+        _deviceVariables = new MemorySharedArray<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
         _deviceVariables.WriteCollection(deviceVariables);
     }
 
