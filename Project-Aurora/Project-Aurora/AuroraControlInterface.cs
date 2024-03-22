@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Devices;
@@ -54,7 +55,17 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
     {
         //to only shutdown Aurora itself
         DeviceManager?.Detach();
-        Application.Current.Shutdown();
+        if (Thread.CurrentThread == Application.Current.Dispatcher.Thread)
+        {
+            Application.Current.Shutdown();
+        }
+        else
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                Application.Current.Shutdown();
+            });
+        }
     }
 
     public async Task RestartDevices()
