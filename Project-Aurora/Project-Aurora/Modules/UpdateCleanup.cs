@@ -100,14 +100,12 @@ public partial class UpdateCleanup : AuroraModule
             "YeeLightAPI.dll",
             "mscordaccore_amd64_amd64_6.0.2623.60508.dll",
             "mscordaccore_amd64_amd64_6.0.2724.6912.dll",
+            "wpfgfx_cor3.dll",
         ];
 
-        foreach (var file in files)
+        foreach (var file in files.Where(File.Exists))
         {
-            if (File.Exists(file))
-            {
-                File.Delete(file);
-            }
+            File.Delete(file);
         }
     }
 }
