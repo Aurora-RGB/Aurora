@@ -103,7 +103,8 @@ public sealed class DeviceManager : IDisposable
 
     public Task ShutdownDevices()
     {
-        var shutdownTasks = InitializedDeviceContainers.Select(dc => dc.DisableDevice());
+        var startingDevices = DeviceContainers.Where(dc => dc.Device is { IsInitialized: false, IsDoingWork: true });
+        var shutdownTasks = InitializedDeviceContainers.Union(startingDevices).Select(dc => dc.DisableDevice());
 
         return Task.WhenAll(shutdownTasks);
     }
