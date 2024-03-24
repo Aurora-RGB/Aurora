@@ -15,10 +15,10 @@ public partial class UpdateCleanup : AuroraModule
     protected override Task Initialize()
     {
         AutoStartUtils.GetAutostartTask(out _);
-        if (!Global.Configuration.Migrations.Contains("net8v2"))
+        if (!Global.Configuration.Migrations.Contains("net8v3"))
         {
             Net8V2Migration();
-            Global.Configuration.Migrations.Add("net8v2");
+            Global.Configuration.Migrations.Add("net8v3");
         }
         CleanOldLogiDll();
         CleanLogs();
