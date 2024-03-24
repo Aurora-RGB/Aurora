@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Security.Principal;
 using System.Windows.Forms;
 using System.Linq;
 using System.Threading;
-using Version = SemanticVersioning.Version;
 
 namespace Aurora_Updater;
 
@@ -28,7 +29,7 @@ internal static class Program
 {
     private static string _passedArgs = "";
     private static bool _isSilent;
-    public static string ExePath = "";
+    public static string ExePath { get; private set; } = "";
     private static UpdateType _installType = UpdateType.Undefined;
     private static bool _isElevated;
 
@@ -49,42 +50,30 @@ internal static class Program
         }
         catch(AbandonedMutexException) { /* Means previous instance closed anyway */ }
 
-        foreach (var arg in args)
+        ProcessArgs(args);
+
+        if (!GetExePath(out var exePath))
         {
-            if (string.IsNullOrWhiteSpace(arg))
-                continue;
-
-            switch (arg)
-            {
-                case "-silent":
-                    _isSilent = true;
-                    break;
-                case "-update_major":
-                    _installType = UpdateType.Major;
-                    break;
-                case "-update_minor":
-                    _installType = UpdateType.Minor;
-                    break;
-            }
-
-            _passedArgs += arg + " ";
+            if (!_isSilent)
+                MessageBox.Show(
+                    "Cannot determine installation location",
+                    "Aurora Updater",
+                    MessageBoxButtons.OK);
+            return;
         }
-
-        _passedArgs = _passedArgs.TrimEnd(' ');
-
-        ExePath = Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName);
+        ExePath = exePath;
 
         //Check privilege
         var identity = WindowsIdentity.GetCurrent();
         var principal = new WindowsPrincipal(identity);
         _isElevated = principal.IsInRole(WindowsBuiltInRole.Administrator);
-        var maj = "";
+        var fileVersion = "";
 
-        string auroraPath;
-        if (File.Exists(auroraPath = Path.Combine(ExePath, "AuroraRgb.exe")))
-            maj = FileVersionInfo.GetVersionInfo(auroraPath).FileVersion;
+        var auroraPath = Path.Combine(ExePath, "AuroraRgb.exe");
+        if (File.Exists(auroraPath))
+            fileVersion = FileVersionInfo.GetVersionInfo(auroraPath).FileVersion;
 
-        if (string.IsNullOrWhiteSpace(maj))
+        if (string.IsNullOrWhiteSpace(fileVersion))
         {
             if (!_isSilent)
                 MessageBox.Show(
@@ -95,7 +84,7 @@ internal static class Program
                     MessageBoxButtons.OK);
             return;
         }
-        var versionMajor = new Version(maj.TrimStart('v') + ".0.0", true);
+        var versionMajor = VersionParser.ParseVersion(fileVersion);
 
         var owner = FileVersionInfo.GetVersionInfo(auroraPath).CompanyName;
         var repository = FileVersionInfo.GetVersionInfo(auroraPath).ProductName;
@@ -140,10 +129,10 @@ internal static class Program
         }
         else
         {
-            var latestV = new Version(StaticStorage.Manager.LatestRelease.TagName.TrimStart('v') + ".0.0", true);
+            var latestV = VersionParser.ParseVersion(StaticStorage.Manager.LatestRelease.TagName);
             if (File.Exists("skipversion.txt"))
             {
-                var skippedVersion = Version.Parse(File.ReadAllText("skipversion.txt"), true);
+                var skippedVersion = VersionParser.ParseVersion(File.ReadAllText("skipversion.txt"));
                 if (skippedVersion >= latestV)
                 {
                     return;
@@ -187,24 +176,63 @@ internal static class Program
                 else
                 {
                     //Request user to grant admin rights
-                    try
-                    {
-                        var updaterProc = new ProcessStartInfo();
-                        updaterProc.FileName = Process.GetCurrentProcess().MainModule.FileName;
-                        updaterProc.Arguments = _passedArgs + " -update_major";
-                        updaterProc.Verb = "runas";
-                        Process.Start(updaterProc);
-                    }
-                    catch (Exception exc)
-                    {
-                        MessageBox.Show(
-                            $"Could not start Aurora Updater. Error:\r\n{exc}",
-                            "Aurora Updater - Error",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
-                    }
+                    TryRunAsAdmin();
                 }
             }
+        }
+    }
+
+    private static void ProcessArgs(IEnumerable<string> args)
+    {
+        foreach (var arg in args)
+        {
+            if (string.IsNullOrWhiteSpace(arg))
+                continue;
+
+            switch (arg)
+            {
+                case "-silent":
+                    _isSilent = true;
+                    break;
+                case "-update_major":
+                    _installType = UpdateType.Major;
+                    break;
+                case "-update_minor":
+                    _installType = UpdateType.Minor;
+                    break;
+            }
+
+            _passedArgs += arg + " ";
+        }
+
+        _passedArgs = _passedArgs.TrimEnd(' ');
+    }
+
+    private static bool GetExePath([MaybeNullWhen(false)] out string exePath)
+    {
+        exePath = Path.GetDirectoryName(Environment.ProcessPath);
+        return exePath != null;
+    }
+
+    private static void TryRunAsAdmin()
+    {
+        try
+        {
+            var updaterProc = new ProcessStartInfo
+            {
+                FileName = Environment.ProcessPath,
+                Arguments = _passedArgs + " -update_major",
+                Verb = "runas"
+            };
+            Process.Start(updaterProc);
+        }
+        catch (Exception exc)
+        {
+            MessageBox.Show(
+                $"Could not start Aurora Updater. Error:\r\n{exc}",
+                "Aurora Updater - Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
         }
     }
 }
