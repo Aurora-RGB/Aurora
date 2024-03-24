@@ -294,7 +294,7 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLighting(ReadOnlySpan<byte> span)
     {
-        var color = ReadPercentageColor(span);
+        var color = LogitechPipeConverter.ReadPercentageColor(span);
 
         if (DeviceType == LogiSetTargetDeviceType.PerKeyRgb)
         {
@@ -311,7 +311,7 @@ public sealed class LogitechSdkListener : IDisposable
     private void SetLightingForKeyWithKeyName(ReadOnlySpan<byte> span)
     {
         var keyNameIdx = BitConverter.ToInt32(span);
-        var color = ReadPercentageColor(span[sizeof(int)..]);
+        var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var keyName = (LogitechLedId)keyNameIdx;
 
         if (LedMapping.LogitechLedIds.TryGetValue(keyName, out var idx))
@@ -325,7 +325,7 @@ public sealed class LogitechSdkListener : IDisposable
     private void SetLightingForKeyWithScanCode(ReadOnlySpan<byte> span)
     {
         var scanCodeIdx = BitConverter.ToInt32(span);
-        var color = ReadPercentageColor(span[sizeof(int)..]);
+        var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var scanCode = (DirectInputScanCode)scanCodeIdx;
 
         if (LedMapping.DirectInputScanCodes.TryGetValue(scanCode, out var idx2))
@@ -339,7 +339,7 @@ public sealed class LogitechSdkListener : IDisposable
     private void SetLightingForKeyWithHidCode(ReadOnlySpan<byte> span)
     {
         var hidCodeIdx = BitConverter.ToInt32(span);
-        var color = ReadPercentageColor(span[sizeof(int)..]);
+        var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var hidCode = (HidCode)hidCodeIdx;
 
         if (LedMapping.HidCodes.TryGetValue(hidCode, out var idx3))
@@ -383,11 +383,6 @@ public sealed class LogitechSdkListener : IDisposable
         var nullTerminatorIndex = bytes.IndexOf(unicodeNullTerminator);
 
         return nullTerminatorIndex == -1 ? "" : Encoding.Unicode.GetString(bytes[..(nullTerminatorIndex + 1)]);
-    }
-
-    private static Color ReadPercentageColor(ReadOnlySpan<byte> bytes)
-    {
-        return bytes.Length != 12 ? Color.Empty : MemoryMarshal.Read<LogitechRgbColor>(bytes);
     }
 
     private void ClearData()

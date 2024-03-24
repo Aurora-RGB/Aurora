@@ -6,30 +6,23 @@ using System.Threading;
 
 namespace AuroraRgb.Modules.Logitech;
 
-public sealed class PipeListener : IDisposable
+public sealed class PipeListener(string pipeName) : IDisposable
 {
     private const int BufferSize = 5 * 1024;
     public event EventHandler? ClientConnected;
     public event EventHandler? ClientDisconnected;
     public event EventHandler<ReadOnlyMemory<byte>>? CommandReceived;
-    
-    private readonly string _pipeName;
-    private readonly CancellationTokenSource _tokenSource;
+
+    private readonly CancellationTokenSource _tokenSource = new();
 
     private NamedPipeServerStream? _pipeStream;
     
     private readonly byte[] _headerBuffer = new byte[4];
     private readonly byte[] _buffer = new byte[BufferSize];
 
-    public PipeListener(string pipeName)
-    {
-        _pipeName = pipeName;
-        _tokenSource = new();
-    }
-
     public void StartListening()
     {
-        _pipeStream = CreatePipe(_pipeName);
+        _pipeStream = CreatePipe(pipeName);
         _pipeStream.BeginWaitForConnection(ReceiveAuroraCommand, null);
     }
 
@@ -66,7 +59,7 @@ public sealed class PipeListener : IDisposable
 
         ClientDisconnected?.Invoke(this, EventArgs.Empty);
         _pipeStream.Close();
-        _pipeStream = CreatePipe(_pipeName);
+        _pipeStream = CreatePipe(pipeName);
         _pipeStream.BeginWaitForConnection(ReceiveAuroraCommand, null);
     }
     
@@ -106,7 +99,7 @@ public sealed class PipeListener : IDisposable
             try
             {
                 //dummy client to unblock the server
-                using NamedPipeClientStream pipeStream = new(_pipeName);
+                using NamedPipeClientStream pipeStream = new(pipeName);
                 pipeStream.Connect(100);
                 pipeStream.Close();
             }
