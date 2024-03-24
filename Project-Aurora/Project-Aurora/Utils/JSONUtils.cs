@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using AuroraRgb.Profiles.Chroma;
 using AuroraRgb.Profiles.Dota_2.Layers;
 using AuroraRgb.Profiles.Generic;
-using AuroraRgb.Profiles.GTA5.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
@@ -76,8 +75,6 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
                 typeof(LayerHandlerProperties),
             "Aurora.Profiles.Dota_2.Layers.Dota2HeroAbiltiyEffectsLayerHandlerProperties" =>
                 typeof(Dota2HeroAbilityEffectsLayerHandlerProperties),
-            "Aurora.Profiles.GTA5.Layers.GTA5PoliceSirenLayerHandlerProperties" =>
-                typeof(Gta5PoliceSirenLayerHandlerProperties),
             "Aurora.Profiles.TheDivision.TheDivisionSettings" =>
                 typeof(ApplicationProfile),
             "Aurora.Profiles.Overwatch.OverwatchProfile" =>
