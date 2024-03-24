@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AuroraRgb.Utils;
@@ -10,7 +9,7 @@ using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public partial class UpdateCleanup : AuroraModule
+public sealed partial class UpdateCleanup : AuroraModule
 {
     protected override Task Initialize()
     {
@@ -36,8 +35,8 @@ public partial class UpdateCleanup : AuroraModule
     private static void CleanLogs()
     {
         var logFolder = Path.Combine(Global.AppDataDirectory, "Logs");
-        //TODO regex match
-        var logFile = new Regex(".*\\.log");
+
+        var logFile = LogFileRegex();
         var files = from file in Directory.EnumerateFiles(logFolder)
             where logFile.IsMatch(Path.GetFileName(file))
             orderby File.GetCreationTime(file) descending
@@ -108,4 +107,7 @@ public partial class UpdateCleanup : AuroraModule
             File.Delete(file);
         }
     }
+
+    [GeneratedRegex(".*\\.log")]
+    private static partial Regex LogFileRegex();
 }

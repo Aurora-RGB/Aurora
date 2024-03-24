@@ -27,12 +27,12 @@ public sealed class LightingStateManager
 
     private Desktop.Desktop DesktopProfile => (Desktop.Desktop)Events["desktop"];
 
-    private readonly List<ILightEvent> _startedEvents = new();
-    private readonly List<ILightEvent> _updatedEvents = new();
+    private readonly List<ILightEvent> _startedEvents = [];
+    private readonly List<ILightEvent> _updatedEvents = [];
 
     private Dictionary<string, string> EventProcesses { get; } = new();
 
-    private Dictionary<string, string> EventTitles { get; } = new();
+    private Dictionary<Regex, string> EventTitles { get; } = new();
 
     private Dictionary<string, string> EventAppIDs { get; } = new();
 
@@ -197,10 +197,9 @@ public sealed class LightingStateManager
 
     public void RemoveGenericProfile(string key)
     {
-        if (!Events.ContainsKey(key)) return;
-        if (Events[key] is not GenericApplication)
+        if (!Events.TryGetValue(key, out var value)) return;
+        if (value is not GenericApplication profile)
             return;
-        var profile = (GenericApplication)Events[key];
         Events.Remove(key);
         Global.Configuration.ProfileOrder.Remove(key);
 
@@ -263,15 +262,15 @@ public sealed class LightingStateManager
     private ILightEvent? GetProfileFromProcessTitle(string title)
     {
         foreach (var value in EventTitles
-                     .Where(entry => Regex.IsMatch(title, entry.Key, RegexOptions.IgnoreCase))
+                     .Where(entry => entry.Key.IsMatch(title))
                      .Select(kv => kv.Value)
                 )
         {
-            if (!Events.ContainsKey(value))
+            if (!Events.TryGetValue(value, out var lightEvent))
                 Global.logger.Warning("GetProfileFromProcess: The process with title '{Title}' matches an item in EventTitles" +
                                       " but subsequently '{Value}' does not in Events!", title, value);
             else
-                return Events[value]; // added in an else so we keep searching for more valid regexes.
+                return lightEvent; // added in an else so we keep searching for more valid regexes.
         }
 
         return null;
@@ -279,12 +278,12 @@ public sealed class LightingStateManager
 
     private ILightEvent? GetProfileFromAppId(string appid)
     {
-        if (!EventAppIDs.ContainsKey(appid)) return Events.TryGetValue(appid, out var @event) ? @event : null;
-        if (!Events.ContainsKey(EventAppIDs[appid]))
+        if (!EventAppIDs.TryGetValue(appid, out var value)) return Events.GetValueOrDefault(appid);
+        if (!Events.ContainsKey(value))
             Global.logger.Warning(
                 "GetProfileFromAppID: The appid '{AppId}' exists in EventAppIDs but subsequently '{EventAppID}' does not in Events!",
-                appid, EventAppIDs[appid]);
-        return Events[EventAppIDs[appid]];
+                appid, value);
+        return Events[value];
     }
 
     private Timer? _updateTimer;
@@ -550,14 +549,17 @@ public sealed class LightingStateManager
         try
         {
 #endif
-            ILightEvent profile;
+            ILightEvent? profile;
 
             var provider = JObject.Parse(gs.GetNode("provider"));
             var appid = provider.GetValue("appid").ToString();
             var name = provider.GetValue("name").ToString().ToLowerInvariant();
 
-            if ((profile = GetProfileFromAppId(appid)) == null &&
-                (profile = GetProfileFromProcessName(name)) == null) return;
+            if ((profile = GetProfileFromAppId(appid)) == null && (profile = GetProfileFromProcessName(name)) == null)
+            {
+                return;
+            }
+
             var gameState = gs;
             if (profile.Config.GameStateType != null)
                 gameState = (IGameState)Activator.CreateInstance(profile.Config.GameStateType, gs.Json);

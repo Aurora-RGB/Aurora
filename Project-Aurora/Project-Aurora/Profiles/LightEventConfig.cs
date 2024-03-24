@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows.Controls;
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 
 namespace AuroraRgb.Profiles;
 
-public class LightEventConfig : INotifyPropertyChanged
+public class LightEventConfig(Lazy<LightEvent> lightEvent) : INotifyPropertyChanged
 {
     public string[] ProcessNames
     {
@@ -20,45 +23,39 @@ public class LightEventConfig : INotifyPropertyChanged
         }
     }
 
-    public event EventHandler<EventArgs>? ProcessNamesChanged; 
+    public event EventHandler<EventArgs>? ProcessNamesChanged;
 
     /// <summary>One or more REGULAR EXPRESSIONS that can be used to match the title of an application</summary>
-    public string[]? ProcessTitles { get; set; }
+    public Regex[]? ProcessTitles { get; init; }
 
-    public string Name { get; set; }
+    public string Name { get; init; } = "Unset";
 
-    public string ID { get; set; }
+    public string ID { get; init; } = DateTime.Now.ToString(CultureInfo.InvariantCulture);
 
-    public string AppID { get; set; }
+    public string AppID { get; init; } = string.Empty;
 
-    public Type SettingsType { get; set; } = typeof(ApplicationSettings);
+    public Type SettingsType { get; init; } = typeof(ApplicationSettings);
 
-    public Type ProfileType { get; set; } = typeof(ApplicationProfile);
+    public Type ProfileType { get; init; } = typeof(ApplicationProfile);
 
-    public Type OverviewControlType { get; set; }
+    public Type OverviewControlType { get; init; } = typeof(UserControl);
 
-    public Type? GameStateType { get; set; }
+    public Type? GameStateType { get; init; }
 
-    private readonly Lazy<LightEvent> _lightEvent;
     private string[] _processNames = Array.Empty<string>();
-    public LightEvent Event => _lightEvent.Value;
+    public LightEvent Event => lightEvent.Value;
 
-    public string IconURI { get; set; }
+    public string IconURI { get; init; } = "UNSET ICON";
 
-    public HashSet<Type> ExtraAvailableLayers { get; } = new();
+    public HashSet<Type> ExtraAvailableLayers { get; } = [];
 
-    public bool EnableByDefault { get; set; } = true;
+    public bool EnableByDefault { get; init; } = true;
     public bool EnableOverlaysByDefault { get; set; } = true;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public LightEventConfig() : this(new Lazy<LightEvent>(() => new GameEvent_Generic()))
     {
-    }
-
-    public LightEventConfig(Lazy<LightEvent> lightEvent)
-    {
-        _lightEvent = lightEvent;
     }
 
     public LightEventConfig WithLayer<T>() where T : ILayerHandler {
