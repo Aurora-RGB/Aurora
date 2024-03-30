@@ -9,21 +9,27 @@ internal static class MemorySharedEventThread
 
     internal static void AddObject(SignaledMemoryObject o)
     {
-        var handleThread = HandleThreads.Find(ht => ht.HasSpace(2));
-        if (handleThread == null)
+        lock (HandleThreads)
         {
-            handleThread = new HandlesAndThread();
-            HandleThreads.Add(handleThread);
-        }
+            var handleThread = HandleThreads.Find(ht => ht.HasSpace(2));
+            if (handleThread == null)
+            {
+                handleThread = new HandlesAndThread();
+                HandleThreads.Add(handleThread);
+            }
         
-        handleThread.AddToThread(o);
+            handleThread.AddToThread(o);
+        }
     }
 
     internal static void RemoveObject(SignaledMemoryObject o)
     {
-        foreach (var handlesAndThread in HandleThreads)
+        lock (HandleThreads)
         {
-            handlesAndThread.RemoveIfExists(o);
+            foreach (var handlesAndThread in HandleThreads)
+            {
+                handlesAndThread.RemoveIfExists(o);
+            }
         }
     }
 
@@ -43,7 +49,6 @@ internal static class MemorySharedEventThread
                 _cancellation = value;
                 _handles[0] = value.Token.WaitHandle;
                 old.Cancel();
-                _threadCreated.Wait();
                 old.Dispose();
             }
         }
@@ -52,7 +57,6 @@ internal static class MemorySharedEventThread
         
         private Action[] _actions = [() => { }];
         private WaitHandle[] _handles;
-        private Task _threadCreated = Task.CompletedTask;
 
         internal HandlesAndThread()
         {
@@ -62,30 +66,16 @@ internal static class MemorySharedEventThread
 
         private Thread CreateThread()
         {
-            var tcs = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            _threadCreated = tcs.Task;
             var thread = new Thread(() =>
             {
-                tcs.SetResult();
-                if (_handles.Length <= 1)
+                try
                 {
-                    // stop thread if only handle is cancel token
-                    return;
+                    _semaphore.Wait(CancelToken.Token);
+                    ThreadCallback();
                 }
-                while (true)
+                finally
                 {
-                    var i = WaitHandle.WaitAny(_handles);
-                    switch (i)
-                    {
-                        case 0:
-                            return;
-                        default:
-                            Task.Run(() =>
-                            {
-                                _actions[i].Invoke();
-                            });
-                            break;
-                    }
+                    _semaphore.Release();
                 }
             })
             {
@@ -94,15 +84,46 @@ internal static class MemorySharedEventThread
                 Priority = ThreadPriority.Highest,
             };
             thread.Start();
-            _threadCreated.Wait(200);
             Thread.Yield();
-            Thread.Sleep(1); //wait until WaitHandle.WaitAny(_handles) runs before returning
             return thread;
+            
+            void ThreadCallback(){
+                if (_handles.Length <= 1)
+                {
+                    // stop thread if only handle is cancel token
+                    return;
+                }
+                while (true)
+                {
+                    if (CancelToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
+                    var i = WaitHandle.WaitAny(_handles);
+                    switch (i)
+                    {
+                        case 0:
+                            return;
+                        default:
+                            if (i >= _handles.Length)
+                            {
+                                break;
+                            }
+                            Task.Run(() =>
+                            {
+                                _actions[i].Invoke();
+                            });
+                            break;
+                    }
+                }
+            }
         }
 
         internal void AddToThread(SignaledMemoryObject o)
         {
+            CancelToken.Cancel();
             _semaphore.Wait();
+            CancelToken = new CancellationTokenSource();
 
             try
             {
@@ -115,7 +136,6 @@ internal static class MemorySharedEventThread
                     o.UpdateRequestedHandle
                 ]).ToArray();
 
-                CancelToken = new CancellationTokenSource();
                 _thread = CreateThread();
             }
             finally
@@ -126,22 +146,26 @@ internal static class MemorySharedEventThread
 
         internal void RemoveIfExists(SignaledMemoryObject o)
         {
+            CancelToken.Cancel();
             _semaphore.Wait();
+            CancelToken = new CancellationTokenSource();
 
             try
             {
                 var updatedHandleIndex = _handles.FindIndex(h => o.ObjectUpdatedHandle == h);
-                var requestedHandleIndex = _handles.FindIndex(h => o.UpdateRequestedHandle == h);
-
-                if (updatedHandleIndex == -1)
+                if (updatedHandleIndex != -1)
                 {
-                    return;
+                    _actions = _actions.Where((_, i) => i != updatedHandleIndex).ToArray();
+                    _handles = _handles.Where((_, i) => i != updatedHandleIndex).ToArray();
                 }
-                
-                _actions = _actions.Where((_, i) => i != updatedHandleIndex && i != requestedHandleIndex).ToArray();
-                _handles = _handles.Where((_, i) => i != updatedHandleIndex && i != requestedHandleIndex).ToArray();
 
-                CancelToken = new CancellationTokenSource();
+                var requestedHandleIndex = _handles.FindIndex(h => o.UpdateRequestedHandle == h);
+                if (requestedHandleIndex != -1)
+                {
+                    _actions = _actions.Where((_, i) => i != requestedHandleIndex).ToArray();
+                    _handles = _handles.Where((_, i) => i != requestedHandleIndex).ToArray();
+                }
+
                 _thread = CreateThread();
             }
             finally
@@ -152,7 +176,7 @@ internal static class MemorySharedEventThread
 
         internal bool HasSpace(int handleCount)
         {
-            return _handles.Length + handleCount < MaxHandles;
+            return _handles.Length + handleCount < MaxHandles && _actions.Length + handleCount < MaxHandles;
         }
     }
 }
