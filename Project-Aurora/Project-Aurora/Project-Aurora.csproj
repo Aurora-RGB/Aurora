@@ -7,6 +7,8 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <PublishSelfContained>true</PublishSelfContained>
+    <ReadyToRun>true</ReadyToRun>
+    <ReadyToRunComposite>true</ReadyToRunComposite>
 
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
