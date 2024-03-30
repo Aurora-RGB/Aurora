@@ -28,7 +28,7 @@ public sealed class DeviceManager : IDisposable
     public DeviceManager()
     {
         const string devicesPath = "Devices";
-        IEnumerable<IDeviceLoader> deviceLoaders = new IDeviceLoader[]
+        var deviceLoaders = new IDeviceLoader[]
         {
             new AssemblyDeviceLoader(),
             new ScriptDeviceLoader(Path.Combine(Global.ExecutingDirectory, "Scripts", devicesPath)),
@@ -39,10 +39,10 @@ public sealed class DeviceManager : IDisposable
 
         foreach (var deviceLoader in deviceLoaders)
         {
-            foreach (var device in deviceLoader.LoadDevices().Where(d => d != null))
-            {
-                DeviceContainers.Add(new DeviceContainer(device!));
-            }
+            var enumerable = deviceLoader.LoadDevices()
+                .Where(d => d != null)
+                .Select(d => new DeviceContainer(d!));
+            DeviceContainers.AddRange(enumerable);
 
             deviceLoader.Dispose();
         }
@@ -93,7 +93,7 @@ public sealed class DeviceManager : IDisposable
                 ? deviceContainer.DisableDevice()
                 : deviceContainer.EnableDevice());
 
-        await Task.WhenAll(initializeTasks);
+        await Task.WhenAny(initializeTasks);
     }
 
     private static bool DeviceEnabled(DeviceContainer dc)
