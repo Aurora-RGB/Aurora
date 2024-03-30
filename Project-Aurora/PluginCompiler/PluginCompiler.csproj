@@ -7,14 +7,18 @@
         <OutputType>Exe</OutputType>
         <PlatformTarget>x64</PlatformTarget>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        
         <InformationalVersion>1.0.0</InformationalVersion>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <FileVersion>1.0.0.0</FileVersion>
         <NeutralLanguage>en</NeutralLanguage>
+        
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
         <OutputPath>$(SolutionDir)..\Build\$(Configuration)</OutputPath>
         <Nullable>enable</Nullable>
+        
+        <ReadyToRun>true</ReadyToRun>
     </PropertyGroup>
 
     <ItemGroup>
