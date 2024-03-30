@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -136,21 +135,21 @@ public class KeyboardLayoutManager
             switch (culture)
             {
                 case "tr-TR":
-                    LoadCulture("tr");
+                    await LoadCulture("tr");
                     break;
                 case "ja-JP":
-                    LoadCulture("jpn");
+                    await LoadCulture("jpn");
                     break;
                 case "de-DE":
                 case "hsb-DE":
                 case "dsb-DE":
                     LoadedLocalization = PreferredKeyboardLocalization.de;
-                    LoadCulture("de");
+                    await LoadCulture("de");
                     break;
                 case "fr-CH":
                 case "de-CH":
                     LoadedLocalization = PreferredKeyboardLocalization.swiss;
-                    LoadCulture("swiss");
+                    await LoadCulture("swiss");
                     break;
                 case "fr-FR":
                 case "br-FR":
@@ -158,24 +157,24 @@ public class KeyboardLayoutManager
                 case "co-FR":
                 case "gsw-FR":
                     LoadedLocalization = PreferredKeyboardLocalization.fr;
-                    LoadCulture("fr");
+                    await LoadCulture("fr");
                     break;
                 case "cy-GB":
                 case "gd-GB":
                 case "en-GB":
                     LoadedLocalization = PreferredKeyboardLocalization.uk;
-                    LoadCulture("uk");
+                    await LoadCulture("uk");
                     break;
                 case "ru-RU":
                 case "tt-RU":
                 case "ba-RU":
                 case "sah-RU":
                     LoadedLocalization = PreferredKeyboardLocalization.ru;
-                    LoadCulture("ru");
+                    await LoadCulture("ru");
                     break;
                 case "en-US":
                     LoadedLocalization = PreferredKeyboardLocalization.us;
-                    LoadCulture("us");
+                    await LoadCulture("us");
                     break;
                 case "da-DK":
                 case "se-SE":
@@ -183,27 +182,27 @@ public class KeyboardLayoutManager
                 case "nn-NO":
                 case "nordic":
                     LoadedLocalization = PreferredKeyboardLocalization.nordic;
-                    LoadCulture("nordic");
+                    await LoadCulture("nordic");
                     break;
                 case "pt-BR":
                     LoadedLocalization = PreferredKeyboardLocalization.abnt2;
-                    LoadCulture("abnt2");
+                    await LoadCulture("abnt2");
                     break;
                 case "dvorak":
                     LoadedLocalization = PreferredKeyboardLocalization.dvorak;
-                    LoadCulture("dvorak");
+                    await LoadCulture("dvorak");
                     break;
                 case "dvorak_int":
                     LoadedLocalization = PreferredKeyboardLocalization.dvorak_int;
-                    LoadCulture("dvorak_int");
+                    await LoadCulture("dvorak_int");
                     break;
                 case "hu-HU":
                     LoadedLocalization = PreferredKeyboardLocalization.hu;
-                    LoadCulture("hu");
+                    await LoadCulture("hu");
                     break;
                 case "it-IT":
                     LoadedLocalization = PreferredKeyboardLocalization.it;
-                    LoadCulture("it");
+                    await LoadCulture("it");
                     break;
                 case "es-AR":
                 case "es-BO":
@@ -219,51 +218,51 @@ public class KeyboardLayoutManager
                 case "es-VE":
                 case "es-419":
                     LoadedLocalization = PreferredKeyboardLocalization.la;
-                    LoadCulture("la");
+                    await LoadCulture("la");
                     break;
                 case "es-ES":
                     LoadedLocalization = PreferredKeyboardLocalization.es;
-                    LoadCulture("es");
+                    await LoadCulture("es");
                     break;
                 case "iso":
                     LoadedLocalization = PreferredKeyboardLocalization.iso;
-                    LoadCulture("iso");
+                    await LoadCulture("iso");
                     break;
                 case "ansi":
                     LoadedLocalization = PreferredKeyboardLocalization.ansi;
-                    LoadCulture("ansi");
+                    await LoadCulture("ansi");
                     break;
                 default:
                     LoadedLocalization = PreferredKeyboardLocalization.intl;
-                    LoadCulture("intl");
+                    await LoadCulture("intl");
                     break;
             }
 
             if (PeripheralLayoutMap.KeyboardLayoutMap.TryGetValue(keyboardPreference, out var keyboardLayoutFile))
             {
                 var layoutConfigPath = Path.Combine(_layoutsPath, keyboardLayoutFile);
-                LoadKeyboard(layoutConfigPath);
+                await LoadKeyboard(layoutConfigPath);
             }
 
             if (PeripheralLayoutMap.MouseLayoutMap.TryGetValue(mousePreference, out var mouseLayoutJsonFile))
             {
                 var mouseFeaturePath = Path.Combine(_layoutsPath, "Extra Features", mouseLayoutJsonFile);
 
-                LoadMouse(mouseOrientation, mouseFeaturePath);
+                await LoadMouse(mouseOrientation, mouseFeaturePath);
             }
 
             if (PeripheralLayoutMap.MousepadLayoutMap.TryGetValue(mousepadPreference, out var mousepadLayoutJsonFile))
             {
                 var mousepadFeaturePath = Path.Combine(_layoutsPath, "Extra Features", mousepadLayoutJsonFile);
 
-                LoadGenericLayout(mousepadFeaturePath);
+                await LoadGenericLayout(mousepadFeaturePath);
             }
 
             if (PeripheralLayoutMap.HeadsetLayoutMap.TryGetValue(headsetPreference, out var headsetLayoutJsonFile))
             {
                 var headsetFeaturePath = Path.Combine(_layoutsPath, "Extra Features", headsetLayoutJsonFile);
 
-                LoadGenericLayout(headsetFeaturePath);
+                await LoadGenericLayout(headsetFeaturePath);
             }
 
             if (chromaLeds == PreferredChromaLeds.Automatic && await _rzSdk is not null)
@@ -274,7 +273,7 @@ public class KeyboardLayoutManager
             {
                 var headsetFeaturePath = Path.Combine(_layoutsPath, "Extra Features", chromaLayoutJsonFile);
 
-                LoadGenericLayout(headsetFeaturePath);
+                await LoadGenericLayout(headsetFeaturePath);
             }
 #if !DEBUG
         }
@@ -291,21 +290,19 @@ public class KeyboardLayoutManager
         });
     }
 
-    private bool LoadLayout(string path, [MaybeNullWhen(false)] out VirtualGroup layout)
+    private async Task<VirtualGroup?> LoadLayout(string path)
     {
         if (!File.Exists(path))
         {
             MessageBox.Show( path + " could not be found", "Layout not found", MessageBoxButton.OK);
-            layout = null;
-            return false;
+            return null;
         }
 
-        var featureContent = File.ReadAllText(path, Encoding.UTF8);
-        layout = JsonSerializer.Deserialize(featureContent, LayoutsSourceGenerationContext.Default.VirtualGroup)!;
-        return true;
+        var featureContent = await File.ReadAllTextAsync(path, Encoding.UTF8);
+        return JsonSerializer.Deserialize(featureContent, LayoutsSourceGenerationContext.Default.VirtualGroup);
     }
 
-    private void LoadKeyboard(string layoutConfigPath)
+    private async Task LoadKeyboard(string layoutConfigPath)
     {
         if (!File.Exists(layoutConfigPath))
         {
@@ -313,7 +310,7 @@ public class KeyboardLayoutManager
             return;
         }
 
-        var content = File.ReadAllText(layoutConfigPath, Encoding.UTF8);
+        var content = await File.ReadAllTextAsync(layoutConfigPath, Encoding.UTF8);
         var layoutConfig = JsonSerializer.Deserialize(content, LayoutsSourceGenerationContext.Default.VirtualGroupConfiguration)!;
 
         _virtualKeyboardGroup.AdjustKeys(layoutConfig.KeyModifications);
@@ -329,7 +326,7 @@ public class KeyboardLayoutManager
             var featurePath = Path.Combine(_layoutsPath, "Extra Features", feature);
 
             if (!File.Exists(featurePath)) continue;
-            var featureContent = File.ReadAllText(featurePath, Encoding.UTF8);
+            var featureContent = await File.ReadAllTextAsync(featurePath, Encoding.UTF8);
             var featureConfig = JsonSerializer.Deserialize(featureContent, LayoutsSourceGenerationContext.Default.VirtualGroup)!;
 
             _virtualKeyboardGroup.AddFeature(featureConfig.GroupedKeys.ToArray(), featureConfig.OriginRegion);
@@ -341,9 +338,10 @@ public class KeyboardLayoutManager
         }
     }
 
-    private void LoadMouse(MouseOrientationType mouseOrientation, string mouseFeaturePath)
+    private async Task LoadMouse(MouseOrientationType mouseOrientation, string mouseFeaturePath)
     {
-        if (!LoadLayout(mouseFeaturePath, out var featureConfig))
+        var featureConfig = await LoadLayout(mouseFeaturePath);
+        if (featureConfig == null)
         {
             return;
         }
@@ -372,9 +370,10 @@ public class KeyboardLayoutManager
         _virtualKeyboardGroup.AddFeature(featureConfig.GroupedKeys.ToArray(), featureConfig.OriginRegion);
     }
 
-    private void LoadGenericLayout(string headsetFeaturePath)
+    private async Task LoadGenericLayout(string headsetFeaturePath)
     {
-        if (!LoadLayout(headsetFeaturePath, out var featureConfig))
+        var featureConfig = await LoadLayout(headsetFeaturePath);
+        if (featureConfig == null)
         {
             return;
         }
@@ -382,7 +381,7 @@ public class KeyboardLayoutManager
         _virtualKeyboardGroup.AddFeature(featureConfig.GroupedKeys.ToArray(), featureConfig.OriginRegion);
     }
 
-    private int PixelToByte(double pixel)
+    private static int PixelToByte(double pixel)
     {
         return (int) Math.Round(pixel / (double) Global.Configuration.BitmapAccuracy);
     }
@@ -498,7 +497,7 @@ public class KeyboardLayoutManager
         return keyboardControl;
     }
 
-    private void LoadCulture(string culture)
+    private async Task LoadCulture(string culture)
     {
         var fileName = "Plain Keyboard\\layout." + culture + ".json";
         var layoutPath = Path.Combine(_layoutsPath, fileName);
@@ -508,7 +507,7 @@ public class KeyboardLayoutManager
             return;
         }
 
-        var content = File.ReadAllText(layoutPath, Encoding.UTF8);
+        var content = await File.ReadAllTextAsync(layoutPath, Encoding.UTF8);
         var keyboard = JsonSerializer.Deserialize(content, LayoutsSourceGenerationContext.Default.KeyboardLayout)!;
 
         _virtualKeyboardGroup.Clear(keyboard.Keys);
