@@ -6,6 +6,9 @@
         <OutputType>WinExe</OutputType>
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <ReadyToRun>true</ReadyToRun>
+        <ReadyToRunComposite>true</ReadyToRunComposite>
         <UseRidGraph>true</UseRidGraph>
         <SelfContained>true</SelfContained>
         <PublishTrimmed>false</PublishTrimmed>
@@ -22,8 +25,16 @@
         <Platforms>x64</Platforms>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+        <Optimize>true</Optimize>
+    </PropertyGroup>
+
     <ItemGroup>
-        <ProjectReference Include="..\AuroraCommon\AuroraCommon.csproj" />
+        <ProjectReference Include="..\AuroraCommon\AuroraCommon.csproj"/>
         <ProjectReference Include="..\DeviceManagerSourceGenerator\DeviceManagerSourceGenerator\DeviceManagerSourceGenerator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false"/>
@@ -77,34 +88,36 @@
             <Private>true</Private>
         </Reference>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <PackageReference Include="CS-Script" Version="4.6.2" />
-        <PackageReference Include="hidlibrary" Version="3.3.40" />
-        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
-        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0" />
-        <PackageReference Include="OpenRGB.NET" Version="2.2.0" />
+        <PackageReference Include="CS-Script" Version="4.6.2"/>
+        <PackageReference Include="hidlibrary" Version="3.3.40"/>
+        <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0"/>
+        <PackageReference Include="OpenRGB.NET" Version="2.2.0"/>
         <!--
         Waiting for #338 and #339 on rgb.net
         <PackageReference Include="RGB.NET.Core" Version="2.0.0-prerelease.83" />
         <PackageReference Include="RGB.NET.Devices.OpenRGB" Version="2.0.0-prerelease.83" />
         -->
-        <PackageReference Include="RGB.NET.Devices.CorsairLegacy" Version="2.0.0" />
-        <PackageReference Include="RGB.NET.Devices.CoolerMaster" Version="2.0.0" />
-        <PackageReference Include="RGB.NET.Devices.Logitech" Version="2.0.4-prerelease.16" />
-        <PackageReference Include="RGB.NET.Devices.Razer" Version="2.0.4-prerelease.14" />
-        <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="2.0.0" />
-        <PackageReference Include="RGB.NET.Devices.Wooting" Version="2.0.0" />
-        <PackageReference Include="System.Drawing.Primitives" Version="4.3.0" />
-        <PackageReference Include="System.Management" Version="8.0.0" />
-        <PackageReference Include="Vulcan.NET" Version="2.2.0" />
+        <PackageReference Include="RGB.NET.Devices.CorsairLegacy" Version="2.0.0"/>
+        <PackageReference Include="RGB.NET.Devices.CoolerMaster" Version="2.0.0"/>
+        <PackageReference Include="RGB.NET.Devices.Logitech" Version="2.0.4-prerelease.16"/>
+        <PackageReference Include="RGB.NET.Devices.Razer" Version="2.0.4-prerelease.14"/>
+        <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="2.0.0"/>
+        <PackageReference Include="RGB.NET.Devices.Wooting" Version="2.0.0"/>
+        <PackageReference Include="System.Drawing.Primitives" Version="4.3.0"/>
+        <PackageReference Include="System.Management" Version="8.0.0"/>
+        <PackageReference Include="Vulcan.NET" Version="2.2.0"/>
 
-        <PackageReference Include="Serilog.Aggregating.Filter" Version="1.1.0" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
-        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0" />
-        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+        <PackageReference Include="Serilog.Aggregating.Filter" Version="1.1.0"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0"/>
+        <PackageReference Include="Serilog.Sinks.Debug" Version="2.0.0"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="5.0.0"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <Content Include="x64\Interop.AuraServiceLib.dll">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
