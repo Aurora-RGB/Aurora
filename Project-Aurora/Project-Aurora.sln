@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExeMover", "ExeMover\ExeMover.csproj", "{41D44E05-290D-4527-AA35-F95019934039}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceManagerSourceGenerator", "DeviceManagerSourceGenerator\DeviceManagerSourceGenerator\DeviceManagerSourceGenerator.csproj", "{749B26B4-BFF1-47E9-A639-4A458E367C1D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -71,6 +73,10 @@ Global
 		{41D44E05-290D-4527-AA35-F95019934039}.Debug|x64.Build.0 = Debug|x64
 		{41D44E05-290D-4527-AA35-F95019934039}.Release|x64.ActiveCfg = Release|x64
 		{41D44E05-290D-4527-AA35-F95019934039}.Release|x64.Build.0 = Release|x64
+		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Debug|x64.Build.0 = Debug|Any CPU
+		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Release|x64.ActiveCfg = Release|Any CPU
+		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
