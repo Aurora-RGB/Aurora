@@ -12,11 +12,17 @@ internal sealed class ScriptDeviceLoader(string scriptFolder) : IDeviceLoader
     public IEnumerable<IDevice?> LoadDevices()
     {
         if (!Directory.Exists(scriptFolder))
+        {
             Directory.CreateDirectory(scriptFolder);
+            yield break;
+        }
 
         var files = Directory.GetFiles(scriptFolder);
         if (files.Length == 0)
+        {
+            Global.Logger.Information("No scripts found at {ScriptFolder}", scriptFolder);
             yield break;
+        }
 
         Global.Logger.Information("Loading device scripts from {ScriptFolder}", scriptFolder);
 

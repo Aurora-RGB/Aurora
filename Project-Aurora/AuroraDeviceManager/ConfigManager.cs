@@ -10,7 +10,7 @@ using Common.Utils;
 
 namespace AuroraDeviceManager;
 
-public sealed class ConfigManager(DeviceManager deviceManager): IDisposable
+public sealed class ConfigManager: IDisposable
 {
     private static readonly string ConfigFile = Path.Combine(Global.AppDataDirectory, DeviceConfig.FileName);
 
@@ -21,7 +21,7 @@ public sealed class ConfigManager(DeviceManager deviceManager): IDisposable
         WriteIndented = true,
     };
 
-    public async Task Load()
+    public async Task Load(DeviceManager deviceManager)
     {
         _configFileWatcher = new FileSystemWatcher(Global.AppDataDirectory)
         {
@@ -29,9 +29,22 @@ public sealed class ConfigManager(DeviceManager deviceManager): IDisposable
             NotifyFilter = NotifyFilters.LastWrite,
             EnableRaisingEvents = true
         };
-        await TryLoad();
+        await TryLoad(deviceManager);
 
         _configFileWatcher.Changed += ConfigFileWatcherOnChanged;
+
+        void ConfigFileWatcherOnChanged(object sender, FileSystemEventArgs e)
+        {
+            Thread.Sleep(200);
+            try
+            {
+                TryLoad(deviceManager, false).Wait();
+            }
+            catch (Exception exc)
+            {
+                Global.Logger.Error(exc, "Failed to load configuration");
+            }
+        }
     }
 
     public void Dispose()
@@ -39,20 +52,7 @@ public sealed class ConfigManager(DeviceManager deviceManager): IDisposable
         _configFileWatcher?.Dispose();
     }
 
-    private void ConfigFileWatcherOnChanged(object sender, FileSystemEventArgs e)
-    {
-        Thread.Sleep(200);
-        try
-        {
-            TryLoad(false).Wait();
-        }
-        catch (Exception exc)
-        {
-            Global.Logger.Error(exc, "Failed to load configuration");
-        }
-    }
-
-    private async Task TryLoad(bool save = true)
+    private async Task TryLoad(DeviceManager deviceManager, bool save = true)
     {
         DeviceConfig config;
 

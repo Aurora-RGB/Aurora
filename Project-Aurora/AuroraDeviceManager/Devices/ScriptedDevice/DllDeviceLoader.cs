@@ -10,11 +10,17 @@ internal sealed class DllDeviceLoader(string dllFolder) : IDeviceLoader
     public IEnumerable<IDevice> LoadDevices()
     {
         if (!Directory.Exists(dllFolder))
+        {
             Directory.CreateDirectory(dllFolder);
+            return ImmutableList<IDevice>.Empty;
+        }
 
         var files = Directory.GetFiles(dllFolder, "*.dll");
         if (files.Length == 0)
+        {
+            Global.Logger.Information("No plugins found at {DllFolder}", dllFolder);
             return ImmutableList<IDevice>.Empty;
+        }
 
         Global.Logger.Information("Loading devices plugins from {DllFolder}", dllFolder);
 
