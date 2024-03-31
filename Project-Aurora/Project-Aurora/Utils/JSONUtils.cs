@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -22,7 +23,7 @@ namespace AuroraRgb.Utils;
 
 public partial class AuroraSerializationBinder : DefaultSerializationBinder
 {
-    private readonly Dictionary<string, Dictionary<string, Type>> _assemblyTypeMap = new();
+    private readonly ConcurrentDictionary<string, Dictionary<string, Type>> _assemblyTypeMap = new();
     private readonly Dictionary<string, Type> _typeMap = new();
     
     public override Type BindToType(string? assemblyName, string typeName)
@@ -34,6 +35,7 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
             {
                 assemblyName = "AuroraRgb";
             }
+
             if (!_assemblyTypeMap.TryGetValue(assemblyName, out typeMap!))
             {
                 typeMap = new Dictionary<string, Type>();
@@ -44,6 +46,7 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
         {
             typeMap = _typeMap;
         }
+
         if (typeMap.TryGetValue(typeName, out var type))
         {
             return type;

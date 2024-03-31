@@ -21,8 +21,9 @@ using Newtonsoft.Json.Linq;
 
 namespace AuroraRgb.Profiles;
 
-public sealed class LightingStateManager
+public sealed class LightingStateManager : IDisposable
 {
+    public event EventHandler? EventAdded;
     public Dictionary<string, ILightEvent> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
 
     private Desktop.Desktop DesktopProfile => (Desktop.Desktop)Events["desktop"];
@@ -50,6 +51,8 @@ public sealed class LightingStateManager
     private readonly Task<RunningProcessMonitor> _runningProcessMonitor;
 
     private bool Initialized { get; set; }
+    private readonly CancellationTokenSource _initializeCancelSource = new();
+    private readonly List<Task> _initTasks = [];
 
     public LightingStateManager(Task<PluginManager> pluginManager, Task<IpcListener?> ipcListener,
         Task<Devices.DeviceManager> deviceManager, Task<ActiveProcessMonitor> activeProcessMonitor, Task<RunningProcessMonitor> runningProcessMonitor)
@@ -62,7 +65,6 @@ public sealed class LightingStateManager
         _runningProcessMonitor = runningProcessMonitor;
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
                                          Array.Exists(evt.Config.ProcessNames, ProcessRunning);
-        return;
 
         bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
     }
@@ -71,12 +73,12 @@ public sealed class LightingStateManager
     {
         if (Initialized)
             return;
+
+        var defaultApps = EnumerateDefaultApps();
+        var userApps = EnumerateUserApps();
+
         // Register all Application types in the assembly
-        var profiles = from type in Assembly.GetExecutingAssembly().GetLoadableTypes()
-            where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
-            let inst = (Application)Activator.CreateInstance(type)
-            orderby inst.Config.Name
-            select inst;
+        var profiles = defaultApps.Concat(userApps);
         foreach (var inst in profiles)
             RegisterEvent(inst);
 
@@ -92,31 +94,50 @@ public sealed class LightingStateManager
         foreach (var (type, meta) in layerTypes)
             LayerHandlers.Add(type, new LayerHandlerMeta(type, meta));
 
+        await DesktopProfile.Initialize(_initializeCancelSource.Token);
         LoadSettings();
         await LoadPlugins();
 
-        var additionalProfilesPath = Path.Combine(Global.AppDataDirectory, "AdditionalProfiles");
-        if (Directory.Exists(additionalProfilesPath))
-        {
-            var additionals = new List<string>(Directory.EnumerateDirectories(additionalProfilesPath));
-            foreach (var processName in from dir in additionals
-                     where File.Exists(Path.Combine(dir, "settings.json"))
-                     select Path.GetFileName(dir)
-                    )
-            {
-                RegisterEvent(new GenericApplication(processName));
-            }
-        }
-
         foreach (var profile in Events)
         {
-            profile.Value.Initialize();
+            // don't await on purpose, need Aurora open fast.
+            var initTask = Task.Delay(200).ContinueWith(_ =>
+            {
+                profile.Value.Initialize(_initializeCancelSource.Token);
+                EventAdded?.Invoke(this, EventArgs.Empty);
+            });
+            _initTasks.Add(initTask);
         }
 
         // Listen for profile keybind triggers
         (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
 
         Initialized = true;
+    }
+
+    private static IEnumerable<Application> EnumerateDefaultApps()
+    {
+        return from type in Assembly.GetExecutingAssembly().GetLoadableTypes()
+            where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
+            let inst = (Application)Activator.CreateInstance(type)
+            orderby inst.Config.Name
+            select inst;
+    }
+
+    private static IEnumerable<Application> EnumerateUserApps()
+    {
+        var additionalProfilesPath = Path.Combine(Global.AppDataDirectory, "AdditionalProfiles");
+        if (!Directory.Exists(additionalProfilesPath))
+        {
+            return Array.Empty<Application>();
+        }
+
+        var additionals = new List<string>(Directory.EnumerateDirectories(additionalProfilesPath));
+        var userApps = from dir in additionals
+            where File.Exists(Path.Combine(dir, "settings.json"))
+            select Path.GetFileName(dir);
+
+        return userApps.Select(processName => new GenericApplication(processName));
     }
 
     private async Task LoadPlugins()
@@ -192,7 +213,7 @@ public sealed class LightingStateManager
         }
 
         if (Initialized)
-            @event.Initialize();
+            @event.Initialize(_initializeCancelSource.Token);
     }
 
     public void RemoveGenericProfile(string key)
@@ -581,6 +602,9 @@ public sealed class LightingStateManager
 
     public void Dispose()
     {
+        _initializeCancelSource.Cancel();
+        Task.WaitAll(_initTasks.ToArray());
+        _initializeCancelSource.Dispose();
         _updateTimer?.Dispose();
         _updateTimer = null;
         foreach (var (_, lightEvent) in Events)

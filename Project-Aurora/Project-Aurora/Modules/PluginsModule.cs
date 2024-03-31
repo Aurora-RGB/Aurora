@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using AuroraRgb.Settings;
 using Lombok.NET;
 
@@ -16,11 +17,11 @@ public sealed partial class PluginsModule : AuroraModule
     {
         Global.logger.Information("Loading Plugins");
         _pluginManager = new PluginManager();
-        _pluginManager.Initialize();
+        await _pluginManager.Initialize(CancellationToken.None);
         _pluginManagerSource.SetResult(_pluginManager);
         Global.logger.Information("Loaded Plugins");
     }
-    
+
     [Async]
     public override void Dispose()
     {

@@ -4,6 +4,8 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace AuroraRgb.Settings
@@ -122,12 +124,12 @@ namespace AuroraRgb.Settings
 
         public bool Initialized { get; protected set; }
 
-        public bool Initialize()
+        public async Task<bool> Initialize(CancellationToken cancellationToken)
         {
             if (Initialized)
                 return true;
 
-            LoadSettings();
+            await LoadSettings();
             LoadPlugins();
 
             return Initialized = true;
@@ -135,7 +137,7 @@ namespace AuroraRgb.Settings
 
         public void ProcessManager(object manager)
         {
-            foreach (var plugin in this.Plugins)
+            foreach (var plugin in Plugins)
             {
                 try
                 {
@@ -202,12 +204,9 @@ namespace AuroraRgb.Settings
 
         public void SetPluginEnabled(string id, bool enabled)
         {
-            if (!this.Settings.PluginManagement.ContainsKey(id))
-                this.Settings.PluginManagement.Add(id, enabled);
-            else
-                this.Settings.PluginManagement[id] = enabled;
+            Settings.PluginManagement[id] = enabled;
 
-            this.SaveSettings();
+            SaveSettings().Wait();
         }
 
         public void Dispose()

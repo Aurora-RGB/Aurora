@@ -276,10 +276,10 @@ namespace AuroraRgb.Settings.Layers
         }
 
         [JsonIgnore]
-        private TextureBrush _previousRender = EffectLayer.EmptyLayer.TextureBrush; //Previous layer
+        private TextureBrush? _previousRender; //Previous layer
 
         [JsonIgnore]
-        private TextureBrush _previousSecondRender = EffectLayer.EmptyLayer.TextureBrush; //Layer before previous
+        private TextureBrush? _previousSecondRender; //Layer before previous
 
         [JsonIgnore]
         private readonly Lazy<EffectLayer> _effectLayer;
@@ -366,14 +366,23 @@ namespace AuroraRgb.Settings.Layers
                     renderedLayer.Dimension, renderedLayer.Dimension,
                     GraphicsUnit.Pixel
                 );
-                g.FillRectangle(_previousRender, renderedLayer.Dimension);
-                g.FillRectangle(_previousSecondRender, renderedLayer.Dimension);
+                if (_previousRender != null)
+                {
+                    g.FillRectangle(_previousRender, renderedLayer.Dimension);
+                }
+                if (_previousSecondRender != null)
+                {
+                    g.FillRectangle(_previousSecondRender, renderedLayer.Dimension);
+                }
             }
 
             try
             {
+                if (_previousRender != null)
+                {
+                    _previousSecondRender = new TextureBrush(_previousRender.Image, renderedLayer.Dimension, _secondPrevImageAttributes);
+                }
                 //Update previous layers
-                _previousSecondRender = new TextureBrush(_previousRender.Image, renderedLayer.Dimension, _secondPrevImageAttributes);
                 _previousRender = new TextureBrush(renderedLayer.TextureBrush.Image, renderedLayer.Dimension, _prevImageAttributes);
             }
             catch (Exception e) //canvas changes

@@ -45,6 +45,7 @@ public sealed partial class LightingStateManagerModule(
         {
             httpListener1.NewGameState += lightingStateManager.GameStateUpdate;
         }
+        Global.logger.Information("Loaded Applications");
         await lightingStateManager.InitUpdate();
     }
 

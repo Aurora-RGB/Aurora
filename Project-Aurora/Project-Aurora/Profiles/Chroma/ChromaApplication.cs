@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading.Tasks;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 
@@ -49,9 +50,9 @@ public class ChromaApplication : Application
         RzHelper.ChromaAppChanged -= RzHelperOnChromaAppChanged;
     }
 
-    protected override void LoadSettings(Type settingsType)
+    protected override async Task LoadSettings(Type settingsType)
     {
-        base.LoadSettings(settingsType);
+        await base.LoadSettings(settingsType);
 
         ((ChromaApplicationSettings)Settings).ExcludedPrograms.CollectionChanged += ExcludedProgramsOnCollectionChanged;
         FilterAndSetProcesses();

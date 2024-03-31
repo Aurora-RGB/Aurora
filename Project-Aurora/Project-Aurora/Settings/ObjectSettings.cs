@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings;
@@ -7,16 +8,21 @@ namespace AuroraRgb.Settings;
 [JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
 public class ObjectSettings<T>
 {
-    protected string SettingsSavePath { get; set; }
-    public T Settings { get; protected set; }
+    protected string? SettingsSavePath { get; set; }
+    public T? Settings { get; protected set; }
 
-    public void SaveSettings()
+    public async Task SaveSettings()
     {
-        SaveSettings(typeof(T));
+        await SaveSettings(typeof(T));
     }
 
-    protected void SaveSettings(Type settingsType)
+    protected async Task SaveSettings(Type settingsType)
     {
+        if (SettingsSavePath == null)
+        {
+            return;
+        }
+
         if (Settings == null) {
             Settings = (T)Activator.CreateInstance(settingsType);
             SettingsCreateHook();
@@ -26,36 +32,46 @@ public class ObjectSettings<T>
         if (!Directory.Exists(dir))
             Directory.CreateDirectory(dir);
 
-        File.WriteAllText(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented }));
+        await File.WriteAllTextAsync(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented
+        }));
     }
 
     /// <summary>A method that is called immediately after the settings being created. Can be overriden to provide specalized handling.</summary>
     protected virtual void SettingsCreateHook() { }
 
-    protected void LoadSettings()
+    protected async Task LoadSettings()
     {
-        LoadSettings(typeof(T));
+        await LoadSettings(typeof(T));
     }
 
-    protected virtual void LoadSettings(Type settingsType)
+    protected virtual async Task LoadSettings(Type settingsType)
     {
+        if (SettingsSavePath == null)
+        {
+            Global.logger.Warning("Type {Type} does not have a setting save path!", GetType());
+            return;
+        }
+
         if (File.Exists(SettingsSavePath))
         {
             try
             {
-                Settings = (T)JsonConvert.DeserializeObject(File.ReadAllText(SettingsSavePath), settingsType, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+                var json = await File.ReadAllTextAsync(SettingsSavePath);
+                Settings = (T)JsonConvert.DeserializeObject(json, settingsType, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
                 if (Settings == null)
                 {
-                    SaveSettings(settingsType);
+                    await SaveSettings(settingsType);
                 }
             }
             catch (Exception exc)
             {
                 Global.logger.Error(exc, "Exception occured while loading \\\"{Name}\\\" Settings", GetType().Name);
-                SaveSettings(settingsType);
+                await SaveSettings(settingsType);
             }
         }
         else
-            SaveSettings(settingsType);
+            await SaveSettings(settingsType);
     }
 }

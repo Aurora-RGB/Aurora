@@ -173,7 +173,7 @@ public sealed class AuroraApp : IDisposable
         Global.logger.Debug("new ConfigUI() took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
         
         stopwatch.Restart();
-        await configUi.Initialize();
+
         Global.logger.Debug("configUi.Initialize() took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
         stopwatch.Stop();
 

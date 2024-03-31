@@ -21,7 +21,7 @@ public sealed class TransparencyComponent : IDisposable
 
     private HwndSource? _hwHandle;
     private readonly Action _setBackground;
-    private SimpleColor _color = SimpleColor.Transparent;
+    private SimpleColor _color = SimpleColor.FromArgb(1, 1, 1, 1);
 
     public TransparencyComponent(AcrylicWindow window, Panel? bg)
     {

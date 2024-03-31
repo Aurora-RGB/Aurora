@@ -146,14 +146,8 @@ partial class ConfigUi : INotifyPropertyChanged
         _keyboardTimerCallback = KeyboardTimerCallback;
         _virtualKeyboardTimer.Elapsed += virtual_keyboard_timer_Tick;
 
-        //Show hidden profiles button
-        _profileHidden = new Image
-        {
-            Source = _notVisible,
-            ToolTip = "Toggle Hidden profiles' visibility",
-            Margin = new Thickness(0, 5, 0, 0)
-        };
-        _profileHidden.MouseDown += HiddenProfile_MouseDown;
+        ProfileAdd.MouseDown += AddProfile_MouseDown;
+        ProfileHidden.MouseDown += HiddenProfile_MouseDown;
     }
 
     private async Task KeyboardTimerCallback()
@@ -195,7 +189,7 @@ partial class ConfigUi : INotifyPropertyChanged
         await Dispatcher.BeginInvoke(_updateKeyboardLayouts, IsDragging ? DispatcherPriority.Background : DispatcherPriority.Render);
     }
 
-    public async Task Initialize()
+    private async void LightingStateManagerOnEventAdded(object? sender, EventArgs e)
     {
         await GenerateProfileStack();
     }
@@ -250,20 +244,29 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private async void Window_Loaded(object? sender, RoutedEventArgs e)
     {
+        if (!IsVisible)
+        {
+            return;
+        }
+        
         (await _layoutManager).KeyboardLayoutUpdated += KbLayout_KeyboardLayoutUpdated;
+        (await _lightingStateManager).EventAdded += LightingStateManagerOnEventAdded;
         
         var handle = new WindowInteropHelper(this).Handle;
         // Subclass the window to intercept messages
         var source = HwndSource.FromHwnd(handle);
         source?.AddHook(WndProcDrag);
 
+        _virtualKeyboardTimer.Start();
+
         KeyboardRecordMessage.Visibility = Visibility.Hidden;
 
-        _currentColor = SimpleColor.Transparent;
+        _currentColor = SimpleColor.Black;
 
         var keyboardLayoutManager = await _layoutManager;
         var virtualKb = await keyboardLayoutManager.VirtualKeyboard;
 
+        KeyboardGrid.Children.Clear();
         KeyboardGrid.Children.Add(virtualKb);
         KeyboardGrid.Children.Add(new LayerEditor());
 
@@ -275,8 +278,8 @@ partial class ConfigUi : INotifyPropertyChanged
         KeyboardViewbox.MaxHeight = virtualKb.Height + 30;
         KeyboardViewbox.UpdateLayout();
 
-        UpdateManagerStackFocus(ctrlLayerManager);
-
+        await GenerateProfileStack();
+        UpdateManagerStackFocus(ctrlLayerManager, true);
         foreach (Image child in profiles_stack.Children)
         {
             if (child.Visibility != Visibility.Visible) continue;
@@ -284,7 +287,6 @@ partial class ConfigUi : INotifyPropertyChanged
             break;
         }
 
-        _virtualKeyboardTimer.Start();
         return;
 
         IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
@@ -310,6 +312,7 @@ partial class ConfigUi : INotifyPropertyChanged
         _virtualKeyboardTimer.Stop();
 
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
+        (await _lightingStateManager).EventAdded -= LightingStateManagerOnEventAdded;
 
         KeyboardGrid.Children.Clear();
     }
@@ -326,7 +329,10 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private async void Window_Closing(object? sender, CancelEventArgs e)
     {
-        FocusedApplication?.SaveAll();
+        if (FocusedApplication != null)
+        { 
+            await FocusedApplication.SaveAll();
+        }
 
         switch (Global.Configuration.CloseMode)
         {
@@ -375,15 +381,6 @@ partial class ConfigUi : INotifyPropertyChanged
         _lastActivated = DateTime.UtcNow;
     }
 
-    private readonly Image _profileAdd = new()
-    {
-        Source = new BitmapImage(new Uri(@"Resources/addprofile_icon.png", UriKind.Relative)),
-        ToolTip = "Add a new Lighting Profile",
-        Margin = new Thickness(0, 5, 0, 0)
-    };
-
-    private readonly Image _profileHidden;
-
     private readonly BitmapImage _visible = new(new Uri(@"Resources/Visible.png", UriKind.Relative));
     private readonly BitmapImage _notVisible = new(new Uri(@"Resources/Not Visible.png", UriKind.Relative));
 
@@ -391,19 +388,21 @@ partial class ConfigUi : INotifyPropertyChanged
     {
         profiles_stack.Children.Clear();
 
+        var focusedSetTaskCompletion = new TaskCompletionSource();
+
         var lightingStateManager = await _lightingStateManager;
-        foreach (var application in Global.Configuration.ProfileOrder
-                     .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
-                     .Select(profileName => (Application)lightingStateManager.Events[profileName])
-                     .OrderBy(item => item.Settings.Hidden ? 1 : 0))
-        {
-            if (application is GenericApplication)
+        var profileLoadTasks = Global.Configuration.ProfileOrder
+            .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
+            .Select(profileName => (Application)lightingStateManager.Events[profileName])
+            .OrderBy(item => item.Settings is { Hidden: false } ? 0 : 1)
+            .Select(application =>
             {
-                await Dispatcher.BeginInvoke(() => { CreateInsertGenericApplication(focusedKey, application); }, DispatcherPriority.Loaded);
-            }
-            else
-            {
-                await Dispatcher.BeginInvoke(() =>
+                if (application is GenericApplication)
+                {
+                    return Dispatcher.BeginInvoke(() => { CreateInsertGenericApplication(focusedKey, application); }, DispatcherPriority.Loaded);
+                }
+
+                return Dispatcher.BeginInvoke(() =>
                 {
                     var profileImage = new Image
                     {
@@ -411,7 +410,7 @@ partial class ConfigUi : INotifyPropertyChanged
                         Source = application.Icon,
                         ToolTip = application.Config.Name + " Settings",
                         Margin = new Thickness(0, 5, 0, 0),
-                        Visibility = application.Settings.Hidden ? Visibility.Collapsed : Visibility.Visible
+                        Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
                     };
                     profileImage.MouseDown += ProfileImage_MouseDown;
                     profiles_stack.Children.Add(profileImage);
@@ -419,25 +418,22 @@ partial class ConfigUi : INotifyPropertyChanged
                     if (!application.Config.ID.Equals(focusedKey)) return;
                     FocusedApplication = application;
                     TransitionToProfile(profileImage);
+                    focusedSetTaskCompletion.TrySetResult();
                 }, DispatcherPriority.Loaded);
-            }
-        }
+            }).Select(x => x.Task);
 
-        //Add new profiles button
-        _profileAdd.MouseDown -= AddProfile_MouseDown;
-        _profileAdd.MouseDown += AddProfile_MouseDown;
-        profiles_stack.Children.Add(_profileAdd);
-        profiles_stack.Children.Add(_profileHidden);
+        var allCompleted = Task.WhenAll(profileLoadTasks);
+        await Task.WhenAny(allCompleted, focusedSetTaskCompletion.Task);
     }
 
     private void CreateInsertGenericApplication(string? focusedKey, Application application)
     {
-        var settings = (GenericApplicationSettings)application.Settings;
+        var settings = application.Settings as GenericApplicationSettings;
         var profileImage = new Image
         {
             Tag = application,
             Source = application.Icon,
-            ToolTip = settings.ApplicationName + " Settings",
+            ToolTip = (settings?.ApplicationName ?? "") + " Settings",
             Margin = new Thickness(0, 0, 0, 5)
         };
         profileImage.MouseDown += ProfileImage_MouseDown;
@@ -445,7 +441,7 @@ partial class ConfigUi : INotifyPropertyChanged
         var profileRemove = new Image
         {
             Source = new BitmapImage(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative)),
-            ToolTip = $"Remove {settings.ApplicationName} Profile",
+            ToolTip = $"Remove {(settings?.ApplicationName ?? "")} Profile",
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
             Height = 16,
@@ -482,7 +478,7 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private void ShowHiddenChanged(bool value)
     {
-        _profileHidden.Source = value ? _visible : _notVisible;
+        ProfileHidden.Source = value ? _visible : _notVisible;
 
         foreach (FrameworkElement ctrl in profiles_stack.Children)
         {
@@ -621,7 +617,7 @@ partial class ConfigUi : INotifyPropertyChanged
         }
 
         var genAppPm = new GenericApplication(filename);
-        genAppPm.Initialize();
+        await genAppPm.Initialize(CancellationToken.None);
         ((GenericApplicationSettings)genAppPm.Settings).ApplicationName = Path.GetFileNameWithoutExtension(filename);
 
         var ico = System.Drawing.Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
@@ -637,7 +633,7 @@ partial class ConfigUi : INotifyPropertyChanged
 
         lightingStateManager.RegisterEvent(genAppPm);
         ConfigManager.Save(Global.Configuration);
-        GenerateProfileStack(filename);
+        await GenerateProfileStack(filename);
     }
 
     private void DesktopControl_MouseLeftButtonDown(object? sender, MouseButtonEventArgs e)

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -89,10 +91,9 @@ public partial class Control_ProfileManager
     private void UpdateProfiles(object? sender, EventArgs e)
     {
         lstProfiles.ItemsSource = FocusedApplication?.Profiles;
-        lstProfiles.Items.SortDescriptions.Add(
-            new System.ComponentModel.SortDescription("ProfileName",
-                System.ComponentModel.ListSortDirection.Ascending));
-        lstProfiles.SelectedItem = FocusedApplication?.Profiles.First(profile => System.IO.Path.GetFileNameWithoutExtension(profile.ProfileFilepath).Equals(FocusedApplication?.Settings.SelectedProfile));
+        lstProfiles.Items.SortDescriptions.Add(new SortDescription("ProfileName", ListSortDirection.Ascending));
+        lstProfiles.SelectedItem = FocusedApplication?.Profiles
+            .FirstOrDefault(profile => Path.GetFileNameWithoutExtension(profile.ProfileFilepath).Equals(FocusedApplication?.Settings?.SelectedProfile));
     }
 
     private void lstProfiles_SelectionChanged(object? sender, SelectionChangedEventArgs e)

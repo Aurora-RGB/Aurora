@@ -7,10 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
@@ -39,8 +42,8 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     public GameStateParameterLookup? ParameterLookup { get; }
     public event EventHandler? ProfileChanged;
     public LightEventConfig Config { get; }
-    public bool IsEnabled => Settings.IsEnabled;
-    public bool IsOverlayEnabled => Settings.IsOverlayEnabled;
+    public bool IsEnabled => Initialized && Settings.IsEnabled && !Disposed;
+    public bool IsOverlayEnabled => Initialized && Settings.IsOverlayEnabled && !Disposed;
 
     #endregion
 
@@ -101,13 +104,13 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         _serializer = JsonSerializer.Create(jsonSerializerSettings);
     }
 
-    public virtual bool Initialize()
+    public virtual async Task<bool> Initialize(CancellationToken cancellationToken)
     {
         if (Initialized)
             return Initialized;
 
-        LoadSettings(Config.SettingsType);
-        LoadProfiles();
+        await LoadSettings(Config.SettingsType);
+        await LoadProfiles(cancellationToken);
         Initialized = true;
         return Initialized;
     }
@@ -256,7 +259,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     private readonly ISerializationBinder _binder = new AuroraSerializationBinder();
     private readonly JsonSerializer _serializer;
 
-    private ApplicationProfile? LoadProfile(string path)
+    private async Task<ApplicationProfile?> LoadProfile(string path)
     {
         if (Disposed)
             return null;
@@ -268,8 +271,8 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                 return null;
             }
 
-            using var profileFile = File.OpenText(path);
-            using var jsonTextReader = new JsonTextReader(profileFile);
+            var profileFile = await File.ReadAllTextAsync(path);
+            await using var jsonTextReader = new JsonTextReader(new StringReader(profileFile));
 
             if (_serializer.Deserialize(jsonTextReader, Config.ProfileType) is not ApplicationProfile prof)
             {
@@ -366,15 +369,10 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (Disposed)
             return false;
 
-        if (EffectScripts.ContainsKey(key))
-        {
-            Global.logger.Warning("Effect script with key {Key} already exists!", key);
-            return false;
-        }
+        if (EffectScripts.TryAdd(key, obj)) return true;
+        Global.logger.Warning("Effect script with key {Key} already exists!", key);
+        return false;
 
-        EffectScripts.Add(key, obj);
-
-        return true;
     }
 
     public virtual void UpdateLights(EffectFrame frame)
@@ -521,7 +519,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
     }
 
-    private void LoadProfiles()
+    private async Task LoadProfiles(CancellationToken cancellationToken)
     {
         var profilesPath = GetProfileFolderPath();
 
@@ -529,24 +527,28 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         {
             LoadScripts(profilesPath);
 
+            // TODO first load default profile
             foreach (var profile in Directory.EnumerateFiles(profilesPath, "*.json", SearchOption.TopDirectoryOnly))
             {
-
                 var profileFilename = Path.GetFileNameWithoutExtension(profile);
                 if (profileFilename.Equals(Path.GetFileNameWithoutExtension(SettingsSavePath)))
                     continue;
-                var profileSettings = LoadProfile(profile);
 
-                if (profileSettings == null) continue;
-                InitializeScriptSettings(profileSettings);
-
-                if (profileFilename.Equals(Settings.SelectedProfile))
-                    Profile = profileSettings;
-
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                var selectedProfile = profileFilename.Equals(Settings.SelectedProfile);
+                if (selectedProfile)
                 {
-                    Profiles.Add(profileSettings);
-                });
+                    await LoadProfileFile(profile, selectedProfile);
+                }
+                else
+                {
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Task.Run(async () =>
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    {
+                        await Task.Delay(4000, cancellationToken);
+                        await LoadProfileFile(profile, selectedProfile);
+                    }, cancellationToken);
+                }
             }
         }
         else
@@ -561,6 +563,22 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
         if (Profile == null)
             AddDefaultProfile();
+
+        async Task LoadProfileFile(string profile, bool selectedProfile)
+        {
+            var profileSettings = await LoadProfile(profile);
+
+            if (profileSettings == null) return;
+            InitializeScriptSettings(profileSettings);
+
+            if (selectedProfile)
+                Profile = profileSettings;
+
+            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                Profiles.Add(profileSettings);
+            }, DispatcherPriority.Input);
+        }
     }
 
     private void SaveProfile()
@@ -611,22 +629,25 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
     }
 
-    public void SaveAll()
+    public async Task SaveAll()
     {
         if (Disposed || Config == null)
             return;
 
-        SaveSettings(Config.SettingsType);
+        await SaveSettings(Config.SettingsType);
         SaveProfiles();
     }
 
-    protected override void LoadSettings(Type settingsType)
+    protected override async Task LoadSettings(Type settingsType)
     {
-        base.LoadSettings(settingsType);
+        await base.LoadSettings(settingsType);
 
-        Settings.PropertyChanged += (_, e) => {
-            SaveSettings(Config.SettingsType);
-        };
+        Settings.PropertyChanged += OnSettingsPropertyChanged;
+    }
+
+    private async void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        await SaveSettings(Config.SettingsType);
     }
 
     public virtual void Dispose()
@@ -635,6 +656,11 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             return;
         Disposed = true;
         Profile = null;
+
+        if (Settings != null)
+        {
+            Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        }
 
         foreach (var profile in Profiles)
             profile.Dispose();
