@@ -5,17 +5,17 @@ using Common.Devices;
 
 namespace AuroraRgb.Settings.Layers.Controls;
 
-public partial class Control_RazerLayer
+public partial class Control_LightsyncLayer
 {
     private bool _settingsSet;
-    private RazerLayerHandler? Context => DataContext as RazerLayerHandler;
+    private LogitechLayerHandler? Context => DataContext as LogitechLayerHandler;
 
-    public Control_RazerLayer()
+    public Control_LightsyncLayer()
     {
         InitializeComponent();
     }
 
-    public Control_RazerLayer(RazerLayerHandler dataContext)
+    public Control_LightsyncLayer(LogitechLayerHandler dataContext)
     {
         InitializeComponent();
 
@@ -67,14 +67,18 @@ public partial class Control_RazerLayer
 
     private void OnDeleteKeyCloneButtonClick(object? sender, RoutedEventArgs e)
     {
+        if (Context == null)
+        {
+            return;
+        }
         var cloneMap = Context.Properties.KeyCloneMap;
         foreach (var o in KeyCloneListBox.SelectedItems)
         {
-            if (o is not KeyValuePair<DeviceKeys, DeviceKeys> item) continue;
-            if (!cloneMap.TryGetValue(item.Key, out var value) || value != item.Value)
+            if (o is not KeyValuePair<DeviceKeys, DeviceKeys> (var source, var target)) continue;
+            if (!cloneMap.TryGetValue(source, out var key) || key != target)
                 continue;
 
-            cloneMap.Remove(item.Key);
+            cloneMap.Remove(source);
         }
 
         CollectionViewSource.GetDefaultView(KeyCloneListBox.ItemsSource).Refresh();

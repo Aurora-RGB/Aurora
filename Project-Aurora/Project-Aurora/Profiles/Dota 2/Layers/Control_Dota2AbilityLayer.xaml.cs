@@ -160,6 +160,10 @@ public partial class Control_Dota2AbilityLayer
             void KeyRecorderOnFinishedRecording(DeviceKeys[] resultingKeys)
             {
                 Global.key_recorder.FinishedRecording -= KeyRecorderOnFinishedRecording;
+                if (resultingKeys.Length == 0)
+                {
+                    return;
+                }
                 callback(resultingKeys);
                 Global.key_recorder.Reset();
             }

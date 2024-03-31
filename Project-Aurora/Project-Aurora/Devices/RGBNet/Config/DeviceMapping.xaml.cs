@@ -14,9 +14,6 @@ using RGB.NET.Core;
 
 namespace AuroraRgb.Devices.RGBNet.Config;
 
-/// <summary>
-/// Interaction logic for AsusConfigWindow.xaml
-/// </summary>
 public partial class DeviceMapping
 {
     private readonly Task<DeviceManager> _deviceManager;
@@ -241,13 +238,13 @@ public partial class DeviceMapping
     private void SetAllNone_Click(object? sender, RoutedEventArgs e)
     {
         foreach (var key in _keys)
-            key.DeviceKey = DeviceKeys.NONE;
+            key.SetDeviceKey(DeviceKeys.NONE);
     }
 
     private void SetAllLogo_Click(object? sender, RoutedEventArgs e)
     {
         foreach (var key in _keys)
-            key.DeviceKey = DeviceKeys.Peripheral_Logo;
+            key.SetDeviceKey(DeviceKeys.Peripheral_Logo);
     }
 
     #endregion

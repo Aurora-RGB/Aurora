@@ -27,7 +27,6 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
         set => _transparencyEnabled = value;
     }
 
-    [JsonIgnore]
     private bool? _colorPostProcessEnabled;
     [JsonProperty("_ColorPostProcessEnabled")]
     public bool ColorPostProcessEnabled
@@ -36,7 +35,6 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
         set => _colorPostProcessEnabled = value;
     }
 
-    [JsonIgnore]
     private double? _brightnessChange;
     [JsonProperty("_BrightnessChange")]
     public double BrightnessChange
@@ -45,7 +43,6 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
         set => _brightnessChange = value;
     }
 
-    [JsonIgnore]
     private double? _saturationChange;
     [JsonProperty("_SaturationChange")]
     public double SaturationChange
@@ -54,7 +51,6 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
         set => _saturationChange = value;
     }
 
-    [JsonIgnore]
     private double? _hueShift;
     [JsonProperty("_HueShift")]
     public double HueShift
@@ -63,7 +59,6 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
         set => _hueShift = value;
     }
 
-    [JsonIgnore]
     private Dictionary<DeviceKeys, DeviceKeys>? _keyCloneMap;
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
@@ -91,12 +86,8 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [LayerHandlerMeta(Name = "Razer Chroma", IsDefault = true)]
-public class RazerLayerHandler : LayerHandler<RazerLayerHandlerProperties>
+public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Chroma Layer")
 {
-    public RazerLayerHandler() : base("Chroma Layer")
-    {
-    }
-
     protected override UserControl CreateControl()
     {
         return new Control_RazerLayer(this);

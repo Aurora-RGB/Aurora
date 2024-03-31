@@ -9,19 +9,50 @@ using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using Common.Devices;
+using Common.Utils;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
 public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLayerHandlerProperties>
 {
+    private bool? _colorPostProcessEnabled;
+    [JsonProperty("_ColorPostProcessEnabled")]
+    public bool ColorPostProcessEnabled
+    {
+        get => Logic._colorPostProcessEnabled ?? _colorPostProcessEnabled ?? false;
+        set => _colorPostProcessEnabled = value;
+    }
 
-    [JsonIgnore]
+    private double? _brightnessChange;
+    [JsonProperty("_BrightnessChange")]
+    public double BrightnessChange
+    {
+        get => Logic._brightnessChange ?? _brightnessChange ?? 0;
+        set => _brightnessChange = value;
+    }
+
+    private double? _saturationChange;
+    [JsonProperty("_SaturationChange")]
+    public double SaturationChange
+    {
+        get => Logic._saturationChange ?? _saturationChange ?? 0;
+        set => _saturationChange = value;
+    }
+
+    private double? _hueShift;
+    [JsonProperty("_HueShift")]
+    public double HueShift
+    {
+        get => Logic._hueShift ?? _hueShift ?? 0;
+        set => _hueShift = value;
+    }
+
     private Dictionary<DeviceKeys, DeviceKeys>? _keyCloneMap;
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
     {
-        get => Logic?._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
+        get => Logic._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
         set => _keyCloneMap = value;
     }
 
@@ -43,7 +74,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
 public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProperties>
 {
     private bool _invalidated = true;
-    private SolidBrush _background = new(Color.Empty);
+    private readonly SolidBrush _background = new(Color.Empty);
     
     public LogitechLayerHandler() : base("Logitech Layer")
     {
@@ -52,7 +83,7 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
 
     protected override UserControl CreateControl()
     {
-        return new Control_DefaultLayer();//TODO Logitech Control
+        return new Control_LightsyncLayer(this);
     }
 
     private void LogitechSdkListenerOnColorsUpdated(object? sender, EventArgs e)
@@ -77,19 +108,35 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
         EffectLayer.Fill(_background);
         foreach (var kv in logitechSdk.Colors)
         {
-            EffectLayer.Set(kv.Key, kv.Value);
+            var color = Properties.ColorPostProcessEnabled ? PostProcessColor(kv.Value) : kv.Value;
+            EffectLayer.Set(kv.Key, color);
         }
 
-        foreach (var target in Properties.KeyCloneMap)
-            if(TryGetColor(target.Value, out var clr))
-                EffectLayer.Set(target.Key, clr);
+        foreach (var (target, source) in Properties.KeyCloneMap)
+            if(TryGetColor(source, out var clr))
+            {
+                var color = Properties.ColorPostProcessEnabled ? PostProcessColor(clr) : clr;
+                EffectLayer.Set(target, color);
+            }
 
         return EffectLayer;
     }
 
-    private bool TryGetColor(DeviceKeys key, out Color color)
+    private Color PostProcessColor(Color color)
     {
-        return !LogitechSdkModule.LogitechSdkListener.Colors.TryGetValue(key, out color);
+        if (Properties.BrightnessChange != 0)
+            color = CommonColorUtils.ChangeBrightness(color, Properties.BrightnessChange);
+        if (Properties.SaturationChange != 0)
+            color = CommonColorUtils.ChangeSaturation(color, Properties.SaturationChange);
+        if (Properties.HueShift != 0)
+            color = CommonColorUtils.ChangeHue(color, Properties.HueShift);
+
+        return color;
+    }
+
+    private static bool TryGetColor(DeviceKeys key, out Color color)
+    {
+        return LogitechSdkModule.LogitechSdkListener.Colors.TryGetValue(key, out color);
     }
 
     public override void Dispose()

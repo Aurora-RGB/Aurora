@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using AuroraRgb.Controls;
 using Common.Devices;
 using Common.Devices.RGBNet;
 using RGB.NET.Core;
@@ -17,14 +18,7 @@ public partial class RgbNetKeyToDeviceKeyControl
     public Func<Task>? BlinkCallback { get; set; }
     private bool Disabled { get; }
 
-    public DeviceKeys? DeviceKey
-    {
-        set
-        {
-            DeviceKeyButton.Content = value;
-            DeviceKeyChanged?.Invoke(this, value);
-        }
-    }
+    public void SetDeviceKey(DeviceKeys? value) => LedCapturer.DeviceKey = value;
 
     private readonly DeviceRemap _configDeviceRemap;
     public LedId Led { get; }
@@ -40,29 +34,25 @@ public partial class RgbNetKeyToDeviceKeyControl
         InitializeComponent();
 
         KeyIdValue.Text = led.ToString();
+
         UpdateMappedLedId();
+        LedCapturer.DeviceKeyChanged += DeviceKeyButton_OnClick;
     }
 
     private void UpdateMappedLedId()
     {
+        LedCapturer.DeviceKeyChanged -= DeviceKeyButton_OnClick;
         if (_configDeviceRemap.KeyMapper.TryGetValue(Led, out var deviceKey))
         {
-            DeviceKeyButton.Content = deviceKey;
+            LedCapturer.DeviceKey = deviceKey;
             ButtonBorder.BorderBrush = Brushes.Blue;
         }
         else
         {
-            if (RgbNetKeyMappings.KeyNames.TryGetValue(Led, out var defaultKey))
-            {
-                DeviceKeyButton.Content = defaultKey;
-                ButtonBorder.BorderBrush = Brushes.Black;
-            }
-            else
-            {
-                DeviceKeyButton.Content = DeviceKeys.NONE;
-                ButtonBorder.BorderBrush = Brushes.Red;
-            }
+            LedCapturer.DeviceKey = RgbNetKeyMappings.KeyNames.GetValueOrDefault(Led, DeviceKeys.NONE);
+            ButtonBorder.BorderBrush = RgbNetKeyMappings.KeyNames.TryGetValue(Led, out _) ? Brushes.Black : Brushes.Red;
         }
+        LedCapturer.DeviceKeyChanged += DeviceKeyButton_OnClick;
     }
 
     private void TestBlink(object? sender, RoutedEventArgs e)
@@ -76,22 +66,14 @@ public partial class RgbNetKeyToDeviceKeyControl
         UpdateMappedLedId();
     }
 
-    private void DeviceKeyButton_OnClick(object? sender, RoutedEventArgs e)
+    private void DeviceKeyButton_OnClick(object? sender, ButtonLedChangedEventArgs ledChangedEvent)
     {
         if (Disabled)
         {
             return;
         }
-        Global.key_recorder.FinishedRecording += KeyRemapped;
-        Global.key_recorder.StartRecording("DeviceRemap", true);
-    }
 
-    private void KeyRemapped(DeviceKeys[] keys)
-    {
-        Global.key_recorder.FinishedRecording -= KeyRemapped;
-        var assignedKey = keys.First();
-        DeviceKeyChanged?.Invoke(this, assignedKey);
+        DeviceKeyChanged?.Invoke(this, ledChangedEvent.DeviceKey);
         UpdateMappedLedId();
-        Global.key_recorder.Reset();
     }
 }
