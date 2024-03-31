@@ -527,14 +527,19 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         {
             LoadScripts(profilesPath);
 
-            // TODO first load default profile
-            foreach (var profile in Directory.EnumerateFiles(profilesPath, "*.json", SearchOption.TopDirectoryOnly))
+            var profileFiles = Directory.EnumerateFiles(profilesPath, "*.json", SearchOption.TopDirectoryOnly)
+                .OrderBy(filePath =>
+                {
+                    var profileFilename = Path.GetFileNameWithoutExtension(filePath);
+                    return !profileFilename.Equals(Settings?.SelectedProfile);
+                });
+            foreach (var profile in profileFiles)
             {
                 var profileFilename = Path.GetFileNameWithoutExtension(profile);
                 if (profileFilename.Equals(Path.GetFileNameWithoutExtension(SettingsSavePath)))
                     continue;
 
-                var selectedProfile = profileFilename.Equals(Settings.SelectedProfile);
+                var selectedProfile = profileFilename.Equals(Settings?.SelectedProfile);
                 if (selectedProfile)
                 {
                     await LoadProfileFile(profile, selectedProfile);
@@ -563,22 +568,22 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
         if (Profile == null)
             AddDefaultProfile();
+    }
 
-        async Task LoadProfileFile(string profile, bool selectedProfile)
+    private async Task LoadProfileFile(string profile, bool selectedProfile)
+    {
+        var profileSettings = await LoadProfile(profile);
+
+        if (profileSettings == null) return;
+        InitializeScriptSettings(profileSettings);
+
+        if (selectedProfile)
+            Profile = profileSettings;
+
+        System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
         {
-            var profileSettings = await LoadProfile(profile);
-
-            if (profileSettings == null) return;
-            InitializeScriptSettings(profileSettings);
-
-            if (selectedProfile)
-                Profile = profileSettings;
-
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(() =>
-            {
-                Profiles.Add(profileSettings);
-            }, DispatcherPriority.Input);
-        }
+            Profiles.Add(profileSettings);
+        }, DispatcherPriority.Input);
     }
 
     private void SaveProfile()
