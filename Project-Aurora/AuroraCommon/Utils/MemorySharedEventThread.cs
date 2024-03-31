@@ -73,6 +73,10 @@ internal static class MemorySharedEventThread
                     _semaphore.Wait(CancelToken.Token);
                     ThreadCallback();
                 }
+                catch (OperationCanceledException)
+                {
+                    // end the thread
+                }
                 finally
                 {
                     _semaphore.Release();
@@ -86,35 +90,35 @@ internal static class MemorySharedEventThread
             thread.Start();
             Thread.Yield();
             return thread;
-            
-            void ThreadCallback(){
-                if (_handles.Length <= 1)
+        }
+
+        private void ThreadCallback(){
+            if (_handles.Length <= 1)
+            {
+                // stop thread if only handle is cancel token
+                return;
+            }
+            while (true)
+            {
+                if (CancelToken.IsCancellationRequested)
                 {
-                    // stop thread if only handle is cancel token
                     return;
                 }
-                while (true)
+                var i = WaitHandle.WaitAny(_handles);
+                switch (i)
                 {
-                    if (CancelToken.IsCancellationRequested)
-                    {
+                    case 0:
                         return;
-                    }
-                    var i = WaitHandle.WaitAny(_handles);
-                    switch (i)
-                    {
-                        case 0:
-                            return;
-                        default:
-                            if (i >= _handles.Length)
-                            {
-                                break;
-                            }
-                            Task.Run(() =>
-                            {
-                                _actions[i].Invoke();
-                            });
+                    default:
+                        if (i >= _handles.Length)
+                        {
                             break;
-                    }
+                        }
+                        Task.Run(() =>
+                        {
+                            _actions[i].Invoke();
+                        });
+                        break;
                 }
             }
         }
