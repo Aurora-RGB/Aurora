@@ -27,16 +27,15 @@ public sealed class LightingStateManager : IDisposable
     public Dictionary<string, ILightEvent> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
 
     private Desktop.Desktop DesktopProfile => (Desktop.Desktop)Events["desktop"];
+    private ILightEvent? _currentEvent;
+    public ILightEvent CurrentEvent => _currentEvent ?? DesktopProfile;
 
     private readonly List<ILightEvent> _startedEvents = [];
     private readonly List<ILightEvent> _updatedEvents = [];
 
     private Dictionary<string, string> EventProcesses { get; } = new();
-
     private Dictionary<Regex, string> EventTitles { get; } = new();
-
     private Dictionary<string, string> EventAppIDs { get; } = new();
-
     public Dictionary<Type, LayerHandlerMeta> LayerHandlers { get; } = new();
 
     public event EventHandler? PreUpdate;
@@ -449,6 +448,7 @@ public sealed class LightingStateManager : IDisposable
         var newFrame = new EffectsEngine.EffectFrame();
 
         var profile = GetCurrentProfile(out var preview);
+        _currentEvent = profile;
 
         // If the current foreground process is excluded from Aurora, disable the lighting manager
         if ((profile is Desktop.Desktop && !profile.IsEnabled) || Global.Configuration.ExcludedPrograms.Contains(rawProcessName))
