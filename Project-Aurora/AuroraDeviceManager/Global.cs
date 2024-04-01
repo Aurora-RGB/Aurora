@@ -1,5 +1,6 @@
 ﻿using Common.Devices;
 using Serilog;
+using Serilog.Exceptions;
 
 namespace AuroraDeviceManager;
 
@@ -27,6 +28,7 @@ public static class Global
         var logFile = $"Devices-{DateTime.Now:yyyy-MM-dd HH.mm.ss}.log";
         var logPath = Path.Combine(AppDataDirectory, "Logs", logFile);
         Logger = new LoggerConfiguration()
+            .Enrich.WithExceptionDetails()
             .Enrich.FromLogContext()
             .Filter.UniqueOverSpan("true", TimeSpan.FromSeconds(30))
             .WriteTo.File(logPath,

@@ -12,6 +12,7 @@ using RazerSdkReader;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Exceptions;
 
 namespace AuroraRgb;
 
@@ -88,6 +89,7 @@ public static class Global
         var logFile = $"{DateTime.UtcNow:yyyy-MM-dd HH.mm.ss}.log";
         var logPath = Path.Combine(AppDataDirectory, "Logs", logFile);
         logger = new LoggerConfiguration()
+            .Enrich.WithExceptionDetails()
             .Enrich.FromLogContext()
             .Filter.UniqueOverSpan("true", TimeSpan.FromSeconds(30))
             .WriteTo.File(logPath,

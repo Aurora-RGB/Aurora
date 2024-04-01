@@ -108,6 +108,7 @@
         <PackageReference Include="RGB.NET.Devices.Razer" Version="2.0.4-prerelease.14"/>
         <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="2.0.0"/>
         <PackageReference Include="RGB.NET.Devices.Wooting" Version="2.0.0"/>
+        <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0"/>
         <PackageReference Include="System.Management" Version="8.0.0"/>
         <PackageReference Include="Vulcan.NET" Version="2.2.0"/>
