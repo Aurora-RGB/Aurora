@@ -153,22 +153,15 @@ partial class ConfigUi : INotifyPropertyChanged
             return;
         }
 
+        _transitionAmount += _keyboardTimer.Elapsed.TotalSeconds;
         if (IsDragging)
         {
             _transitionAmount = 0.4;
             _previousColor = SimpleColor.Transparent;
-        } else if (_transitionAmount <= 1.0f)
-        {
-            _transitionAmount += _keyboardTimer.Elapsed.TotalSeconds;
-            var smooth = 1 - Math.Pow(1 - Math.Min(_transitionAmount, 1d), 3);
-            var a = ColorUtils.BlendColors(_previousColor, _currentColor, smooth);
-            _transparencyComponent.SetBackgroundColor(a);
         }
-        
         if (_transitionAmount <= 1.0f)
         {
-            _transitionAmount += _keyboardTimer.Elapsed.TotalSeconds;
-            var smooth = 1 - Math.Pow(1 - Math.Min(_transitionAmount, 1d), 3);
+            var smooth = 1 - Math.Pow(1 - Math.Min(_transitionAmount, 1d), 4);
             var a = ColorUtils.BlendColors(_previousColor, _currentColor, smooth);
             _transparencyComponent.SetBackgroundColor(a);
         }
@@ -241,11 +234,17 @@ partial class ConfigUi : INotifyPropertyChanged
         }
         
         (await _layoutManager).KeyboardLayoutUpdated += KbLayout_KeyboardLayoutUpdated;
-        
+
+        if (windowHwndSource != null)
+        {
+            windowHwndSource.RemoveHook(WndProcDrag);
+            windowHwndSource.Dispose();
+            windowHwndSource = null;
+        }
         var handle = new WindowInteropHelper(this).Handle;
         // Subclass the window to intercept messages
-        var source = HwndSource.FromHwnd(handle);
-        source?.AddHook(WndProcDrag);
+        windowHwndSource = HwndSource.FromHwnd(handle);
+        windowHwndSource?.AddHook(WndProcDrag);
 
         _virtualKeyboardTimer.Start();
 
@@ -270,26 +269,24 @@ partial class ConfigUi : INotifyPropertyChanged
 
         await GenerateProfileStack();
         UpdateManagerStackFocus(ctrlLayerManager, true);
-
-        return;
-
-        IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            const int wmEnterSizeMove = 0x0231;
-            const int wmExitSizeMove = 0x0232;
-            switch (msg)
-            {
-                case wmEnterSizeMove:
-                    IsDragging = true;
-                    break;
-                case wmExitSizeMove:
-                    IsDragging = false;
-                    break;
-            }
-
-            return IntPtr.Zero;
-        }
     }
+
+   private static IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+   {
+       const int wmEnterSizeMove = 0x0231;
+       const int wmExitSizeMove = 0x0232;
+       switch (msg)
+       {
+           case wmEnterSizeMove:
+               IsDragging = true;
+               break;
+           case wmExitSizeMove:
+               IsDragging = false;
+               break;
+       }
+
+       return IntPtr.Zero;
+   }
 
     private async Task GenerateProfileStack()
     {
@@ -303,6 +300,10 @@ partial class ConfigUi : INotifyPropertyChanged
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
 
         KeyboardGrid.Children.Clear();
+
+        windowHwndSource?.RemoveHook(WndProcDrag);
+        windowHwndSource?.Dispose();
+        windowHwndSource = null;
     }
 
     private readonly Stopwatch _keyboardTimer = Stopwatch.StartNew();
@@ -485,6 +486,7 @@ partial class ConfigUi : INotifyPropertyChanged
     public Control? SelectedControl { get => _selectedControl; set => SetField(ref _selectedControl, value); }
     private Control? _selectedControl;
     private readonly Control_ProfilesStack _profilesStack;
+    private HwndSource? windowHwndSource;
 
     #endregion
 }
