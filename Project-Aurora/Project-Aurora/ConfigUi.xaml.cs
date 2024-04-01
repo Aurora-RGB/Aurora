@@ -62,8 +62,6 @@ partial class ConfigUi : INotifyPropertyChanged
     private bool _keyboardUpdating;
     private readonly Func<Task> _updateKeyboardLayouts;
 
-    private static readonly bool DisposeWindow = false;
-
     private static bool IsDragging { get; set; }
 
     public Application? FocusedApplication
@@ -345,10 +343,7 @@ partial class ConfigUi : INotifyPropertyChanged
             }
             case AppExitMode.Minimize:
                 await MinimizeApp();
-                if (!DisposeWindow)
-                {
-                    e.Cancel = true;
-                }
+                e.Cancel = true;
                 break;
             default:
                 await _controlInterface.ShutdownDevices();

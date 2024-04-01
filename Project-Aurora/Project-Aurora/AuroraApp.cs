@@ -95,7 +95,7 @@ public sealed class AuroraApp : IDisposable
         _controlInterface.DeviceManager = await _devicesModule.DeviceManager;
         await _controlInterface.Initialize();
         _trayIcon.DisplayWindow += TrayIcon_OnDisplayWindow;
-        var configUi = await CreateWindow();
+        var configUi = CreateWindow();
 
         Global.logger.Information("Waiting for modules...");
         await Task.WhenAll(initModules);
@@ -150,11 +150,11 @@ public sealed class AuroraApp : IDisposable
 
     private void DisplayWindow()
     {
-        Application.Current.Dispatcher.BeginInvoke(async () =>
+        Application.Current.Dispatcher.BeginInvoke(() =>
         {
             if (Application.Current.MainWindow is not ConfigUi mainWindow)
             {
-                var configUi = await CreateWindow();
+                var configUi = CreateWindow();
                 Application.Current.MainWindow = configUi;
                 configUi.Display();
                 return;
@@ -163,18 +163,18 @@ public sealed class AuroraApp : IDisposable
         });
     }
 
-    private async Task<ConfigUi> CreateWindow()
+    private ConfigUi CreateWindow()
     {
         Global.logger.Information("Loading ConfigUI...");
         var stopwatch = Stopwatch.StartNew();
         var configUi = new ConfigUi(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
             LightingStateManagerModule.LightningStateManager, _controlInterface);
-        Global.logger.Debug("new ConfigUI() took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
+        Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);
         
         stopwatch.Restart();
 
-        Global.logger.Debug("configUi.Initialize() took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
+        Global.logger.Debug("configUi.Initialize() took {Elapsed}", stopwatch.Elapsed);
         stopwatch.Stop();
 
         return configUi;
