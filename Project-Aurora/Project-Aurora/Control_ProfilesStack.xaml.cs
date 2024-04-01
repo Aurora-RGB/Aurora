@@ -115,7 +115,7 @@ public partial class Control_ProfilesStack
         {
             Tag = application,
             Source = application.Icon,
-            ToolTip = (settings?.ApplicationName ?? "") + " Settings",
+            ToolTip = application.Config.ProcessNames[0] + " Settings",
             Margin = new Thickness(0, 0, 0, 5)
         };
         profileImage.MouseDown += ProfileImage_MouseDown;
@@ -123,7 +123,7 @@ public partial class Control_ProfilesStack
         var profileRemove = new Image
         {
             Source = new BitmapImage(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative)),
-            ToolTip = $"Remove {(settings?.ApplicationName ?? "")} Profile",
+            ToolTip = $"Remove {application.Config.ProcessNames[0]} Profile",
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
             Height = 16,
@@ -175,7 +175,6 @@ public partial class Control_ProfilesStack
 
         var genAppPm = new GenericApplication(filename);
         await genAppPm.Initialize(CancellationToken.None);
-        ((GenericApplicationSettings)genAppPm.Settings).ApplicationName = Path.GetFileNameWithoutExtension(filename);
 
         var ico = System.Drawing.Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
 
@@ -270,7 +269,7 @@ public partial class Control_ProfilesStack
 
         var lightingStateManager = await _lightingStateManager;
         if (!lightingStateManager.Events.TryGetValue(name, out var value)) return;
-        var applicationName = (((Application)value).Settings as GenericApplicationSettings).ApplicationName;
+        var applicationName = value.Config.ProcessNames[0];
         if (MessageBox.Show(
                 "Are you sure you want to delete profile for " +
                 applicationName + "?", "Remove Profile", MessageBoxButton.YesNo,

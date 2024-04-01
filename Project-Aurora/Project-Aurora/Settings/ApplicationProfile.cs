@@ -27,7 +27,7 @@ public class ScriptSettings : INotifyPropertyChanged
 }
 
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithInheritors)]
-public class ApplicationProfile : INotifyPropertyChanged, IDisposable
+public abstract class ApplicationProfile : INotifyPropertyChanged, IDisposable
 {
     public string ProfileName { get; set; }
     public Keybind TriggerKeybind { get; set; }
@@ -45,8 +45,8 @@ public class ApplicationProfile : INotifyPropertyChanged, IDisposable
 
     public virtual void Reset()
     {
-        Layers = new ObservableCollection<Layer>();
-        OverlayLayers = new ObservableCollection<Layer>();
+        Layers = [];
+        OverlayLayers = [];
         ScriptSettings = new Dictionary<string, ScriptSettings>();
         TriggerKeybind = new Keybind();
     }

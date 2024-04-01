@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AuroraRgb.Settings;
@@ -44,6 +46,27 @@ public class GenericApplication : Application
     })
     {
         AllowLayer<WrapperLightsLayerHandler>();
+    }
+
+    protected override async Task LoadSettings(Type settingsType)
+    {
+        await base.LoadSettings(settingsType);
+
+        if (Settings is GenericApplicationSettings genericApplicationSettings)
+        {
+            var additionalProcessNames = genericApplicationSettings.AdditionalProcesses;
+            if (additionalProcessNames.Length != 0)
+            {
+                if (additionalProcessNames[0] != Config.ProcessNames[0])
+                {
+                    Config.ProcessNames = Config.ProcessNames.Concat(additionalProcessNames).ToArray();
+                }
+                else
+                {
+                    Config.ProcessNames = additionalProcessNames;
+                }
+            }
+        }
     }
 
     public override string GetProfileFolderPath()

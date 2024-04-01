@@ -5,17 +5,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              x:Class="AuroraRgb.Profiles.Generic_Application.Control_GenericApplication"
              mc:Ignorable="d" 
+             Loaded="Control_GenericApplication_OnLoaded"
+             Unloaded="Control_GenericApplication_OnUnloaded"
              d:DesignHeight="300" Height="Auto" Width="Auto" d:DesignWidth="850" >
-
     <Grid>
         <TabControl>
             <TabItem Header="General Settings">
-                <Grid>
-                    <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="Application Name:" VerticalAlignment="Top"/>
-                    <TextBox x:Name="app_name_textbox" HorizontalAlignment="Left" Height="23" Margin="113,29,0,0" VerticalAlignment="Top" Width="172" Text="{Binding Settings.ApplicationName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <CheckBox x:Name="profile_enabled" Content="Enable Aurora to provide lighting effects with this profile" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Settings.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <CheckBox x:Name="profile_nighttime_check" Content="Preview profile during nighttime setting" HorizontalAlignment="Left" Margin="10,80,0,0" VerticalAlignment="Top" Checked="profile_nighttime_check_Checked" Unchecked="profile_nighttime_check_Checked"/>
-                </Grid>
+                <StackPanel Orientation="Vertical">
+                    <CheckBox Content="Enable Aurora to provide lighting effects with this profile" HorizontalAlignment="Left"
+                              Margin="10,10,0,0" VerticalAlignment="Top" IsChecked="{Binding Settings.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock>Activation processes:</TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <ListBox Name="ProcessListBox" SelectionChanged="ProcessListBox_OnSelectionChanged" Margin="5,5,0,0" Height="200" Width="250" HorizontalAlignment="Left">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}"></TextBlock>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel Orientation="Vertical">
+                            <Button Name="RemoveSelectedButton" Click="RemoveSelectedButton_OnClick" Margin="5,5,0,0">Remove Selected</Button>
+                            <Button Name="AddProcessButton" Click="AddProcessButton_OnClick" Margin="5,5,0,0">Add Process</Button>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </Grid>
