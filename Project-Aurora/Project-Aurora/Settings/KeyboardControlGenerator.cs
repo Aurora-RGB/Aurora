@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,12 +16,14 @@ using Common.Devices;
 
 namespace AuroraRgb.Settings;
 
-internal class KeyboardControlGenerator(
+internal sealed class KeyboardControlGenerator(
     bool abstractKeycaps,
     IDictionary<DeviceKeys, Keycap> virtualKeyboardMap,
     VirtualGroup virtualKeyboardGroup,
     string layoutsPath,
-    Panel virtualKeyboard)
+    Panel virtualKeyboard,
+    CancellationToken cancellationToken
+)
 {
     private double _layoutHeight;
     private double _layoutWidth;
@@ -34,15 +37,25 @@ internal class KeyboardControlGenerator(
     public double GridWidth => virtualKeyboard.Width;
     public double GridHeight => virtualKeyboard.Height;
 
+
     internal async Task<Panel> Generate()
     {
         var imagesPath = Path.Combine(layoutsPath, "Extra Features", "images");
 
         virtualKeyboard.Children.Clear();
-        var keyCreations = virtualKeyboardGroup.GroupedKeys.OrderBy(a => a.ZIndex).Select(async key =>
-        {
-            await Application.Current.Dispatcher.BeginInvoke(() => { CreateKey(key, imagesPath); }, DispatcherPriority.Loaded);
-        });
+        var keyCreations = virtualKeyboardGroup.GroupedKeys
+            .OrderBy(a => a.ZIndex)
+            .Select(async key =>
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                    {
+                        CancellationToken().ThrowIfCancellationRequested();
+                        CreateKey(key, imagesPath);
+                    },
+                    DispatcherPriority.Loaded,
+                    CancellationToken()
+                );
+            });
         await Task.WhenAll(keyCreations);
 
         if (virtualKeyboardGroup.GroupedKeys.Count == 0)
@@ -58,6 +71,11 @@ internal class KeyboardControlGenerator(
         }
 
         return virtualKeyboard;
+    }
+
+    private CancellationToken CancellationToken()
+    {
+        return cancellationToken;
     }
 
     private void DisplayNoKeyboardError()
@@ -137,7 +155,7 @@ internal class KeyboardControlGenerator(
                 _ => new Control_DefaultKeycap(key, imagePath)
             };
         }
-        
+
         var keyLights = Global.effengine.GetKeyboardLights();
         if (keyLights.TryGetValue(key.Tag, out var keyColor))
         {
