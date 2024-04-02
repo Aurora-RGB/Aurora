@@ -102,7 +102,7 @@ public partial class Control_ProfilesStack
                         FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)profileImage.Source));
 
                         focusedSetTaskCompletion.TrySetResult();
-                    }, DispatcherPriority.DataBind);
+                    }, DispatcherPriority.Render);
                 }, DispatcherPriority.Loaded);
             }).Select(x => x.Task);
 
