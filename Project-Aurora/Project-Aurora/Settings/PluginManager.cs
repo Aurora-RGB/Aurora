@@ -3,215 +3,197 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Data;
 
-namespace AuroraRgb.Settings
+namespace AuroraRgb.Settings;
+
+public interface IShortcut
 {
-    public interface IShortcut
+    string Title { get; set; }
+}
+
+public class ShortcutNode(string title) : IShortcut
+{
+    public string Title { get; set; } = title;
+
+    public List<IShortcut>? Children { get; set; }
+
+    public Keybind[] GetShortcuts()
     {
-        string Title { get; set; }
-    }
+        if (Children == null)
+            return [];
 
-    public class ShortcutNode : IShortcut
-    {
-        public string Title { get; set; }
+        var binds = new List<Keybind>();
 
-        public List<IShortcut> Children { get; set; } = null;
-
-        public ShortcutNode(string title)
+        foreach (var shortcut in Children)
         {
-            this.Title = title;
+            if (shortcut is ShortcutGroup shortcutGroup)
+                binds.AddRange(shortcutGroup.Shortcuts);
+            else if (shortcut is ShortcutNode shortcutNode)
+                binds.AddRange(shortcutNode.GetShortcuts());
         }
 
-        public Keybind[] GetShortcuts()
+        return binds.ToArray();
+    }
+}
+
+public class ShortcutGroup(string title) : IShortcut
+{
+    public string Title { get; set; } = title;
+
+    public Keybind[]? Shortcuts { get; set; }
+}
+
+public interface IPluginHost
+{
+    Dictionary<string, IPlugin> Plugins { get; }
+    void SetPluginEnabled(string id, bool enabled);
+}
+
+public interface IPlugin
+{
+    string ID { get; }
+    string Title { get; }
+    string Author { get; }
+    Version Version { get; }
+    IPluginHost PluginHost { get; set; }
+    void ProcessManager(object manager);
+}
+
+public static class PluginUtils
+{
+    public static bool Enabled(this IPlugin self)
+    {
+        return self.PluginHost != null;
+    }
+}
+
+public class PluginEnabledConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var plugin = (IPlugin)value;
+        return plugin.Enabled();
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class PluginManagerSettings
+{
+    public Dictionary<string, bool> PluginManagement { get; private set; } = new();
+}
+
+public class PluginManager : ObjectSettings<PluginManagerSettings>, IInitializableProfile, IPluginHost
+{
+    public const string PluginDirectory = "Plugins";
+
+    public Dictionary<string, IPlugin> Plugins { get; set; } = new();
+
+    public PluginManager()
+    {
+        SettingsSavePath = Path.Combine(Global.AppDataDirectory, "PluginSettings.json");
+    }
+
+    public bool Initialized { get; protected set; }
+
+    public async Task<bool> Initialize(CancellationToken cancellationToken)
+    {
+        if (Initialized)
+            return true;
+
+        await LoadSettings();
+        LoadPlugins();
+
+        return Initialized = true;
+    }
+
+    public void ProcessManager(object manager)
+    {
+        foreach (var plugin in Plugins)
         {
-            if (Children == null)
-                return new Keybind[0];
-
-            List<Keybind> binds = new List<Keybind>();
-
-            foreach (IShortcut shortcut in Children)
+            try
             {
-                if (shortcut is ShortcutGroup)
-                    binds.AddRange(((ShortcutGroup)shortcut).Shortcuts);
-                else if (shortcut is ShortcutNode)
-                    binds.AddRange(((ShortcutNode)shortcut).GetShortcuts());
+                plugin.Value.ProcessManager(manager);
             }
-
-            return binds.ToArray();
-        }
-    }
-
-    public class ShortcutGroup : IShortcut
-    {
-        public string Title { get; set; }
-
-        public Keybind[] Shortcuts { get; set; } = null;
-
-        public ShortcutGroup(string title)
-        {
-            this.Title = title;
-        }
-    }
-
-    public interface IPluginHost
-    {
-        Dictionary<string, IPlugin> Plugins { get; }
-        void SetPluginEnabled(string id, bool enabled);
-    }
-
-    public interface IPlugin
-    {
-        string ID { get; }
-        string Title { get; }
-        string Author { get; }
-        Version Version { get; }
-        IPluginHost PluginHost { get; set; }
-        void ProcessManager(object manager);
-    }
-
-    public static class PluginUtils
-    {
-        public static bool Enabled(this IPlugin self)
-        {
-            return self.PluginHost != null;
-        }
-    }
-
-    public class PluginEnabledConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var plugin = (IPlugin)value;
-            return plugin.Enabled();
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
-    public class PluginManagerSettings
-    {
-        public Dictionary<string, bool> PluginManagement { get; private set; } = new Dictionary<string, bool>();
-
-        public PluginManagerSettings()
-        {
-
-        }
-
-        [OnDeserialized]
-        void OnDeserialized(StreamingContext context)
-        {
-
-        }
-    }
-
-    public class PluginManager : ObjectSettings<PluginManagerSettings>, IInitializableProfile, IPluginHost
-    {
-        public const string PluginDirectory = "Plugins";
-
-        public Dictionary<string, IPlugin> Plugins { get; set; } = new Dictionary<string, IPlugin>();
-
-        public PluginManager()
-        {
-            SettingsSavePath = Path.Combine(Global.AppDataDirectory, "PluginSettings.json");
-        }
-
-        public bool Initialized { get; protected set; }
-
-        public async Task<bool> Initialize(CancellationToken cancellationToken)
-        {
-            if (Initialized)
-                return true;
-
-            await LoadSettings();
-            LoadPlugins();
-
-            return Initialized = true;
-        }
-
-        public void ProcessManager(object manager)
-        {
-            foreach (var plugin in Plugins)
+            catch(Exception e)
             {
-                try
-                {
-                    plugin.Value.ProcessManager(manager);
-                }
-                catch(Exception e)
-                {
-                    Global.logger.Error(e, "Failed to load plugin {PluginKey}", plugin.Key);
-                }
+                Global.logger.Error(e, "Failed to load plugin {PluginKey}", plugin.Key);
             }
         }
+    }
 
-        private void LoadPlugins()
+    private void LoadPlugins()
+    {
+        var installationDir = Path.Combine(Global.ExecutingDirectory, PluginDirectory);
+        LoadPlugins(installationDir);
+        var userDir = Path.Combine(Global.AppDataDirectory, PluginDirectory);
+        LoadPlugins(userDir);
+    }
+
+    private void LoadPlugins(string dir)
+    {
+        if (!Directory.Exists(dir))
         {
-            string installationDir = Path.Combine(Global.ExecutingDirectory, PluginDirectory);
-            LoadPlugins(installationDir);
-            string userDir = Path.Combine(Global.AppDataDirectory, PluginDirectory);
-            LoadPlugins(userDir);
+            Directory.CreateDirectory(dir);
+
+            //No need to search the directory if we just created it
+            return;
         }
 
-        private void LoadPlugins(string dir)
+        foreach (var pathPlugin in Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly))
         {
-            if (!Directory.Exists(dir))
+            try
             {
-                Directory.CreateDirectory(dir);
-
-                //No need to search the directory if we just created it
-                return;
+                TryLoadPlugin(pathPlugin);
             }
-
-            foreach (string pathPlugin in Directory.EnumerateFiles(dir, "*.dll", SearchOption.TopDirectoryOnly))
+            catch (Exception exc)
             {
-                try
-                {
-                    Global.logger.Information("Loading plugin: {PathPlugin}", pathPlugin);
-                    Assembly dllPlugin = Assembly.LoadFrom(pathPlugin);
-
-                    foreach (AssemblyName name in dllPlugin.GetReferencedAssemblies())
-                        AppDomain.CurrentDomain.Load(name);
-
-                    foreach (Type typ in dllPlugin.GetExportedTypes())
-                    {
-                        if (!typeof(IPlugin).IsAssignableFrom(typ)) continue;
-                        //Create an instance of the plugin type
-                        IPlugin objPlugin = (IPlugin)Activator.CreateInstance(typ);
-
-                        //Get the ID of the plugin
-                        string id = objPlugin.ID;
-
-                        if (!Settings.PluginManagement.ContainsKey(id) || Settings.PluginManagement[id])
-                            objPlugin.PluginHost = this;
-
-                        Plugins.Add(id, objPlugin);
-                    }
-                }
-                catch (Exception exc)
-                {
-                    Global.logger.Error(exc, "Failed loading plugin {PluginPath}", pathPlugin);
-                    if (Global.isDebug)
-                        throw;
-                }
+                Global.logger.Error(exc, "Failed loading plugin {PluginPath}", pathPlugin);
+                if (Global.isDebug)
+                    throw;
             }
         }
+    }
 
-        public void SetPluginEnabled(string id, bool enabled)
+    private void TryLoadPlugin(string pathPlugin)
+    {
+        Global.logger.Information("Loading plugin: {PathPlugin}", pathPlugin);
+        var dllPlugin = Assembly.LoadFrom(pathPlugin);
+
+        foreach (var name in dllPlugin.GetReferencedAssemblies())
+            AppDomain.CurrentDomain.Load(name);
+
+        foreach (var typ in dllPlugin.GetExportedTypes())
         {
-            Settings.PluginManagement[id] = enabled;
+            if (!typeof(IPlugin).IsAssignableFrom(typ)) continue;
+            //Create an instance of the plugin type
+            var objPlugin = (IPlugin)Activator.CreateInstance(typ);
 
-            SaveSettings().Wait();
+            //Get the ID of the plugin
+            var id = objPlugin.ID;
+
+            if (!Settings.PluginManagement.ContainsKey(id) || Settings.PluginManagement[id])
+                objPlugin.PluginHost = this;
+
+            Plugins.Add(id, objPlugin);
         }
+    }
 
-        public void Dispose()
-        {
+    public void SetPluginEnabled(string id, bool enabled)
+    {
+        Settings.PluginManagement[id] = enabled;
 
-        }
+        SaveSettings().Wait();
+    }
+
+    public void Dispose()
+    {
+
     }
 }

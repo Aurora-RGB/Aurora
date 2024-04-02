@@ -39,6 +39,8 @@ public partial class Control_ProfilesStack
     private readonly BitmapImage _visible = new(new Uri(@"Resources/Visible.png", UriKind.Relative));
     private readonly BitmapImage _notVisible = new(new Uri(@"Resources/Not Visible.png", UriKind.Relative));
 
+    private readonly BitmapImage _profileRemoveImage = new(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative));
+
     public bool ShowHidden
     {
         get => _showHidden;
@@ -100,7 +102,7 @@ public partial class Control_ProfilesStack
                         FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)profileImage.Source));
 
                         focusedSetTaskCompletion.TrySetResult();
-                    }, DispatcherPriority.Render);
+                    }, DispatcherPriority.DataBind);
                 }, DispatcherPriority.Loaded);
             }).Select(x => x.Task);
 
@@ -110,7 +112,6 @@ public partial class Control_ProfilesStack
 
     private void CreateInsertGenericApplication(string? focusedKey, Application application)
     {
-        var settings = application.Settings as GenericApplicationSettings;
         var profileImage = new Image
         {
             Tag = application,
@@ -122,7 +123,7 @@ public partial class Control_ProfilesStack
 
         var profileRemove = new Image
         {
-            Source = new BitmapImage(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative)),
+            Source = _profileRemoveImage,
             ToolTip = $"Remove {application.Config.ProcessNames[0]} Profile",
             HorizontalAlignment = HorizontalAlignment.Right,
             VerticalAlignment = VerticalAlignment.Bottom,
