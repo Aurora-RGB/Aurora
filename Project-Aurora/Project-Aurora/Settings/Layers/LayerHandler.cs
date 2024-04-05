@@ -212,7 +212,7 @@ namespace AuroraRgb.Settings.Layers
         float Opacity { get; }
         float? _Opacity { get; set; }
 
-        EffectLayer Render(IGameState gamestate);
+        EffectLayer Render(IGameState gameState);
 
         EffectLayer PostRenderFX(EffectLayer layerRender);
 
@@ -321,7 +321,7 @@ namespace AuroraRgb.Settings.Layers
             WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), PropertiesChanged);
         }
 
-        public virtual EffectLayer Render(IGameState gamestate)
+        public virtual EffectLayer Render(IGameState gameState)
         {
             return EffectLayer.EmptyLayer;
         }

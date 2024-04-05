@@ -15,138 +15,141 @@ namespace AuroraRgb.Profiles.CSGO.Layers;
 
 public class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBombLayerHandlerProperties>
 {
-    public Color? _FlashColor { get; set; }
+    private Color? _flashColor;
 
-    [JsonIgnore]
-    public Color FlashColor => Logic._FlashColor ?? _FlashColor ?? Color.Empty;
+    [JsonProperty("_FlashColor")]
+    public Color FlashColor
+    {
+        get => Logic._flashColor ?? _flashColor ?? Color.Empty;
+        set => _flashColor = value;
+    }
 
-    public Color? _PrimedColor { get; set; }
+    private Color? _primedColor;
 
-    [JsonIgnore]
-    public Color PrimedColor => Logic._PrimedColor ?? _PrimedColor ?? Color.Empty;
+    [JsonProperty("_PrimedColor")]
+    public Color PrimedColor
+    {
+        get => Logic._primedColor ?? _primedColor ?? Color.Empty;
+        set => _primedColor = value;
+    }
 
-    public bool? _DisplayWinningTeamColor { get; set; }
+    private bool? _gradualEffect;
 
-    public bool? _GradualEffect { get; set; }
-
-    [JsonIgnore]
-    public bool GradualEffect { get { return Logic._GradualEffect ?? _GradualEffect ?? false; } }
-
-    public bool? _PeripheralUse { get; set; }
-
-    [JsonIgnore]
-    public bool PeripheralUse { get { return Logic._PeripheralUse ?? _PeripheralUse ?? false; } }
+    [JsonProperty("_GradualEffect")]
+    public bool GradualEffect
+    {
+        get => Logic._gradualEffect ?? _gradualEffect ?? false;
+        set => _gradualEffect = value;
+    }
 
     public CSGOBombLayerHandlerProperties()
     { }
 
-    public CSGOBombLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGOBombLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
         base.Default();
 
-        _Sequence = new KeySequence(new[] { DeviceKeys.NUM_LOCK, DeviceKeys.NUM_SLASH, DeviceKeys.NUM_ASTERISK, DeviceKeys.NUM_MINUS, DeviceKeys.NUM_SEVEN, DeviceKeys.NUM_EIGHT, DeviceKeys.NUM_NINE, DeviceKeys.NUM_PLUS, DeviceKeys.NUM_FOUR, DeviceKeys.NUM_FIVE, DeviceKeys.NUM_SIX, DeviceKeys.NUM_ONE, DeviceKeys.NUM_TWO, DeviceKeys.NUM_THREE, DeviceKeys.NUM_ZERO, DeviceKeys.NUM_PERIOD, DeviceKeys.NUM_ENTER });
-        _FlashColor = Color.FromArgb(255, 0, 0);
-        _PrimedColor = Color.FromArgb(0, 255, 0);
-        _DisplayWinningTeamColor = true;
-        _GradualEffect = true;
-        _PeripheralUse = true;
+        _Sequence = new KeySequence(
+        [
+            DeviceKeys.NUM_LOCK, DeviceKeys.NUM_SLASH, DeviceKeys.NUM_ASTERISK, DeviceKeys.NUM_MINUS, DeviceKeys.NUM_SEVEN,
+            DeviceKeys.NUM_EIGHT, DeviceKeys.NUM_NINE, DeviceKeys.NUM_PLUS, DeviceKeys.NUM_FOUR, DeviceKeys.NUM_FIVE, DeviceKeys.NUM_SIX,
+            DeviceKeys.NUM_ONE, DeviceKeys.NUM_TWO, DeviceKeys.NUM_THREE, DeviceKeys.NUM_ZERO, DeviceKeys.NUM_PERIOD, DeviceKeys.NUM_ENTER,
+            DeviceKeys.CL1, DeviceKeys.CL2, DeviceKeys.CL3, DeviceKeys.CL4, DeviceKeys.CL5,
+        ]);
+        _flashColor = Color.FromArgb(255, 0, 0);
+        _primedColor = Color.FromArgb(0, 255, 0);
+        _gradualEffect = true;
     }
-
 }
 
-public class CSGOBombLayerHandler : LayerHandler<CSGOBombLayerHandlerProperties>
+public class CSGOBombLayerHandler() : LayerHandler<CSGOBombLayerHandlerProperties>("CSGO - Bomb Effect")
 {
-    private static readonly Stopwatch Bombtimer = new();
-    private static bool _bombFlash;
-    private static int _bombFlashCount;
-    private static long _bombFlashTime;
-    private static long _bombFlashEdat;
+    private readonly Stopwatch _bombTimer = new();
 
-    public CSGOBombLayerHandler(): base("CSGO - Bomb Effect")
-    {
-    }
+    private bool _bombFlash;
+    private int _bombFlashCount;
+    private long _bombFlashTime;
+    private long _bombFlashEdat;
 
     protected override UserControl CreateControl()
     {
         return new Control_CSGOBombLayer(this);
     }
 
-    private bool _empty = true;
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
 
         if (csgostate.Round.Bomb != BombState.Planted)
         {
+            if (!_bombTimer.IsRunning) return EffectLayer.EmptyLayer;
+            Reset();
+
             return EffectLayer.EmptyLayer;
         }
-        _empty = false;
-
-        if (!Bombtimer.IsRunning)
+        if (!_bombTimer.IsRunning)
         {
-            Bombtimer.Restart();
-            _bombFlashCount = 0;
-            _bombFlashTime = 0;
-            _bombFlashEdat = 0;
+            _bombTimer.Restart();
         }
 
-        double bombflashamount = 1.0;
-        bool isCritical = false;
+        double flashAmount;
+        var isCritical = false;
 
-        if (Bombtimer.ElapsedMilliseconds < 38000)
+        switch (_bombTimer.ElapsedMilliseconds)
         {
-            if (Bombtimer.ElapsedMilliseconds >= _bombFlashTime)
+            case < 35000:
             {
-                _bombFlash = true;
-                _bombFlashEdat = Bombtimer.ElapsedMilliseconds;
-                _bombFlashTime = Bombtimer.ElapsedMilliseconds + (1000 - (_bombFlashCount++ * 13));
-            }
+                if (_bombTimer.ElapsedMilliseconds >= _bombFlashTime)
+                {
+                    _bombFlash = true;
+                    _bombFlashEdat = _bombTimer.ElapsedMilliseconds;
+                    _bombFlashTime = _bombTimer.ElapsedMilliseconds + (1000 - _bombFlashCount++ * 13);
+                }
 
-            if (Bombtimer.ElapsedMilliseconds < _bombFlashEdat || Bombtimer.ElapsedMilliseconds > _bombFlashEdat + 220)
-                bombflashamount = 0.0;
-            else
-                bombflashamount = Math.Pow(Math.Sin((Bombtimer.ElapsedMilliseconds - _bombFlashEdat) / 80.0 + 0.25), 2.0);
-        }
-        else if (Bombtimer.ElapsedMilliseconds >= 38000)
-        {
-            isCritical = true;
-            bombflashamount = Bombtimer.ElapsedMilliseconds / 40000.0;
-        }
-        else if (Bombtimer.ElapsedMilliseconds >= 45000)
-        {
-            Bombtimer.Stop();
-            csgostate.Round.Bomb = BombState.Undefined;
+                if (_bombTimer.ElapsedMilliseconds < _bombFlashEdat || _bombTimer.ElapsedMilliseconds > _bombFlashEdat + 220)
+                    flashAmount = 0.0;
+                else
+                    flashAmount = Math.Pow(Math.Sin((_bombTimer.ElapsedMilliseconds - _bombFlashEdat) / 80.0 + 0.25), 2.0);
+                break;
+            }
+            case >= 35000:
+                isCritical = true;
+                flashAmount = _bombTimer.ElapsedMilliseconds / 40000.0;
+                break;
         }
 
         if (!isCritical)
         {
-            if (bombflashamount <= 0.05 && _bombFlash)
+            if (flashAmount <= 0.05 && _bombFlash)
                 _bombFlash = false;
 
             if (!_bombFlash)
-                bombflashamount = 0.0;
+                flashAmount = 0.0;
         }
 
         if (!Properties.GradualEffect)
-            bombflashamount = Math.Round(bombflashamount);
+            flashAmount = Math.Round(flashAmount);
 
-        Color bombcolor;
-        if (bombflashamount > 0)
-        {
-            bombcolor = ColorUtils.MultiplyColorByScalar(isCritical ? Properties.PrimedColor : Properties.FlashColor, Math.Min(bombflashamount, 1.0));
-        }
-        else
+        if (flashAmount < 0.01)
         {
             return EffectLayer.EmptyLayer;
         }
 
-        EffectLayer.Set(Properties.Sequence, bombcolor);
+        var bombColor = ColorUtils.MultiplyColorByScalar(isCritical ? Properties.PrimedColor : Properties.FlashColor, Math.Min(flashAmount, 1.0));
 
-        if (Properties.PeripheralUse)
-            EffectLayer.Set(DeviceKeys.Peripheral, bombcolor);
+        EffectLayer.Set(Properties.Sequence, bombColor);
 
         return EffectLayer;
+    }
+
+    private void Reset()
+    {
+        _bombTimer.Stop();
+        _bombFlash = false;
+        _bombFlashCount = 0;
+        _bombFlashTime = 0;
+        _bombFlashEdat = 0;
     }
 }

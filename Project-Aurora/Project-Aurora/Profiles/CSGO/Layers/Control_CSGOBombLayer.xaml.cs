@@ -11,32 +11,30 @@ namespace AuroraRgb.Profiles.CSGO.Layers;
 /// </summary>
 public partial class Control_CSGOBombLayer
 {
-    private bool settingsset = false;
+    private bool _settingsSet;
 
     public Control_CSGOBombLayer()
     {
         InitializeComponent();
     }
 
-    public Control_CSGOBombLayer(CSGOBombLayerHandler datacontext)
+    public Control_CSGOBombLayer(CSGOBombLayerHandler dataContext)
     {
         InitializeComponent();
 
-        DataContext = datacontext;
+        DataContext = dataContext;
     }
 
-    public void SetSettings()
+    private void SetSettings()
     {
-        if (DataContext is CSGOBombLayerHandler && !settingsset)
-        {
-            ColorPicker_Flash.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOBombLayerHandler).Properties._FlashColor ?? System.Drawing.Color.Empty);
-            ColorPicker_Primed.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOBombLayerHandler).Properties._PrimedColor ?? System.Drawing.Color.Empty);
-            Checkbox_GradualEffect.IsChecked = (DataContext as CSGOBombLayerHandler).Properties._GradualEffect;
-            Checkbox_DisplayOnPeripherals.IsChecked = (DataContext as CSGOBombLayerHandler).Properties._PeripheralUse;
-            KeySequence_keys.Sequence = (DataContext as CSGOBombLayerHandler).Properties._Sequence;
+        if (DataContext is not CSGOBombLayerHandler csgoBombLayerHandler || _settingsSet) return;
 
-            settingsset = true;
-        }
+        ColorPicker_Flash.SelectedColor = ColorUtils.DrawingColorToMediaColor(csgoBombLayerHandler.Properties.FlashColor);
+        ColorPicker_Primed.SelectedColor = ColorUtils.DrawingColorToMediaColor(csgoBombLayerHandler.Properties.PrimedColor);
+        Checkbox_GradualEffect.IsChecked = csgoBombLayerHandler.Properties.GradualEffect;
+        KeySequence_keys.Sequence = csgoBombLayerHandler.Properties.Sequence;
+
+        _settingsSet = true;
     }
 
     private void UserControl_Loaded(object? sender, RoutedEventArgs e)
@@ -48,33 +46,27 @@ public partial class Control_CSGOBombLayer
 
     private void ColorPicker_Flash_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBombLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOBombLayerHandler).Properties._FlashColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGOBombLayerHandler csgoBombLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } colorPicker)
+            csgoBombLayerHandler.Properties.FlashColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void ColorPicker_Primed_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBombLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOBombLayerHandler).Properties._PrimedColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGOBombLayerHandler csgoBombLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } colorPicker)
+            csgoBombLayerHandler.Properties.PrimedColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void Checkbox_GradualEffect_Checked(object? sender, RoutedEventArgs e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBombLayerHandler && sender is CheckBox && (sender as CheckBox).IsChecked.HasValue)
-            (DataContext as CSGOBombLayerHandler).Properties._GradualEffect = (sender as CheckBox).IsChecked.Value;
-    }
-
-    private void Checkbox_DisplayOnPeripherals_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded && settingsset && DataContext is CSGOBombLayerHandler && sender is CheckBox && (sender as CheckBox).IsChecked.HasValue)
-            (DataContext as CSGOBombLayerHandler).Properties._PeripheralUse = (sender as CheckBox).IsChecked.Value;
+        if (IsLoaded && _settingsSet && DataContext is CSGOBombLayerHandler csgoBombLayerHandler && sender is CheckBox { IsChecked: not null } checkBox)
+            csgoBombLayerHandler.Properties.GradualEffect = checkBox.IsChecked.Value;
     }
 
     private void KeySequence_keys_SequenceUpdated(object? sender, RoutedPropertyChangedEventArgs<KeySequence> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBombLayerHandler)
+        if (IsLoaded && _settingsSet && DataContext is CSGOBombLayerHandler csgoBombLayerHandler)
         {
-            (DataContext as CSGOBombLayerHandler).Properties._Sequence = e.NewValue;
+            csgoBombLayerHandler.Properties._Sequence = e.NewValue;
         }
     }
 }
