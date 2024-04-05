@@ -142,6 +142,7 @@ public partial class Control_DeviceItem
     private void UpdateStatic()
     {
         DeviceName.Text = _device.Device.DeviceName;
+        BtnOptions.IsEnabled = _device.Device.RegisteredVariables.Count != 0;
 
         if (!OnlineSettings.DeviceTooltips.TryGetValue(_device.Device.DeviceName, out var tooltips))
         {
@@ -175,8 +176,6 @@ public partial class Control_DeviceItem
         }
 
         Recommended.Visibility = tooltips.Recommended ? Visibility.Visible : Visibility.Hidden;
-
-        BtnOptions.IsEnabled = _device.Device.RegisteredVariables.Count != 0;
     }
 
     private void UpdateDynamic()

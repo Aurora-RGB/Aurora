@@ -32,6 +32,7 @@ public sealed class MemorySharedDevice : IDevice
 
         _deviceVariables = new MemorySharedArray<DeviceVariable>(memoryName + "-vars");
         _deviceVariables.Updated += DeviceVariablesOnUpdated;
+        _deviceVariables.RequestUpdate();
         UpdateVariables();
     }
 
