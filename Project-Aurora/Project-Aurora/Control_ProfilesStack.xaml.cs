@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -63,14 +64,19 @@ public partial class Control_ProfilesStack
         SettingsSelected?.Invoke(this, EventArgs.Empty);
     }
 
-    public async Task GenerateProfileStack(string? focusedKey = null)
+    public async Task GenerateProfileStack()
     {
         var lightingStateManager = await _lightingStateManager;
-        focusedKey ??= lightingStateManager.CurrentEvent.Config.ID;
+        await GenerateProfileStack(lightingStateManager.CurrentEvent.Config.ID);
+    }
+
+    private async Task GenerateProfileStack(string focusedKey)
+    {
         ProfilesStack.Children.Clear();
 
         var focusedSetTaskCompletion = new TaskCompletionSource();
 
+        var lightingStateManager = await _lightingStateManager;
         var profileLoadTasks = Global.Configuration.ProfileOrder
             .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
             .Select(profileName => (Application)lightingStateManager.Events[profileName])
@@ -277,11 +283,21 @@ public partial class Control_ProfilesStack
                 MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
         var eventList = Global.Configuration.ProfileOrder
             .ToDictionary(x => x, x => lightingStateManager.Events[x])
-            .Where(x => ShowHidden || !(x.Value as Application).Settings.Hidden)
+            .Where(x => ShowHidden || ShowProfile(x))
             .ToList();
         var idx = Math.Max(eventList.FindIndex(x => x.Key == name), 0);
         lightingStateManager.RemoveGenericProfile(name);
         await GenerateProfileStack(eventList[idx].Key);
+
+        bool ShowProfile(KeyValuePair<string, ILightEvent> x)
+        {
+            var application = (Application)x.Value;
+            if (application.Settings == null)
+            {
+                return true;
+            }
+            return !application.Settings.Hidden;
+        }
     }
 
     private void cmbtnOpenBitmapWindow_Clicked(object? sender, RoutedEventArgs e) => Window_BitmapView.Open();
@@ -321,6 +337,6 @@ public partial class Control_ProfilesStack
 
     private async void LightingStateManagerOnEventAdded(object? sender, EventArgs e)
     {
-        await Dispatcher.BeginInvoke(GenerateProfileStack);
+        await Dispatcher.BeginInvoke(() => GenerateProfileStack());
     }
 }
