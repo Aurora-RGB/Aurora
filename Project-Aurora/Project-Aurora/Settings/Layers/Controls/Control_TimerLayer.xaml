@@ -37,13 +37,13 @@
         <xctk:ColorPicker SelectedColor="{Binding Properties._SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Grid.Row="1" Grid.Column="1" Margin="4,2" />
 
         <Label Content="Duration (ms):" Grid.Row="2" HorizontalAlignment="Right" />
-        <xctk:IntegerUpDown Value="{Binding Properties._Duration}" Grid.Row="2" Grid.Column="1" Margin="4,2" />
+        <xctk:IntegerUpDown Value="{Binding Properties.Duration}" Grid.Row="2" Grid.Column="1" Margin="4,2" />
 
         <Label Content="Animation type:" Grid.Row="3" HorizontalAlignment="Right" />
-        <ComboBox SelectedValue="{Binding Properties._AnimationType}" ItemsSource="{utils:EnumToItemsSource {x:Type layers:TimerLayerAnimationType}}" DisplayMemberPath="Text" SelectedValuePath="Value" Grid.Row="3" Grid.Column="1" Margin="4,2"  />
+        <ComboBox SelectedValue="{Binding Properties.AnimationType}" ItemsSource="{utils:EnumToItemsSource {x:Type layers:TimerLayerAnimationType}}" DisplayMemberPath="Text" SelectedValuePath="Value" Grid.Row="3" Grid.Column="1" Margin="4,2"  />
 
         <Label Content="Repeat action:" Grid.Row="4" HorizontalAlignment="Right" />
-        <ComboBox SelectedValue="{Binding Properties._RepeatAction}" ItemsSource="{utils:EnumToItemsSource {x:Type layers:TimerLayerRepeatPressAction}}" DisplayMemberPath="Text" SelectedValuePath="Value" Grid.Row="4" Grid.Column="1" Margin="4,2"  />
+        <ComboBox SelectedValue="{Binding Properties.RepeatAction}" ItemsSource="{utils:EnumToItemsSource {x:Type layers:TimerLayerRepeatPressAction}}" DisplayMemberPath="Text" SelectedValuePath="Value" Grid.Row="4" Grid.Column="1" Margin="4,2"  />
 
         <Label Content="Trigger Keys:" Grid.Row="5" HorizontalAlignment="Right" />
         <controls:KeyBindList x:Name="triggerKeyList" Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" Margin="4,2" KeybindsChanged="triggerKeyList_KeybindsChanged" />
