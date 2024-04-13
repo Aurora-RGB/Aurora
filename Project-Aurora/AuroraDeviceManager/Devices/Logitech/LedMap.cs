@@ -166,8 +166,8 @@ public static class LedMaps
             [DeviceKeys.Peripheral_Logo] = (DeviceType.Mouse, 1),
             [DeviceKeys.Peripheral_ScrollWheel] = (DeviceType.Mouse, 2),
             
-            [DeviceKeys.PERIPHERAL_LIGHT1] = (DeviceType.Mouse, 0),
-            [DeviceKeys.PERIPHERAL_LIGHT2] = (DeviceType.Mouse, 1),
+            [DeviceKeys.PERIPHERAL_LIGHT1] = (DeviceType.Mouse, 1),
+            [DeviceKeys.PERIPHERAL_LIGHT2] = (DeviceType.Mouse, 0),
             [DeviceKeys.PERIPHERAL_LIGHT3] = (DeviceType.Mouse, 2),
 
             [DeviceKeys.HEADSET1] = (DeviceType.Headset, 0),
