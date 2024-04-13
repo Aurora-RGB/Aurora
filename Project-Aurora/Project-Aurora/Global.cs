@@ -88,10 +88,11 @@ public static class Global
 #endif
         var logFile = $"{DateTime.UtcNow:yyyy-MM-dd HH.mm.ss}.log";
         var logPath = Path.Combine(AppDataDirectory, "Logs", logFile);
+        var timeSpan = isDebug ? TimeSpan.FromSeconds(2) : TimeSpan.FromSeconds(30);
         logger = new LoggerConfiguration()
             .Enrich.WithExceptionDetails()
             .Enrich.FromLogContext()
-            .Filter.UniqueOverSpan("true", TimeSpan.FromSeconds(30))
+            .Filter.UniqueOverSpan("true", timeSpan)
             .WriteTo.File(logPath,
                 rollingInterval: RollingInterval.Infinite,
                 fileSizeLimitBytes: 25 * 1000000,  //25 MB
