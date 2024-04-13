@@ -73,14 +73,19 @@ public class IpcListener
     {
         _isRunning = false;
 
-        _ipcPipeStream.Close();
-        _auroraInterfacePipeStream.Close();
+        if (_ipcPipeStream != null)
+        {
+            _ipcPipeStream.Close();
+            await _ipcPipeStream.DisposeAsync().AsTask();
+            _ipcPipeStream = null;
+        }
 
-        var ipcTask = _ipcPipeStream.DisposeAsync().AsTask()
-            .ContinueWith(_ => _ipcPipeStream = null);
-        var auroraTask = _auroraInterfacePipeStream.DisposeAsync().AsTask()
-            .ContinueWith(_ => _auroraInterfacePipeStream = null);
-        await Task.WhenAll(ipcTask, auroraTask);
+        if (_auroraInterfacePipeStream != null)
+        {
+            _auroraInterfacePipeStream.Close();
+            await _auroraInterfacePipeStream.DisposeAsync();
+            _auroraInterfacePipeStream = null;
+        }
     }
 
     private void BeginIpcServer()
@@ -154,7 +159,7 @@ public class IpcListener
         using var sr = new StreamReader(_auroraInterfacePipeStream);
         while (sr.ReadLine() is { } command)
         {
-            Global.logger.Debug("Received command: {Command}", command);
+            Global.logger.Information("Received command: {Command}", command);
             AuroraCommandReceived?.Invoke(this, command);
         }
         if (!_isRunning)

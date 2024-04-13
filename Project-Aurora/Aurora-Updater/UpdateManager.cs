@@ -45,7 +45,7 @@ public class UpdateManager
         var updateInfo = new UpdateInfo(version, author, repoName, config.GetDevReleases);
 
         PerformCleanup();
-        var tries = 20;
+        var tries = 5;
         do
         {
             try
@@ -185,7 +185,7 @@ public class UpdateManager
         _downloadProgress = newPercentage / 100.0f;
     }
 
-    private void ShutdownTimerElapsed(object? sender, ElapsedEventArgs e)
+    private async void ShutdownTimerElapsed(object? sender, ElapsedEventArgs e)
     {
         if (_secondsLeft > 0)
         {
@@ -194,17 +194,32 @@ public class UpdateManager
         }
         else
         {
-            //Kill all Aurora instances
-            var auroraInterface = new AuroraInterface();
-            auroraInterface.ShutdownAurora().Wait();
+            //gracefully, find currently open aurora processes
+            var auroraProcesses = Process.GetProcessesByName("AuroraRgb");
+            var dmProcesses = Process.GetProcessesByName("AuroraDeviceManager");
+            var allAuroraProcesses = auroraProcesses.Concat(dmProcesses).ToList();
+
+            var auroraExitTasks = allAuroraProcesses
+                .Select(p => p.WaitForExitAsync());
 
             try
             {
-                var auroraProc = new ProcessStartInfo
+                await ShutdownProcesses(auroraProcesses, dmProcesses);
+
+                //Kill all Aurora instances
+                await Task.WhenAny(
+                    Task.Delay(TimeSpan.FromSeconds(10)),
+                    Task.WhenAll(auroraExitTasks)
+                );
+
+                //forcefully
+                foreach (var proc in allAuroraProcesses)
+                    proc.Kill();
+
+                if (auroraProcesses.Length == 0)
                 {
-                    FileName = Path.Combine(Program.ExePath, "AuroraRgb.exe")
-                };
-                Process.Start(auroraProc);
+                    StartAurora();
+                }
 
                 Environment.Exit(0); //Exit, no further action required
             }
@@ -219,6 +234,48 @@ public class UpdateManager
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
+        }
+    }
+
+    private void StartAurora()
+    {
+        var auroraProc = new ProcessStartInfo
+        {
+            FileName = Path.Combine(Program.ExePath, "AuroraRgb.exe")
+        };
+        Process.Start(auroraProc);
+    }
+
+    private static async Task ShutdownProcesses(Process[] auroraProcesses, Process[] dmProcesses)
+    {
+        var auroraInterface = new AuroraInterface();
+        if (auroraProcesses.Length > 0)
+        {
+            try
+            {
+                await auroraInterface.RestartAurora();
+            }
+            catch
+            {
+                await ShutdownDmProcess(dmProcesses, auroraInterface);
+            }
+        }
+        else
+        {
+            await ShutdownDmProcess(dmProcesses, auroraInterface);
+        }
+    }
+
+    private static async Task ShutdownDmProcess(Process[] dmProcesses, AuroraInterface auroraInterface)
+    {
+        if (dmProcesses.Length <= 0) return;
+        try
+        {
+            await auroraInterface.ShutdownDeviceManager();
+        }
+        catch
+        {
+            //ignore    
         }
     }
 

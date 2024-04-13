@@ -31,9 +31,12 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
 
     private void OnAuroraCommandReceived(object? sender, string e)
     {
-        Global.logger.Debug("Received command: {Command}", e);
         switch (e)
         {
+            case "restartAll":
+                ShutdownDevices().Wait();
+                RestartAurora();
+                break;
             case "shutdown":
                 ShutdownDevices().Wait();
                 ExitApp();
@@ -91,6 +94,11 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
         //so that we don't restart device manager
         DeviceManager?.Detach();
 
+        Application.Current.Dispatcher.Invoke(RestartAuroraApplicationCall);
+    }
+
+    private void RestartAuroraApplicationCall()
+    {
         var auroraPath = Path.Combine(Global.ExecutingDirectory, Global.AuroraExe);
 
         var currentProcess = Environment.ProcessId;

@@ -87,8 +87,6 @@ public partial class MainForm : Form
         {
             var tickCancellation = CancelPreviousTick();
 
-            update_progress.Value = StaticStorage.Manager.GetTotalProgress();
-
             var logs = StaticStorage.Manager.GetLog();
 
             var stringBuilder = new StringBuilder();
@@ -107,6 +105,8 @@ public partial class MainForm : Form
 
             Invoke(() =>
             {
+                update_progress.Value = StaticStorage.Manager.GetTotalProgress();
+
                 richtextUpdateLog.SelectionStart = 0;
                 richtextUpdateLog.SelectionLength = richtextUpdateLog.TextLength;
                 richtextUpdateLog.SelectedText = text;
