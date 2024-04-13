@@ -30,6 +30,7 @@ public class SolidFillLayerHandlerProperties : LayerHandlerProperties<SolidFillL
 public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerProperties>
 {
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
+    private KeySequence _entireSequence = new(Effects.Canvas.WholeFreeForm);
 
     public SolidFillLayerHandler() : base("Solid Fill Layer")
     {
@@ -41,21 +42,21 @@ public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerPr
         return new Control_SolidFillLayer(this);
     }
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
+        EffectLayer.Set(_entireSequence, _solidBrush);
         return EffectLayer;
     }
 
     private void EffectsOnCanvasChanged(object? sender, EventArgs e)
     {
-        EffectLayer.Fill(_solidBrush);
+        _entireSequence = new KeySequence(Effects.Canvas.WholeFreeForm);
     }
 
     protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.PropertiesChanged(sender, args);
         _solidBrush.Color = Properties.PrimaryColor;
-        EffectLayer.Fill(_solidBrush);
     }
 
     public override void Dispose()
