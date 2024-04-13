@@ -18,6 +18,7 @@ using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
 using Application = AuroraRgb.Profiles.Application;
+using Path = System.IO.Path;
 
 namespace AuroraRgb;
 
@@ -41,6 +42,8 @@ public partial class Control_ProfilesStack
     private readonly BitmapImage _notVisible = new(new Uri(@"Resources/Not Visible.png", UriKind.Relative));
 
     private readonly BitmapImage _profileRemoveImage = new(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative));
+    private readonly BitmapImage _disabledProfileImage = new(new Uri(@"Resources/disabled.png", UriKind.Relative));
+    private CancellationTokenSource _generateStackCancelSource = new();
 
     public bool ShowHidden
     {
@@ -72,6 +75,13 @@ public partial class Control_ProfilesStack
 
     private async Task GenerateProfileStack(string focusedKey)
     {
+        var oldCancelSource = _generateStackCancelSource;
+        await oldCancelSource.CancelAsync();
+
+        var newCancelSource = new CancellationTokenSource();
+        var cancellationToken = newCancelSource.Token;
+        _generateStackCancelSource = newCancelSource;
+        
         ProfilesStack.Children.Clear();
 
         var focusedSetTaskCompletion = new TaskCompletionSource();
@@ -81,52 +91,75 @@ public partial class Control_ProfilesStack
             .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
             .Select(profileName => (Application)lightingStateManager.Events[profileName])
             .OrderBy(item => item.Settings is { Hidden: false } ? 0 : 1)
-            .Select(application =>
-            {
-                if (application is GenericApplication)
-                {
-                    return Dispatcher.BeginInvoke(() => CreateInsertGenericApplication(focusedKey, application), DispatcherPriority.Loaded);
-                }
-
-                return Dispatcher.BeginInvoke(() =>
-                {
-                    var profileImage = new Image
-                    {
-                        Tag = application,
-                        Source = application.Icon,
-                        ToolTip = application.Config.Name + " Settings",
-                        Margin = new Thickness(0, 5, 0, 0),
-                        Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
-                    };
-                    profileImage.MouseDown += ProfileImage_MouseDown;
-                    ProfilesStack.Children.Add(profileImage);
-
-                    if (!application.Config.ID.Equals(focusedKey)) return;
-
-                    Dispatcher.BeginInvoke(() =>
-                    {
-                        FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)profileImage.Source));
-
-                        focusedSetTaskCompletion.TrySetResult();
-                    }, DispatcherPriority.Render);
-                }, DispatcherPriority.Loaded);
-            }).Select(x => x.Task);
+            .Select(application => InsertApplicationImage(focusedKey, application, focusedSetTaskCompletion, cancellationToken))
+            .Select(x => x.Task);
 
         var allCompleted = Task.WhenAll(profileLoadTasks);
         await Task.WhenAny(allCompleted, focusedSetTaskCompletion.Task);
+        
+        oldCancelSource.Dispose();
     }
 
-    private void CreateInsertGenericApplication(string? focusedKey, Application application)
+    private DispatcherOperation InsertApplicationImage(string focusedKey, Application application,
+        TaskCompletionSource focusedSetTaskCompletion, CancellationToken cancellationToken)
     {
-        var profileImage = new Image
+        return Dispatcher.BeginInvoke(() =>
         {
-            Tag = application,
-            Source = application.Icon,
-            ToolTip = application.Config.ProcessNames[0] + " Settings",
-            Margin = new Thickness(0, 0, 0, 5)
-        };
-        profileImage.MouseDown += ProfileImage_MouseDown;
+            var profileImage = CreateApplication(focusedKey, application);
 
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            ProfilesStack.Children.Add(profileImage);
+
+            if (!application.Config.ID.Equals(focusedKey)) return;
+
+            Dispatcher.BeginInvoke(() =>
+            {
+                FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)application.Icon));
+
+                focusedSetTaskCompletion.TrySetResult();
+            }, DispatcherPriority.Normal);
+        }, DispatcherPriority.Loaded);
+    }
+
+    private FrameworkElement CreateApplication(string focusedKey, Application application)
+    {
+        return CreateGenericApplication(focusedKey, application, application is GenericApplication);
+    }
+
+    private FrameworkElement CreateGenericApplication(string? focusedKey, Application application, bool isGeneric)
+    {
+        var profileImage = GenerateProfileImage(application);
+
+        var profileGrid = new Grid
+        {
+            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)),
+            Margin = new Thickness(0, 5, 0, 0),
+        };
+
+        profileGrid.Children.Add(profileImage);
+        if (isGeneric)
+        {
+            AddProfileRemoveButton(application, profileGrid);
+        }
+        
+        var profileDisabled = !application.Settings?.IsEnabled ?? false;
+        if (profileDisabled)
+        {
+            AddProfileDisabledImage(application, profileGrid);
+        }
+
+        if (!application.Config.ID.Equals(focusedKey)) return profileGrid;
+
+        FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)application.Icon));
+        return profileGrid;
+    }
+
+    private void AddProfileRemoveButton(Application application, Grid profileGrid)
+    {
         var profileRemove = new Image
         {
             Source = _profileRemoveImage,
@@ -138,26 +171,85 @@ public partial class Control_ProfilesStack
             Visibility = Visibility.Hidden,
             Tag = application.Config.ID
         };
-        profileRemove.MouseDown += RemoveProfile_MouseDown;
+        profileGrid.Tag = profileRemove;
+            
+        profileRemove.MouseDown += async (_, _) => { await RemoveApplication(application); };
 
-        var profileGrid = new Grid
+        profileGrid.MouseEnter += (_, _) =>
         {
-            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)),
-            Margin = new Thickness(0, 5, 0, 0),
-            Tag = profileRemove
+            profileRemove.Visibility = Visibility.Visible;
+        };
+        profileGrid.MouseLeave += (_, _) =>
+        {
+            profileRemove.Visibility = Visibility.Hidden;
         };
 
-        profileGrid.MouseEnter += Profile_grid_MouseEnter;
-        profileGrid.MouseLeave += Profile_grid_MouseLeave;
-
-        profileGrid.Children.Add(profileImage);
         profileGrid.Children.Add(profileRemove);
+    }
 
-        ProfilesStack.Children.Add(profileGrid);
+    private void AddProfileDisabledImage(Application application, Grid profileGrid)
+    {
+        var disabledTooltip = application.Settings?.IsOverlayEnabled ?? true ?
+            "Profile is disabled. Overlay Layers can still work " :  "Profile is completely disabled";
+        var profileDisabledImage = new Image
+        {
+            Source = _disabledProfileImage,
+            ToolTip = disabledTooltip,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Height = 16,
+            Width = 16,
+        };
 
-        if (!application.Config.ID.Equals(focusedKey)) return;
+        profileGrid.Children.Add(profileDisabledImage);
+    }
 
-        FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)profileImage.Source));
+    private async Task RemoveApplication(Application application)
+    {
+        var name = application.Config.ID;
+
+        var lightingStateManager = await _lightingStateManager;
+        if (!lightingStateManager.Events.TryGetValue(name, out var value)) return;
+        var applicationName = value.Config.ProcessNames[0];
+
+        var cancelled = MessageBox.Show(
+            $"Are you sure you want to delete profile for {applicationName}?", "Remove Profile",
+            MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes;
+        if (cancelled) return;
+
+        var eventList = Global.Configuration.ProfileOrder
+            .ToDictionary(x => x, x => lightingStateManager.Events[x])
+            .Where(x => ShowHidden || ShowProfile(x))
+            .ToList();
+        var idx = Math.Max(eventList.FindIndex(x => x.Key == name), 0);
+        lightingStateManager.RemoveGenericProfile(name);
+        await GenerateProfileStack(eventList[idx].Key);
+
+        bool ShowProfile(KeyValuePair<string, ILightEvent> x)
+        {
+            var application1 = (Application)x.Value;
+            if (application1.Settings == null)
+            {
+                return true;
+            }
+            return !application1.Settings.Hidden;
+        }
+    }
+
+    private FrameworkElement GenerateProfileImage(Application application)
+    {
+        var profileImage = new Image
+        {
+            Tag = application,
+            Source = application.Icon,
+            ToolTip = application.Config.Name + " Settings",
+            Margin = new Thickness(0, 5, 0, 0),
+            Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
+        };
+        
+        profileImage.MouseDown += ProfileImage_MouseDown;
+        
+        return profileImage;
     }
 
     private async void AddProfile_MouseDown(object? sender, MouseButtonEventArgs e)
@@ -253,53 +345,6 @@ public partial class Control_ProfilesStack
         context.DataContext = profile;
     }
 
-    private void Profile_grid_MouseLeave(object? sender, MouseEventArgs e)
-    {
-        if ((sender as Grid)?.Tag is Image)
-            ((Image)((Grid)sender).Tag).Visibility = Visibility.Hidden;
-    }
-
-    private void Profile_grid_MouseEnter(object? sender, MouseEventArgs e)
-    {
-        if ((sender as Grid)?.Tag is Image)
-            ((Image)((Grid)sender).Tag).Visibility = Visibility.Visible;
-    }
-
-    private async void RemoveProfile_MouseDown(object? sender, MouseButtonEventArgs e)
-    {
-        if (sender is not Image { Tag: string } image)
-        {
-            return;
-        }
-
-        var name = (string)image.Tag;
-
-        var lightingStateManager = await _lightingStateManager;
-        if (!lightingStateManager.Events.TryGetValue(name, out var value)) return;
-        var applicationName = value.Config.ProcessNames[0];
-        if (MessageBox.Show(
-                "Are you sure you want to delete profile for " +
-                applicationName + "?", "Remove Profile", MessageBoxButton.YesNo,
-                MessageBoxImage.Warning) != MessageBoxResult.Yes) return;
-        var eventList = Global.Configuration.ProfileOrder
-            .ToDictionary(x => x, x => lightingStateManager.Events[x])
-            .Where(x => ShowHidden || ShowProfile(x))
-            .ToList();
-        var idx = Math.Max(eventList.FindIndex(x => x.Key == name), 0);
-        lightingStateManager.RemoveGenericProfile(name);
-        await GenerateProfileStack(eventList[idx].Key);
-
-        bool ShowProfile(KeyValuePair<string, ILightEvent> x)
-        {
-            var application = (Application)x.Value;
-            if (application.Settings == null)
-            {
-                return true;
-            }
-            return !application.Settings.Hidden;
-        }
-    }
-
     private void cmbtnOpenBitmapWindow_Clicked(object? sender, RoutedEventArgs e) => Window_BitmapView.Open();
     private void cmbtnOpenHttpDebugWindow_Clicked(object? sender, RoutedEventArgs e) => Window_GSIHttpDebug.Open(_httpListener);
 
@@ -336,6 +381,11 @@ public partial class Control_ProfilesStack
     }
 
     private async void LightingStateManagerOnEventAdded(object? sender, EventArgs e)
+    {
+        await Dispatcher.BeginInvoke(() => GenerateProfileStack());
+    }
+
+    private async void CmenuProfiles_OnClosed(object sender, RoutedEventArgs e)
     {
         await Dispatcher.BeginInvoke(() => GenerateProfileStack());
     }

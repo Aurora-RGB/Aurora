@@ -49,7 +49,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
     #region Internal Properties
     protected ImageSource? icon;
-    public virtual ImageSource Icon => icon ??= new BitmapImage(new Uri(Config.IconURI, UriKind.Relative));
+    public virtual ImageSource Icon => icon ??= new BitmapImage(new Uri(GetBaseUri(), @"/AuroraRgb;component/" + Config.IconURI));
 
     private UserControl? _control;
     public UserControl Control => _control ??= (UserControl)Activator.CreateInstance(Config.OverviewControlType, this);
@@ -58,6 +58,16 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     #endregion
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private static Uri GetBaseUri()
+    {
+        if (System.Windows.Application.Current.MainWindow is ConfigUi mainWindow)
+        {
+            return mainWindow.BaseUri;
+        }
+
+        throw new ThreadStateException("Application.Current.MainWindow is null");
+    }
 
     protected Application(LightEventConfig config)
     {

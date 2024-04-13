@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Threading;
 using AuroraRgb.Controls;
 using AuroraRgb.Devices;
@@ -64,6 +65,8 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private static bool IsDragging { get; set; }
 
+    public readonly Uri BaseUri;
+    
     public Application? FocusedApplication
     {
         get => GetValue(FocusedApplicationProperty) as Application;
@@ -80,6 +83,8 @@ partial class ConfigUi : INotifyPropertyChanged
         Task<KeyboardLayoutManager> layoutManager, Task<AuroraHttpListener?> httpListener,
         Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager, AuroraControlInterface controlInterface)
     {
+        BaseUri = BaseUriHelper.GetBaseUri(this);
+        
         _layoutManager = layoutManager;
         _lightingStateManager = lightingStateManager;
         _controlInterface = controlInterface;

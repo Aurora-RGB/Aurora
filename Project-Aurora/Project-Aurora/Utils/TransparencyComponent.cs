@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Common;
 using SourceChord.FluentWPF;
-using static AuroraRgb.Utils.Win32Transparency;
+using static AuroraRgb.Utils.DwmApi;
 
 namespace AuroraRgb.Utils;
 
@@ -124,7 +124,7 @@ public sealed class TransparencyComponent : IDisposable
             return;
         }
         _color = a;
-        _window.Dispatcher.BeginInvoke(_setBackground, DispatcherPriority.Render);
+        _window.Dispatcher.BeginInvoke(_setBackground, DispatcherPriority.DataBind);
     }
 
     private void SetBackground()
