@@ -11,24 +11,25 @@ internal sealed class GdiScreenCapture : IScreenCapture
 {
     public event EventHandler<Bitmap>? ScreenshotTaken;
 
-    private Bitmap _targetBitmap = new(8, 8);
-    private Size _targetSize = new(8, 8);
-
+    private Bitmap? _bitmap;
     private Graphics _graphics = Graphics.FromImage(new Bitmap(8, 8));
 
-    public void Capture(Rectangle desktopRegion)
+    public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
-        if (_targetSize != desktopRegion.Size)
+        if (_bitmap != bitmap)
         {
-            _targetBitmap = new Bitmap(desktopRegion.Width, desktopRegion.Height);
-            _targetSize = desktopRegion.Size;
             _graphics.Dispose();
-            _graphics = Graphics.FromImage(_targetBitmap);
-        }
-        _graphics.CompositingMode = CompositingMode.SourceCopy;
-        _graphics.CopyFromScreen(desktopRegion.Location, Point.Empty, _targetSize);
+            _graphics = Graphics.FromImage(bitmap);
+            _graphics.CompositingMode = CompositingMode.SourceCopy;
+            _graphics.CompositingQuality = CompositingQuality.Invalid;
+            _graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            _graphics.SmoothingMode = SmoothingMode.HighSpeed;
 
-        ScreenshotTaken?.Invoke(this, _targetBitmap);
+            _bitmap = bitmap;
+        }
+        _graphics.CopyFromScreen(desktopRegion.Location, Point.Empty, desktopRegion.Size);
+
+        ScreenshotTaken?.Invoke(this, bitmap);
     }
 
     public IEnumerable<string> GetDisplays() =>

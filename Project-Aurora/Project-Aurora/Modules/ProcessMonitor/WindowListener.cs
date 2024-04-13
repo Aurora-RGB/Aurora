@@ -6,16 +6,11 @@ using Microsoft.Collections.Extensions;
 
 namespace AuroraRgb.Modules.ProcessMonitor;
 
-public class WindowProcess : IEquatable<WindowProcess>
+public class WindowProcess(int windowHandle) : IEquatable<WindowProcess>
 {
     public int ProcessId { get; protected internal set; }
     public string ProcessName { get; protected internal set; } = string.Empty;
-    public int WindowHandle { get; }
-
-    public WindowProcess(int windowHandle)
-    {
-        WindowHandle = windowHandle;
-    }
+    public int WindowHandle { get; } = windowHandle;
 
     public bool Equals(WindowProcess? other)
     {
@@ -37,13 +32,21 @@ public class WindowProcess : IEquatable<WindowProcess>
     }
 }
 
+public class WindowEventArgs(string processName, int processId, int windowHandle, bool opened): EventArgs
+{
+    public string ProcessName => processName;
+    public int ProcessId => ProcessId;
+    public int WindowHandle => windowHandle;
+    public bool Opened => opened;
+}
+
 public sealed class WindowListener : IDisposable
 {
     public static WindowListener Instance { get; set; }
 
     // event that sends process id of new window
-    public event EventHandler<int>? WindowCreated;
-    public event EventHandler<int>? WindowDestroyed;
+    public event EventHandler<WindowEventArgs>? WindowCreated;
+    public event EventHandler<WindowEventArgs>? WindowDestroyed;
 
     public readonly MultiValueDictionary<string, WindowProcess> ProcessWindowsMap = new();
     private static readonly string Aurora = Assembly.GetExecutingAssembly().GetName().Name ?? "Aurora";
@@ -67,16 +70,16 @@ public sealed class WindowListener : IDisposable
             var name = process.ProcessName + ".exe";
             var windowHandle = element.Current.NativeWindowHandle;
 
+            var processId = process.Id;
             Automation.AddAutomationEventHandler(WindowPattern.WindowClosedEvent, element, TreeScope.Element, (_, _) =>
             {
                 ProcessWindowsMap.Remove(name, new WindowProcess(windowHandle));
-                WindowDestroyed?.Invoke(this, windowHandle);
+                WindowDestroyed?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, false));
             });
 
             //To make sure window close event can be fired, we fire open event after subscribing to close event
-            ProcessWindowsMap.Add(name,
-                new WindowProcess(windowHandle) { ProcessId = element.Current.ProcessId, ProcessName = name, });
-            WindowCreated?.Invoke(this, windowHandle);
+            ProcessWindowsMap.Add(name, new WindowProcess(windowHandle) { ProcessId = element.Current.ProcessId, ProcessName = name, });
+            WindowCreated?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, true));
         }
         catch
         {
@@ -86,7 +89,6 @@ public sealed class WindowListener : IDisposable
 
     public void Dispose()
     {
-        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement,
-            WindowDetected);
+        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, WindowDetected);
     }
 }

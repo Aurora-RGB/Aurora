@@ -57,6 +57,9 @@ public static class BitmapUtils
             PixelFormat.Format32bppRgb, buff);
         var scan0 = srcData.Scan0;
 
+        if (!map.GetBounds(ref graphicsUnit).Contains(rectangle))
+            return Color.Black;
+
         var rectangleHeight = rectangle.Height;
         var rectangleWidth = rectangle.Width;
         unsafe

@@ -3,9 +3,9 @@ using System.Runtime.InteropServices;
 
 namespace AuroraRgb.Utils;
 
-public static partial class Win32Transparency
+public static partial class DwmApi
 {
-    #region Mica
+    private const string LibraryName = "dwmapi.dll";
 
     [Flags]
     public enum DwmWindowAttribute : uint
@@ -32,9 +32,18 @@ public static partial class Win32Transparency
         DWMWA_MICA_EFFECT = 1029
     }
 
-    [LibraryImport("dwmapi.dll")]
-    internal static partial int DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute dwAttribute, ref int pvAttribute,
-        int cbAttribute);
+    [LibraryImport(LibraryName)]
+    internal static partial void DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out Rect pvAttribute, int cbAttribute);
 
-    #endregion
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Rect
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [LibraryImport(LibraryName)]
+    internal static partial void DwmSetWindowAttribute(IntPtr hwnd, DwmWindowAttribute dwAttribute, ref int pvAttribute, int cbAttribute);
 }

@@ -13,19 +13,19 @@ internal sealed class DxScreenCapture : IScreenCapture
 {
     public event EventHandler<Bitmap>? ScreenshotTaken;
     
-    private static readonly IDictionary<Output5, DesktopDuplicator> Duplicators = new Dictionary<Output5, DesktopDuplicator>();
+    private static readonly Dictionary<Output5, DesktopDuplicator> Duplicators = new();
 
     private static readonly Semaphore Semaphore = new(1, 1);
     private Rectangle _currentBounds = Rectangle.Empty;
     private DesktopDuplicator? _desktopDuplicator;
 
-    public void Capture(Rectangle desktopRegion)
+    public void Capture(Rectangle desktopRegion, Bitmap screenBitmap)
     {
         SetTarget(desktopRegion);
         try
         {
             Semaphore.WaitOne();
-            var bitmap = _currentBounds.IsEmpty ? null : _desktopDuplicator?.Capture(_currentBounds, 5000);
+            var bitmap = _currentBounds.IsEmpty ? null : _desktopDuplicator?.Capture(_currentBounds, screenBitmap, 5000);
             if (bitmap == null)
             {
                 if (_desktopDuplicator?.IsDisposed ?? false)
@@ -35,7 +35,6 @@ internal sealed class DxScreenCapture : IScreenCapture
                 return;
             }
             ScreenshotTaken?.Invoke(this, bitmap);
-            bitmap.Dispose();
         }
         catch(Exception e)
         {
@@ -53,23 +52,10 @@ internal sealed class DxScreenCapture : IScreenCapture
 
     private void SetTarget(Rectangle desktopRegion)
     {
-        var outputs = GetAdapters();
-        Adapter1? currentAdapter = null;
-        Output5? currentOutput = null;
-        
-        foreach (var (adapter, output) in outputs)
-        {
-            if (!RectangleContains(output.Description.DesktopBounds, desktopRegion))
-            {
-                continue;
-            }
+        var outputs = GetOutputs();
+        var currentOutput = outputs.FirstOrDefault(output => RectangleContains(output.Description.DesktopBounds, desktopRegion));
 
-            currentAdapter = adapter;
-            currentOutput = output;
-            break;
-        }
-
-        if (currentAdapter == null || currentOutput == null)
+        if (currentOutput == null)
         {
             return;
         }
@@ -96,7 +82,7 @@ internal sealed class DxScreenCapture : IScreenCapture
             Semaphore.WaitOne();
 
             if (Duplicators.TryGetValue(currentOutput, out _desktopDuplicator)) return;
-            _desktopDuplicator = new DesktopDuplicator(currentOutput, currentAdapter);
+            _desktopDuplicator = new DesktopDuplicator(currentOutput);
             Duplicators.Add(currentOutput, _desktopDuplicator);
         }
         finally
@@ -105,16 +91,16 @@ internal sealed class DxScreenCapture : IScreenCapture
         }
     }
 
-    public IEnumerable<string> GetDisplays() => GetAdapters().Select((s, index) =>
+    public IEnumerable<string> GetDisplays() => GetOutputs().Select((s, index) =>
     {
-        var b = s.Output.Description.DesktopBounds;
+        var b = s.Description.DesktopBounds;
 
         return $"Display {index + 1}: X:{b.Left}, Y:{b.Top}, W:{b.Right - b.Left}, H:{b.Bottom - b.Top}";
     });
 
     private static Factory1? _factory1;
-    private static List<(Adapter1 Adapter, Output5 Output)>? _outputs;
-    private static IEnumerable<(Adapter1 Adapter, Output5 Output)> GetAdapters()
+    private static List<Output5>? _outputs;
+    private static List<Output5> GetOutputs()
     {
         if (_factory1 != null && _factory1.IsCurrent && _outputs != null) return _outputs;
         _factory1?.Dispose();
@@ -125,7 +111,7 @@ internal sealed class DxScreenCapture : IScreenCapture
             {
                 var o = n.QueryInterface<Output5>();
                 WeakEventManager<Output5, EventArgs>.AddHandler(o, nameof(o.Disposing), OutputDisposed);
-                return (M: m, o);
+                return o;
             }))
             .ToList();
 
@@ -148,10 +134,14 @@ internal sealed class DxScreenCapture : IScreenCapture
 
     private static void OutputDisposed(object? sender, EventArgs e)
     {
+        if (sender == null)
+        {
+            return;
+        }
         try
         {
             Semaphore.WaitOne();
-            var output5 = sender as Output5;
+            var output5 = (Output5)sender;
             Duplicators.Remove(output5);
             _outputs = null;
         }

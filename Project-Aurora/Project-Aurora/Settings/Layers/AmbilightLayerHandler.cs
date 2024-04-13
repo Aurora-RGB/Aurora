@@ -20,6 +20,8 @@ using AuroraRgb.Settings.Layers.Ambilight;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 using Common.Utils;
 using Newtonsoft.Json;
 using PropertyChanged;
@@ -242,7 +244,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
 [LogicOverrideIgnoreProperty("_SecondaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [DoNotNotify]
-public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
+public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
 {
     private IScreenCapture? _screenCapture;
 
@@ -252,6 +254,7 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
     private Brush _screenBrush = Brushes.Transparent;
     private IntPtr _specificProcessHandle = IntPtr.Zero;
     private Rectangle _cropRegion = Rectangle.Empty;
+    private Bitmap _screenBitmap = new(8, 8);
     private ImageAttributes _imageAttributes = new();
 
     private bool _invalidated; //properties changed
@@ -297,13 +300,15 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
 
         //This is needed to prevent the layer from disappearing
         //for a frame when the user alt-tabs with the foregroundapp option selected
-        if (TryGetCropRegion(out var newCropRegion))
-            _cropRegion = newCropRegion;
-        else if (DateTime.UtcNow - _lastProcessDetectTry > TimeSpan.FromSeconds(2))
+        if (!TryGetCropRegion(out _))
         {
-            UpdateSpecificProcessHandle(Properties.SpecificProcess);
-            _lastProcessDetectTry = DateTime.UtcNow;
+            if (DateTime.UtcNow - _lastProcessDetectTry > TimeSpan.FromSeconds(2))
+            {
+                UpdateSpecificProcessHandle(Properties.SpecificProcess);
+                _lastProcessDetectTry = DateTime.UtcNow;
+            }
         }
+
         //and because of that, this should never happen 
         if (_cropRegion.IsEmpty)
             return EffectLayer;
@@ -368,7 +373,18 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
 
     private void TryTakeScreenshot()
     {
-        _screenCapture?.Capture(_cropRegion);
+        if (TryGetCropRegion(out var newCropRegion))
+        {
+            if (_cropRegion != newCropRegion)
+            {
+                var screenBitmap = _screenBitmap;
+                _screenBitmap = new Bitmap(newCropRegion.Width, newCropRegion.Height);
+                screenBitmap.Dispose();
+            }
+            _cropRegion = newCropRegion;
+        }
+        
+        _screenCapture?.Capture(_cropRegion, _screenBitmap);
         WaitTimer(_captureStopwatch.Elapsed);
         _captureStopwatch.Restart();
     }
@@ -396,8 +412,9 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
             case AmbilightType.Default:
                 lock (_screenBrush)
                 {
-                    _screenBrush.Dispose();
+                    var previousBrush = _screenBrush;
                     _screenBrush = new TextureBrush(screenCapture, new Rectangle(0, 0, screenCapture.Width, screenCapture.Height), _imageAttributes);
+                    previousBrush.Dispose();
                 }
                 _brushChanged = true;
                 break;
@@ -477,11 +494,27 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
         _specificProcessHandle = User32.GetForegroundWindow();
     }
 
-    private void WindowsChanged(object? sender, int e)
+    private void WindowsChanged(object? sender, WindowEventArgs e)
     {
+        if (e.Opened && (IsSelectedProcess() || CaptureForeground()))
+        {
+            _specificProcessHandle = new IntPtr(e.WindowHandle);
+        }
+        
         if (!WindowListener.Instance.ProcessWindowsMap.TryGetValue(Properties.SpecificProcess, out var windows)) return;
+        
         var targetWindow = windows.First();
         _specificProcessHandle = new IntPtr(targetWindow.WindowHandle);
+
+        bool IsSelectedProcess()
+        {
+            return e.ProcessName == Properties.SpecificProcess;
+        }
+
+        bool CaptureForeground()
+        {
+            return Properties.AmbilightCaptureType == AmbilightCaptureType.ForegroundApp;
+        }
     }
 
     #region Helper Methods
@@ -569,60 +602,11 @@ public partial class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerP
 
     #endregion
 
-    #region DWM
-
-    [LibraryImport("dwmapi.dll")]
-    private static partial void DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out Rect pvAttribute, int cbAttribute);
-
-    private struct Rect
+    private static DwmApi.Rect GetWindowRectangle(IntPtr hWnd)
     {
-        public int Left;
-        public int Top;
-        public int Right;
-        public int Bottom;
-    }
-
-    [Flags]
-    private enum DwmWindowAttribute : uint
-    {
-        DwmwaNcrenderingEnabled = 1,
-        DwmwaNcrenderingPolicy = 2,
-        DwmwaTransitionsForcedisabled = 4,
-        DwmwaAllowNcpaint = 8,
-        DwmwaCaptionButtonBounds = 16,
-        DwmwaNonclientRtlLayout = 32,
-        DwmwaForceIconicRepresentation = 64,
-        DwmwaFlip3DPolicy = 128,
-        DwmwaExtendedFrameBounds = 256,
-        DwmwaHasIconicBitmap = 512,
-        DwmwaDisallowPeek = 1024,
-        DwmwaExcludedFromPeek = 2048,
-        DwmwaCloak = 4096,
-        DwmwaCloaked = 8192,
-        DwmwaFreezeRepresentation = 16384,
-        DwmwaLast = 32768
-    }
-
-    private static Rect GetWindowRectangle(IntPtr hWnd)
-    {
-        var size = Marshal.SizeOf(typeof(Rect));
-        DwmGetWindowAttribute(hWnd, (int)DwmWindowAttribute.DwmwaExtendedFrameBounds, out var rect, size);
+        var size = Marshal.SizeOf<DwmApi.Rect>();
+        DwmApi.DwmGetWindowAttribute(hWnd, (int)DwmApi.DwmWindowAttribute.DWMWA_EXTENDED_FRAME_BOUNDS, out var rect, size);
 
         return rect;
     }
-
-    #endregion
-}
-
-internal interface IScreenCapture : IDisposable
-{
-    /// <summary>
-    /// Captures a screenshot of the full screen, returning a full resolution bitmap
-    /// </summary>
-    /// <returns></returns>
-    void Capture(Rectangle desktopRegion);
-
-    event EventHandler<Bitmap> ScreenshotTaken;
-
-    IEnumerable<string> GetDisplays();
 }
