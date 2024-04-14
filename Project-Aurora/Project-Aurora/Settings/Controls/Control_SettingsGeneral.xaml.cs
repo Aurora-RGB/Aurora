@@ -10,8 +10,6 @@ namespace AuroraRgb.Settings.Controls;
 
 public partial class Control_SettingsGeneral
 {
-    /// <summary>The excluded program the user has selected in the excluded list.</summary>
-    private string SelectedExcludedProgram { get; set; } = string.Empty;
     
     public Control_SettingsGeneral()
     {
@@ -39,8 +37,9 @@ public partial class Control_SettingsGeneral
 
     private void ExcludedRemove_Click(object? sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(SelectedExcludedProgram))
-            Global.Configuration.ExcludedPrograms.Remove(SelectedExcludedProgram);
+        var selectedItem = ExcludedProcessesList.SelectedItem as string;
+        if (!string.IsNullOrEmpty(selectedItem))
+            Global.Configuration.ExcludedPrograms.Remove(selectedItem);
     }
 
     private void RunAtWinStartup_Checked(object? sender, RoutedEventArgs e)

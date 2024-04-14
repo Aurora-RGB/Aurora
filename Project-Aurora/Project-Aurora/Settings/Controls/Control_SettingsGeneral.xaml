@@ -191,9 +191,7 @@
 
                 <!-- Excluded Programs List -->
                 <Canvas>
-                    <ListBox ItemsSource="{Binding ExcludedPrograms}"
-                             SelectedItem="{Binding SelectedExcludedProgram,
-                              RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type controls:Control_Settings}}, Mode=OneWayToSource}"
+                    <ListBox Name="ExcludedProcessesList" ItemsSource="{Binding ExcludedPrograms}"
                              Margin="0,23,0,0" Width="160" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
                     <TextBlock Text="Excluded Processes" Width="113" HorizontalAlignment="Left"
                                VerticalAlignment="Top" />
