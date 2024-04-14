@@ -50,7 +50,7 @@ public sealed class LogitechSdkListener : IDisposable
     public IReadOnlyDictionary<DeviceKeys, Color> Colors => _colors;
     public Color BackgroundColor { get; private set; } = Color.Empty;
 
-    private LogiSetTargetDeviceType DeviceType { get; set; }
+    private LogiSetTargetDevice Device { get; set; }
 
     private readonly List<PipeListener> _pipeListeners = [];
     private readonly ConcurrentDictionary<DeviceKeys, Color> _colors = new();
@@ -245,6 +245,11 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLightingForTargetZone(ReadOnlySpan<byte> span)
     {
+        if (!Device.HasFlag(LogiSetTargetDevice.Rgb))
+        {
+            return;
+        }
+        
         var setTargetZone = MemoryMarshal.Read<LogitechSetTargetZone>(span);
         
         var ledMappings = setTargetZone.DeviceType switch
@@ -253,10 +258,9 @@ public sealed class LogitechSdkListener : IDisposable
             LogiDeviceType.Mousemat => LedMapping.MousepadZoneKeys,
             LogiDeviceType.Headset => LedMapping.HeadsetZoneKeys,
             LogiDeviceType.Speaker => LedMapping.SpeakerZoneKeys,
-            LogiDeviceType.Keyboard => null, //Let Per-Key commands handle this
+            LogiDeviceType.Keyboard => LedMapping.KeyboardZoneKeys,
         };
-        if (ledMappings == null)
-            return;
+
         if (!ledMappings.TryGetValue(setTargetZone.ZoneId, out var keys))
         {
             return;
@@ -289,14 +293,14 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetTargetDevice(ReadOnlySpan<byte> span)
     {
-        DeviceType = (LogiSetTargetDeviceType)BitConverter.ToInt32(span);
+        Device = (LogiSetTargetDevice)BitConverter.ToInt32(span);
     }
 
     private void SetLighting(ReadOnlySpan<byte> span)
     {
         var color = LogitechPipeConverter.ReadPercentageColor(span);
 
-        if (DeviceType == LogiSetTargetDeviceType.PerKeyRgb)
+        if (Device.HasFlag(LogiSetTargetDevice.PerKeyRgb))
         {
             foreach (var key in _colors.Keys)
             {
@@ -310,6 +314,11 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLightingForKeyWithKeyName(ReadOnlySpan<byte> span)
     {
+        if (!Device.HasFlag(LogiSetTargetDevice.PerKeyRgb))
+        {
+            return;
+        }
+
         var keyNameIdx = BitConverter.ToInt32(span);
         var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var keyName = (LogitechLedId)keyNameIdx;
@@ -324,6 +333,11 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLightingForKeyWithScanCode(ReadOnlySpan<byte> span)
     {
+        if (!Device.HasFlag(LogiSetTargetDevice.PerKeyRgb))
+        {
+            return;
+        }
+
         var scanCodeIdx = BitConverter.ToInt32(span);
         var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var scanCode = (DirectInputScanCode)scanCodeIdx;
@@ -338,6 +352,11 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLightingForKeyWithHidCode(ReadOnlySpan<byte> span)
     {
+        if (!Device.HasFlag(LogiSetTargetDevice.PerKeyRgb))
+        {
+            return;
+        }
+
         var hidCodeIdx = BitConverter.ToInt32(span);
         var color = LogitechPipeConverter.ReadPercentageColor(span[sizeof(int)..]);
         var hidCode = (HidCode)hidCodeIdx;
@@ -352,6 +371,11 @@ public sealed class LogitechSdkListener : IDisposable
 
     private void SetLightingFromBitmap(ReadOnlySpan<byte> span)
     {
+        if (!Device.HasFlag(LogiSetTargetDevice.PerKeyRgb))
+        {
+            return;
+        }
+
         var colors = MemoryMarshal.Cast<byte, LogitechArgbColor>(span);
         for (var clr = 0; clr < colors.Length; clr++)
         {
@@ -389,7 +413,7 @@ public sealed class LogitechSdkListener : IDisposable
     {
         _excluded.Clear();
         _colors.Clear();
-        DeviceType = LogiSetTargetDeviceType.All;
+        Device = LogiSetTargetDevice.All;
         BackgroundColor = Color.Empty;
     }
 

@@ -3,7 +3,7 @@
 namespace AuroraRgb.Modules.Logitech.Enums;
 
 [Flags]
-public enum LogiSetTargetDeviceType
+public enum LogiSetTargetDevice
 {
     None = 0,
     Monochrome = 1 << 0,

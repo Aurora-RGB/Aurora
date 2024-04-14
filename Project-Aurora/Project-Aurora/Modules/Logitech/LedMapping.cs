@@ -460,6 +460,7 @@ internal static class LedMapping
     internal static readonly MultiValueDictionary<int, DeviceKeys> MouseZoneKeys = new()
     {
         { 0, DeviceKeys.Peripheral },
+        { 0, DeviceKeys.Peripheral_Logo },
         { 0, DeviceKeys.Peripheral_FrontLight },
         { 0, DeviceKeys.Peripheral_ScrollWheel },
         { 0, DeviceKeys.PERIPHERAL_DPI },
@@ -486,6 +487,7 @@ internal static class LedMapping
         
         { 1, DeviceKeys.Peripheral_Logo },
         { 1, DeviceKeys.PERIPHERAL_LIGHT2 },
+        { 2, DeviceKeys.Peripheral_ScrollWheel },
         { 2, DeviceKeys.PERIPHERAL_LIGHT3 },
     };
 
@@ -529,5 +531,14 @@ internal static class LedMapping
         { 1, DeviceKeys.CL3 },
         { 2, DeviceKeys.CL4 },
         { 3, DeviceKeys.CL5 },
+    };
+
+    internal static readonly MultiValueDictionary<int, DeviceKeys> KeyboardZoneKeys = new()
+    {
+        //{ 0, DeviceKeys.ADDITIONALLIGHT1 },
+        //{ 1, DeviceKeys.ADDITIONALLIGHT2 },
+        //{ 2, DeviceKeys.ADDITIONALLIGHT3 },
+        //{ 3, DeviceKeys.ADDITIONALLIGHT4 },
+        //{ 4, DeviceKeys.ADDITIONALLIGHT5 },
     };
 }
