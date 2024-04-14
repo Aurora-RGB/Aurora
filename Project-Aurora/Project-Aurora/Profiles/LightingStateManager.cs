@@ -442,8 +442,6 @@ public sealed class LightingStateManager : IDisposable
             return;
         }
 
-        var rawProcessName = _activeProcessMonitor.Result.ProcessName;
-
         UpdateProcess();
         var newFrame = new EffectsEngine.EffectFrame();
 
@@ -451,7 +449,7 @@ public sealed class LightingStateManager : IDisposable
         _currentEvent = profile;
 
         // If the current foreground process is excluded from Aurora, disable the lighting manager
-        if ((profile is Desktop.Desktop && !profile.IsEnabled) || Global.Configuration.ExcludedPrograms.Contains(rawProcessName))
+        if (profile is Desktop.Desktop && !profile.IsEnabled)
         {
             if (!_profilesDisabled)
             {
@@ -520,6 +518,10 @@ public sealed class LightingStateManager : IDisposable
         {
             profile = tempProfile;
             preview = true;
+        }
+        else if (Global.Configuration.ExcludedPrograms.Contains(processName))
+        {
+            return DesktopProfile;
         }
         else if (Global.Configuration.AllowWrappersInBackground
                  && _ipcListener.Result is {IsWrapperConnected: true} 
