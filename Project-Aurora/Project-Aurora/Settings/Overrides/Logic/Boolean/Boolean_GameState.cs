@@ -79,13 +79,13 @@ public class BooleanGSINumeric : Evaluatable<bool> {
     }
 
     // Path to the two GSI variables (or numbers themselves) and the operator to compare them with
-    public VariablePath Operand1Path { get; set; }
-    public VariablePath Operand2Path { get; set; }
+    public VariablePath Operand1Path { get; set; } = VariablePath.Empty;
+    public VariablePath Operand2Path { get; set; } = VariablePath.Empty;
     public ComparisonOperator Operator { get; set; } = ComparisonOperator.EQ;
 
     // Control assigned to this condition
     [Newtonsoft.Json.JsonIgnore]
-    private Control_ConditionGSINumeric control;
+    private Control_ConditionGSINumeric? control;
     public override Visual GetControl() => control ?? (control = new Control_ConditionGSINumeric(this));
 
     /// <summary>Parses the numbers, compares the result, and returns the result.</summary>
