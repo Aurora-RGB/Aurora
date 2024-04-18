@@ -9,12 +9,13 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls.Keycaps;
 using AuroraRgb.Settings.Layouts;
 using AuroraRgb.Utils;
 using Common.Devices;
 
-namespace AuroraRgb.Settings;
+namespace AuroraRgb.Modules.Layouts;
 
 internal sealed class KeyboardControlGenerator(
     bool abstractKeycaps,

@@ -6,6 +6,7 @@ using System.Threading;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Modules.Inputs;
+using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using RazerSdkReader;

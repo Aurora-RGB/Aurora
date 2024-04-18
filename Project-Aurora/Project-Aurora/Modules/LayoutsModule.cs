@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Settings;
 using Lombok.NET;
 using RazerSdkReader;

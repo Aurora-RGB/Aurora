@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using AuroraRgb.Controls;
 using AuroraRgb.Devices;
 using AuroraRgb.Modules.GameStateListen;
+using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
