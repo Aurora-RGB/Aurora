@@ -7,7 +7,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,8 +19,6 @@ using AuroraRgb.Settings.Layers.Ambilight;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
-using Windows.Win32;
-using Windows.Win32.Foundation;
 using Common.Utils;
 using Newtonsoft.Json;
 using PropertyChanged;
@@ -276,6 +273,7 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
         _captureWorker = new SmartThreadPool(stpStartInfo)
         {
             MaxThreads = 1,
+            Name = "Ambilight Screenshot"
         };
         _screenshotWork = TakeScreenshot;
     }
@@ -283,7 +281,11 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
     protected override async Task Initialize()
     {
         await base.Initialize();
-        _screenCapture?.Dispose();
+        if (_screenCapture != null)
+        {
+            _screenCapture.ScreenshotTaken -= ScreenshotAction;
+            _screenCapture.Dispose();
+        }
         _screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
         _screenCapture.ScreenshotTaken += ScreenshotAction;
     }
@@ -404,7 +406,7 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
     }
 
     //B, G, R, A
-    private static readonly long[] ColorData = {0L, 0L, 0L, 0L};
+    private static readonly long[] ColorData = [0L, 0L, 0L, 0L];
     private void CreateScreenBrush(Bitmap screenCapture, Rectangle cropRegion)
     {
         switch (Properties.AmbilightType)
@@ -447,7 +449,7 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
     {
         base.PropertiesChanged(sender, args);
             
-        Initialize().Wait();
+        await Initialize();
 
         var mtx = BitmapUtils.GetEmptyColorMatrix();
         if (Properties.BrightenImage)
@@ -538,8 +540,8 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
                 crop = new Rectangle(
                     Properties.Coordinates.Left - screenBounds.Left,
                     Properties.Coordinates.Top - screenBounds.Top,
-                    Properties.Coordinates.Width,
-                    Properties.Coordinates.Height);
+                    Math.Abs(Properties.Coordinates.Width),
+                    Math.Abs(Properties.Coordinates.Height));
                 break;
             case AmbilightCaptureType.SpecificProcess:
             case AmbilightCaptureType.ForegroundApp:
@@ -547,13 +549,13 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
                 if (handle == IntPtr.Zero)
                     return false;//happens when alt tabbing
 
-                var appRect = GetWindowRectangle(handle);
+                var appRect = DwmApi.GetWindowRectangle(handle);
 
                 crop = new Rectangle(
                     appRect.Left,
                     appRect.Top,
-                    appRect.Right - appRect.Left,
-                    appRect.Bottom - appRect.Top);
+                    Math.Abs(appRect.Right - appRect.Left),
+                    Math.Abs(appRect.Bottom - appRect.Top));
 
                 break;
         }
@@ -602,11 +604,10 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
 
     #endregion
 
-    private static DwmApi.Rect GetWindowRectangle(IntPtr hWnd)
+    public override void Dispose()
     {
-        var size = Marshal.SizeOf<DwmApi.Rect>();
-        DwmApi.DwmGetWindowAttribute(hWnd, (int)DwmApi.DwmWindowAttribute.DWMWA_EXTENDED_FRAME_BOUNDS, out var rect, size);
+        if (_screenCapture != null) _screenCapture.ScreenshotTaken -= ScreenshotAction;
 
-        return rect;
+        base.Dispose();
     }
 }

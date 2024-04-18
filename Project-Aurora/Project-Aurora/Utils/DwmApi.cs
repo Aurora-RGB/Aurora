@@ -28,12 +28,26 @@ public static partial class DwmApi
         DWMWA_PASSIVE_UPDATE_MODE,
         DWMWA_USE_HOSTBACKDROPBRUSH,
         DWMWA_USE_IMMERSIVE_DARK_MODE = 20,
-        DWMWA_SYSTEMBACKDROP_TYPE = 38,
+        DWMWA_WINDOW_CORNER_PREFERENCE = 33,
+        DWMWA_BORDER_COLOR,
+        DWMWA_CAPTION_COLOR,
+        DWMWA_TEXT_COLOR,
+        DWMWA_VISIBLE_FRAME_BORDER_THICKNESS,
+        DWMWA_SYSTEMBACKDROP_TYPE,
+        DWMWA_LAST,
         DWMWA_MICA_EFFECT = 1029
     }
 
+    internal static Rect GetWindowRectangle(IntPtr hWnd)
+    {
+        var size = Marshal.SizeOf<Rect>();
+        DwmGetWindowAttribute(hWnd, (int)DwmWindowAttribute.DWMWA_EXTENDED_FRAME_BOUNDS, out var rect, size);
+
+        return rect;
+    }
+
     [LibraryImport(LibraryName)]
-    internal static partial void DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out Rect pvAttribute, int cbAttribute);
+    private static partial void DwmGetWindowAttribute(IntPtr hwnd, int dwAttribute, out Rect pvAttribute, int cbAttribute);
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct Rect
@@ -42,6 +56,8 @@ public static partial class DwmApi
         public int Top;
         public int Right;
         public int Bottom;
+        
+        //TODO add Height Width props
     }
 
     [LibraryImport(LibraryName)]

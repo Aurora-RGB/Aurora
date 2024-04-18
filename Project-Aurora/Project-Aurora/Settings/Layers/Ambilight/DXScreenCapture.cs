@@ -19,14 +19,17 @@ internal sealed class DxScreenCapture : IScreenCapture
     private Rectangle _currentBounds = Rectangle.Empty;
     private DesktopDuplicator? _desktopDuplicator;
 
-    public void Capture(Rectangle desktopRegion, Bitmap screenBitmap)
+    public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
         SetTarget(desktopRegion);
         try
         {
             Semaphore.WaitOne();
-            var bitmap = _currentBounds.IsEmpty ? null : _desktopDuplicator?.Capture(_currentBounds, screenBitmap, 5000);
-            if (bitmap == null)
+            if (_currentBounds.IsEmpty)
+                return;
+            
+            var capture = _desktopDuplicator?.Capture(_currentBounds, bitmap, 5000);
+            if (capture == null)
             {
                 if (_desktopDuplicator?.IsDisposed ?? false)
                 {
@@ -34,7 +37,7 @@ internal sealed class DxScreenCapture : IScreenCapture
                 }
                 return;
             }
-            ScreenshotTaken?.Invoke(this, bitmap);
+            ScreenshotTaken?.Invoke(this, capture);
         }
         catch(Exception e)
         {
@@ -50,10 +53,10 @@ internal sealed class DxScreenCapture : IScreenCapture
         }
     }
 
-    private void SetTarget(Rectangle desktopRegion)
+    private void SetTarget(Rectangle captureRegion)
     {
         var outputs = GetOutputs();
-        var currentOutput = outputs.FirstOrDefault(output => RectangleContains(output.Description.DesktopBounds, desktopRegion));
+        var currentOutput = outputs.Find(output => RectangleContains(output.Description.DesktopBounds, captureRegion));
 
         if (currentOutput == null)
         {
@@ -61,15 +64,15 @@ internal sealed class DxScreenCapture : IScreenCapture
         }
 
         var desktopBounds = currentOutput.Description.DesktopBounds;
-        var x = Math.Max(0, desktopRegion.Left - desktopBounds.Left);
-        var y = Math.Max(0, desktopRegion.Top - desktopBounds.Top);
+        var x = Math.Max(desktopBounds.Left, captureRegion.Left - desktopBounds.Left);
+        var y = Math.Max(desktopBounds.Top, captureRegion.Top - desktopBounds.Top);
         var screenWindowRectangle = new Rectangle(
             x,
             y,
-            Math.Min(desktopRegion.Width, desktopBounds.Right - x),
-            Math.Min(desktopRegion.Height, desktopBounds.Bottom - y)
+            Math.Min(captureRegion.Width, captureRegion.Width - captureRegion.Right + desktopBounds.Right),
+            Math.Min(captureRegion.Height, captureRegion.Height - captureRegion.Bottom + desktopBounds.Bottom)
         );
-            
+
         if (screenWindowRectangle == _currentBounds && _desktopDuplicator != null)
         {
             return;
@@ -138,17 +141,9 @@ internal sealed class DxScreenCapture : IScreenCapture
         {
             return;
         }
-        try
-        {
-            Semaphore.WaitOne();
-            var output5 = (Output5)sender;
-            Duplicators.Remove(output5);
-            _outputs = null;
-        }
-        finally
-        {
-            Semaphore.Release();
-        }
+        var output5 = (Output5)sender;
+        Duplicators.Remove(output5);
+        _outputs = null;
     }
 
     private static bool RectangleContains(RawRectangle containingRectangle, Rectangle rec)

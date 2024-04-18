@@ -21,9 +21,12 @@ public sealed class DesktopDuplicator : IDisposable
     private readonly Device _device;
     private readonly Texture2D _desktopImageTexture;
     private readonly Lazy<OutputDuplication> _deskDupl;
+    private readonly Output5 _output;
 
     public DesktopDuplicator(Output5 output)
     {
+        _output = output;
+
         WeakEventManager<Output5, EventArgs>.AddHandler(output, nameof(output.Disposing), (_, _) =>
         {
             Dispose();
@@ -31,7 +34,7 @@ public sealed class DesktopDuplicator : IDisposable
         var deviceFlags = DeviceCreationFlags.SingleThreaded;
         if (Global.isDebug)
         {
-            deviceFlags &= DeviceCreationFlags.Debug;
+            deviceFlags |= DeviceCreationFlags.Debug;
         }
         _device = new Device(DriverType.Hardware, deviceFlags);
         
@@ -45,8 +48,8 @@ public sealed class DesktopDuplicator : IDisposable
             CpuAccessFlags = CpuAccessFlags.Read,
             BindFlags = BindFlags.None,
             Format = Format.B8G8R8A8_UNorm,
-            Width = output.Description.DesktopBounds.Right - output.Description.DesktopBounds.Left,
-            Height = output.Description.DesktopBounds.Bottom - output.Description.DesktopBounds.Top,
+            Width = Math.Abs(output.Description.DesktopBounds.Right - output.Description.DesktopBounds.Left),
+            Height = Math.Abs(output.Description.DesktopBounds.Bottom - output.Description.DesktopBounds.Top),
             OptionFlags = ResourceOptionFlags.Guarded,
             MipLevels = 1,
             ArraySize = 1,
@@ -74,26 +77,28 @@ public sealed class DesktopDuplicator : IDisposable
         if (IsDisposed || _device.IsDisposed) 
             return null;
 
+        var deskDupl = _deskDupl.Value;
+        if (deskDupl is { IsDisposed: true })
+        {
+            return null;
+        }
+        var tryAcquireNextFrame = deskDupl.TryAcquireNextFrame(timeout, out var frameInformation, out var desktopResource);
+        deskDupl.ReleaseFrame();
+        if (tryAcquireNextFrame.Failure || frameInformation.LastPresentTime == 0)
+        {
+            // failure or no update
+            return null;
+        }
         try
         {
-            var deskDupl = _deskDupl.Value;
-            if (deskDupl is { IsDisposed: true })
-            {
-                return null;
-            }
-            var tryAcquireNextFrame = deskDupl.TryAcquireNextFrame(timeout, out var frameInformation, out var desktopResource);
-            deskDupl.ReleaseFrame();
-            if (tryAcquireNextFrame.Failure || frameInformation.LastPresentTime == 0)
-            {
-                return null;
-            }
-
             tryAcquireNextFrame.CheckError();
             using var tempTexture = desktopResource.QueryInterface<Texture2D>();
-            _device.ImmediateContext.CopyResource(tempTexture, _desktopImageTexture);
+            var device = tempTexture.Device;
+            var sourceRegion = new ResourceRegion(desktopRegion.Left, desktopRegion.Top, 0, desktopRegion.Right, desktopRegion.Bottom, 1);
+            device.ImmediateContext.CopySubresourceRegion(tempTexture, 0, sourceRegion, _desktopImageTexture, 0);
             desktopResource.Dispose();
-
-            var mapSource = _device.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read, MapFlags.None);
+            
+            var mapSource = device.ImmediateContext.MapSubresource(_desktopImageTexture, 0, MapMode.Read, MapFlags.None);
             return mapSource.IsEmpty ? null : ProcessFrame(mapSource, desktopRegion, screenBitmap);
         }
         catch (SharpDXException e) when (e.Descriptor == SharpDX.DXGI.ResultCode.WaitTimeout)
@@ -145,9 +150,7 @@ public sealed class DesktopDuplicator : IDisposable
 
         var destPtr = mapDest.Scan0;
         var stride = mapDest.Stride;
-
-        sourcePtr = IntPtr.Add(sourcePtr, rect.Y * sourceRowPitch);
-        sourcePtr = IntPtr.Add(sourcePtr, rect.X * 4);
+        
         for (var y = 0; y < rect.Height; y++)
         {
             // Copy a single line 
@@ -171,6 +174,7 @@ public sealed class DesktopDuplicator : IDisposable
         }
         IsDisposed = true;
 
+        _output.Dispose();
         if (_deskDupl.IsValueCreated)
         {
             var outputDuplication = _deskDupl.Value;
