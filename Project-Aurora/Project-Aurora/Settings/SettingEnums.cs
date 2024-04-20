@@ -527,10 +527,16 @@ public enum PreferredHeadset
     None = 0,
 
     [Description("One Led Headset")]
-    One_Led_Headset = 1,
+    OneLedHeadset = 1,
 
     [Description("Two Led Headset")]
-    Two_Led_Headset = 2,
+    TwoLedHeadset = 2,
+
+    [Description("Four Led Headset")]
+    FourLedHeadset = 3,
+
+    [Description("Five Led Headset")]
+    FiveLedHeadset = 4,
 
     [Description("Custom Headset")]
     Custom = 10,

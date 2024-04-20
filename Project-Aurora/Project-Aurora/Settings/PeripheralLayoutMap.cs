@@ -101,7 +101,7 @@ public static class PeripheralLayoutMap
           {PreferredMouse.Razer_naga_Pro, "razer_naga_pro_features.json"},
     };
 
-    public static readonly IReadOnlyDictionary<PreferredMousepad, string> MousepadLayoutMap = new Dictionary<PreferredMousepad, string>()
+    public static readonly IReadOnlyDictionary<PreferredMousepad, string> MousepadLayoutMap = new Dictionary<PreferredMousepad, string>
     {
         {PreferredMousepad.Generic_Mousepad, "generic_mousepad.json"},
         {PreferredMousepad.Custom, "custom_mousepad.json"},
@@ -112,10 +112,12 @@ public static class PeripheralLayoutMap
         {PreferredMousepad.Razer_19_Led, "razer_19_leds.json"},
     };
 
-    public static readonly IReadOnlyDictionary<PreferredHeadset, string> HeadsetLayoutMap = new Dictionary<PreferredHeadset, string>()
+    public static readonly IReadOnlyDictionary<PreferredHeadset, string> HeadsetLayoutMap = new Dictionary<PreferredHeadset, string>
     {
-        {PreferredHeadset.One_Led_Headset, "1led_headset.json"},
-        {PreferredHeadset.Two_Led_Headset, "2led_headset.json"},
+        {PreferredHeadset.OneLedHeadset, "1led_headset.json"},
+        {PreferredHeadset.TwoLedHeadset, "2led_headset.json"},
+        {PreferredHeadset.FourLedHeadset, "4led_headset.json"},
+        {PreferredHeadset.FiveLedHeadset, "5led_headset.json"},
         {PreferredHeadset.Custom, "custom_headset.json"},
     };
 

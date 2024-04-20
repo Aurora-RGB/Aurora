@@ -29,7 +29,7 @@
         <Nullable>enable</Nullable>
         <StartupObject>AuroraRgb.App</StartupObject>
 
-        <WarningsAsErrors>CA2244;SYSLIB1054</WarningsAsErrors>
+        <WarningsAsErrors>CA2244;CA1069;SYSLIB1054</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
