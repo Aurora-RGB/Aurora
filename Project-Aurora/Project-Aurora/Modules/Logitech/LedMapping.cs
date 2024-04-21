@@ -453,9 +453,6 @@ internal static class LedMapping
         [HidCode.KEY_KPDOT] =		DeviceKeys.NUM_ZERO,
         [HidCode.KEY_KP0] =			DeviceKeys.NUM_PERIOD,
     };
-
-    //TODO:
-    //QuartzCodes -> LedId
     
     internal static readonly MultiValueDictionary<int, DeviceKeys> MouseZoneKeys = new()
     {
@@ -518,8 +515,8 @@ internal static class LedMapping
     internal static readonly MultiValueDictionary<int, DeviceKeys> HeadsetZoneKeys = new()
     {
         { 0, DeviceKeys.HEADSET1 },
-        { 0, DeviceKeys.HEADSET2 },
-        { 1, DeviceKeys.HEADSET3 },
+        { 1, DeviceKeys.HEADSET2 },
+        { 0, DeviceKeys.HEADSET3 },
         { 1, DeviceKeys.HEADSET4 },
         { 1, DeviceKeys.HEADSET5 },
     };
