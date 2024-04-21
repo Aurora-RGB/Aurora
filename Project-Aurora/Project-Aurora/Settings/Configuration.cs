@@ -48,7 +48,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool GetPointerUpdates { get; set; } = true;
     public bool HighPriority { get; set; }
     public BitmapAccuracy BitmapAccuracy { get; set; } = BitmapAccuracy.Good;
-    public bool EnableAudioCapture { get; set; }
+    public bool EnableAudioCapture2 { get; set; } = true;
     public bool EnableMediaInfo { get; set; } = true;
     public bool EnableInputCapture { get; set; } = true;
     public bool EnableHttpListener { get; set; } = true;
@@ -195,7 +195,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public double Lat { get; set; }
     public double Lon { get; set; }
 
-    public IList<string> Migrations = [];
+    public IList<string> Migrations { get; set; } = [];
 
     /// <summary>
     /// Called after the configuration file has been deserialized or created for the first time.
@@ -203,9 +203,9 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public void OnPostLoad()
     {
         // Setup events that will trigger PropertyChanged when child collections change (to trigger a save)
-        ExcludedPrograms.CollectionChanged += (_, e) =>
+        ExcludedPrograms.CollectionChanged += (_, _) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExcludedPrograms)));
-        EvaluatableTemplates.CollectionChanged += (_, e) =>
+        EvaluatableTemplates.CollectionChanged += (_, _) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EvaluatableTemplates)));
     }
 }

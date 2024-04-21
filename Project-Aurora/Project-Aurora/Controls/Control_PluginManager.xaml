@@ -86,21 +86,25 @@
                 <Grid Grid.Row="0" Grid.Column="2">
                     <StackPanel>
                         <TextBlock Text="Other modules (these changes need restart of Aurora)"></TextBlock>
-                        <CheckBox Content="Input Capture" IsChecked="{Binding EnableInputCapture}"></CheckBox>
+                        <CheckBox Content="Enable Audio Capture"
+                                  IsChecked="{Binding EnableAudioCapture2}"
+                                  ToolTip="Aurora only measures the activity level from your microphone for use with the 'LocalPCInfo' game state. None of this data is stored or transmitted elsewhere."
+                                  HorizontalAlignment="Left" VerticalAlignment="Top" />
+                        <CheckBox Content="Input Capture*" IsChecked="{Binding EnableInputCapture}"></CheckBox>
                         <CheckBox Content="Media Info" IsChecked="{Binding EnableMediaInfo}"></CheckBox>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="HTTP listener" IsChecked="{Binding EnableHttpListener}"></CheckBox>
+                            <CheckBox Content="HTTP listener*" IsChecked="{Binding EnableHttpListener}"></CheckBox>
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for most GSI games"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="IPC listener" IsChecked="{Binding EnableIpcListener}"></CheckBox>
+                            <CheckBox Content="IPC listener*" IsChecked="{Binding EnableIpcListener}"></CheckBox>
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for wrappers"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="Shutdown Aurora On Conflict" IsChecked="{Binding EnableShutdownOnConflict}"></CheckBox>
+                            <CheckBox Content="Shutdown Aurora On Conflict*" IsChecked="{Binding EnableShutdownOnConflict}"></CheckBox>
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Shuts down Aurora when non-compatible software is opened, like games that don't start with Aurora open"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
@@ -118,7 +122,7 @@
         
         <Grid Grid.Row="1">
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Plugins" VerticalAlignment="Top"/>
-            <TextBlock HorizontalAlignment="Right" Foreground="Red" TextWrapping="Wrap" Text="A restart is required for changes to take affect" VerticalAlignment="Top"/>
+            <TextBlock HorizontalAlignment="Right" Foreground="Red" TextWrapping="Wrap" Text="*A restart is required for changes to take affect" VerticalAlignment="Top"/>
             <ListBox Margin="0,26,0,0" ItemsSource="{Binding Path=Plugins}">
                 <ListBox.ItemTemplate>
                     <HierarchicalDataTemplate>

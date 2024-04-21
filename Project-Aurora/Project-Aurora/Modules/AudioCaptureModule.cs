@@ -26,12 +26,12 @@ public sealed partial class AudioCaptureModule : AuroraModule
 
     private void ConfigurationOnAudioCaptureChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName != nameof(Global.Configuration.EnableAudioCapture))
+        if (e.PropertyName != nameof(Global.Configuration.EnableAudioCapture2))
         {
             return;
         }
 
-        if (Global.Configuration.EnableAudioCapture)
+        if (Global.Configuration.EnableAudioCapture2)
         {
             InitCapture();
         }
@@ -62,7 +62,7 @@ public sealed partial class AudioCaptureModule : AuroraModule
             Global.logger.Error(e, "AudioCapture error");
         }
 
-        if (!Global.Configuration.EnableAudioCapture) return;
+        if (!Global.Configuration.EnableAudioCapture2) return;
         try
         {
             InitCapture();

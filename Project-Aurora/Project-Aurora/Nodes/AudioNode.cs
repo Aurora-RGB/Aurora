@@ -43,4 +43,9 @@ public class AudioNode : Node
     /// Selected Audio Device's index.
     /// </summary>
     public string PlaybackDeviceName => Global.RenderProxy?.DeviceName ?? string.Empty;
+
+    /// <summary>
+    /// Selected Audio Device's index.
+    /// </summary>
+    public string RecordingDeviceName => Global.CaptureProxy?.DeviceName ?? string.Empty;
 }
