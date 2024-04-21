@@ -31,17 +31,17 @@
                 </TextBlock>
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Vertical">
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Preferred Keyboard Layout:" VerticalAlignment="Top" />
+                               Text="Keyboard Locale:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Preferred Keyboard:" VerticalAlignment="Top" />
+                               Text="Keyboard Layout:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Preferred Mouse:" VerticalAlignment="Top" />
+                               Text="Mouse Layout:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Preferred Mousepad:" VerticalAlignment="Top" />
+                               Text="Mousepad Layout:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Preferred Headset:" VerticalAlignment="Top" />
+                               Text="Headset Layout:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
-                               Text="Chroma Leds:" VerticalAlignment="Top" />
+                               Text="Additional/Speaker Leds:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
                                Text="Keycap type:" VerticalAlignment="Top" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
