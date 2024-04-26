@@ -159,7 +159,7 @@ public static class RazerChromaUtils
 
     public static async Task DisableDeviceControlAsync()
     {
-        const string file = """
+        const string fileContent = """
                             <?xml version="1.0" encoding="utf-8"?>
                             <devices>
                             </devices>
@@ -167,22 +167,22 @@ public static class RazerChromaUtils
 
         List<Task> tasks = [];
         var chromaPath = GetChromaPath();
-        if (chromaPath != null)
+        if (chromaPath != null && File.Exists(chromaPath))
         {
             var length = File.Open(Path.Combine(chromaPath, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
-            if (length <= file.Length)
+            if (length <= fileContent.Length)
             {
-                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath, "Devices.xml"), file));
+                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath, "Devices.xml"), fileContent));
             }
         }
 
         var chromaPath64 = GetChromaPath64();
-        if (chromaPath64 != null)
+        if (chromaPath64 != null && File.Exists(chromaPath64))
         {
             var length64 = File.Open(Path.Combine(chromaPath64, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
-            if (length64 <= file.Length)
+            if (length64 <= fileContent.Length)
             {
-                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath64, "Devices.xml"), file));
+                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath64, "Devices.xml"), fileContent));
             }
         }
 
