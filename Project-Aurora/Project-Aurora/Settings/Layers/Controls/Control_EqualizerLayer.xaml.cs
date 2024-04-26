@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AuroraRgb.EffectsEngine;
+using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Utils;
 using ColorBox.Implementation;
 using Xceed.Wpf.Toolkit;
@@ -45,9 +46,9 @@ public partial class ControlEqualizerLayer
         if (DataContext is not EqualizerLayerHandler || _settingsSet) return;
         affectedKeys.Sequence = ((EqualizerLayerHandler)DataContext).Properties._Sequence;
 
-        eq_type.SelectedValue = ((EqualizerLayerHandler)DataContext).Properties._EQType;
+        eq_type.SelectedValue = ((EqualizerLayerHandler)DataContext).Properties.EqType;
         eq_view_type.SelectedValue = ((EqualizerLayerHandler)DataContext).Properties.ViewType;
-        eq_background_mode.SelectedValue = ((EqualizerLayerHandler)DataContext).Properties._BackgroundMode;
+        eq_background_mode.SelectedValue = ((EqualizerLayerHandler)DataContext).Properties.BackgroundMode;
         Clr_primary_color.SelectedColor = ColorUtils.DrawingColorToMediaColor(
             ((EqualizerLayerHandler)DataContext).Properties._PrimaryColor ?? System.Drawing.Color.Empty);
         Clr_secondary_color.SelectedColor = ColorUtils.DrawingColorToMediaColor(((EqualizerLayerHandler)DataContext).Properties.SecondaryColor);
@@ -74,7 +75,7 @@ public partial class ControlEqualizerLayer
     private void eq_type_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler && sender is ComboBox comboBox)
-            ((EqualizerLayerHandler)DataContext).Properties._EQType = (EqualizerType)comboBox.SelectedValue;
+            ((EqualizerLayerHandler)DataContext).Properties.EqType = (EqualizerType)comboBox.SelectedValue;
     }
 
     private void eq_view_type_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -86,7 +87,7 @@ public partial class ControlEqualizerLayer
     private void eq_background_mode_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler && sender is ComboBox comboBox)
-            ((EqualizerLayerHandler)DataContext).Properties._BackgroundMode = (EqualizerBackgroundMode)comboBox.SelectedValue;
+            ((EqualizerLayerHandler)DataContext).Properties.BackgroundMode = (EqualizerBackgroundMode)comboBox.SelectedValue;
     }
 
     private void Clr_primary_color_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
@@ -170,6 +171,7 @@ public partial class ControlEqualizerLayer
     private void UserControl_Loaded(object? sender, RoutedEventArgs e)
     {
         SetSettings();
+        SetDeviceComboBoxSource();
 
         Loaded -= UserControl_Loaded;
     }
@@ -268,6 +270,34 @@ public partial class ControlEqualizerLayer
         catch (Exception ex)
         {
             Global.logger.Warning(ex, "Error in equalizer layer render");
+        }
+    }
+
+    private void InputOutput_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        var layerHandler = (EqualizerLayerHandler)DataContext;
+        var deviceFlow = (DeviceFlow)InputOutputComboBox.SelectedValue;
+        layerHandler.Properties.DeviceFlow = deviceFlow;
+
+        SetDeviceComboBoxSource();
+    }
+
+    private void SetDeviceComboBoxSource()
+    {
+        var deviceFlow = (DeviceFlow)InputOutputComboBox.SelectedValue;
+        switch (deviceFlow)
+        {
+            case DeviceFlow.Input:
+                DeviceComboBox.ItemsSource = AudioDevices.RecordingDevices;
+                break;
+            case DeviceFlow.Output:
+                DeviceComboBox.ItemsSource = AudioDevices.PlaybackDevices;
+                break;
         }
     }
 }

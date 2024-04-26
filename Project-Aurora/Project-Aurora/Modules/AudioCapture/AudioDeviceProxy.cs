@@ -18,12 +18,20 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
 {
     private static readonly BlockingCollection<Action> ThreadTasks = new();
 
+    private static readonly CancellationTokenSource ThreadCancelSource = new();
     private static readonly Thread NAudioThread = new(() =>
     {
-        while (true)
+        while (!ThreadCancelSource.Token.IsCancellationRequested)
         {
-            var act = ThreadTasks.Take();
-            act.Invoke();
+            try
+            {
+                var act = ThreadTasks.Take(ThreadCancelSource.Token);
+                act.Invoke();
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
         }
     })
     {
@@ -97,7 +105,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
     public string? DeviceName { get; private set; }
 
     /// <summary>Gets the currently assigned direction of this device.</summary>
-    private DataFlow Flow { get; }
+    public DataFlow Flow { get; set; }
 
     /// <summary>Gets or sets the ID of the selected device.</summary>
     public string? DeviceId
@@ -312,6 +320,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
 
     public static void DisposeStatic()
     {
+        ThreadCancelSource.Cancel();
         foreach (var audioDeviceProxy in Instances)
         {
             audioDeviceProxy.Dispose();

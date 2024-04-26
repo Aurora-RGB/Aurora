@@ -15,7 +15,7 @@
         <aurora:Global x:Key="Global"/>
     </UserControl.Resources>
 
-    <Grid Width="700" Height="320" VerticalAlignment="Top" HorizontalAlignment="Left">
+    <Grid Width="700" Height="340" VerticalAlignment="Top" HorizontalAlignment="Left">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width=".5*" />
@@ -38,16 +38,20 @@
                 <RowDefinition Height="28px" />
                 <RowDefinition Height="28px" />
                 <RowDefinition Height="28px" />
+                <RowDefinition Height="28px" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Margin="3" TextWrapping="Wrap" Text="Equalizer Effect Type: " />
-            <ComboBox Grid.Row="0" Grid.Column="1" Margin="3" x:Name="eq_type" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerType}}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_type_SelectionChanged" />
+            <ComboBox Grid.Row="0" Grid.Column="1" Margin="3" x:Name="eq_type" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerType}}"
+                      DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_type_SelectionChanged" />
 
             <TextBlock Grid.Row="1" Grid.Column="0" Margin="3" TextWrapping="Wrap" Text="View Type: " />
-            <ComboBox Grid.Row="1" Grid.Column="1" Margin="3" x:Name="eq_view_type" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerPresentationType}}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_view_type_SelectionChanged" />
+            <ComboBox Grid.Row="1" Grid.Column="1" Margin="3" x:Name="eq_view_type" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerPresentationType}}"
+                      DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_view_type_SelectionChanged" />
 
             <TextBlock Grid.Row="2" Grid.Column="0" Margin="3" Text="Background Mode:" />
-            <ComboBox Grid.Row="2" Grid.Column="1" Margin="3" x:Name="eq_background_mode" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerBackgroundMode}}" DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_background_mode_SelectionChanged" />
+            <ComboBox Grid.Row="2" Grid.Column="1" Margin="3" x:Name="eq_background_mode" ItemsSource="{utils:EnumToItemsSource {x:Type layers:EqualizerBackgroundMode}}"
+                      DisplayMemberPath="Text" SelectedValuePath="Value" SelectionChanged="eq_background_mode_SelectionChanged" />
 
             <TextBlock Grid.Row="3" Grid.Column="0" Margin="3" Text="Background Color:" />
             <xctk:ColorPicker Grid.Row="3" Grid.Column="1" Margin="3" x:Name="Clr_dim_color" ColorMode="ColorCanvas" SelectedColorChanged="Clr_dim_color_SelectedColorChanged" UsingAlphaChannel="True" />
@@ -61,17 +65,22 @@
             <TextBlock Grid.Row="6" Grid.Column="0" Margin="3" TextWrapping="Wrap" Text="Gradient (Linear Only): " />
             <implementation:ColorBox Grid.Row="6" Grid.Column="1" Margin="3" x:Name="gradient_editor" BrushChanged="Gradient_editor_BrushChanged" />
 
-            <Button Grid.Row="7" Grid.Column="0" Margin="3" x:Name="Button_SetGradientRainbow" Content="Set to Rainbow" Click="Button_SetGradientRainbow_Click" />
-            <Button Grid.Row="7" Grid.Column="1" Margin="3" x:Name="Button_SetGradientRainbowLoop" Content="Set to Rainbow (Seamless)" Click="Button_SetGradientRainbowLoop_Click" />
+            <Button Grid.Row="7" Grid.Column="0" Margin="3" Content="Set to Rainbow" Click="Button_SetGradientRainbow_Click" />
+            <Button Grid.Row="7" Grid.Column="1" Margin="3" Content="Set to Rainbow (Seamless)" Click="Button_SetGradientRainbowLoop_Click" />
+            
+            <TextBlock Grid.Row="8" Grid.Column="0" Margin="3" Text="Input/Output:" />
+            <ComboBox Grid.Row="8" Grid.Column="1" Margin="3" ItemsSource="{utils:EnumToItemsSource {x:Type layers:DeviceFlow}}" SelectionChanged="InputOutput_OnSelectionChanged"
+                      Name="InputOutputComboBox" DisplayMemberPath="Text" SelectedValuePath="Value" SelectedValue="{Binding Path=Properties.DeviceFlow, Mode=TwoWay}" />
 
-            <TextBlock Grid.Row="8" Grid.Column="0" Margin="3" Text="Audio Device:" />
-            <ComboBox Grid.Row="8" Grid.Column="1" Margin="3" SelectedValue="{Binding Path=Properties.DeviceId, Mode=TwoWay}" ItemsSource="{x:Static audioCapture:AudioDevices.PlaybackDevices}" DisplayMemberPath="Value" SelectedValuePath="Key" />
+            <TextBlock Grid.Row="9" Grid.Column="0" Margin="3" Text="Audio Device:" />
+            <ComboBox Name="DeviceComboBox" Grid.Row="9" Grid.Column="1" Margin="3" SelectedValue="{Binding Path=Properties.DeviceId, Mode=TwoWay}"
+                      ItemsSource="{x:Static audioCapture:AudioDevices.AllDevices}" DisplayMemberPath="Value" SelectedValuePath="Key" />
 
-            <TextBlock Grid.Row="9" Grid.Column="0" Margin="3" Text="Max amplitude:" />
-            <xctk:IntegerUpDown Grid.Row="9" Grid.Column="1" Margin="3" x:Name="updown_max_amplitude_value" Value="1" Maximum="120" Minimum="1" MouseWheelActiveOnFocus="True" ValueChanged="updown_max_amplitude_value_ValueChanged" />
+            <TextBlock Grid.Row="10" Grid.Column="0" Margin="3" Text="Max amplitude:" />
+            <xctk:IntegerUpDown Grid.Row="10" Grid.Column="1" Margin="3" x:Name="updown_max_amplitude_value" Value="1" Maximum="120" Minimum="1" MouseWheelActiveOnFocus="True" ValueChanged="updown_max_amplitude_value_ValueChanged" />
 
-            <TextBlock Grid.Row="10" Grid.Column="0" Margin="3" Text="Scale with volume:" />
-            <CheckBox Grid.Row="10" Grid.Column="1" Margin="3" x:Name="chkbox_scale_with_system_volume" Checked="chkbox_scale_with_system_sound_Checked" Unchecked="chkbox_scale_with_system_sound_Checked" />
+            <TextBlock Grid.Row="11" Grid.Column="0" Margin="3" Text="Scale with volume:" />
+            <CheckBox Grid.Row="11" Grid.Column="1" Margin="3" x:Name="chkbox_scale_with_system_volume" Checked="chkbox_scale_with_system_sound_Checked" Unchecked="chkbox_scale_with_system_sound_Checked" />
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

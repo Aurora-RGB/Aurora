@@ -23,6 +23,7 @@ public sealed class AudioDevices : IDisposable, NAudio.CoreAudioApi.Interfaces.I
     // Refreshes both playback and recording devices lists.
     private void RefreshDeviceLists()
     {
+        RefreshDeviceList(AllDevices, DataFlow.All);
         RefreshDeviceList(PlaybackDevices, DataFlow.Render);
         RefreshDeviceList(RecordingDevices, DataFlow.Capture);
     }
@@ -45,6 +46,7 @@ public sealed class AudioDevices : IDisposable, NAudio.CoreAudioApi.Interfaces.I
 
     #region Device Enumeration
 
+    public static ObservableConcurrentDictionary<string, string> AllDevices { get; } = new();
     public static ObservableConcurrentDictionary<string, string> PlaybackDevices { get; } = new();
     public static ObservableConcurrentDictionary<string, string> RecordingDevices { get; } = new();
 
@@ -64,6 +66,7 @@ public sealed class AudioDevices : IDisposable, NAudio.CoreAudioApi.Interfaces.I
 
     public void OnDeviceRemoved(string deviceId)
     {
+        AllDevices.Remove(deviceId);
         PlaybackDevices.Remove(deviceId);
         RecordingDevices.Remove(deviceId);
     }
@@ -100,6 +103,7 @@ public sealed class AudioDevices : IDisposable, NAudio.CoreAudioApi.Interfaces.I
                 removedDevice?.Dispose();
                 break;
             case DeviceState.NotPresent:
+                AllDevices.Remove(deviceId);
                 RecordingDevices.Remove(deviceId);
                 PlaybackDevices.Remove(deviceId);
                 break;
@@ -126,21 +130,25 @@ public sealed class AudioDevices : IDisposable, NAudio.CoreAudioApi.Interfaces.I
 
     private void AddPlaybackDevice(MMDevice device)
     {
+        AllDevices.TryAdd(device.ID, device.FriendlyName);
         PlaybackDevices.TryAdd(device.ID, device.FriendlyName);
     }
 
     private void RemovePlaybackDevice(MMDevice device)
     {
+        AllDevices.Remove(device.ID);
         PlaybackDevices.Remove(device.ID);
     }
 
     private void AddRecordingDevice(MMDevice device)
     {
+        AllDevices.TryAdd(device.ID, device.FriendlyName);
         RecordingDevices.TryAdd(device.ID, device.FriendlyName);
     }
 
     private void RemoveRecordingDevice(MMDevice device)
     {
+        AllDevices.Remove(device.ID);
         RecordingDevices.Remove(device.ID);
     }
 
