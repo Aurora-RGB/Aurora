@@ -15,32 +15,32 @@ public class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color
     public Color? _DefaultColor { get; set; }
 
     [JsonIgnore]
-    public Color DefaultColor => Logic._DefaultColor ?? _DefaultColor ?? Color.Empty;
+    public Color DefaultColor => Logic?._DefaultColor ?? _DefaultColor ?? Color.Empty;
 
     public Color? _CTColor { get; set; }
 
     [JsonIgnore]
-    public Color CTColor => Logic._CTColor ?? _CTColor ?? Color.Empty;
+    public Color CTColor => Logic?._CTColor ?? _CTColor ?? Color.Empty;
 
     public Color? _TColor { get; set; }
 
     [JsonIgnore]
-    public Color TColor => Logic._TColor ?? _TColor ?? Color.Empty;
+    public Color TColor => Logic?._TColor ?? _TColor ?? Color.Empty;
 
     public bool? _DimEnabled { get; set; }
 
     [JsonIgnore]
-    public bool DimEnabled => Logic._DimEnabled ?? _DimEnabled ?? false;
+    public bool DimEnabled => Logic?._DimEnabled ?? _DimEnabled ?? false;
 
     public double? _DimDelay { get; set; }
 
     [JsonIgnore]
-    public double DimDelay => Logic._DimDelay ?? _DimDelay ?? 0.0;
+    public double DimDelay => Logic?._DimDelay ?? _DimDelay ?? 0.0;
 
     public int? _DimAmount { get; set; }
 
     [JsonIgnore]
-    public int DimAmount => Logic._DimAmount ?? _DimAmount ?? 100;
+    public int DimAmount => Logic?._DimAmount ?? _DimAmount ?? 100;
 
     public CSGOBackgroundLayerHandlerProperties() : base() { }
 

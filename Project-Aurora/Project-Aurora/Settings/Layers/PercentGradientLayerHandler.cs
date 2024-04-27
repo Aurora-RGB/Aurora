@@ -18,7 +18,7 @@ public class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperti
     [LogicOverridable("Gradient")]
     public EffectBrush Gradient
     {
-        get => Logic._gradient ?? (_gradient ??= new EffectBrush(EffectBrush.BrushType.Linear));
+        get => Logic?._gradient ?? (_gradient ??= new EffectBrush(EffectBrush.BrushType.Linear));
         set => _gradient = value;
     }
 
@@ -53,8 +53,8 @@ public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLa
         }
         Invalidated = false;
             
-        var value = Properties.Logic._Value ?? state.GetNumber(Properties.VariablePath);
-        var maxvalue = Properties.Logic._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
+        var value = Properties.Logic?._Value ?? state.GetNumber(Properties.VariablePath);
+        var maxvalue = Properties.Logic?._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
 
         EffectLayer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
         return EffectLayer;

@@ -20,7 +20,7 @@ public sealed class ToggleKeyLayerHandlerProperties : LayerHandlerProperties2Col
     [JsonProperty("_TriggerKeys")]
     public Keybind[] TriggerKeys
     {
-        get => Logic._triggerKeys ?? _triggerKeys ?? [];
+        get => Logic?._triggerKeys ?? _triggerKeys ?? [];
         set => _triggerKeys = value;
     }
 

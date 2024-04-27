@@ -14,27 +14,27 @@ public class Dota2BackgroundLayerHandlerProperties : LayerHandlerProperties2Colo
     public Color? _DefaultColor { get; set; }
 
     [JsonIgnore]
-    public Color DefaultColor => Logic._DefaultColor ?? _DefaultColor ?? Color.Empty;
+    public Color DefaultColor => Logic?._DefaultColor ?? _DefaultColor ?? Color.Empty;
 
     public Color? _RadiantColor { get; set; }
 
     [JsonIgnore]
-    public Color RadiantColor => Logic._RadiantColor ?? _RadiantColor ?? Color.Empty;
+    public Color RadiantColor => Logic?._RadiantColor ?? _RadiantColor ?? Color.Empty;
 
     public Color? _DireColor { get; set; }
 
     [JsonIgnore]
-    public Color DireColor => Logic._DireColor ?? _DireColor ?? Color.Empty;
+    public Color DireColor => Logic?._DireColor ?? _DireColor ?? Color.Empty;
 
     public bool? _DimEnabled { get; set; }
 
     [JsonIgnore]
-    public bool DimEnabled => Logic._DimEnabled ?? _DimEnabled ?? false;
+    public bool DimEnabled => Logic?._DimEnabled ?? _DimEnabled ?? false;
 
     public double? _DimDelay { get; set; }
 
     [JsonIgnore]
-    public double DimDelay => Logic._DimDelay ?? _DimDelay ?? 0.0;
+    public double DimDelay => Logic?._DimDelay ?? _DimDelay ?? 0.0;
 
     public Dota2BackgroundLayerHandlerProperties() : base() { }
 

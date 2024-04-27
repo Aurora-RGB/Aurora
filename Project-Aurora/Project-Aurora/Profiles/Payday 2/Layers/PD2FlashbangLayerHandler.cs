@@ -14,7 +14,7 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
         public Color? _FlashbangColor { get; set; }
 
         [JsonIgnore]
-        public Color FlashbangColor { get { return Logic._FlashbangColor ?? _FlashbangColor ?? Color.Empty; } }
+        public Color FlashbangColor { get { return Logic?._FlashbangColor ?? _FlashbangColor ?? Color.Empty; } }
 
         public PD2FlashbangLayerHandlerProperties() : base() { }
 

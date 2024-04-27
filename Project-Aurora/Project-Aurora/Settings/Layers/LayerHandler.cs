@@ -25,10 +25,10 @@ namespace AuroraRgb.Settings.Layers
     [NotifyPropertyChanged]
     public abstract partial class LayerHandlerProperties<TProperty> : IValueOverridable, IDisposable where TProperty : LayerHandlerProperties<TProperty>
     {
-        private static readonly Lazy<TypeAccessor> Accessor = new(() => TypeAccessor.Create(typeof(TProperty)));
+        private static readonly Lazy<TypeAccessor> Accessor = new(() => TypeAccessor.Create(typeof(TProperty), false));
 
         [GameStateIgnore, JsonIgnore]
-        public TProperty Logic { get; private set; }
+        public TProperty? Logic { get; private set; }
 
         [JsonIgnore]
         private Color? _primaryColor;
@@ -58,7 +58,7 @@ namespace AuroraRgb.Settings.Layers
         }
 
         [JsonIgnore]
-        public KeySequence Sequence => Logic._Sequence ?? _Sequence;
+        public KeySequence Sequence => Logic?._Sequence ?? _Sequence;
 
 
         #region Override Special Properties
@@ -69,19 +69,19 @@ namespace AuroraRgb.Settings.Layers
         [LogicOverridable("Enabled")]
         public bool? _Enabled { get; set; }
         [JsonIgnore]
-        public bool Enabled => Logic._Enabled ?? _Enabled ?? true;
+        public bool Enabled => Logic?._Enabled ?? _Enabled ?? true;
 
         // Renamed to "Layer Opacity" so that if the layer properties needs an opacity for whatever reason, it's
         // less likely to have a name collision.
         [LogicOverridable("Opacity")]
         public float? _LayerOpacity { get; set; }
         [JsonIgnore]
-        public float LayerOpacity => Logic._LayerOpacity ?? _LayerOpacity ?? 1f;
+        public float LayerOpacity => Logic?._LayerOpacity ?? _LayerOpacity ?? 1f;
 
         [LogicOverridable("Excluded Keys")]
         public KeySequence _Exclusion { get; set; }
         [JsonIgnore]
-        public KeySequence Exclusion => Logic._Exclusion ?? _Exclusion ?? new KeySequence();
+        public KeySequence Exclusion => Logic?._Exclusion ?? _Exclusion ?? new KeySequence();
         #endregion
 
         public LayerHandlerProperties() : this(false)
@@ -112,7 +112,7 @@ namespace AuroraRgb.Settings.Layers
             _Sequence.Freeform.ValuesChanged += OnFreeformChanged;
         }
 
-        public object GetOverride(string propertyName) {
+        public object? GetOverride(string propertyName) {
             try {
                 return Accessor.Value[Logic, propertyName];
             } catch (ArgumentOutOfRangeException) {
@@ -120,16 +120,27 @@ namespace AuroraRgb.Settings.Layers
             }
         }
 
-        public void SetOverride(string propertyName, object value) {
+        public void SetOverride(string propertyName, object? value) {
             try {
                 if (Accessor.Value[Logic, propertyName] == value)
                 {
                     return;
                 }
-                if (value == null || !value.Equals(Accessor.Value[Logic, propertyName]))
+
+                if (value != null && value.Equals(Accessor.Value[Logic, propertyName])) return;
+                if (value == null)
                 {
-                    Accessor.Value[Logic, propertyName] = value;
+                    try
+                    {
+                        Accessor.Value[Logic, propertyName] = value;
+                    }
+                    catch (NullReferenceException)
+                    {
+                        //handle primitive type unboxing
+                    }
+                    return;
                 }
+                Accessor.Value[Logic, propertyName] = value;
             } catch (ArgumentOutOfRangeException) { }
         }
 
@@ -176,7 +187,7 @@ namespace AuroraRgb.Settings.Layers
         }
 
         [JsonIgnore]
-        public Color SecondaryColor => Logic._SecondaryColor ?? _SecondaryColor ?? Color.Empty;
+        public Color SecondaryColor => Logic?._SecondaryColor ?? _SecondaryColor ?? Color.Empty;
 
         public LayerHandlerProperties2Color(bool assignDefault = false) : base(assignDefault) { }
 
@@ -466,11 +477,11 @@ namespace AuroraRgb.Settings.Layers
         /// <summary>
         /// Gets the overriden value of the speicifed property.
         /// </summary>
-        object GetOverride(string propertyName);
+        object? GetOverride(string propertyName);
 
         /// <summary>
         /// Sets the overriden value of the speicifed property to the given value.
         /// </summary>
-        void SetOverride(string propertyName, object value);
+        void SetOverride(string propertyName, object? value);
     }
 }

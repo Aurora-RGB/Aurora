@@ -22,7 +22,7 @@ public class ResidentEvil2HealthLayerHandlerProperties : LayerHandlerProperties2
     public HealthDisplayType? _DisplayType { get; set; }
 
     [JsonIgnore]
-    public HealthDisplayType DisplayType { get { return Logic._DisplayType ?? _DisplayType ?? HealthDisplayType.Static; } }
+    public HealthDisplayType DisplayType { get { return Logic?._DisplayType ?? _DisplayType ?? HealthDisplayType.Static; } }
 
     public ResidentEvil2HealthLayerHandlerProperties() : base() { }
 

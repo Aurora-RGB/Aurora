@@ -34,7 +34,7 @@ public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<Sh
     [Overrides.LogicOverridable("Dim Background")]
     public bool DimBackground
     {
-        get => (Logic._dimBackground ?? _dimBackground) ?? false;
+        get => (Logic?._dimBackground ?? _dimBackground) ?? false;
         set => _dimBackground = value;
     }
 
@@ -43,7 +43,7 @@ public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<Sh
 
     [JsonProperty("_MergeModifierKey")]
     public bool MergeModifierKey {
-        get => (Logic._mergeModifierKey ?? _mergeModifierKey) ?? false;
+        get => (Logic?._mergeModifierKey ?? _mergeModifierKey) ?? false;
         set { _mergeModifierKey = value; _shortcutKeysInvalidated = true; }
     }
 
@@ -53,7 +53,7 @@ public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<Sh
     [JsonProperty("_LeafShortcutAlwaysOn")]
     public bool? LeafShortcutAlwaysOn
     {
-        get => (Logic._leafShortcutAlwaysOn ?? _leafShortcutAlwaysOn) ?? false;
+        get => (Logic?._leafShortcutAlwaysOn ?? _leafShortcutAlwaysOn) ?? false;
         set { _leafShortcutAlwaysOn = value; _shortcutKeysInvalidated = true; }
     }
 
@@ -64,7 +64,7 @@ public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<Sh
     [Overrides.LogicOverridable("Dim Color")]
     public Color DimColor
     {
-        get => (Logic._dimColor ?? _dimColor) ?? Color.Empty;
+        get => (Logic?._dimColor ?? _dimColor) ?? Color.Empty;
         set => _dimColor = value;
     }
 
@@ -116,7 +116,7 @@ public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<Sh
     [JsonProperty("_PresentationType")]
     public ShortcutAssistantPresentationType PresentationType
     {
-        get => Logic._presentationType ?? _presentationType ?? ShortcutAssistantPresentationType.ProgressiveSuggestion;
+        get => Logic?._presentationType ?? _presentationType ?? ShortcutAssistantPresentationType.ProgressiveSuggestion;
         set => _presentationType = value;
     }
 

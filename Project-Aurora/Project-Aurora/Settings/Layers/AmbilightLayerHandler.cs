@@ -79,7 +79,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_AmbilightType")]
     public AmbilightType AmbilightType
     {
-        get => Logic._ambilightType ?? _ambilightType ?? AmbilightType.Default;
+        get => Logic?._ambilightType ?? _ambilightType ?? AmbilightType.Default;
         set => SetFieldAndRaisePropertyChanged(out _ambilightType, value);
     }
 
@@ -89,7 +89,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_AmbilightCaptureType")]
     public AmbilightCaptureType AmbilightCaptureType
     {
-        get => Logic._ambilightCaptureType ?? _ambilightCaptureType ?? AmbilightCaptureType.EntireMonitor;
+        get => Logic?._ambilightCaptureType ?? _ambilightCaptureType ?? AmbilightCaptureType.EntireMonitor;
         set => SetFieldAndRaisePropertyChanged(out _ambilightCaptureType, value);
     }
 
@@ -99,7 +99,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_AmbilightOutputId")]
     public int AmbilightOutputId
     {
-        get => Logic._ambilightOutputId ?? _ambilightOutputId ?? 0;
+        get => Logic?._ambilightOutputId ?? _ambilightOutputId ?? 0;
         set => _ambilightOutputId = value;
     }
 
@@ -109,7 +109,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_AmbiLightUpdatesPerSecond")]
     public AmbilightFpsChoice AmbiLightUpdatesPerSecond
     {
-        get => Logic._ambiLightUpdatesPerSecond ?? _ambiLightUpdatesPerSecond ?? AmbilightFpsChoice.Medium;
+        get => Logic?._ambiLightUpdatesPerSecond ?? _ambiLightUpdatesPerSecond ?? AmbilightFpsChoice.Medium;
         set => SetFieldAndRaisePropertyChanged(out _ambiLightUpdatesPerSecond, value);
     }
 
@@ -119,7 +119,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_SpecificProcess")]
     public string SpecificProcess
     {
-        get => Logic._specificProcess ?? _specificProcess ?? string.Empty;
+        get => Logic?._specificProcess ?? _specificProcess ?? string.Empty;
         set => SetFieldAndRaisePropertyChanged(out _specificProcess, value);
     }
 
@@ -130,7 +130,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [LogicOverridable("Coordinates")] 
     public Rectangle Coordinates
     {
-        get => Logic._coordinates ?? _coordinates ?? Rectangle.Empty;
+        get => Logic?._coordinates ?? _coordinates ?? Rectangle.Empty;
         set => SetFieldAndRaisePropertyChanged(out _coordinates, value);
     }
 
@@ -140,7 +140,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_BrightenImage")]
     public bool BrightenImage
     {
-        get => Logic._brightenImage ?? _brightenImage ?? false;
+        get => Logic?._brightenImage ?? _brightenImage ?? false;
         set => SetFieldAndRaisePropertyChanged(out _brightenImage, value);
     }
 
@@ -150,7 +150,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_BrightnessChange")]
     public float BrightnessChange
     {
-        get => Logic._brightnessChange ?? _brightnessChange ?? 0.0f;
+        get => Logic?._brightnessChange ?? _brightnessChange ?? 0.0f;
         set => SetFieldAndRaisePropertyChanged(out _brightnessChange, value);
     }
 
@@ -160,7 +160,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_SaturateImage")]
     public bool SaturateImage
     {
-        get => Logic._saturateImage ?? _saturateImage ?? false;
+        get => Logic?._saturateImage ?? _saturateImage ?? false;
         set => SetFieldAndRaisePropertyChanged(out _saturateImage, value);
     }
 
@@ -170,7 +170,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_SaturationChange")]
     public float SaturationChange
     {
-        get => Logic._saturationChange ?? _saturationChange ?? 0.0f;
+        get => Logic?._saturationChange ?? _saturationChange ?? 0.0f;
         set => SetFieldAndRaisePropertyChanged(out _saturationChange, value);
     }
 
@@ -179,7 +179,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_FlipVertically")]
     public bool FlipVertically
     {
-        get => Logic._flipVertically ?? _flipVertically ?? false;
+        get => Logic?._flipVertically ?? _flipVertically ?? false;
         set => SetFieldAndRaisePropertyChanged(out _flipVertically, value);
     }
 
@@ -189,7 +189,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_ExperimentalMode")]
     public bool ExperimentalMode
     {
-        get => Logic._experimentalMode ?? _experimentalMode ?? false;
+        get => Logic?._experimentalMode ?? _experimentalMode ?? false;
         set => SetFieldAndRaisePropertyChanged(out _experimentalMode, value);
     }
 
@@ -198,7 +198,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_HueShiftImage")]
     public bool HueShiftImage
     {
-        get => Logic._hueShiftImage ?? _hueShiftImage ?? false;
+        get => Logic?._hueShiftImage ?? _hueShiftImage ?? false;
         set => SetFieldAndRaisePropertyChanged(out _hueShiftImage, value);
     }
 
@@ -207,7 +207,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
     [JsonProperty("_HueShiftAngle")]
     public float HueShiftAngle
     {
-        get => Logic._hueShiftAngle ?? _hueShiftAngle ?? 0.0f;
+        get => Logic?._hueShiftAngle ?? _hueShiftAngle ?? 0.0f;
         set => SetFieldAndRaisePropertyChanged(out _hueShiftAngle, value);
     }
 

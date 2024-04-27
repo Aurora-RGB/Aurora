@@ -24,7 +24,7 @@ public sealed class TimerLayerHandlerProperties : LayerHandlerProperties2Color<T
     [JsonProperty("_TriggerKeys")]
     public Keybind[] TriggerKeys
     {
-        get => Logic._triggerKeys ?? _triggerKeys ?? [];
+        get => Logic?._triggerKeys ?? _triggerKeys ?? [];
         set => _triggerKeys = value;
     }
 
@@ -33,7 +33,7 @@ public sealed class TimerLayerHandlerProperties : LayerHandlerProperties2Color<T
     [JsonProperty("_Duration")]
     public int Duration
     {
-        get => Logic._duration ?? _duration ?? 0;
+        get => Logic?._duration ?? _duration ?? 0;
         set => _duration = value;
     }
 
@@ -42,7 +42,7 @@ public sealed class TimerLayerHandlerProperties : LayerHandlerProperties2Color<T
     [LogicOverridable("Animation Type")]
     public TimerLayerAnimationType AnimationType
     {
-        get => Logic._animationType ?? _animationType ?? TimerLayerAnimationType.OnOff;
+        get => Logic?._animationType ?? _animationType ?? TimerLayerAnimationType.OnOff;
         set => _animationType = value;
     }
 
@@ -51,7 +51,7 @@ public sealed class TimerLayerHandlerProperties : LayerHandlerProperties2Color<T
     [LogicOverridable("Repeat Action")]
     public TimerLayerRepeatPressAction RepeatAction
     {
-        get => Logic._repeatAction ?? _repeatAction ?? TimerLayerRepeatPressAction.Reset;
+        get => Logic?._repeatAction ?? _repeatAction ?? TimerLayerRepeatPressAction.Reset;
         set => _repeatAction = value;
     }
 

@@ -14,17 +14,17 @@ namespace AuroraRgb.Profiles.RocketLeague.Layers
         public bool? _ShowFriendlyGoalExplosion { get; set; }
 
         [JsonIgnore]
-        public bool ShowFriendlyGoalExplosion { get { return Logic._ShowFriendlyGoalExplosion ?? _ShowFriendlyGoalExplosion ?? true; } }
+        public bool ShowFriendlyGoalExplosion { get { return Logic?._ShowFriendlyGoalExplosion ?? _ShowFriendlyGoalExplosion ?? true; } }
 
         public bool? _ShowEnemyGoalExplosion { get; set; }
 
         [JsonIgnore]
-        public bool ShowEnemyGoalExplosion { get { return Logic._ShowEnemyGoalExplosion ?? _ShowEnemyGoalExplosion ?? true; } }
+        public bool ShowEnemyGoalExplosion { get { return Logic?._ShowEnemyGoalExplosion ?? _ShowEnemyGoalExplosion ?? true; } }
 
         public bool? _Background { get; set; }
 
         [JsonIgnore]
-        public bool Background { get { return Logic._Background ?? _Background ?? true; } }
+        public bool Background { get { return Logic?._Background ?? _Background ?? true; } }
 
         public RocketLeagueGoalExplosionProperties() : base()
         {

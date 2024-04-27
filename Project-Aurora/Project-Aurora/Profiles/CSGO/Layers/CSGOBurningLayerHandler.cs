@@ -14,12 +14,12 @@ public class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color<CS
     public Color? _BurningColor { get; set; }
 
     [JsonIgnore]
-    public Color BurningColor => Logic._BurningColor ?? _BurningColor ?? Color.Empty;
+    public Color BurningColor => Logic?._BurningColor ?? _BurningColor ?? Color.Empty;
 
     public bool? _Animated { get; set; }
 
     [JsonIgnore]
-    public bool Animated => Logic._Animated ?? _Animated ?? false;
+    public bool Animated => Logic?._Animated ?? _Animated ?? false;
 
     public CSGOBurningLayerHandlerProperties()
     { }

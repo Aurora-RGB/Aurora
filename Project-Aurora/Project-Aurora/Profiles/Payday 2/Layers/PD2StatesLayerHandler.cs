@@ -16,27 +16,27 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
         public Color? _DownedColor { get; set; }
 
         [JsonIgnore]
-        public Color DownedColor { get { return Logic._DownedColor ?? _DownedColor ?? Color.Empty; } }
+        public Color DownedColor { get { return Logic?._DownedColor ?? _DownedColor ?? Color.Empty; } }
 
         public Color? _ArrestedColor { get; set; }
 
         [JsonIgnore]
-        public Color ArrestedColor { get { return Logic._ArrestedColor ?? _ArrestedColor ?? Color.Empty; } }
+        public Color ArrestedColor { get { return Logic?._ArrestedColor ?? _ArrestedColor ?? Color.Empty; } }
 
         public Color? _SwanSongColor { get; set; }
 
         [JsonIgnore]
-        public Color SwanSongColor { get { return Logic._SwanSongColor ?? _SwanSongColor ?? Color.Empty; } }
+        public Color SwanSongColor { get { return Logic?._SwanSongColor ?? _SwanSongColor ?? Color.Empty; } }
 
         public bool? _ShowSwanSong { get; set; }
 
         [JsonIgnore]
-        public bool ShowSwanSong { get { return Logic._ShowSwanSong ?? _ShowSwanSong ?? false; } }
+        public bool ShowSwanSong { get { return Logic?._ShowSwanSong ?? _ShowSwanSong ?? false; } }
 
         public float? _SwanSongSpeedMultiplier { get; set; }
 
         [JsonIgnore]
-        public float SwanSongSpeedMultiplier { get { return Logic._SwanSongSpeedMultiplier ?? _SwanSongSpeedMultiplier ?? 0.0F; } }
+        public float SwanSongSpeedMultiplier { get { return Logic?._SwanSongSpeedMultiplier ?? _SwanSongSpeedMultiplier ?? 0.0F; } }
 
         public PD2StatesLayerHandlerProperties() : base() { }
 

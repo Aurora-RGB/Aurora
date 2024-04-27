@@ -20,7 +20,7 @@ public class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color<CSGOB
     [JsonProperty("_FlashColor")]
     public Color FlashColor
     {
-        get => Logic._flashColor ?? _flashColor ?? Color.Empty;
+        get => Logic?._flashColor ?? _flashColor ?? Color.Empty;
         set => _flashColor = value;
     }
 
@@ -29,7 +29,7 @@ public class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color<CSGOB
     [JsonProperty("_PrimedColor")]
     public Color PrimedColor
     {
-        get => Logic._primedColor ?? _primedColor ?? Color.Empty;
+        get => Logic?._primedColor ?? _primedColor ?? Color.Empty;
         set => _primedColor = value;
     }
 
@@ -38,7 +38,7 @@ public class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color<CSGOB
     [JsonProperty("_GradualEffect")]
     public bool GradualEffect
     {
-        get => Logic._gradualEffect ?? _gradualEffect ?? false;
+        get => Logic?._gradualEffect ?? _gradualEffect ?? false;
         set => _gradualEffect = value;
     }
 

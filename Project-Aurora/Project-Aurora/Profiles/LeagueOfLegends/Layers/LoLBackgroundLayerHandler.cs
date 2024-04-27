@@ -11,7 +11,7 @@ namespace AuroraRgb.Profiles.LeagueOfLegends.Layers
     public class LoLBackgroundLayerHandlerProperties : LayerHandlerProperties<LoLBackgroundLayerHandlerProperties>
     {
         [JsonIgnore]
-        public Dictionary<Champion, Color> ChampionColors => Logic._ChampionColors ?? _ChampionColors ?? new Dictionary<Champion, Color>();
+        public Dictionary<Champion, Color> ChampionColors => Logic?._ChampionColors ?? _ChampionColors ?? new Dictionary<Champion, Color>();
         public Dictionary<Champion, Color> _ChampionColors { get; set; }
 
         public LoLBackgroundLayerHandlerProperties() : base() { }

@@ -16,7 +16,7 @@ public class ScriptLayerHandlerProperties : LayerHandlerProperties<ScriptLayerHa
     [JsonProperty("_Script")]
     public string Script
     {
-        get => Logic._script ?? _script ?? string.Empty;
+        get => Logic?._script ?? _script ?? string.Empty;
         set
         {
             if (_script == value)
@@ -33,7 +33,7 @@ public class ScriptLayerHandlerProperties : LayerHandlerProperties<ScriptLayerHa
     [JsonProperty("_ScriptProperties")]
     public VariableRegistry ScriptProperties
     {
-        get => Logic._scriptProperties ?? _scriptProperties ?? throw new NullReferenceException("ScriptLayerHandlerProperties._scriptProperties is null");
+        get => Logic?._scriptProperties ?? _scriptProperties ?? throw new NullReferenceException("ScriptLayerHandlerProperties._scriptProperties is null");
         set => _scriptProperties = value;
     }
 

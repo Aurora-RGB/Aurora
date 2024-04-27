@@ -20,12 +20,12 @@ namespace AuroraRgb.Settings.Layers
         public Keys? _ToggledKey { get; set; }
 
         [JsonIgnore]
-        public Keys ToggledKey => (Logic._ToggledKey ?? _ToggledKey) ?? 0;
+        public Keys ToggledKey => (Logic?._ToggledKey ?? _ToggledKey) ?? 0;
 
         public bool? _Pulse { get; set; }
 
         [JsonIgnore]
-        public bool Pulse => (Logic._Pulse ?? _Pulse) ?? false;
+        public bool Pulse => (Logic?._Pulse ?? _Pulse) ?? false;
 
         public override void Default()
         {

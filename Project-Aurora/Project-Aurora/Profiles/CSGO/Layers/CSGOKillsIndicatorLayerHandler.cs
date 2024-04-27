@@ -16,12 +16,12 @@ public class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Co
     public Color? _RegularKillColor { get; set; }
 
     [JsonIgnore]
-    public Color RegularKillColor => Logic._RegularKillColor ?? _RegularKillColor ?? Color.Empty;
+    public Color RegularKillColor => Logic?._RegularKillColor ?? _RegularKillColor ?? Color.Empty;
 
     public Color? _HeadshotKillColor { get; set; }
 
     [JsonIgnore]
-    public Color HeadshotKillColor => Logic._HeadshotKillColor ?? _HeadshotKillColor ?? Color.Empty;
+    public Color HeadshotKillColor => Logic?._HeadshotKillColor ?? _HeadshotKillColor ?? Color.Empty;
 
     public CSGOKillIndicatorLayerHandlerProperties()
     { }

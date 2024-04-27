@@ -17,33 +17,33 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
         public Color? _EmptyItemColor { get; set; }
 
         [JsonIgnore]
-        public Color EmptyItemColor { get { return Logic._EmptyItemColor ?? _EmptyItemColor ?? Color.Empty; } }
+        public Color EmptyItemColor { get { return Logic?._EmptyItemColor ?? _EmptyItemColor ?? Color.Empty; } }
 
         public Color? _ItemsColor { get; set; }
 
         [JsonIgnore]
-        public Color ItemsColor { get { return Logic._ItemsColor ?? _ItemsColor ?? Color.Empty; } }
+        public Color ItemsColor { get { return Logic?._ItemsColor ?? _ItemsColor ?? Color.Empty; } }
 
         public bool? _UseItemColors { get; set; }
 
         [JsonIgnore]
-        public bool UseItemColors { get { return Logic._UseItemColors ?? _UseItemColors ?? false; } }
+        public bool UseItemColors { get { return Logic?._UseItemColors ?? _UseItemColors ?? false; } }
 
         public Color? _ItemCooldownColor { get; set; }
 
         [JsonIgnore]
-        public Color ItemCooldownColor { get { return Logic._ItemCooldownColor ?? _ItemCooldownColor ?? Color.Empty; } }
+        public Color ItemCooldownColor { get { return Logic?._ItemCooldownColor ?? _ItemCooldownColor ?? Color.Empty; } }
 
         public Color? _ItemNoChargersColor { get; set; }
 
         [JsonIgnore]
-        public Color ItemNoChargersColor { get { return Logic._ItemNoChargersColor ?? _ItemNoChargersColor ?? Color.Empty; } }
+        public Color ItemNoChargersColor { get { return Logic?._ItemNoChargersColor ?? _ItemNoChargersColor ?? Color.Empty; } }
 
         [JsonProperty("item_keys2")]    //changed property name to reset because some update broke this setting
         public List<DeviceKeys> _ItemKeys { get; set; }
 
         [JsonIgnore]
-        public List<DeviceKeys> ItemKeys => Logic._ItemKeys ?? _ItemKeys ?? new List<DeviceKeys>();
+        public List<DeviceKeys> ItemKeys => Logic?._ItemKeys ?? _ItemKeys ?? new List<DeviceKeys>();
 
         public Dota2ItemLayerHandlerProperties()
         { }

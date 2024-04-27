@@ -18,7 +18,7 @@ public class BinaryCounterLayerHandlerProperties : LayerHandlerProperties<Binary
     [JsonProperty("_VariablePath")]
     public VariablePath VariablePath
     {
-        get => Logic._variablePath ?? _variablePath ?? VariablePath.Empty;
+        get => Logic?._variablePath ?? _variablePath ?? VariablePath.Empty;
         set => SetFieldAndRaisePropertyChanged(out _variablePath, value);
     }
 
@@ -52,7 +52,7 @@ public class BinaryCounterLayerHandler : LayerHandler<BinaryCounterLayerHandlerP
 
     public override EffectLayer Render(IGameState gamestate) {
         // Get the current game state value
-        var value = Properties.Logic._Value ?? gamestate.GetNumber(Properties.VariablePath);
+        var value = Properties.Logic?._Value ?? gamestate.GetNumber(Properties.VariablePath);
         if (Math.Abs(_lastValue - value) < 0.1)
         {
             return EffectLayer;

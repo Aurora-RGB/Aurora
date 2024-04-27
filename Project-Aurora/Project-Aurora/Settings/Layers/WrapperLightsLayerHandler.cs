@@ -22,7 +22,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonProperty("_ColorEnhanceEnabled")]
     public bool ColorEnhanceEnabled
     {
-        get => Logic._colorEnhanceEnabled ?? _colorEnhanceEnabled ?? false;
+        get => Logic?._colorEnhanceEnabled ?? _colorEnhanceEnabled ?? false;
         set => _colorEnhanceEnabled = value;
     }
 
@@ -31,7 +31,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonProperty("_ColorEnhanceMode")]
     public int ColorEnhanceMode
     {
-        get => Logic._colorEnhanceMode ?? _colorEnhanceMode ?? 0;
+        get => Logic?._colorEnhanceMode ?? _colorEnhanceMode ?? 0;
         set => _colorEnhanceMode = value;
     }
 
@@ -40,7 +40,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonProperty("_ColorEnhanceColorFactor")]
     public int ColorEnhanceColorFactor
     {
-        get => Logic._colorEnhanceColorFactor ?? _colorEnhanceColorFactor ?? 0;
+        get => Logic?._colorEnhanceColorFactor ?? _colorEnhanceColorFactor ?? 0;
         set => _colorEnhanceColorFactor = value;
     }
 
@@ -49,7 +49,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonProperty("_ColorEnhanceColorHSVSine")]
     public float ColorEnhanceColorHsvSine
     {
-        get => Logic._colorEnhanceColorHsvSine ?? _colorEnhanceColorHsvSine ?? 0.0f;
+        get => Logic?._colorEnhanceColorHsvSine ?? _colorEnhanceColorHsvSine ?? 0.0f;
         set => _colorEnhanceColorHsvSine = value;
     }
 
@@ -58,7 +58,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonProperty("_ColorEnhanceColorHSVGamma")]
     public float ColorEnhanceColorHsvGamma
     {
-        get => Logic._colorEnhanceColorHsvGamma ?? _colorEnhanceColorHsvGamma ?? 0.0f;
+        get => Logic?._colorEnhanceColorHsvGamma ?? _colorEnhanceColorHsvGamma ?? 0.0f;
         set => _colorEnhanceColorHsvGamma = value;
     }
 
@@ -66,7 +66,7 @@ public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<Wrappe
     [JsonIgnore]
     private Dictionary<DeviceKeys, KeySequence>? _cloningMap;
     [JsonProperty("_CloningMap")]
-    public Dictionary<DeviceKeys, KeySequence> CloningMap => Logic._cloningMap ?? _cloningMap ?? new Dictionary<DeviceKeys, KeySequence>();
+    public Dictionary<DeviceKeys, KeySequence> CloningMap => Logic?._cloningMap ?? _cloningMap ?? new Dictionary<DeviceKeys, KeySequence>();
 
     public WrapperLightsLayerHandlerProperties()
     { }

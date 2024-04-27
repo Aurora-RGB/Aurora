@@ -13,12 +13,12 @@ public class CSGOWinningTeamLayerHandlerProperties : LayerHandlerProperties2Colo
     public Color? _CTColor { get; set; }
 
     [JsonIgnore]
-    public Color CTColor => Logic._CTColor ?? _CTColor ?? Color.Empty;
+    public Color CTColor => Logic?._CTColor ?? _CTColor ?? Color.Empty;
 
     public Color? _TColor { get; set; }
 
     [JsonIgnore]
-    public Color TColor => Logic._TColor ?? _TColor ?? Color.Empty;
+    public Color TColor => Logic?._TColor ?? _TColor ?? Color.Empty;
 
     public CSGOWinningTeamLayerHandlerProperties() : base() { }
 

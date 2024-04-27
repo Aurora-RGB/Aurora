@@ -15,12 +15,12 @@ public class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color<CSGO
     public Color? _DeathColor { get; set; }
 
     [JsonIgnore]
-    public Color DeathColor => Logic._DeathColor ?? _DeathColor ?? Color.Empty;
+    public Color DeathColor => Logic?._DeathColor ?? _DeathColor ?? Color.Empty;
 
     public int? _FadeOutAfter { get; set; }
 
     [JsonIgnore]
-    public int FadeOutAfter => Logic._FadeOutAfter ?? _FadeOutAfter ?? 5;
+    public int FadeOutAfter => Logic?._FadeOutAfter ?? _FadeOutAfter ?? 5;
 
     public CSGODeathLayerHandlerProperties()
     { }

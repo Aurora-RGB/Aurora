@@ -23,62 +23,62 @@ namespace AuroraRgb.Settings.Layers
         public AnimationMix _AnimationMix { get; set; }
 
         [JsonIgnore]
-        public AnimationMix AnimationMix => Logic._AnimationMix ?? _AnimationMix;
+        public AnimationMix AnimationMix => Logic?._AnimationMix ?? _AnimationMix;
 
         public bool? _forceKeySequence { get; set; }
 
         [JsonIgnore]
-        public bool ForceKeySequence => Logic._forceKeySequence ?? _forceKeySequence ?? false;
+        public bool ForceKeySequence => Logic?._forceKeySequence ?? _forceKeySequence ?? false;
 
         public bool? _scaleToKeySequenceBounds { get; set; }
 
         [JsonIgnore]
-        public bool ScaleToKeySequenceBounds => Logic._scaleToKeySequenceBounds ?? _scaleToKeySequenceBounds ?? false;
+        public bool ScaleToKeySequenceBounds => Logic?._scaleToKeySequenceBounds ?? _scaleToKeySequenceBounds ?? false;
 
         public float? _AnimationDuration { get; set; }
 
         [JsonIgnore]
-        public float AnimationDuration => Logic._AnimationDuration ?? _AnimationDuration ?? 0.0f;
+        public float AnimationDuration => Logic?._AnimationDuration ?? _AnimationDuration ?? 0.0f;
 
         public int? _AnimationRepeat { get; set; }
 
         [JsonIgnore]
-        public int AnimationRepeat => Logic._AnimationRepeat ?? _AnimationRepeat ?? 0;
+        public int AnimationRepeat => Logic?._AnimationRepeat ?? _AnimationRepeat ?? 0;
 
         [JsonIgnore]
-        public AnimationTriggerMode TriggerMode => Logic._TriggerMode ?? _TriggerMode ?? AnimationTriggerMode.AlwaysOn;
+        public AnimationTriggerMode TriggerMode => Logic?._TriggerMode ?? _TriggerMode ?? AnimationTriggerMode.AlwaysOn;
         public AnimationTriggerMode? _TriggerMode { get; set; }
 
         [JsonIgnore]
-        public AnimationStackMode StackMode => Logic._StackMode ?? _StackMode ?? AnimationStackMode.Ignore;
+        public AnimationStackMode StackMode => Logic?._StackMode ?? _StackMode ?? AnimationStackMode.Ignore;
         public AnimationStackMode? _StackMode { get; set; }
 
         private VariablePath? _triggerPath;
         [JsonProperty("_TriggerPath")]
         public VariablePath TriggerPath
         {
-            get => Logic._triggerPath ?? _triggerPath ?? VariablePath.Empty;
+            get => Logic?._triggerPath ?? _triggerPath ?? VariablePath.Empty;
             set => _triggerPath = value;
         }
 
         [JsonIgnore]
-        public IEvaluatable EvaluatableTrigger => Logic._EvaluatableTrigger ?? _EvaluatableTrigger;
+        public IEvaluatable EvaluatableTrigger => Logic?._EvaluatableTrigger ?? _EvaluatableTrigger;
         public IEvaluatable _EvaluatableTrigger { get; set; }
 
         [JsonIgnore]
-        public bool TriggerAnyKey => Logic._TriggerAnyKey ?? _TriggerAnyKey ?? false;
+        public bool TriggerAnyKey => Logic?._TriggerAnyKey ?? _TriggerAnyKey ?? false;
         public bool? _TriggerAnyKey { get; set; }
 
         [JsonIgnore]
-        public KeySequence TriggerKeySequence => Logic._TriggerKeySequence ?? _TriggerKeySequence ?? new KeySequence();
+        public KeySequence TriggerKeySequence => Logic?._TriggerKeySequence ?? _TriggerKeySequence ?? new KeySequence();
         public KeySequence _TriggerKeySequence { get; set; }
 
         [JsonIgnore]
-        public bool KeyTriggerTranslate => Logic._KeyTriggerTranslate ?? _KeyTriggerTranslate ?? false;
+        public bool KeyTriggerTranslate => Logic?._KeyTriggerTranslate ?? _KeyTriggerTranslate ?? false;
         public bool? _KeyTriggerTranslate { get; set; }
 
         [JsonIgnore]
-        public bool WhileKeyHeldTerminateRunning => Logic._WhileKeyHeldTerminateRunning ?? _WhileKeyHeldTerminateRunning ?? false;
+        public bool WhileKeyHeldTerminateRunning => Logic?._WhileKeyHeldTerminateRunning ?? _WhileKeyHeldTerminateRunning ?? false;
         public bool? _WhileKeyHeldTerminateRunning { get; set; }
 
         public AnimationLayerHandlerProperties() : base() { }

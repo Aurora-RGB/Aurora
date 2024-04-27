@@ -11,11 +11,11 @@ namespace AuroraRgb.Profiles.EliteDangerous.Layers
     {
         public Color? _CombatModeColor { get; set; }
 
-        public Color CombatModeColor { get { return Logic._CombatModeColor ?? _CombatModeColor ?? Color.Empty; } }
+        public Color CombatModeColor { get { return Logic?._CombatModeColor ?? _CombatModeColor ?? Color.Empty; } }
 
         public Color? _DiscoveryModeColor { get; set; }
 
-        public Color DiscoveryModeColor { get { return Logic._DiscoveryModeColor ?? _DiscoveryModeColor ?? Color.Empty; } }
+        public Color DiscoveryModeColor { get { return Logic?._DiscoveryModeColor ?? _DiscoveryModeColor ?? Color.Empty; } }
 
         public EliteDangerousBackgroundHandlerProperties()
         { }

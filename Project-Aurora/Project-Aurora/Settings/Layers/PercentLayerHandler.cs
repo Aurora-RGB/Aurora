@@ -16,7 +16,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_PercentType")]
     public PercentEffectType PercentType
     {
-        get => Logic._percentType ?? _percentType ?? PercentEffectType.Progressive_Gradual;
+        get => Logic?._percentType ?? _percentType ?? PercentEffectType.Progressive_Gradual;
         set => _percentType = value;
     }
 
@@ -24,7 +24,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_BlinkThreshold")]
     public double BlinkThreshold
     {
-        get => Logic._blinkThreshold ?? _blinkThreshold ?? 0.0;
+        get => Logic?._blinkThreshold ?? _blinkThreshold ?? 0.0;
         set => _blinkThreshold = value;
     }
 
@@ -32,7 +32,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_BlinkDirection")]
     public bool BlinkDirection
     {
-        get => Logic._blinkDirection ?? _blinkDirection ?? false;
+        get => Logic?._blinkDirection ?? _blinkDirection ?? false;
         set => _blinkDirection = value;
     }
 
@@ -40,7 +40,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_BlinkBackground")]
     public bool BlinkBackground
     {
-        get => Logic._blinkBackground ?? _blinkBackground ?? false;
+        get => Logic?._blinkBackground ?? _blinkBackground ?? false;
         set => _blinkBackground = value;
     }
 
@@ -48,7 +48,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_VariablePath")]
     public VariablePath VariablePath
     {
-        get => Logic._variablePath ?? _variablePath ?? VariablePath.Empty;
+        get => Logic?._variablePath ?? _variablePath ?? VariablePath.Empty;
         set => _variablePath = value;
     }
 
@@ -56,7 +56,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     [JsonProperty("_MaxVariablePath")]
     public VariablePath MaxVariablePath
     {
-        get => Logic._maxVariablePath ?? _maxVariablePath ?? VariablePath.Empty;
+        get => Logic?._maxVariablePath ?? _maxVariablePath ?? VariablePath.Empty;
         set => _maxVariablePath = value;
     }
 
@@ -115,14 +115,14 @@ public class PercentLayerHandler<TProperty> : LayerHandler<TProperty> where TPro
             Invalidated = false;
             _value = -1;
         }
-        var value = Properties.Logic._Value ?? state.GetNumber(Properties.VariablePath);
+        var value = Properties.Logic?._Value ?? state.GetNumber(Properties.VariablePath);
         if (MathUtils.NearlyEqual(_value, value, 0.000001))
         {
             return EffectLayer;
         }
         _value = value;
             
-        var maxvalue = Properties.Logic._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
+        var maxvalue = Properties.Logic?._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
 
         EffectLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, Properties.Sequence, value, maxvalue,
             Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);

@@ -62,7 +62,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_RandomPrimaryColor")]
     public bool RandomPrimaryColor
     {
-        get => Logic._randomPrimaryColor ?? _randomPrimaryColor ?? false;
+        get => Logic?._randomPrimaryColor ?? _randomPrimaryColor ?? false;
         set => _randomPrimaryColor = value;
     }
 
@@ -70,7 +70,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_RandomSecondaryColor")]
     public bool RandomSecondaryColor
     {
-        get => Logic._randomSecondaryColor ?? _randomSecondaryColor ?? false;
+        get => Logic?._randomSecondaryColor ?? _randomSecondaryColor ?? false;
         set => _randomSecondaryColor = value;
     }
 
@@ -79,7 +79,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_EffectSpeed")]
     public float EffectSpeed
     {
-        get => Logic._effectSpeed ?? _effectSpeed ?? 0.0f;
+        get => Logic?._effectSpeed ?? _effectSpeed ?? 0.0f;
         set => _effectSpeed = value;
     }
 
@@ -87,7 +87,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_WaitOnKeyUp")]
     public bool WaitOnKeyUp
     {
-        get => Logic._waitOnKeyUp ?? _waitOnKeyUp ?? false;
+        get => Logic?._waitOnKeyUp ?? _waitOnKeyUp ?? false;
         set => _waitOnKeyUp = value;
     }
 
@@ -96,7 +96,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_InteractiveEffect")]
     public InteractiveEffects InteractiveEffect
     {
-        get => Logic._interactiveEffect ?? _interactiveEffect ?? InteractiveEffects.None;
+        get => Logic?._interactiveEffect ?? _interactiveEffect ?? InteractiveEffects.None;
         set => _interactiveEffect = value;
     }
 
@@ -105,7 +105,7 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_EffectWidth")]
     public int EffectWidth
     {
-        get => Logic._effectWidth ?? _effectWidth ?? 0;
+        get => Logic?._effectWidth ?? _effectWidth ?? 0;
         set => _effectWidth = value;
     }
 
@@ -113,14 +113,14 @@ public sealed class InteractiveLayerHandlerProperties : LayerHandlerProperties2C
     [JsonProperty("_UsePressBuffer")]
     public bool? UsePressBuffer
     {
-        get => Logic._usePressBuffer ?? _usePressBuffer ?? true;
+        get => Logic?._usePressBuffer ?? _usePressBuffer ?? true;
         set => _usePressBuffer = value ?? false;
     }
 
     private DeviceKeys? _mouseEffectKey;
     public DeviceKeys MouseEffectKey
     {
-        get => (Logic._mouseEffectKey ?? _mouseEffectKey) ?? DeviceKeys.NONE;
+        get => (Logic?._mouseEffectKey ?? _mouseEffectKey) ?? DeviceKeys.NONE;
         set => SetFieldAndRaisePropertyChanged(out _mouseEffectKey, value);
     }
 

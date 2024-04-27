@@ -15,12 +15,12 @@ namespace AuroraRgb.Settings.Layers
         public LayerEffectConfig _GradientConfig { get; set; }
 
         [JsonIgnore]
-        public LayerEffectConfig GradientConfig { get { return Logic._GradientConfig ?? _GradientConfig; } }
+        public LayerEffectConfig GradientConfig { get { return Logic?._GradientConfig ?? _GradientConfig; } }
 
         public bool? _FillEntireKeyboard { get; set; }
 
         [JsonIgnore]
-        public bool FillEntireKeyboard { get { return Logic._FillEntireKeyboard ?? _FillEntireKeyboard ?? false; } }
+        public bool FillEntireKeyboard { get { return Logic?._FillEntireKeyboard ?? _FillEntireKeyboard ?? false; } }
 
         public GradientFillLayerHandlerProperties()
         { }

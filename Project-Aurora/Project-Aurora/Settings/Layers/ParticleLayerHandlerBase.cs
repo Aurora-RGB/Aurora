@@ -20,7 +20,7 @@ namespace AuroraRgb.Settings.Layers {
         // Whether or not the particles will spawn. This allows the particle system to be turned off without disabling it (thereby not hiding already spawned particles).
         // This can only be done by the overrides system.
         [LogicOverridable("Enable Particle Spawning")] public bool? _SpawningEnabled { get; set; }
-        [JsonIgnore] public bool SpawningEnabled => Logic._SpawningEnabled ?? true;
+        [JsonIgnore] public bool SpawningEnabled => Logic?._SpawningEnabled ?? true;
 
         public ParticleLayerPropertiesBase() : base() { }
         public ParticleLayerPropertiesBase(bool empty = false) : base(empty) { }

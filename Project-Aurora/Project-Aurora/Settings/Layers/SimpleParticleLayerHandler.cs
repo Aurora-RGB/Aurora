@@ -25,81 +25,81 @@ namespace AuroraRgb.Settings.Layers {
 
         // The shortest time (in seconds) between particles spawning. A random time between this value and "MaxSpawnTime" will be chosen.
         [LogicOverridable] public float? _MinSpawnTime { get; set; }
-        [JsonIgnore] public float MinSpawnTime => Logic._MinSpawnTime ?? _MinSpawnTime ?? .5f;
+        [JsonIgnore] public float MinSpawnTime => Logic?._MinSpawnTime ?? _MinSpawnTime ?? .5f;
 
         // The longest time (in seconds) between particles spawning. A random time from "MinSpawnTime" up to this value will be chosen.
         [LogicOverridable] public float? _MaxSpawnTime { get; set; }
-        [JsonIgnore] public float MaxSpawnTime => Logic._MaxSpawnTime ?? _MaxSpawnTime ?? 1f;
+        [JsonIgnore] public float MaxSpawnTime => Logic?._MaxSpawnTime ?? _MaxSpawnTime ?? 1f;
 
         // The smallest quantity of particles that will spawn at a time. A random value between this value and "MaxSpawnAmount" will be chosen.
         [LogicOverridable] public int? _MinSpawnAmount { get; set; }
-        [JsonIgnore] public int MinSpawnAmount => Logic._MinSpawnAmount ?? _MinSpawnAmount ?? 1;
+        [JsonIgnore] public int MinSpawnAmount => Logic?._MinSpawnAmount ?? _MinSpawnAmount ?? 1;
 
         // The largest quantity of particles that will spawn at a time. A random value between "MinSpawnAmount" and this value will be chosen.
         [LogicOverridable] public int? _MaxSpawnAmount { get; set; }
-        [JsonIgnore] public int MaxSpawnAmount => Logic._MaxSpawnAmount ?? _MaxSpawnAmount ?? 1;
+        [JsonIgnore] public int MaxSpawnAmount => Logic?._MaxSpawnAmount ?? _MaxSpawnAmount ?? 1;
 
         // The smallest possible initial horizontal velocity of the spawned particles. A random value between this value and "MaxInitialVelocityX" will be chosen for each particle.
         [LogicOverridable] public float? _MinInitialVelocityX { get; set; }
-        [JsonIgnore] public float MinInitialVelocityX => Logic._MinInitialVelocityX ?? _MinInitialVelocityX ?? 0f;
+        [JsonIgnore] public float MinInitialVelocityX => Logic?._MinInitialVelocityX ?? _MinInitialVelocityX ?? 0f;
 
         // The largest possible initial horizontal velocity of the spawned particles. A random value between "MinInitialVelocityX" and this value will be chosen for each particle.
         [LogicOverridable] public float? _MaxInitialVelocityX { get; set; }
-        [JsonIgnore] public float MaxInitialVelocityX => Logic._MaxInitialVelocityX ?? _MaxInitialVelocityX ?? 0f;
+        [JsonIgnore] public float MaxInitialVelocityX => Logic?._MaxInitialVelocityX ?? _MaxInitialVelocityX ?? 0f;
 
         // The smallest possible initial vertical velocity of the spawned particles. A random value between this value and "MaxInitialVelocityY" will be chosen for each particle.
         [LogicOverridable] public float? _MinInitialVelocityY { get; set; }
-        [JsonIgnore] public float MinInitialVelocityY => Logic._MinInitialVelocityY ?? _MinInitialVelocityY ?? 0f;
+        [JsonIgnore] public float MinInitialVelocityY => Logic?._MinInitialVelocityY ?? _MinInitialVelocityY ?? 0f;
 
         // The largest possible initial vertical velocity of the spawned particles. A random value between "MinInitialVelocityY" and this value will be chosen for each particle.
         [LogicOverridable] public float? _MaxInitialVelocityY { get; set; }
-        [JsonIgnore] public float MaxInitialVelocityY => Logic._MaxInitialVelocityY ?? _MaxInitialVelocityY ?? 0f;
+        [JsonIgnore] public float MaxInitialVelocityY => Logic?._MaxInitialVelocityY ?? _MaxInitialVelocityY ?? 0f;
 
         // The minimum possible lifetime of the particles (in seconds). A random lifetime between this number and "MaxLifetime" will be chosen.
         [LogicOverridable] public float? _MinLifetime { get; set; }
-        [JsonIgnore] public float MinLifetime => Logic._MinLifetime ?? _MinLifetime ?? 3f;
+        [JsonIgnore] public float MinLifetime => Logic?._MinLifetime ?? _MinLifetime ?? 3f;
 
         // The maximum possible lifetime of the particles (in seconds). A random lifetime between from "MinLifetime" up to this number will be chosen.
         [LogicOverridable] public float? _MaxLifetime { get; set; }
-        [JsonIgnore] public float MaxLifetime => Logic._MaxLifetime ?? _MaxLifetime ?? 3f;
+        [JsonIgnore] public float MaxLifetime => Logic?._MaxLifetime ?? _MaxLifetime ?? 3f;
 
         // The amount the speed of the particle in the horizontal direction will change per second.
         [LogicOverridable] public float? _AccelerationX { get; set; }
-        [JsonIgnore] public float AccelerationX => Logic._AccelerationX ?? _AccelerationX ?? 0f;
+        [JsonIgnore] public float AccelerationX => Logic?._AccelerationX ?? _AccelerationX ?? 0f;
 
         // The amount the speed of the particle in the vertical direction will change per second.
         [LogicOverridable] public float? _AccelerationY { get; set; }
-        [JsonIgnore] public float AccelerationY => Logic._AccelerationY ?? _AccelerationY ?? -1f;
+        [JsonIgnore] public float AccelerationY => Logic?._AccelerationY ?? _AccelerationY ?? -1f;
 
         // The amount of velocity per second the particle loses in the horizontal direction as a percentage of its current velocity
         [LogicOverridable] public float? _DragX { get; set; }
-        [JsonIgnore] public float DragX => Logic._DragX ?? _DragX ?? 0;
+        [JsonIgnore] public float DragX => Logic?._DragX ?? _DragX ?? 0;
 
         // The amount of velocity per second the particle loses in the vertical direction as a percentage of its current velocity
         [LogicOverridable] public float? _DragY { get; set; }
-        [JsonIgnore] public float DragY => Logic._DragY ?? _DragY ?? 0;
+        [JsonIgnore] public float DragY => Logic?._DragY ?? _DragY ?? 0;
 
         // The smallest initial size of the particles
         [LogicOverridable] public float? _MinSize { get; set; }
-        [JsonIgnore] public float MinSize => Logic._MinSize ?? _MinSize ?? 6;
+        [JsonIgnore] public float MinSize => Logic?._MinSize ?? _MinSize ?? 6;
 
         // The largest initial size of the particles
         [LogicOverridable] public float? _MaxSize { get; set; }
-        [JsonIgnore] public float MaxSize => Logic._MaxSize ?? _MaxSize ?? 6;
+        [JsonIgnore] public float MaxSize => Logic?._MaxSize ?? _MaxSize ?? 6;
 
         // The initial size of the particles
         [LogicOverridable] public float? _DeltaSize { get; set; }
-        [JsonIgnore] public float DeltaSize => Logic._DeltaSize ?? _DeltaSize ?? 0;
+        [JsonIgnore] public float DeltaSize => Logic?._DeltaSize ?? _DeltaSize ?? 0;
 
         // Where the particles will spawn from
         public ParticleSpawnLocations? _SpawnLocation { get; set; }
-        [JsonIgnore] public ParticleSpawnLocations SpawnLocation => Logic._SpawnLocation ?? _SpawnLocation ?? ParticleSpawnLocations.BottomEdge;
+        [JsonIgnore] public ParticleSpawnLocations SpawnLocation => Logic?._SpawnLocation ?? _SpawnLocation ?? ParticleSpawnLocations.BottomEdge;
 
         // The color gradient stops for the particle. Note this is sorted by offset when set using _ParticleColorStops. Not using a linear brush here because:
         //   1) there are multithreading issues when trying to access a Media brush's gradient collection since it belongs to the UI thread
         //   2) We don't actually need the gradient as a brush since we're not drawing particles as gradients, only a solid color based on their lifetime, so we only need to access the color stops
         public ColorStopCollection _ParticleColorStops { get; set; }
-        [JsonIgnore] public ColorStopCollection ParticleColorStops => Logic._ParticleColorStops ?? _ParticleColorStops ?? defaultParticleColor;
+        [JsonIgnore] public ColorStopCollection ParticleColorStops => Logic?._ParticleColorStops ?? _ParticleColorStops ?? defaultParticleColor;
 
         // An override proxy for setting the particle color stops
         [JsonIgnore, LogicOverridable("Color over time")] public EffectBrush _ParticleBrush {

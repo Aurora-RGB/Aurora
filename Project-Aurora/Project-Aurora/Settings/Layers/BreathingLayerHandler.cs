@@ -16,18 +16,18 @@ namespace AuroraRgb.Settings.Layers
         public bool? _RandomPrimaryColor { get; set; }
 
         [JsonIgnore]
-        public bool RandomPrimaryColor => Logic._RandomPrimaryColor ?? _RandomPrimaryColor ?? false;
+        public bool RandomPrimaryColor => Logic?._RandomPrimaryColor ?? _RandomPrimaryColor ?? false;
 
         public bool? _RandomSecondaryColor { get; set; }
 
         [JsonIgnore]
-        public bool RandomSecondaryColor => Logic._RandomSecondaryColor ?? _RandomSecondaryColor ?? false;
+        public bool RandomSecondaryColor => Logic?._RandomSecondaryColor ?? _RandomSecondaryColor ?? false;
 
         [LogicOverridable("Effect Speed")]
         public float? _EffectSpeed { get; set; }
 
         [JsonIgnore]
-        public float EffectSpeed => Logic._EffectSpeed ?? _EffectSpeed ?? 0.0f;
+        public float EffectSpeed => Logic?._EffectSpeed ?? _EffectSpeed ?? 0.0f;
 
         public BreathingLayerHandlerProperties()
         { }

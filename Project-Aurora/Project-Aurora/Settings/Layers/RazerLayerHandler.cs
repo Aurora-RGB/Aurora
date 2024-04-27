@@ -23,7 +23,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [LogicOverridable("Enable Transparency")]
     public bool TransparencyEnabled
     {
-        get => Logic._transparencyEnabled ?? false;
+        get => Logic?._transparencyEnabled ?? false;
         set => _transparencyEnabled = value;
     }
 
@@ -31,7 +31,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [JsonProperty("_ColorPostProcessEnabled")]
     public bool ColorPostProcessEnabled
     {
-        get => Logic._colorPostProcessEnabled ?? _colorPostProcessEnabled ?? false;
+        get => Logic?._colorPostProcessEnabled ?? _colorPostProcessEnabled ?? false;
         set => _colorPostProcessEnabled = value;
     }
 
@@ -39,7 +39,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [JsonProperty("_BrightnessChange")]
     public double BrightnessChange
     {
-        get => Logic._brightnessChange ?? _brightnessChange ?? 0;
+        get => Logic?._brightnessChange ?? _brightnessChange ?? 0;
         set => _brightnessChange = value;
     }
 
@@ -47,7 +47,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [JsonProperty("_SaturationChange")]
     public double SaturationChange
     {
-        get => Logic._saturationChange ?? _saturationChange ?? 0;
+        get => Logic?._saturationChange ?? _saturationChange ?? 0;
         set => _saturationChange = value;
     }
 
@@ -55,7 +55,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [JsonProperty("_HueShift")]
     public double HueShift
     {
-        get => Logic._hueShift ?? _hueShift ?? 0;
+        get => Logic?._hueShift ?? _hueShift ?? 0;
         set => _hueShift = value;
     }
 
@@ -63,7 +63,7 @@ public class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHand
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
     {
-        get => Logic._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
+        get => Logic?._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
         set => _keyCloneMap = value;
     }
 

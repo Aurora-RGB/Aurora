@@ -23,7 +23,7 @@ namespace AuroraRgb.Settings.Layers
         [JsonProperty("_UpdateInterval")]
         public double UpdateInterval
         {
-            get => Logic._updateInterval ?? _updateInterval ?? 1.0;
+            get => Logic?._updateInterval ?? _updateInterval ?? 1.0;
             set
             {
                 _updateInterval = value;
@@ -37,7 +37,7 @@ namespace AuroraRgb.Settings.Layers
         [JsonProperty("_AllowTransparency")]
         public bool AllowTransparency
         {
-            get => Logic._allowTransparency ?? _allowTransparency ?? false;
+            get => Logic?._allowTransparency ?? _allowTransparency ?? false;
             set
             {
                 _allowTransparency = value;

@@ -16,12 +16,12 @@ namespace AuroraRgb.Profiles.ETS2.Layers {
         public ETS2_BeaconStyle? _BeaconStyle { get; set; }
 
         [JsonIgnore]
-        public ETS2_BeaconStyle BeaconStyle { get { return Logic._BeaconStyle ?? _BeaconStyle ?? ETS2_BeaconStyle.Simple_Flash; } }
+        public ETS2_BeaconStyle BeaconStyle { get { return Logic?._BeaconStyle ?? _BeaconStyle ?? ETS2_BeaconStyle.Simple_Flash; } }
 
         public float? _Speed { get; set; }
 
         [JsonIgnore]
-        public float Speed { get { return Logic._Speed ?? _Speed ?? 1; } }
+        public float Speed { get { return Logic?._Speed ?? _Speed ?? 1; } }
 
         public ETS2BeaconLayerProperties() : base() { }
         public ETS2BeaconLayerProperties(bool assign_default = false) : base(assign_default) { }

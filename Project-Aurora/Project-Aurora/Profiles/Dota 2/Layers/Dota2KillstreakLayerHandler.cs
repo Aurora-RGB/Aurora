@@ -13,57 +13,57 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
         public Color? _NoKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color NoKillstreakColor => Logic._NoKillstreakColor ?? _NoKillstreakColor ?? Color.Empty;
+        public Color NoKillstreakColor => Logic?._NoKillstreakColor ?? _NoKillstreakColor ?? Color.Empty;
 
         public Color? _FirstKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color FirstKillstreakColor => Logic._FirstKillstreakColor ?? _FirstKillstreakColor ?? Color.Empty;
+        public Color FirstKillstreakColor => Logic?._FirstKillstreakColor ?? _FirstKillstreakColor ?? Color.Empty;
 
         public Color? _DoubleKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color DoubleKillstreakColor => Logic._DoubleKillstreakColor ?? _DoubleKillstreakColor ?? Color.Empty;
+        public Color DoubleKillstreakColor => Logic?._DoubleKillstreakColor ?? _DoubleKillstreakColor ?? Color.Empty;
 
         public Color? _TripleKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color TripleKillstreakColor => Logic._TripleKillstreakColor ?? _TripleKillstreakColor ?? Color.Empty;
+        public Color TripleKillstreakColor => Logic?._TripleKillstreakColor ?? _TripleKillstreakColor ?? Color.Empty;
 
         public Color? _QuadKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color QuadKillstreakColor => Logic._QuadKillstreakColor ?? _QuadKillstreakColor ?? Color.Empty;
+        public Color QuadKillstreakColor => Logic?._QuadKillstreakColor ?? _QuadKillstreakColor ?? Color.Empty;
 
         public Color? _PentaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color PentaKillstreakColor => Logic._PentaKillstreakColor ?? _PentaKillstreakColor ?? Color.Empty;
+        public Color PentaKillstreakColor => Logic?._PentaKillstreakColor ?? _PentaKillstreakColor ?? Color.Empty;
 
         public Color? _HexaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color HexaKillstreakColor => Logic._HexaKillstreakColor ?? _HexaKillstreakColor ?? Color.Empty;
+        public Color HexaKillstreakColor => Logic?._HexaKillstreakColor ?? _HexaKillstreakColor ?? Color.Empty;
 
         public Color? _SeptaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color SeptaKillstreakColor => Logic._SeptaKillstreakColor ?? _SeptaKillstreakColor ?? Color.Empty;
+        public Color SeptaKillstreakColor => Logic?._SeptaKillstreakColor ?? _SeptaKillstreakColor ?? Color.Empty;
 
         public Color? _OctaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color OctaKillstreakColor => Logic._OctaKillstreakColor ?? _OctaKillstreakColor ?? Color.Empty;
+        public Color OctaKillstreakColor => Logic?._OctaKillstreakColor ?? _OctaKillstreakColor ?? Color.Empty;
 
         public Color? _NonaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color NonaKillstreakColor => Logic._NonaKillstreakColor ?? _NonaKillstreakColor ?? Color.Empty;
+        public Color NonaKillstreakColor => Logic?._NonaKillstreakColor ?? _NonaKillstreakColor ?? Color.Empty;
 
         public Color? _DecaKillstreakColor { get; set; }
 
         [JsonIgnore]
-        public Color DecaKillstreakColor => Logic._DecaKillstreakColor ?? _DecaKillstreakColor ?? Color.Empty;
+        public Color DecaKillstreakColor => Logic?._DecaKillstreakColor ?? _DecaKillstreakColor ?? Color.Empty;
 
         public Dota2KillstreakLayerHandlerProperties() : base() { }
 

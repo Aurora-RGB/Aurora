@@ -18,7 +18,7 @@ public class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties2Color<D
     [JsonProperty("_CanCastAbilityColor")]
     public Color CanCastAbilityColor
     {
-        get => Logic._canCastAbilityColor ?? _canCastAbilityColor ?? Color.Empty;
+        get => Logic?._canCastAbilityColor ?? _canCastAbilityColor ?? Color.Empty;
         set => _canCastAbilityColor = value;
     }
 
@@ -26,7 +26,7 @@ public class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties2Color<D
     [JsonProperty("_CanNotCastAbilityColor")]
     public Color CanNotCastAbilityColor
     {
-        get => Logic._canNotCastAbilityColor ?? _canNotCastAbilityColor ?? Color.Empty;
+        get => Logic?._canNotCastAbilityColor ?? _canNotCastAbilityColor ?? Color.Empty;
         set => _canNotCastAbilityColor = value;
     }
 
@@ -34,7 +34,7 @@ public class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties2Color<D
     [JsonProperty("_AbilityKeys")]
     public List<DeviceKeys> AbilityKeys
     {
-        get => Logic._abilityKeys ?? _abilityKeys ?? [];
+        get => Logic?._abilityKeys ?? _abilityKeys ?? [];
         set => _abilityKeys = value;
     }
 

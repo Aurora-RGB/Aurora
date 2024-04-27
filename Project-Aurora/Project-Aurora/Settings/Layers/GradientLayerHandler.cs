@@ -18,7 +18,7 @@ public class GradientLayerHandlerProperties : LayerHandlerProperties2Color<Gradi
     [JsonProperty("_GradientConfig")]
     public LayerEffectConfig GradientConfig
     {
-        get => Logic._gradientConfig ?? (_gradientConfig ??= DefaultGradientConfig());
+        get => Logic?._gradientConfig ?? (_gradientConfig ??= DefaultGradientConfig());
         set => _gradientConfig = value;
     }
 

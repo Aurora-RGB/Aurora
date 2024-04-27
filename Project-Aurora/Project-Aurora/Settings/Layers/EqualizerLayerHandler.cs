@@ -66,7 +66,10 @@ public enum EqualizerBackgroundMode
 
 public enum DeviceFlow
 {
+    [Description("Output")]
     Output,
+
+    [Description("Input")]
     Input,
 }
 
@@ -77,7 +80,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("Secondary Color")]
     public Color SecondaryColor
     {
-        get => Logic._secondaryColor ?? _secondaryColor ?? Color.Empty;
+        get => Logic?._secondaryColor ?? _secondaryColor ?? Color.Empty;
         set => _secondaryColor = value;
     }
 
@@ -86,7 +89,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [JsonProperty("_Gradient")]
     public EffectBrush Gradient
     {
-        get => Logic._gradient ?? _gradient ?? new EffectBrush(EffectBrush.BrushType.Linear);
+        get => Logic?._gradient ?? _gradient ?? new EffectBrush(EffectBrush.BrushType.Linear);
         set => _gradient = value;
     }
 
@@ -95,7 +98,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("Equalizer Type")]
     public EqualizerType EqType
     {
-        get => Logic._eqType ?? _eqType ?? EqualizerType.PowerBars;
+        get => Logic?._eqType ?? _eqType ?? EqualizerType.PowerBars;
         set => _eqType = value;
     }
 
@@ -105,7 +108,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("View Type")]
     public EqualizerPresentationType ViewType
     {
-        get => Logic._viewType ?? _viewType ?? EqualizerPresentationType.SolidColor;
+        get => Logic?._viewType ?? _viewType ?? EqualizerPresentationType.SolidColor;
         set => _viewType = value;
     }
 
@@ -114,7 +117,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("Background Mode")]
     public EqualizerBackgroundMode BackgroundMode
     {
-        get => Logic._backgroundMode ?? _backgroundMode ?? EqualizerBackgroundMode.Disabled;
+        get => Logic?._backgroundMode ?? _backgroundMode ?? EqualizerBackgroundMode.Disabled;
         set => _backgroundMode = value;
     }
 
@@ -123,25 +126,25 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("Max Amplitude")]
     public float MaxAmplitude
     {
-        get => Logic._maxAmplitude ?? _maxAmplitude ?? 20.0f;
+        get => Logic?._maxAmplitude ?? _maxAmplitude ?? 20.0f;
         set => _maxAmplitude = value;
     }
 
     [LogicOverridable("Scale with System Volume")]
     public bool? _ScaleWithSystemVolume { get; set; }
     [JsonIgnore]
-    public bool ScaleWithSystemVolume => Logic._ScaleWithSystemVolume ?? _ScaleWithSystemVolume ?? false;
+    public bool ScaleWithSystemVolume => Logic?._ScaleWithSystemVolume ?? _ScaleWithSystemVolume ?? false;
 
     [LogicOverridable("Background Color")]
     public Color? _DimColor { get; set; }
     [JsonIgnore]
-    public Color DimColor => Logic._DimColor ?? _DimColor ?? Color.Empty;
+    public Color DimColor => Logic?._DimColor ?? _DimColor ?? Color.Empty;
 
     private SortedSet<float>? _frequencies;
     [JsonProperty("_Frequencies")]
     public SortedSet<float> Frequencies
     {
-        get => Logic._frequencies ?? _frequencies ?? [];
+        get => Logic?._frequencies ?? _frequencies ?? [];
         set => _frequencies = value;
     }
 
@@ -149,7 +152,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
     [LogicOverridable("Input/Output")]
     public DeviceFlow DeviceFlow
     {
-        get => Logic._deviceFlow ?? _deviceFlow ?? DeviceFlow.Output;
+        get => Logic?._deviceFlow ?? _deviceFlow ?? DeviceFlow.Output;
         set => _deviceFlow = value;
     }
 

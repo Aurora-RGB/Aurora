@@ -16,7 +16,7 @@ public class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2
     public Color? _TypingKeysColor { get; set; }
 
     [JsonIgnore]
-    public Color TypingKeysColor => Logic._TypingKeysColor ?? _TypingKeysColor ?? Color.Empty;
+    public Color TypingKeysColor => Logic?._TypingKeysColor ?? _TypingKeysColor ?? Color.Empty;
 
     public CSGOTypingIndicatorLayerHandlerProperties()
     { }

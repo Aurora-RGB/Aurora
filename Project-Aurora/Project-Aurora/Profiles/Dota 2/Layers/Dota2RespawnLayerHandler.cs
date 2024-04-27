@@ -16,17 +16,17 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
         public Color? _RespawnColor { get; set; }
 
         [JsonIgnore]
-        public Color RespawnColor => Logic._RespawnColor ?? _RespawnColor ?? Color.Empty;
+        public Color RespawnColor => Logic?._RespawnColor ?? _RespawnColor ?? Color.Empty;
 
         public Color? _RespawningColor { get; set; }
 
         [JsonIgnore]
-        public Color RespawningColor => Logic._RespawningColor ?? _RespawningColor ?? Color.Empty;
+        public Color RespawningColor => Logic?._RespawningColor ?? _RespawningColor ?? Color.Empty;
 
         public Color? _BackgroundColor { get; set; }
 
         [JsonIgnore]
-        public Color BackgroundColor => Logic._BackgroundColor ?? _BackgroundColor ?? Color.Empty;
+        public Color BackgroundColor => Logic?._BackgroundColor ?? _BackgroundColor ?? Color.Empty;
 
         public Dota2RespawnLayerHandlerProperties() : base() { }
 

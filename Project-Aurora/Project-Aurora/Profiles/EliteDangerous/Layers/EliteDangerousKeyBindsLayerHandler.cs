@@ -40,105 +40,105 @@ public class
 
     public Color OtherColor
     {
-        get { return Logic._OtherColor ?? _OtherColor ?? Color.Empty; }
+        get { return Logic?._OtherColor ?? _OtherColor ?? Color.Empty; }
     }
 
     public Color? _HudModeCombatColor { get; set; }
 
     public Color HudModeCombatColor
     {
-        get { return Logic._HudModeCombatColor ?? _HudModeCombatColor ?? Color.Empty; }
+        get { return Logic?._HudModeCombatColor ?? _HudModeCombatColor ?? Color.Empty; }
     }
 
     public Color? _HudModeDiscoveryColor { get; set; }
 
     public Color HudModeDiscoveryColor
     {
-        get { return Logic._HudModeDiscoveryColor ?? _HudModeDiscoveryColor ?? Color.Empty; }
+        get { return Logic?._HudModeDiscoveryColor ?? _HudModeDiscoveryColor ?? Color.Empty; }
     }
 
     public Color? _UiColor { get; set; }
 
     public Color UiColor
     {
-        get { return Logic._UiColor ?? _UiColor ?? Color.Empty; }
+        get { return Logic?._UiColor ?? _UiColor ?? Color.Empty; }
     }
 
     public Color? _UiAltColor { get; set; }
 
     public Color UiAltColor
     {
-        get { return Logic._UiAltColor ?? _UiAltColor ?? Color.Empty; }
+        get { return Logic?._UiAltColor ?? _UiAltColor ?? Color.Empty; }
     }
 
     public Color? _ShipStuffColor { get; set; }
 
     public Color ShipStuffColor
     {
-        get { return Logic._ShipStuffColor ?? _ShipStuffColor ?? Color.Empty; }
+        get { return Logic?._ShipStuffColor ?? _ShipStuffColor ?? Color.Empty; }
     }
 
     public Color? _CameraColor { get; set; }
 
     public Color CameraColor
     {
-        get { return Logic._CameraColor ?? _CameraColor ?? Color.Empty; }
+        get { return Logic?._CameraColor ?? _CameraColor ?? Color.Empty; }
     }
 
     public Color? _DefenceColor { get; set; }
 
     public Color DefenceColor
     {
-        get { return Logic._DefenceColor ?? _DefenceColor ?? Color.Empty; }
+        get { return Logic?._DefenceColor ?? _DefenceColor ?? Color.Empty; }
     }
 
     public Color? _OffenceColor { get; set; }
 
     public Color OffenceColor
     {
-        get { return Logic._OffenceColor ?? _OffenceColor ?? Color.Empty; }
+        get { return Logic?._OffenceColor ?? _OffenceColor ?? Color.Empty; }
     }
 
     public Color? _MovementSpeedColor { get; set; }
 
     public Color MovementSpeedColor
     {
-        get { return Logic._MovementSpeedColor ?? _MovementSpeedColor ?? Color.Empty; }
+        get { return Logic?._MovementSpeedColor ?? _MovementSpeedColor ?? Color.Empty; }
     }
 
     public Color? _MovementSecondaryColor { get; set; }
 
     public Color MovementSecondaryColor
     {
-        get { return Logic._MovementSecondaryColor ?? _MovementSecondaryColor ?? Color.Empty; }
+        get { return Logic?._MovementSecondaryColor ?? _MovementSecondaryColor ?? Color.Empty; }
     }
 
     public Color? _WingColor { get; set; }
 
     public Color WingColor
     {
-        get { return Logic._WingColor ?? _WingColor ?? Color.Empty; }
+        get { return Logic?._WingColor ?? _WingColor ?? Color.Empty; }
     }
 
     public Color? _NavigationColor { get; set; }
 
     public Color NavigationColor
     {
-        get { return Logic._NavigationColor ?? _NavigationColor ?? Color.Empty; }
+        get { return Logic?._NavigationColor ?? _NavigationColor ?? Color.Empty; }
     }
 
     public Color? _ModeEnableColor { get; set; }
 
     public Color ModeEnableColor
     {
-        get { return Logic._ModeEnableColor ?? _ModeEnableColor ?? Color.Empty; }
+        get { return Logic?._ModeEnableColor ?? _ModeEnableColor ?? Color.Empty; }
     }
 
     public Color? _ModeDisableColor { get; set; }
 
     public Color ModeDisableColor
     {
-        get { return Logic._ModeDisableColor ?? _ModeDisableColor ?? Color.Empty; }
+        get { return Logic?._ModeDisableColor ?? _ModeDisableColor ?? Color.Empty; }
     }
 
     public EliteDangerousKeyBindsHandlerProperties() : base()

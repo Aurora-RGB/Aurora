@@ -20,7 +20,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
     [JsonProperty("_ColorPostProcessEnabled")]
     public bool ColorPostProcessEnabled
     {
-        get => Logic._colorPostProcessEnabled ?? _colorPostProcessEnabled ?? false;
+        get => Logic?._colorPostProcessEnabled ?? _colorPostProcessEnabled ?? false;
         set => _colorPostProcessEnabled = value;
     }
 
@@ -28,7 +28,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
     [JsonProperty("_BrightnessChange")]
     public double BrightnessChange
     {
-        get => Logic._brightnessChange ?? _brightnessChange ?? 0;
+        get => Logic?._brightnessChange ?? _brightnessChange ?? 0;
         set => _brightnessChange = value;
     }
 
@@ -36,7 +36,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
     [JsonProperty("_SaturationChange")]
     public double SaturationChange
     {
-        get => Logic._saturationChange ?? _saturationChange ?? 0;
+        get => Logic?._saturationChange ?? _saturationChange ?? 0;
         set => _saturationChange = value;
     }
 
@@ -44,7 +44,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
     [JsonProperty("_HueShift")]
     public double HueShift
     {
-        get => Logic._hueShift ?? _hueShift ?? 0;
+        get => Logic?._hueShift ?? _hueShift ?? 0;
         set => _hueShift = value;
     }
 
@@ -52,7 +52,7 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
     {
-        get => Logic._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
+        get => Logic?._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
         set => _keyCloneMap = value;
     }
 

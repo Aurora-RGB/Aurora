@@ -19,7 +19,7 @@ public class BlinkingLayerHandlerProperties : LayerHandlerProperties2Color<Blink
     [JsonProperty("_RandomPrimaryColor")]
     public bool RandomPrimaryColor
     {
-        get => Logic._randomPrimaryColor ?? _randomPrimaryColor ?? false;
+        get => Logic?._randomPrimaryColor ?? _randomPrimaryColor ?? false;
         set => _randomPrimaryColor = value;
     }
 
@@ -29,7 +29,7 @@ public class BlinkingLayerHandlerProperties : LayerHandlerProperties2Color<Blink
     [JsonProperty("_RandomSecondaryColor")]
     public bool RandomSecondaryColor
     {
-        get => Logic._randomSecondaryColor ?? _randomSecondaryColor ?? false;
+        get => Logic?._randomSecondaryColor ?? _randomSecondaryColor ?? false;
         set => _randomSecondaryColor = value;
     }
 
@@ -40,7 +40,7 @@ public class BlinkingLayerHandlerProperties : LayerHandlerProperties2Color<Blink
     [LogicOverridable("Effect Speed")] 
     public float EffectSpeed
     {
-        get => Logic._effectSpeed ?? _effectSpeed ?? 0.0f;
+        get => Logic?._effectSpeed ?? _effectSpeed ?? 0.0f;
         set => _effectSpeed = value;
     }
 

@@ -17,61 +17,61 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
         public Color? _AmbientColor { get; set; }
 
         [JsonIgnore]
-        public Color AmbientColor { get { return Logic._AmbientColor ?? _AmbientColor ?? Color.Empty; } }
+        public Color AmbientColor { get { return Logic?._AmbientColor ?? _AmbientColor ?? Color.Empty; } }
 
         public Color? _AssaultColor { get; set; }
 
         [JsonIgnore]
-        public Color AssaultColor { get { return Logic._AssaultColor ?? _AssaultColor ?? Color.Empty; } }
+        public Color AssaultColor { get { return Logic?._AssaultColor ?? _AssaultColor ?? Color.Empty; } }
 
         public Color? _WintersColor { get; set; }
 
         [JsonIgnore]
-        public Color WintersColor { get { return Logic._WintersColor ?? _WintersColor ?? Color.Empty; } }
+        public Color WintersColor { get { return Logic?._WintersColor ?? _WintersColor ?? Color.Empty; } }
 
         public float? _AssaultSpeedMultiplier { get; set; }
 
         [JsonIgnore]
-        public float AssaultSpeedMultiplier { get { return Logic._AssaultSpeedMultiplier ?? _AssaultSpeedMultiplier ?? 0.0F; } }
+        public float AssaultSpeedMultiplier { get { return Logic?._AssaultSpeedMultiplier ?? _AssaultSpeedMultiplier ?? 0.0F; } }
 
         public Color? _AssaultFadeColor { get; set; }
 
         [JsonIgnore]
-        public Color AssaultFadeColor { get { return Logic._AssaultFadeColor ?? _AssaultFadeColor ?? Color.Empty; } }
+        public Color AssaultFadeColor { get { return Logic?._AssaultFadeColor ?? _AssaultFadeColor ?? Color.Empty; } }
 
         public bool? _AssaultAnimationEnabled { get; set; }
 
         [JsonIgnore]
-        public bool AssaultAnimationEnabled { get { return Logic._AssaultAnimationEnabled ?? _AssaultAnimationEnabled ?? false; } }
+        public bool AssaultAnimationEnabled { get { return Logic?._AssaultAnimationEnabled ?? _AssaultAnimationEnabled ?? false; } }
 
         public Color? _LowSuspicionColor { get; set; }
 
         [JsonIgnore]
-        public Color LowSuspicionColor { get { return Logic._LowSuspicionColor ?? _LowSuspicionColor ?? Color.Empty; } }
+        public Color LowSuspicionColor { get { return Logic?._LowSuspicionColor ?? _LowSuspicionColor ?? Color.Empty; } }
 
         public Color? _MediumSuspicionColor { get; set; }
 
         [JsonIgnore]
-        public Color MediumSuspicionColor { get { return Logic._MediumSuspicionColor ?? _MediumSuspicionColor ?? Color.Empty; } }
+        public Color MediumSuspicionColor { get { return Logic?._MediumSuspicionColor ?? _MediumSuspicionColor ?? Color.Empty; } }
 
         public Color? _HighSuspicionColor { get; set; }
 
         [JsonIgnore]
-        public Color HighSuspicionColor { get { return Logic._HighSuspicionColor ?? _HighSuspicionColor ?? Color.Empty; } }
+        public Color HighSuspicionColor { get { return Logic?._HighSuspicionColor ?? _HighSuspicionColor ?? Color.Empty; } }
 
         public bool? _ShowSuspicion { get; set; }
 
         [JsonIgnore]
-        public bool ShowSuspicion { get { return Logic._ShowSuspicion ?? _ShowSuspicion ?? false; } }
+        public bool ShowSuspicion { get { return Logic?._ShowSuspicion ?? _ShowSuspicion ?? false; } }
 
         public PercentEffectType? _SuspicionEffectType { get; set; }
 
-        public PercentEffectType SuspicionEffectType { get { return Logic._SuspicionEffectType ?? _SuspicionEffectType ?? PercentEffectType.AllAtOnce; } }
+        public PercentEffectType SuspicionEffectType { get { return Logic?._SuspicionEffectType ?? _SuspicionEffectType ?? PercentEffectType.AllAtOnce; } }
 
         public bool? _PeripheralUse { get; set; }
 
         [JsonIgnore]
-        public bool PeripheralUse { get { return Logic._PeripheralUse ?? _PeripheralUse ?? false; } }
+        public bool PeripheralUse { get { return Logic?._PeripheralUse ?? _PeripheralUse ?? false; } }
 
 
         public PD2BackgroundLayerHandlerProperties() : base() { }

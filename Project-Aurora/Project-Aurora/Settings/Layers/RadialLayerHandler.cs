@@ -18,11 +18,11 @@ namespace AuroraRgb.Settings.Layers {
             new[] { Color.Red, Color.Orange, Color.Yellow, Color.Lime, Color.Cyan, Color.Blue, Color.Purple, Color.Red }));
 
         public SegmentedRadialBrushFactory _Brush { get; set; }
-        [JsonIgnore] public SegmentedRadialBrushFactory Brush => Logic._Brush ?? _Brush ?? defaultFactory;
+        [JsonIgnore] public SegmentedRadialBrushFactory Brush => Logic?._Brush ?? _Brush ?? defaultFactory;
 
         // Number of degrees per second the brush rotates at.
         [LogicOverridable("Animation Speed")] public int? _AnimationSpeed { get; set; }
-        [JsonIgnore] public int AnimationSpeed => Logic._AnimationSpeed ?? _AnimationSpeed ?? 60;
+        [JsonIgnore] public int AnimationSpeed => Logic?._AnimationSpeed ?? _AnimationSpeed ?? 60;
 
         public RadialLayerProperties() : base() { }
         public RadialLayerProperties(bool empty = false) : base(empty) { }

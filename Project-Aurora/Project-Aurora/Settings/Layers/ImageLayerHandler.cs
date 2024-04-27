@@ -18,7 +18,7 @@ public class ImageLayerHandlerProperties : LayerHandlerProperties2Color<ImageLay
     [JsonProperty("_ImagePath")]
     public string? ImagePath
     {
-        get => Logic._imagePath ?? _imagePath;
+        get => Logic?._imagePath ?? _imagePath;
         set => _imagePath = value;
     }
 

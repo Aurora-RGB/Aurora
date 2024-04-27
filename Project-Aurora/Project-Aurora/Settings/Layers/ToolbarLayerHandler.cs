@@ -21,7 +21,7 @@ public sealed class ToolbarLayerHandlerProperties : LayerHandlerProperties2Color
     [JsonProperty("_EnableScroll")]
     public bool EnableScroll
     {
-        get => Logic._enableScroll ?? _enableScroll ?? false;
+        get => Logic?._enableScroll ?? _enableScroll ?? false;
         set => _enableScroll = value;
     }
 
@@ -29,7 +29,7 @@ public sealed class ToolbarLayerHandlerProperties : LayerHandlerProperties2Color
     [JsonProperty("_ScrollLoop")]
     public bool ScrollLoop
     {
-        get => Logic._scrollLoop ?? _scrollLoop ?? true;
+        get => Logic?._scrollLoop ?? _scrollLoop ?? true;
         set => _scrollLoop = value;
     }
 
