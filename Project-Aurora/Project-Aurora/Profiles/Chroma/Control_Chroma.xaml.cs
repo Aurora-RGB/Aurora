@@ -30,12 +30,10 @@ public partial class Control_Chroma : INotifyPropertyChanged
         _settings = (ChromaApplicationSettings)profile.Settings;
 
         InitializeComponent();
-        SetSettings();
 
         _settings.ExcludedPrograms.CollectionChanged += ExcludedProgramsOnCollectionChanged;
         _profile.ChromaAppsChanged += ProfileOnChromaAppsChanged;
 
-        profile.ProfileChanged += (_, _) => SetSettings();
         RefreshEnabledPrograms();
         ReorderChromaRegistry();
     }
@@ -57,18 +55,6 @@ public partial class Control_Chroma : INotifyPropertyChanged
             EnabledPrograms.Clear();
             EnabledPrograms.AddRange(_profile.AllChromaApps.Except(_settings.ExcludedPrograms));
         }, DispatcherPriority.Input);
-    }
-
-    private void SetSettings()
-    {
-        GameEnabled.IsChecked = _profile.Settings.IsEnabled;
-    }
-
-    private void GameEnabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (!IsLoaded) return;
-        _profile.Settings.IsEnabled = GameEnabled.IsChecked ?? false;
-        _profile.SaveProfiles();
     }
 
     private void ExcludedAdd_Click(object? sender, RoutedEventArgs e)

@@ -8,7 +8,7 @@ using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles;
 
-public interface ILightEvent : IInitializableProfile
+public interface ILightEvent : IInitializableProfile, IAsyncDisposable
 {
     void UpdateLights(EffectFrame frame);
 
@@ -136,5 +136,10 @@ public class LightEvent : ILightEvent
     public virtual void Dispose()
     {
 
+    }
+
+    public virtual ValueTask DisposeAsync()
+    {
+        return ValueTask.CompletedTask;
     }
 }

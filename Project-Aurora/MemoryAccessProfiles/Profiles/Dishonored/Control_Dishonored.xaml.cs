@@ -9,76 +9,48 @@ namespace MemoryAccessProfiles.Profiles.Dishonored;
 /// <summary>
 /// Interaction logic for Control_Dishonored.xaml
 /// </summary>
-public partial class Control_Dishonored : UserControl
+public partial class Control_Dishonored
 {
-    private Application profile_manager;
+    private readonly Application _profileManager;
 
     public Control_Dishonored(Application profile)
     {
         InitializeComponent();
 
-        profile_manager = profile;
-
-        SetSettings();
-
-        profile_manager.ProfileChanged += Profile_manager_ProfileChanged;
+        _profileManager = profile;
     }
 
-    private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
-    {
-        SetSettings();
-    }
-
-    private void SetSettings()
-    {
-        this.game_enabled.IsChecked = profile_manager.Settings.IsEnabled;
-    }
-
-    private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded)
-        {
-            profile_manager.Settings.IsEnabled = (this.game_enabled.IsChecked.HasValue) ? this.game_enabled.IsChecked.Value : false;
-            profile_manager.SaveProfiles();
-        }
-    }
     private void preview_health_amount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (sender is Slider)
-        {
-            this.preview_health_amount_label.Text = (int)((sender as Slider).Value) + "%";
+        if (sender is not Slider slider) return;
+        preview_health_amount_label.Text = (int)slider.Value + "%";
 
-            if (IsLoaded)
-            {
-                (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.CurrentHealth = (int)((sender as Slider).Value);
-                (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.MaximumHealth = 100;
-            }
-        }
+        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_Dishonored gameState) return;
+        gameState.Player.CurrentHealth = (int)slider.Value;
+        gameState.Player.MaximumHealth = 100;
     }
 
     private void preview_mana_amount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (sender is Slider)
-        {
-            this.preview_mana_amount_label.Text = (int)((sender as Slider).Value) + "%";
+        if (sender is not Slider slider) return;
+        preview_mana_amount_label.Text = (int)slider.Value + "%";
 
-            if (IsLoaded)
-            {
-                (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.CurrentMana = (int)((sender as Slider).Value);
-                (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.MaximumMana = 100;
-            }
-        }
+        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_Dishonored gameState) return;
+        gameState.Player.CurrentMana = (int)slider.Value;
+        gameState.Player.MaximumMana = 100;
     }
 
     private void preview_manapots_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
-            (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.ManaPots = (sender as IntegerUpDown).Value.Value;
+        if (!IsLoaded || sender is not IntegerUpDown { Value: not null } integerUpDown ||
+            _profileManager.Config.Event._game_state is not GameState_Dishonored gameState) return;
+        gameState.Player.ManaPots = integerUpDown.Value.Value;
     }
 
     private void preview_healthpots_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
-            (profile_manager.Config.Event._game_state as GameState_Dishonored).Player.HealthPots = (sender as IntegerUpDown).Value.Value;
+        if (!IsLoaded || sender is not IntegerUpDown { Value: not null } integerUpDown ||
+            _profileManager.Config.Event._game_state is not GameState_Dishonored gameState) return;
+        gameState.Player.HealthPots = integerUpDown.Value.Value;
     }
 }

@@ -10,7 +10,6 @@
         <TabControl>
             <TabItem Header="Overview for Stardew Valley">
                 <StackPanel Margin="10">
-                    <CheckBox x:Name="GameEnabled" Content="Enable Aurora to provide lighting effects with Stardew Valley. Ensure you have read the below text." Checked="GameEnabled_Checked" Unchecked="GameEnabled_Checked" />
                     <TextBlock HorizontalAlignment="Left" Margin="0,10" TextWrapping="Wrap" MaxWidth="824">
                         <Run Text="Support for Stardew Valley requires a mod so that Aurora is able to fetch the variables from the game. This mod requires SMAPI." />
                         <Run Text="These mods are not authored by the main Aurora developers and any issues with these mods should not be directed at them, but posted on the relevant Github/Nexus Mods site for the mod." />

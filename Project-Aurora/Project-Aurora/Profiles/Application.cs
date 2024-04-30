@@ -142,7 +142,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     public IEnumerable<LayerHandlerMeta> AllowedLayers
         => Global.LightingStateManager.LayerHandlers.Values.Where(val => val.IsDefault || Config.ExtraAvailableLayers.Contains(val.Type));
 
-    public void SwitchToProfile(ApplicationProfile? newProfileSettings)
+    public async Task SwitchToProfile(ApplicationProfile? newProfileSettings)
     {
         if (Disposed)
             return;
@@ -150,7 +150,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (newProfileSettings == null || Profile == newProfileSettings) return;
         if (Profile != null)
         {
-            SaveProfile();
+            await SaveProfile();
             Profile.PropertyChanged -= Profile_PropertyChanged;
         }
 
@@ -158,7 +158,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         Settings.SelectedProfile = Path.GetFileNameWithoutExtension(Profile.ProfileFilepath);
         Profile.PropertyChanged += Profile_PropertyChanged;
 
-        App.Current.Dispatcher.Invoke(() => ProfileChanged?.Invoke(this, EventArgs.Empty));
+        App.Current.Dispatcher.BeginInvoke(() => ProfileChanged?.Invoke(this, EventArgs.Empty));
     }
 
     protected virtual ApplicationProfile CreateNewProfile(string profileName)
@@ -188,14 +188,14 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
         Profiles.Add(newProfile);
 
-        SaveProfiles();
+        SaveProfiles().Wait();
 
-        SwitchToProfile(newProfile);
+        SwitchToProfile(newProfile).Wait();
 
         return newProfile;
     }
 
-    public void DeleteProfile(ApplicationProfile? profile)
+    public async Task DeleteProfile(ApplicationProfile? profile)
     {
         if (Disposed)
             return;
@@ -210,7 +210,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             Profiles.Remove(profile);
 
         if (profile.Equals(Profile))
-            SwitchToProfile(Profiles[Math.Min(profileIndex, Profiles.Count - 1)]);
+            await SwitchToProfile(Profiles[Math.Min(profileIndex, Profiles.Count - 1)]);
 
         if (File.Exists(profile.ProfileFilepath))
         {
@@ -224,7 +224,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             }
         }
 
-        SaveProfiles();
+        await SaveProfiles();
     }
 
     private string GetValidFilename(string filename)
@@ -268,6 +268,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     //hacky fix to sort out MoD profile type change
     private readonly ISerializationBinder _binder = new AuroraSerializationBinder();
     private readonly JsonSerializer _serializer;
+    private static int _backupFileNumber;
 
     private async Task<ApplicationProfile?> LoadProfile(string path)
     {
@@ -307,18 +308,21 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                 foreach (var lyr in collection.ToList())
                 {
                     //Remove any Layers that have non-functional handlers
-                    if (lyr.Handler == null || !Global.LightingStateManager.LayerHandlers.ContainsKey(lyr.Handler.GetType()))
+                    if (!Global.LightingStateManager.LayerHandlers.ContainsKey(lyr.Handler.GetType()))
                     {
                         prof.Layers.Remove(lyr);
                         continue;
                     }
 
-                    WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged), (_, _) => SaveProfile(prof, path));
+                    WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged), async (_, _) =>
+                    {
+                        await SaveProfile(prof, path);
+                    });
                 }
 
-                collection.CollectionChanged += (_, e) =>
+                collection.CollectionChanged += async (_, e) =>
                 {
-                    SaveProfile(prof, path);
+                    await SaveProfile(prof, path);
                     if (e.NewItems == null)
                     {
                         return;
@@ -326,7 +330,11 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
                     foreach (Layer lyr in e.NewItems)
                         if (lyr != null)
-                            WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged), (_, _) => SaveProfile(prof, path));
+                            WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged),
+                                async (_, _) =>
+                                {
+                                    await SaveProfile(prof, path);
+                                });
                 };
             }
         }
@@ -358,7 +366,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         {
             if (e.CurrentObject.GetType() == typeof(Layer) && e.ErrorContext.Member.Equals("Handler"))
             {
-                ((Layer)e.ErrorContext.OriginalObject).Handler = null;
+                ((Layer)e.ErrorContext.OriginalObject).Handler = new DefaultLayerHandler();
                 e.ErrorContext.Handled = true;
             }
         } else if (e.ErrorContext.Path.Equals("$type") && e.ErrorContext.Member == null)
@@ -371,7 +379,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     private void Profile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is ApplicationProfile profile)
-            SaveProfile(profile);
+            SaveProfile(profile).Wait();
     }
 
     private bool RegisterEffect(string key, IEffectScript obj)
@@ -572,7 +580,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
 
         if (Profile == null)
-            SwitchToProfile(Profiles.FirstOrDefault());
+            await SwitchToProfile(Profiles.FirstOrDefault());
         else
             Settings.SelectedProfile = Path.GetFileNameWithoutExtension(Profile.ProfileFilepath);
 
@@ -580,9 +588,25 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             AddDefaultProfile();
     }
 
-    private async Task LoadProfileFile(string profile, bool selectedProfile)
+    private async Task LoadProfileFile(string profilePath, bool selectedProfile)
     {
-        var profileSettings = await LoadProfile(profile);
+        var profileDir = Path.GetDirectoryName(profilePath);
+        var profileFileName = Path.GetFileName(profilePath);
+        var saveProfileFile = Directory.EnumerateFiles(profileDir, profileFileName + "*")
+            .Where(path => !path.EndsWith(".corrupted"))
+            .OrderBy(File.GetLastWriteTime)
+            .Last();
+        var profileSettings = await LoadProfile(saveProfileFile);
+        if (profilePath != saveProfileFile)
+        {
+            File.Delete(profilePath);
+            File.Move(saveProfileFile, profilePath);
+            foreach (var extraFailedSaves in Directory.EnumerateFiles(profileDir, profileFileName + "*")
+                         .Where(path => !path.EndsWith(".corrupted")))
+            {
+                File.Delete(extraFailedSaves);
+            }
+        }
 
         if (profileSettings == null) return;
         InitializeScriptSettings(profileSettings);
@@ -596,12 +620,12 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }, DispatcherPriority.Input);
     }
 
-    private void SaveProfile()
+    private async Task SaveProfile()
     {
-        SaveProfile(Profile);
+        await SaveProfile(Profile);
     }
 
-    public void SaveProfile(ApplicationProfile profile, string? path = null)
+    public async Task SaveProfile(ApplicationProfile profile, string? path = null)
     {
         if (Disposed)
             return;
@@ -612,8 +636,17 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             var content = JsonConvert.SerializeObject(profile, Formatting.Indented, settings);
 
             Directory.CreateDirectory(Path.GetDirectoryName(path));
-            File.WriteAllText(path, content, Encoding.UTF8);
-
+            if (File.Exists(path))
+            {
+                var backupFile = path + ".backup" + _backupFileNumber++;
+                File.Move(path, backupFile);
+                await File.WriteAllTextAsync(path, content, Encoding.UTF8);
+                File.Delete(backupFile);
+            }
+            else
+            {
+                await File.WriteAllTextAsync(path, content, Encoding.UTF8);
+            }
         }
         catch (Exception exc)
         {
@@ -621,7 +654,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
     }
 
-    public void SaveProfiles()
+    public async Task SaveProfiles()
     {
         if (Disposed)
             return;
@@ -635,7 +668,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
             foreach (var profile in Profiles)
             {
-                SaveProfile(profile, Path.Combine(profilesPath, profile.ProfileFilepath));
+                await SaveProfile(profile, Path.Combine(profilesPath, profile.ProfileFilepath));
             }
         }
         catch (Exception exc)
@@ -650,7 +683,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             return;
 
         await SaveSettings(Config.SettingsType);
-        SaveProfiles();
+        await SaveProfiles();
     }
 
     protected override async Task LoadSettings(Type settingsType)
@@ -670,6 +703,29 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (Disposed)
             return;
         Disposed = true;
+
+        SaveProfile();
+        Profile = null;
+
+        if (Settings != null)
+        {
+            Settings.PropertyChanged -= OnSettingsPropertyChanged;
+        }
+
+        foreach (var profile in Profiles)
+            profile.Dispose();
+        Profiles = null;
+        _control = null;
+        EffectScripts.Clear();
+    }
+
+    public virtual async ValueTask DisposeAsync()
+    {
+        if (Disposed)
+            return;
+        Disposed = true;
+
+        SaveProfile();
         Profile = null;
 
         if (Settings != null)

@@ -4,11 +4,10 @@ using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class LightingStateManagerModule(
+public sealed class LightingStateManagerModule(
     Task<PluginManager> pluginManager,
     Task<IpcListener?> listener,
     Task<AuroraHttpListener?> httpListener,
@@ -49,10 +48,17 @@ public sealed partial class LightingStateManagerModule(
         await lightingStateManager.InitUpdate();
     }
 
-    [Async]
     public override void Dispose()
     {
         _manager?.Dispose();
+        Global.LightingStateManager = null;
+        _manager = null;
+    }
+    
+    public override async Task DisposeAsync()
+    {
+        if(_manager != null)
+            await _manager.DisposeAsync();
         Global.LightingStateManager = null;
         _manager = null;
     }

@@ -1,12 +1,11 @@
 ﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:utils="clr-namespace:AuroraRgb.Utils"
              xmlns:e="clr-namespace:AuroraRgb.Profiles.Payday_2.GSI.Nodes"
-             x:Class="AuroraRgb.Profiles.Payday_2.Control_PD2"
+             x:Class="AuroraRgb.Profiles.Payday_2.Pd2"
              mc:Ignorable="d"
              d:DesignHeight="300" Height="Auto" Width="Auto" d:DesignWidth="850">
 
@@ -14,12 +13,11 @@
         <TabControl>
             <TabItem Header="Overview for Payday 2">
                 <Grid>
-                    <TextBlock Margin="10,30,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="770"><Run Text="In order for Payday 2 support to work, you have to install the BLT Lua hook"/><Run Text=", BeardLib"/><Run Text=" and the GSI mod for Payday 2. Press the &quot;Get BLT Hook&quot; button to be taken to the BLT download page"/><Run Text=". Press the &quot;Get"/><Run Text=" BeardLib"/><Run Text="&quot;"/><Run Text=" button to be taken to its github page where it can be downloaded"/><Run Text=". Afterwards, you can press &quot;Install GSI for Payday 2&quot; to automatically install the GSI mod. (You need to have the BLT hook for GSI mod to function)"/></TextBlock>
+                    <TextBlock Margin="10,5,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="770"><Run Text="In order for Payday 2 support to work, you have to install the BLT Lua hook"/><Run Text=", BeardLib"/><Run Text=" and the GSI mod for Payday 2. Press the &quot;Get BLT Hook&quot; button to be taken to the BLT download page"/><Run Text=". Press the &quot;Get"/><Run Text=" BeardLib"/><Run Text="&quot;"/><Run Text=" button to be taken to its github page where it can be downloaded"/><Run Text=". Afterwards, you can press &quot;Install GSI for Payday 2&quot; to automatically install the GSI mod. (You need to have the BLT hook for GSI mod to function)"/></TextBlock>
                     <Button x:Name="get_hook_button" Content="Get BLT Hook" HorizontalAlignment="Left" Margin="10,83,0,0" VerticalAlignment="Top" Click="get_hook_button_Click"/>
                     <Button x:Name="get_lib_button" Content="Get BeardLib" HorizontalAlignment="Left" Margin="91,83,0,0" VerticalAlignment="Top" Click="get_lib_button_Click"/>
                     <Button x:Name="install_mod_button" Content="Install GSI for Payday 2" HorizontalAlignment="Left" Margin="10,108,0,0" VerticalAlignment="Top" Click="install_mod_button_Click" Width="153"/>
-                    <CheckBox x:Name="game_enabled" Content="Enable Aurora to provide lighting effects with Payday 2" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"/>
-                </Grid>
+                    </Grid>
             </TabItem>
             <TabItem Header="Preview">
                 <Grid>

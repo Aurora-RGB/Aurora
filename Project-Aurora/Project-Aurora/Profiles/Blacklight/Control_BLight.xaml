@@ -12,7 +12,6 @@
             <TabItem Header="Overview for Blacklight: Retribution">
                 <Grid>
                     <StackPanel>
-                        <CheckBox x:Name="game_enabled" Content="Enable Aurora to provide lighting effects with Blacklight: Retribution" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"/>
                         <TextBlock Margin="10,10,34,0" VerticalAlignment="Top" TextWrapping="Wrap"><Run Text="For Blacklight: Retribution support to work, you have to apply the Aurora Wrapper Patch for LightFX in order for Aurora to receive lighting information. Please press &quot;Patch Blacklight: Retribution&quot; button, it will automatically detect Blacklight: Retribution and install the wrapper"/><LineBreak/><Run/></TextBlock>
                         <Button x:Name="patch_button" Content="Patch Blacklight: Retribution" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Click="patch_button_Click"/>
                         <Button x:Name="unpatch_button" Content="Unpatch Blacklight: Retribution" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="unpatch_button_Click"/>

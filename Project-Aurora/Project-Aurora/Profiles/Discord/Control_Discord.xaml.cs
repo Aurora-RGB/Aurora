@@ -12,27 +12,8 @@ namespace AuroraRgb.Profiles.Discord;
 /// </summary>
 public partial class Control_Discord
 {
-    private readonly Application _profile;
-
-    public Control_Discord(Application profile) {
-        _profile = profile;
-
+    public Control_Discord(Application _) {
         InitializeComponent();
-        SetSettings();         
-
-        profile.ProfileChanged += (_, _) => SetSettings();
-    }
-
-    private void SetSettings() {
-        GameEnabled.IsChecked = _profile.Settings.IsEnabled;
-    }
-
-    private void GameEnabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (!IsLoaded) return;
-
-        _profile.Settings.IsEnabled = GameEnabled.IsChecked ?? false;
-        _profile.SaveProfiles();
     }
 
     private void PatchButton_Click(object? sender, RoutedEventArgs e)

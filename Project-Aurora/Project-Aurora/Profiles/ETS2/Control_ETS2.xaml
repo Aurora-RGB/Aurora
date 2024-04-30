@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             x:Class="AuroraRgb.Profiles.ETS2.Control_ETS2"
+             x:Class="AuroraRgb.Profiles.ETS2.Ets2"
              mc:Ignorable="d" 
              d:DesignHeight="300" Height="Auto" Width="Auto" d:DesignWidth="850">
 
@@ -11,7 +11,6 @@
         <TabControl>
             <TabItem Header="Overview for Euro Truck Simulator 2">
                 <Grid>
-                    <CheckBox x:Name="game_enabled" Content="Enable Aurora to provide lighting effects with Euro Truck Simulator 2" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"  />
                     <TextBlock Margin="10,30,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="824" Text="In order for Euro Truck Simulator 2 support to work, the ETS2 Telemetry Server DLL must be installed so that Aurora can read the game variables. This file is not developed by the Aurora developers. Pressing &quot;Install DLL&quot; below will copy the 32-bit and 64-bit DLLs to the Euro Truck Simulator 2 directory. The &quot;Uninstall DLL&quot; button will remove the DLLs."/>
                     <Button x:Name="install_button" Content="Install DLL" HorizontalAlignment="Left" Margin="10,83,0,0" VerticalAlignment="Top" Click="install_button_Click"/>
                     <Button x:Name="uninstall_button" Content="Uninstall DLL" HorizontalAlignment="Left" Margin="10,110,0,0" VerticalAlignment="Top" Click="uninstall_button_Click"/>

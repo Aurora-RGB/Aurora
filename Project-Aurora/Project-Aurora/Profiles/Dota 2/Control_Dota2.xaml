@@ -12,11 +12,19 @@
             <TabItem Header="Overview for Dota 2">
                 <Grid>
                     <StackPanel Orientation="Vertical">
-                        <TextBlock Margin="10,30,64,0" VerticalAlignment="Top" TextWrapping="Wrap"><Run Text="In order for Dota 2 support to work, you have to apply Aurora's GSI (Game State Integration) config file to Dota 2. Aurora attempts to automatically install the config file on first launch (It will fail to do so if the game was not installed on first launch of Aurora, in which case you need to install the GSI config file). If you wish to uninstall the GSI config file, you can press &quot;Unpatch Aurora GSI&quot;. Uninstalling the GSI config file will prevent the game from sending information, such as HP and mana,"/><Run Text=" to Aurora. If you wish to re-install the GSI config file at a later time, you can press &quot;Patch Aurora GSI&quot;."/></TextBlock>
-                        <Button x:Name="patch_button" Content="Patch Aurora GSI" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Click="patch_button_Click"/>
-                        <Button x:Name="unpatch_button" Content="Unpatch Aurora GSI" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Click="unpatch_button_Click"/>
+                        <TextBlock Margin="10,5,64,0" VerticalAlignment="Top" TextWrapping="Wrap">
+                            In order for Dota 2 support to work, you have to apply Aurora's GSI (Game State Integration) config file to Dota 2.
+                            <LineBreak />
+                            <LineBreak />
+                            Aurora attempts to automatically install the config file on first launch (It will fail to do so if the game was not installed on first launch of Aurora, in which case you need to install the GSI config file).
+                            <LineBreak />
+                            <LineBreak />
+                            If you wish to uninstall the GSI config file, you can press &quot;Unpatch Aurora GSI&quot;. Uninstalling the GSI config file will prevent the game from sending information, such as HP and mana
+                            to Aurora. If you wish to re-install the GSI config file at a later time, you can press &quot;Patch Aurora GSI&quot;.
+                        </TextBlock>
+                        <Button Content="Patch Aurora GSI" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Click="patch_button_Click" />
+                        <Button Content="Unpatch Aurora GSI" HorizontalAlignment="Left" Margin="10,5,0,0" VerticalAlignment="Top" Click="unpatch_button_Click" />
                     </StackPanel>
-                    <CheckBox x:Name="game_enabled" Content="Enable Aurora to provide lighting effects with Dota 2" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Preview">

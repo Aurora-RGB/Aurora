@@ -769,7 +769,7 @@ public static class ProfileImporter
             ImportLayers(inProf.OverlayLayers, newProf.OverlayLayers);
 
             // Force a save to write the new profile to disk in the appdata dir
-            app.SaveProfiles();
+            app.SaveProfiles().Wait();
         }
         catch (Exception ex)
         {

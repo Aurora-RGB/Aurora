@@ -16,7 +16,7 @@ namespace AuroraRgb.Profiles.CSGO;
 /// </summary>
 public partial class Control_CSGO
 {
-    private Application _profileManager;
+    private readonly Application _profileManager;
 
     private readonly Timer _previewBombTimer;
     private readonly Timer _previewBombRemoveEffectTimer;
@@ -55,7 +55,6 @@ public partial class Control_CSGO
 
     private void SetSettings()
     {
-        game_enabled.IsChecked = _profileManager.Settings.IsEnabled;
         preview_team.Items.Clear();
         preview_team.Items.Add(PlayerTeam.Undefined);
         preview_team.Items.Add(PlayerTeam.CT);
@@ -100,15 +99,6 @@ public partial class Control_CSGO
             MessageBox.Show("Aurora GSI Config file uninstalled successfully.");
         else
             MessageBox.Show("Aurora GSI Config file could not be uninstalled.\r\nGame is not installed.");
-    }
-
-    private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded)
-        {
-            _profileManager.Settings.IsEnabled = game_enabled.IsChecked.HasValue ? game_enabled.IsChecked.Value : false;
-            _profileManager.SaveProfiles();
-        }
     }
 
     ////Preview

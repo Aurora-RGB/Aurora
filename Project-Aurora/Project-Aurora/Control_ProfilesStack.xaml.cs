@@ -325,7 +325,7 @@ public partial class Control_ProfilesStack
         if (!ShowHidden && btn.IsChecked)
             img.Visibility = Visibility.Collapsed;
 
-        (img.Tag as Application)?.SaveProfiles();
+        (img.Tag as Application)?.SaveProfiles().Wait();
     }
 
     private void cmenuProfiles_ContextMenuOpening(object? sender, ContextMenuEventArgs e)

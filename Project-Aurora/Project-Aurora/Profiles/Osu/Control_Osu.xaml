@@ -9,7 +9,6 @@
         <TabControl>
             <TabItem Header="Overview for Osu!">
                 <StackPanel Margin="10">
-                    <CheckBox x:Name="enableOsu" Content="Enable Aurora to provide lighting effects for Osu!" IsChecked="{Binding IsEnabled}" />
                     <TextBlock Margin="0,8" Text="To support Osu! lighting, a mod is required so that game variables can be sent to Aurora. This mode requires OsuSync." TextWrapping="Wrap" />
                     <TextBlock Text="This mod is not developed as part of the Aurora project and as such any issues with the mod should not be directed at Aurora but at the GitLab repo for the Aurora GSI Osu mod." TextWrapping="Wrap" />
 

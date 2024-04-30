@@ -5,30 +5,13 @@ namespace AuroraRgb.Profiles.StardewValley;
 
 public partial class Control_StardewValley
 {
-    private Application profile;
+    private Application _profile;
 
     public Control_StardewValley(Application profile)
     {
-        this.profile = profile;
+        _profile = profile;
 
         InitializeComponent();
-        SetSettings();
-
-        profile.ProfileChanged += (_, _) => SetSettings();
-    }
-
-    private void SetSettings()
-    {
-        GameEnabled.IsChecked = profile.Settings.IsEnabled;
-    }
-
-    private void GameEnabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded)
-        {
-            profile.Settings.IsEnabled = GameEnabled.IsChecked ?? false;
-            profile.SaveProfiles();
-        }
     }
 
     private void GoToSMAPIPage_Click(object? sender, RoutedEventArgs e)

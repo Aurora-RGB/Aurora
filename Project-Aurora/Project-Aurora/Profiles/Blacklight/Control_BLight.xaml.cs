@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
@@ -10,7 +9,7 @@ namespace AuroraRgb.Profiles.Blacklight
     /// <summary>
     /// Interaction logic for Control_BLight.xaml
     /// </summary>
-    public partial class Control_BLight : UserControl
+    public partial class Control_BLight
     {
         private Application profile_manager;
 
@@ -20,26 +19,10 @@ namespace AuroraRgb.Profiles.Blacklight
 
             profile_manager = profile;
 
-            SetSettings();
-
             //Apply LightFX Wrapper, if needed.
-            if (!(profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled)
-            {
-                InstallWrapper();
-                (profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
-            }
-
-            profile_manager.ProfileChanged += Profile_manager_ProfileChanged;
-        }
-
-        private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
-        {
-            SetSettings();
-        }
-
-        private void SetSettings()
-        {
-            this.game_enabled.IsChecked = profile_manager.Settings.IsEnabled;
+            if ((profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+            InstallWrapper();
+            (profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
         }
 
         private void patch_button_Click(object? sender, RoutedEventArgs e)
@@ -57,15 +40,6 @@ namespace AuroraRgb.Profiles.Blacklight
                 MessageBox.Show("Aurora LightFX Wrapper uninstalled successfully.");
             else
                 MessageBox.Show("Aurora LightFX Wrapper could not be uninstalled.\r\nGame is not installed.");
-        }
-
-        private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-        {
-            if (IsLoaded)
-            {
-                profile_manager.Settings.IsEnabled = (this.game_enabled.IsChecked.HasValue) ? this.game_enabled.IsChecked.Value : false;
-                profile_manager.SaveProfiles();
-            }
         }
 
         private void UserControl_Loaded(object? sender, RoutedEventArgs e)

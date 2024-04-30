@@ -5,13 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              x:Class="AuroraRgb.Profiles.Desktop.Control_Desktop"
              mc:Ignorable="d"
-             d:DesignHeight="261.972" d:DesignWidth="850" Loaded="UserControl_Loaded">
+             d:DesignHeight="261.972" d:DesignWidth="850">
 
     <Grid>
         <TabControl>
             <TabItem Header="Overview for Desktop">
                 <Grid>
-                    <CheckBox x:Name="profile_enabled" Content="Enable Aurora to provide lighting effects for desktop" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"/>
                     <TextBlock Margin="10,30,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="770"><Run Text="This is a profile for Desktop effects. This profile will be active during non-gaming profiles."/><LineBreak/><Run/><LineBreak/><Run Text="This profile includes CPU and RAM usage indicators, a shortcuts assistant, color zones, and interactive effects."/></TextBlock>
                 </Grid>
             </TabItem>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -96,7 +97,7 @@ public partial class Control_ProfileManager
             .FirstOrDefault(profile => Path.GetFileNameWithoutExtension(profile.ProfileFilepath).Equals(FocusedApplication?.Settings?.SelectedProfile));
     }
 
-    private void lstProfiles_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private async void lstProfiles_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count != 1) return;
         if (lstProfiles.SelectedItem != null)
@@ -104,7 +105,8 @@ public partial class Control_ProfileManager
             if (lstProfiles.SelectedItem is not ApplicationProfile profile)
                 throw new ArgumentException($"Items contained in the ListView must be of type 'ProfileSettings', not '{lstProfiles.SelectedItem.GetType()}'");
 
-            FocusedApplication?.SwitchToProfile(profile);
+            if (FocusedApplication != null)
+                await FocusedApplication?.SwitchToProfile(profile);
 
             ProfileSelected?.Invoke(profile);
             btnDeleteProfile.IsEnabled = true;
@@ -120,7 +122,7 @@ public partial class Control_ProfileManager
         lstProfiles.SelectedIndex = lstProfiles.Items.Count - 1;
     }
 
-    private void buttonDeleteProfile_Click(object? sender, EventArgs e)
+    private async void buttonDeleteProfile_Click(object? sender, EventArgs e)
     {
         if (lstProfiles.SelectedIndex <= -1) return;
         if (FocusedApplication.Profiles.Count == 1)
@@ -134,7 +136,7 @@ public partial class Control_ProfileManager
                 "Confirm action", MessageBoxButton.YesNo, MessageBoxImage.Information) != MessageBoxResult.Yes) return;
         var profile = (ApplicationProfile)lstProfiles.SelectedItem;
 
-        FocusedApplication.DeleteProfile(profile);
+        await FocusedApplication.DeleteProfile(profile);
     }
 
     private void btnProfilePath_Click(object? sender, RoutedEventArgs e)
@@ -208,7 +210,7 @@ public partial class Control_ProfileManager
         }
     }
 
-    private void btnExportProfile_Click(object? sender, EventArgs e)
+    private async void btnExportProfile_Click(object? sender, EventArgs e)
     {
         var dialog = new SaveFileDialog
         {
@@ -217,7 +219,7 @@ public partial class Control_ProfileManager
         };
 
         if (dialog.ShowDialog() == true)
-            FocusedApplication.SaveProfile(FocusedApplication.Profile, dialog.FileName);
+            await FocusedApplication.SaveProfile(FocusedApplication.Profile, dialog.FileName);
     }
 
     private void btnCopyProfile_Click(object? sender, EventArgs e)
@@ -225,7 +227,7 @@ public partial class Control_ProfileManager
         Clipboard = (lstProfiles.SelectedItem as ApplicationProfile)?.TryClone(true) as ApplicationProfile;
     }
 
-    private void btnPasteProfile_Click(object? sender, EventArgs e)
+    private async void btnPasteProfile_Click(object? sender, EventArgs e)
     {
         Global.isDebug = false;
         if (Clipboard == null) return;
@@ -245,6 +247,6 @@ public partial class Control_ProfileManager
             if (FocusedApplication.IsAllowedLayer(src.Layers[i].Handler.GetType()))
                 @new.Layers.Add((Layer)src.Layers[i].Clone());
             
-        FocusedApplication.SaveProfiles();
+        await FocusedApplication.SaveProfiles();
     }
 }

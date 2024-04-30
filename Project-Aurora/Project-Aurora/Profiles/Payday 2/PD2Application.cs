@@ -11,7 +11,7 @@ public class PD2 : Application
             AppID= "218620",
             ProcessNames = new[] { "payday2_win32_release.exe" },
             ProfileType = typeof(PD2Profile),
-            OverviewControlType = typeof(Control_PD2),
+            OverviewControlType = typeof(Pd2),
             GameStateType = typeof(GSI.GameState_PD2),
             IconURI = "Resources/pd2_64x64.png"
         })

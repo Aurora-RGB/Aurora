@@ -1,89 +1,55 @@
 ﻿using System;
 using System.IO;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using AuroraRgb.Utils;
+using Microsoft.Win32;
+using MessageBox = System.Windows.MessageBox;
 
-namespace AuroraRgb.Profiles.LeagueOfLegends
+namespace AuroraRgb.Profiles.LeagueOfLegends;
+
+/// <summary>
+/// Interaction logic for Control_LoL.xaml
+/// </summary>
+public partial class Control_LoL
 {
-    /// <summary>
-    /// Interaction logic for Control_LoL.xaml
-    /// </summary>
-    public partial class Control_LoL : UserControl
+    public Control_LoL(Application _)
     {
-        private Application profile_manager;
+        InitializeComponent();
+    }
 
-        public Control_LoL(Application profile)
+    private void Button_Click(object? sender, RoutedEventArgs e)
+    {
+        string lolpath;
+        try
         {
-            InitializeComponent();
-
-            profile_manager = profile;
-
-            SetSettings();
-
-            profile_manager.ProfileChanged += Profile_manager_ProfileChanged;
+            lolpath = (string)Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Riot Games, Inc\League of Legends", "Location", null);
+        }
+        catch
+        {
+            lolpath = String.Empty;
         }
 
-        private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
+        if (string.IsNullOrWhiteSpace(lolpath))
         {
-            SetSettings();
-        }
-
-        private void SetSettings()
-        {
-            this.game_enabled.IsChecked = profile_manager.Settings.IsEnabled;
-        }
-
-        private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-        {
-            if (IsLoaded)
+            MessageBox.Show("Could not find the league of legends path automatically. Please select the correct location(Usually in c:\\Riot Games\\League of Legends)");
+            var fp = new FolderBrowserDialog();
+            if(fp.ShowDialog() != DialogResult.OK)
             {
-                profile_manager.Settings.IsEnabled = (this.game_enabled.IsChecked.HasValue) ? this.game_enabled.IsChecked.Value : false;
-                profile_manager.SaveProfiles();
+                MessageBox.Show("Could not remove wrapper patch");
+                return;
             }
-        }
-
-        private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        private void UserControl_Unloaded(object? sender, RoutedEventArgs e)
-        {
-        }
-
-        private void Button_Click(object? sender, RoutedEventArgs e)
-        {
-            string lolpath;
-            try
+            if(!fp.SelectedPath.EndsWith("League of Legends"))
             {
-                lolpath = (string)Microsoft.Win32.Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Riot Games, Inc\League of Legends", "Location", null);
+                MessageBox.Show("Could not remove wrapper patch");
+                return;
             }
-            catch
-            {
-                lolpath = String.Empty;
-            }
-
-            if (string.IsNullOrWhiteSpace(lolpath))
-            {
-                MessageBox.Show("Could not find the league of legends path automatically. Please select the correct location(Usually in c:\\Riot Games\\League of Legends)");
-                var fp = new System.Windows.Forms.FolderBrowserDialog();
-                if(fp.ShowDialog() != System.Windows.Forms.DialogResult.OK)
-                {
-                    MessageBox.Show("Could not remove wrapper patch");
-                    return;
-                }
-                if(!fp.SelectedPath.EndsWith("League of Legends"))
-                {
-                    MessageBox.Show("Could not remove wrapper patch");
-                    return;
-                }
-                lolpath = fp.SelectedPath;
-            }
-
-            if (FileUtils.TryDelete(Path.Combine(lolpath, "Game", "LightFx.dll")))
-                MessageBox.Show("Deleted file successfully");
-            else
-                MessageBox.Show("Could not find the wrapper file.");
+            lolpath = fp.SelectedPath;
         }
+
+        if (FileUtils.TryDelete(Path.Combine(lolpath, "Game", "LightFx.dll")))
+            MessageBox.Show("Deleted file successfully");
+        else
+            MessageBox.Show("Could not find the wrapper file.");
     }
 }

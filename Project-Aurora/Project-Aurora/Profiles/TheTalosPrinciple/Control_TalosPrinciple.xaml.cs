@@ -1,141 +1,94 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
-namespace AuroraRgb.Profiles.TheTalosPrinciple
+namespace AuroraRgb.Profiles.TheTalosPrinciple;
+
+/// <summary>
+/// Interaction logic for Control_TalosPrinciple.xaml
+/// </summary>
+public partial class Control_TalosPrinciple
 {
-    /// <summary>
-    /// Interaction logic for Control_TalosPrinciple.xaml
-    /// </summary>
-    public partial class Control_TalosPrinciple : UserControl
+    private readonly Application _profileManager;
+
+    public Control_TalosPrinciple(Application profile)
     {
-        private Application profile_manager;
+        InitializeComponent();
 
-        public Control_TalosPrinciple(Application profile)
+        _profileManager = profile;
+
+        //Apply LightFX Wrapper, if needed.
+        if ((_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        InstallWrapper();
+        (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+    }
+
+    private void patch_button_Click(object? sender, RoutedEventArgs e)
+    {
+        if (InstallWrapper())
+            MessageBox.Show("Aurora LightFX Wrapper installed successfully.");
+        else
+            MessageBox.Show("Aurora LightFX Wrapper could not be installed.\r\nGame is not installed.");
+    }
+
+    private void unpatch_button_Click(object? sender, RoutedEventArgs e)
+    {
+        if (UninstallWrapper())
+            MessageBox.Show("Aurora LightFX Wrapper uninstalled successfully.");
+        else
+            MessageBox.Show("Aurora LightFX Wrapper could not be uninstalled.\r\nGame is not installed.");
+    }
+
+    private bool InstallWrapper(string installpath = "")
+    {
+        if (string.IsNullOrWhiteSpace(installpath))
+            installpath = SteamUtils.GetGamePath(257510);
+
+
+        if (string.IsNullOrWhiteSpace(installpath)) return false;
+        //86
+        var path = Path.Combine(installpath, "Bin", "LightFX.dll");
+
+        if (!File.Exists(path))
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+        using (var lightfx_wrapper_86 = new BinaryWriter(new FileStream(path, FileMode.Create)))
         {
-            InitializeComponent();
-
-            profile_manager = profile;
-
-            SetSettings();
-
-            //Apply LightFX Wrapper, if needed.
-            if (!(profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled)
-            {
-                InstallWrapper();
-                (profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
-            }
-
-            profile_manager.ProfileChanged += Profile_manager_ProfileChanged;
+            lightfx_wrapper_86.Write(Properties.Resources.Aurora_LightFXWrapper86);
         }
 
-        private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
+        //64
+        var path64 = Path.Combine(installpath, "Bin", "x64", "LightFX.dll");
+
+        if (!File.Exists(path64))
+            Directory.CreateDirectory(Path.GetDirectoryName(path64));
+
+        using (var lightfxWrapper64 = new BinaryWriter(new FileStream(path64, FileMode.Create)))
         {
-            SetSettings();
+            lightfxWrapper64.Write(Properties.Resources.Aurora_LightFXWrapper64);
         }
 
-        private void SetSettings()
-        {
-            this.game_enabled.IsChecked = profile_manager.Settings.IsEnabled;
-        }
+        return true;
 
-        private void patch_button_Click(object? sender, RoutedEventArgs e)
-        {
-            if (InstallWrapper())
-                MessageBox.Show("Aurora LightFX Wrapper installed successfully.");
-            else
-                MessageBox.Show("Aurora LightFX Wrapper could not be installed.\r\nGame is not installed.");
-        }
+    }
 
-        private void unpatch_button_Click(object? sender, RoutedEventArgs e)
-        {
-            if (UninstallWrapper())
-                MessageBox.Show("Aurora LightFX Wrapper uninstalled successfully.");
-            else
-                MessageBox.Show("Aurora LightFX Wrapper could not be uninstalled.\r\nGame is not installed.");
-        }
+    private bool UninstallWrapper()
+    {
+        var installPath = SteamUtils.GetGamePath(257510);
+        if (string.IsNullOrWhiteSpace(installPath)) return false;
+        //86
+        var path = Path.Combine(installPath, "Bin", "LightFX.dll");
 
-        private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-        {
-            if (IsLoaded)
-            {
-                profile_manager.Settings.IsEnabled = (this.game_enabled.IsChecked.HasValue) ? this.game_enabled.IsChecked.Value : false;
-                profile_manager.SaveProfiles();
-            }
-        }
+        if (File.Exists(path))
+            File.Delete(path);
 
-        private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-        {
-        }
+        //64
+        var path64 = Path.Combine(installPath, "Bin", "x64", "LightFX.dll");
 
-        private void UserControl_Unloaded(object? sender, RoutedEventArgs e)
-        {
-        }
+        if (File.Exists(path64))
+            File.Delete(path64);
 
-        private bool InstallWrapper(string installpath = "")
-        {
-            if (String.IsNullOrWhiteSpace(installpath))
-                installpath = SteamUtils.GetGamePath(257510);
-
-
-            if (!String.IsNullOrWhiteSpace(installpath))
-            {
-                //86
-                string path = System.IO.Path.Combine(installpath, "Bin", "LightFX.dll");
-
-                if (!File.Exists(path))
-                    Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path));
-
-                using (BinaryWriter lightfx_wrapper_86 = new BinaryWriter(new FileStream(path, FileMode.Create)))
-                {
-                    lightfx_wrapper_86.Write(Properties.Resources.Aurora_LightFXWrapper86);
-                }
-
-                //64
-                string path64 = System.IO.Path.Combine(installpath, "Bin", "x64", "LightFX.dll");
-
-                if (!File.Exists(path64))
-                    Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path64));
-
-                using (BinaryWriter lightfx_wrapper_64 = new BinaryWriter(new FileStream(path64, FileMode.Create)))
-                {
-                    lightfx_wrapper_64.Write(Properties.Resources.Aurora_LightFXWrapper64);
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        private bool UninstallWrapper()
-        {
-            String installpath = SteamUtils.GetGamePath(257510);
-            if (!String.IsNullOrWhiteSpace(installpath))
-            {
-                //86
-                string path = System.IO.Path.Combine(installpath, "Bin", "LightFX.dll");
-
-                if (File.Exists(path))
-                    File.Delete(path);
-
-                //64
-                string path64 = System.IO.Path.Combine(installpath, "Bin", "x64", "LightFX.dll");
-
-                if (File.Exists(path64))
-                    File.Delete(path64);
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        return true;
     }
 }

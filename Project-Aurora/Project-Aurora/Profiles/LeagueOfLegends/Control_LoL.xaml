@@ -5,14 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              x:Class="AuroraRgb.Profiles.LeagueOfLegends.Control_LoL"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="850" Loaded="UserControl_Loaded" Unloaded="UserControl_Unloaded">
+             d:DesignHeight="300" d:DesignWidth="850">
 
     <Grid>
         <TabControl>
             <TabItem Header="Overview for League of Legends">
                 <Grid>
                     <StackPanel Orientation="Vertical" MinHeight="140">
-                        <CheckBox x:Name="game_enabled" Content="Enable Aurora to provide lighting effects with League of Legends" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Checked="game_enabled_Checked" Unchecked="game_enabled_Checked"/>
                         <TextBlock 
                             Margin="10,10,0,0"
                             Text="The League of Legends integration works using Riot's Ingame-API, which means it is safe to use."

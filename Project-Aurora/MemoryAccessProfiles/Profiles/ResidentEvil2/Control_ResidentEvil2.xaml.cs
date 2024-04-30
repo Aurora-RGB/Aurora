@@ -10,19 +10,19 @@ namespace MemoryAccessProfiles.Profiles.ResidentEvil2;
 /// <summary>
 /// Interaction logic for Control_ResidentEvil2.xaml
 /// </summary>
-public partial class Control_ResidentEvil2 : UserControl
+public partial class Control_ResidentEvil2
 {
-    private Application profile_manager;
+    private readonly Application _profileManager;
 
     public Control_ResidentEvil2(Application profile)
     {
         InitializeComponent();
 
-        profile_manager = profile;
+        _profileManager = profile;
 
         SetSettings();
 
-        profile_manager.ProfileChanged += Profile_manager_ProfileChanged;
+        _profileManager.ProfileChanged += Profile_manager_ProfileChanged;
     }
 
     private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
@@ -32,45 +32,32 @@ public partial class Control_ResidentEvil2 : UserControl
 
     private void SetSettings()
     {
-        this.game_enabled.IsChecked = profile_manager.Settings.IsEnabled;
-
-        if (!this.preview_status.HasItems)
-        {
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Fine);
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.LiteFine);
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Caution);
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Danger);
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Dead);
-            this.preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.OffGame);
-        }
-    }
-
-    private void game_enabled_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded)
-        {
-            profile_manager.Settings.IsEnabled = (this.game_enabled.IsChecked.HasValue) ? this.game_enabled.IsChecked.Value : false;
-            profile_manager.SaveProfiles();
-        }
+        if (preview_status.HasItems) return;
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Fine);
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.LiteFine);
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Caution);
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Danger);
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.Dead);
+        preview_status.Items.Add(Player_ResidentEvil2.PlayerStatus.OffGame);
     }
 
     private void preview_status_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (IsLoaded)
-        {
-            (profile_manager.Config.Event._game_state as GameState_ResidentEvil2).Player.Status = (Player_ResidentEvil2.PlayerStatus)this.preview_status.SelectedItem;
-        }
+        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState) return;
+        gameState.Player.Status = (Player_ResidentEvil2.PlayerStatus)preview_status.SelectedItem;
     }
 
     private void preview_poison_Checked(object? sender, RoutedEventArgs e)
     {
-        if (IsLoaded && sender is CheckBox && (sender as CheckBox).IsChecked.HasValue)
-            (profile_manager.Config.Event._game_state as GameState_ResidentEvil2).Player.Poison = (sender as CheckBox).IsChecked.Value;
+        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState ||
+            sender is not CheckBox { IsChecked: not null } checkBox) return;
+        gameState.Player.Poison = checkBox.IsChecked.Value;
     }
 
     private void preview_rank_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
-            (profile_manager.Config.Event._game_state as GameState_ResidentEvil2).Player.Rank = (sender as IntegerUpDown).Value.Value;
+        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState ||
+            sender is not IntegerUpDown { Value: not null } integerUpDown) return;
+        gameState.Player.Rank = integerUpDown.Value.Value;
     }
 }
