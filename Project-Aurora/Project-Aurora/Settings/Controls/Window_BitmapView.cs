@@ -63,7 +63,7 @@ public class Window_BitmapView : Window
     {
         try
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.Invoke(() =>
             {
                 lock (bitmap)
                 {

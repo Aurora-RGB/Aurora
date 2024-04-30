@@ -252,7 +252,7 @@ public partial class ControlEqualizerLayer
     {
         try
         {
-            Dispatcher.BeginInvoke(
+            Dispatcher.Invoke(
                 () =>
                 {
                     using var memory = new MemoryStream();

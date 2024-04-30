@@ -112,7 +112,7 @@
                 </ListBox.ItemTemplate>
             </ListView>
 
-            <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,4,3,2" x:Name="btn_ShowPreviewWindow" Content="Show Preview Window" Click="btn_ShowPreviewWindow_Click" />
+            <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,4,3,2" Content="Show Preview Window" Click="btn_ShowPreviewWindow_Click" />
 
             <TextBox Grid.Row="1" Grid.Column="1" Margin="3" x:Name="txtBox_newFreqValue" />
 
