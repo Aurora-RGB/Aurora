@@ -66,7 +66,7 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
         }
     }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         (await runningProcessMonitor).ProcessStarted -= ProcessMonitorOnProcessStarted;
         (await runningProcessMonitor).ProcessStopped -= ProcessMonitorOnProcessStopped;
@@ -74,11 +74,6 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
         _working = false;
         _endTrigger.SetResult();
         _threadPool.Join();
-    }
-
-    public override void Dispose()
-    {
-        DisposeAsync().Wait();
     }
 
     private void InitializeAurora()

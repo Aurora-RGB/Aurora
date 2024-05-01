@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using AuroraRgb.Modules.HardwareMonitor;
 using AuroraRgb.Nodes;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class HardwareMonitorModule : AuroraModule
+public sealed class HardwareMonitorModule : AuroraModule
 {
     protected override Task Initialize()
     {
@@ -38,10 +37,11 @@ public sealed partial class HardwareMonitorModule : AuroraModule
     }
 
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
         LocalPcInformation.HardwareMonitor.Dispose();
         LocalPcInformation.HardwareMonitor = new NoopHardwareMonitor();
+
+        return ValueTask.CompletedTask;
     }
 }

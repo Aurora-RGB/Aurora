@@ -42,14 +42,8 @@ public sealed class LogitechSdkModule(Task<RunningProcessMonitor> runningProcess
         }
     }
 
-    public override Task DisposeAsync()
+    public override ValueTask DisposeAsync()
     {
-        Dispose();
-        return Task.CompletedTask;
-    }
-
-    public override void Dispose()
-    {
-        LogitechSdkListener.Dispose();
+        return ValueTask.CompletedTask;
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.Settings;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class PluginsModule : AuroraModule
+public sealed class PluginsModule : AuroraModule
 {
     private readonly TaskCompletionSource<PluginManager> _pluginManagerSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -22,9 +21,9 @@ public sealed partial class PluginsModule : AuroraModule
         Global.logger.Information("Loaded Plugins");
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
         _pluginManager?.SaveSettings();
+        return ValueTask.CompletedTask;
     }
 }

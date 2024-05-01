@@ -22,15 +22,9 @@ public sealed class DevicesModule(Task<ChromaReader?> rzSdkManager, AuroraContro
         Global.logger.Information("Loaded Device Manager");
     }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         await _deviceManager?.ShutdownDevices()!;
-        _deviceManager?.Dispose();
-    }
-
-    public override void Dispose()
-    {
-        _deviceManager?.ShutdownDevices();
         _deviceManager?.Dispose();
     }
 }

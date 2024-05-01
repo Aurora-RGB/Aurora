@@ -49,13 +49,9 @@ public sealed class IpcListenerModule : AuroraModule
         return Task.CompletedTask;
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        _listener?.Stop().Wait();
-    }
-
-    public override async Task DisposeAsync()
-    {
-        await _listener?.Stop();
+        if (_listener != null)
+            await _listener.Stop();
     }
 }

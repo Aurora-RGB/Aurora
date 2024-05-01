@@ -46,13 +46,9 @@ public sealed class HttpListenerModule : AuroraModule
         }
     }
 
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
-        _listener?.Stop().Wait();
-    }
-
-    public override async Task DisposeAsync()
-    {
-        await (_listener != null ? _listener.Stop() : Task.CompletedTask);
+        if (_listener != null)
+            await _listener.Stop();
     }
 }

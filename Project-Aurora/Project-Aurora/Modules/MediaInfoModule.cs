@@ -3,11 +3,10 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.Media;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class MediaInfoModule : AuroraModule
+public sealed class MediaInfoModule : AuroraModule
 {
     private MediaMonitor? _mediaMonitor;
 
@@ -49,10 +48,11 @@ public sealed partial class MediaInfoModule : AuroraModule
         }
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
         _mediaMonitor?.Dispose();
         _mediaMonitor = null;
+
+        return ValueTask.CompletedTask;
     }
 }

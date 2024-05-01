@@ -47,15 +47,8 @@ public sealed class LightingStateManagerModule(
         Global.logger.Information("Loaded Applications");
         await lightingStateManager.InitUpdate();
     }
-
-    public override void Dispose()
-    {
-        _manager?.Dispose();
-        Global.LightingStateManager = null;
-        _manager = null;
-    }
     
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         if(_manager != null)
             await _manager.DisposeAsync();

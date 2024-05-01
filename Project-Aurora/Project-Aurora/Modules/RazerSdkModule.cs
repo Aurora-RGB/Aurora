@@ -2,12 +2,11 @@
 using System.Threading.Tasks;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Profiles;
-using Lombok.NET;
 using RazerSdkReader;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class RazerSdkModule(Task<LightingStateManager> lsm) : AuroraModule
+public sealed class RazerSdkModule(Task<LightingStateManager> lsm) : AuroraModule
 {
     private readonly TaskCompletionSource<ChromaReader?> _sdkTaskSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private ChromaReader? _razerSdkManager;
@@ -67,14 +66,13 @@ public sealed partial class RazerSdkModule(Task<LightingStateManager> lsm) : Aur
         Global.logger.Error(e, "Chroma Reader Error");
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
         try
         {
             if (_razerSdkManager == null)
             {
-                return;
+                return ValueTask.CompletedTask;
             }
             _razerSdkManager.Dispose();
             Global.razerSdkManager = null;
@@ -83,5 +81,6 @@ public sealed partial class RazerSdkModule(Task<LightingStateManager> lsm) : Aur
         {
             Global.logger.Fatal(exc, "RazerManager failed to dispose!");
         }
+        return ValueTask.CompletedTask;
     }
 }

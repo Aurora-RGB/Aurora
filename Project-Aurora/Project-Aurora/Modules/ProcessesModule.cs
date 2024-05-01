@@ -2,11 +2,10 @@
 using System.Windows;
 using System.Windows.Threading;
 using AuroraRgb.Modules.ProcessMonitor;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class ProcessesModule : AuroraModule
+public sealed class ProcessesModule : AuroraModule
 {
     public static Task<ActiveProcessMonitor> ActiveProcessMonitor => ActiveProcess.Task;
     public static Task<RunningProcessMonitor> RunningProcessMonitor => RunningProcess.Task;
@@ -23,16 +22,15 @@ public sealed partial class ProcessesModule : AuroraModule
         }, DispatcherPriority.Send);
     }
 
-    [Async]
-    public override void Dispose()
+    public override async ValueTask DisposeAsync()
     {
         if (ActiveProcessMonitor.IsCompletedSuccessfully)
         {
-            ActiveProcessMonitor.Result.Dispose();
+            (await ActiveProcessMonitor).Dispose();
         }
         if (RunningProcessMonitor.IsCompletedSuccessfully)
         {
-            RunningProcessMonitor.Result.Dispose();
+            (await ActiveProcessMonitor).Dispose();
         }
     }
 }

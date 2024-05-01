@@ -4,12 +4,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Settings;
-using Lombok.NET;
 using NAudio.CoreAudioApi;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class AudioCaptureModule : AuroraModule
+public sealed class AudioCaptureModule : AuroraModule
 {
     private AudioDevices? _audioDevices;
     private AudioDeviceProxy? _renderProxy;
@@ -100,8 +99,7 @@ public sealed partial class AudioCaptureModule : AuroraModule
         Global.CaptureProxy = _captureProxy;
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
         Global.Configuration.PropertyChanged -= ConfigurationOnAudioCaptureChanged;
 
@@ -112,6 +110,7 @@ public sealed partial class AudioCaptureModule : AuroraModule
         _audioDevices = null;
 
         AudioDeviceProxy.DisposeStatic();
+        return ValueTask.CompletedTask;
     }
 
     private void DisposeRender()

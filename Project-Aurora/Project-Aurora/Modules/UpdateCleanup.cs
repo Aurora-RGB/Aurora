@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AuroraRgb.Utils;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
@@ -63,10 +62,9 @@ public sealed partial class UpdateCleanup : AuroraModule
         }
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
-        //noop
+        return ValueTask.CompletedTask;
     }
 
     private void Net8V2Migration()

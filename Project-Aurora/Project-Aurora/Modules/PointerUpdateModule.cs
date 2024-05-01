@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
 using AuroraRgb.Utils;
-using Lombok.NET;
 
 namespace AuroraRgb.Modules;
 
-public sealed partial class PointerUpdateModule : AuroraModule
+public sealed class PointerUpdateModule : AuroraModule
 {
     protected override async Task Initialize()
     {
@@ -13,9 +12,8 @@ public sealed partial class PointerUpdateModule : AuroraModule
         await PointerUpdateUtils.FetchDevPointers("master");
     }
 
-    [Async]
-    public override void Dispose()
+    public override ValueTask DisposeAsync()
     {
-        //noop
+        return ValueTask.CompletedTask;
     }
 }

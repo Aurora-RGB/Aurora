@@ -47,12 +47,7 @@ public sealed class InputsModule : AuroraModule
         Global.key_recorder = new KeyRecorder(await InputEvents);
     }
 
-    public override void Dispose()
-    {
-        DisposeAsync().Wait();
-    }
-
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         Global.key_recorder?.Dispose();
         if (InputEvents.IsCompletedSuccessfully)

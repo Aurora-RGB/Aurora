@@ -50,10 +50,10 @@ public sealed class UpdateModule : AuroraModule
         }
     }
 
-    public override Task DisposeAsync()
+    public override ValueTask DisposeAsync()
     {
         SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
     public override void Dispose()

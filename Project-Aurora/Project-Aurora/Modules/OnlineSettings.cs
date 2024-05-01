@@ -217,13 +217,13 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
     }
 
-    public override async Task DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         (await runningProcessMonitor).ProcessStarted -= OnRunningProcessesChanged;
     }
 
     public override void Dispose()
     {
-        DisposeAsync().Wait();
+        DisposeAsync().AsTask().Wait();
     }
 }
