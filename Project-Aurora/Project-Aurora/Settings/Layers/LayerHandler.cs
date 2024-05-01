@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,17 +16,17 @@ using AuroraRgb.Settings.Overrides;
 using Common.Utils;
 using FastMember;
 using JetBrains.Annotations;
-using Lombok.NET;
 using Newtonsoft.Json;
 using Application = AuroraRgb.Profiles.Application;
 
 namespace AuroraRgb.Settings.Layers
 {
     [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithInheritors)]
-    [NotifyPropertyChanged]
-    public abstract partial class LayerHandlerProperties<TProperty> : IValueOverridable, IDisposable where TProperty : LayerHandlerProperties<TProperty>
+    public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INotifyPropertyChanged, IDisposable where TProperty : LayerHandlerProperties<TProperty>
     {
         private static readonly Lazy<TypeAccessor> Accessor = new(() => TypeAccessor.Create(typeof(TProperty), false));
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         [GameStateIgnore, JsonIgnore]
         public TProperty? Logic { get; private set; }
@@ -148,6 +149,12 @@ namespace AuroraRgb.Settings.Layers
         public void OnDeserialized(StreamingContext context)
         {
             OnPropertiesChanged(this, new PropertyChangedEventArgs(""));
+        }
+
+        protected void SetFieldAndRaisePropertyChanged<T>(out T field, T newValue, [CallerMemberName] string propertyName = null)
+        {
+            field = newValue;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         public void OnPropertiesChanged(object? sender, PropertyChangedEventArgs args)
