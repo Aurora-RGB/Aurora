@@ -189,7 +189,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
 [LayerHandlerMeta(Name = "Audio Visualizer", IsDefault = true)]
 public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerProperties>
 {
-    public event NewLayerRendered NewLayerRender = delegate { };
+    public event NewLayerRendered? NewLayerRender = delegate { };
 
     private AudioDeviceProxy? _deviceProxy;
     private int _channels;
@@ -229,7 +229,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         _bufferIncrement = _deviceProxy.WaveIn.WaveFormat.BlockAlign;
     }
 
-    private readonly List<float> _fluxArray = new();
+    private readonly List<float> _fluxArray = [];
     private const int FftLength = 1024; // NAudio fft wants powers of two! was 8192
 
     // Base rectangle that defines the region that is used to render the audio output
@@ -243,8 +243,6 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 
     private float[]? _previousFreqResults;
     private int _freq = 48000;
-    
-    
 
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
@@ -315,6 +313,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
             // Here we draw the equalizer relative to our source rectangle
             // and the DrawTransformed method handles sizing and positioning it correctly for us
             g.CompositingMode = CompositingMode.SourceCopy;
+            g.CompositingQuality = CompositingQuality.Invalid;
             // Draw a rectangle background over the entire source rect if bg is enabled
             if (bgEnabled)
                 g.FillRectangle(new SolidBrush(Properties.DimColor), SourceRect);
@@ -393,6 +392,8 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         _previousFreqResults[fX] = fftVal;
 
                         var brush = GetBrush(-(fX % 2), fX, freqResults.Length - 1);
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.SmoothingMode = SmoothingMode.AntiAlias;
                         g.FillRectangle(brush, x, y - height, barWidth, height);
                     }
                     break;
@@ -481,7 +482,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 public class SampleAggregator
 {
     // FFT
-    public event EventHandler<FftEventArgs> FftCalculated;
+    public event EventHandler<FftEventArgs>? FftCalculated;
     public bool PerformFft { get; set; }
 
     // This Complex is NAudio's own! 
@@ -520,11 +521,7 @@ public class SampleAggregator
     }
 }
 
-public class FftEventArgs : EventArgs
+public class FftEventArgs(Complex[] result) : EventArgs
 {
-    public FftEventArgs(Complex[] result)
-    {
-        Result = result;
-    }
-    public Complex[] Result { get; }
+    public Complex[] Result { get; } = result;
 }

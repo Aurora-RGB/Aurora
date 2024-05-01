@@ -482,7 +482,7 @@ namespace AuroraRgb.EffectsEngine
                 // it throws an error, so we must have NON-ZERO values
                 // Note 2: Also tried using float.Epsilon but this also caused the exception,
                 // so a somewhat small number will have to suffice. Not noticed any visual issues with 0.001f.
-                matrix.Scale(sx == 0 ? .001f : sx, sy == 0 ? .001f : sy, MatrixOrder.Append);
+                matrix.Scale(Math.Max(.001f, sx), Math.Max(.001f, sy), MatrixOrder.Append);
 
                 // Second, for freeform objects, apply the rotation. This needs to be done AFTER the scaling,
                 // else the scaling is applied to the rotated object, which skews it
@@ -501,9 +501,10 @@ namespace AuroraRgb.EffectsEngine
                 // Apply the matrix transform to the graphics context and then render
                 gfx.ResetTransform();
                 gfx.ResetClip();
+                gfx.SetClip(boundsRaw);
                 gfx.Transform = matrix;
                 render(gfx);
-                if (sequence.Type == KeySequenceType.Sequence)
+
                 {
                     var gp = GetExclusionPath(sequence);
                     gfx.ResetTransform();
