@@ -89,7 +89,7 @@ public class PluginManagerSettings
     public Dictionary<string, bool> PluginManagement { get; private set; } = new();
 }
 
-public class PluginManager : ObjectSettings<PluginManagerSettings>, IInitializableProfile, IPluginHost
+public class PluginManager : ObjectSettings<PluginManagerSettings>, IPluginHost
 {
     public const string PluginDirectory = "Plugins";
 

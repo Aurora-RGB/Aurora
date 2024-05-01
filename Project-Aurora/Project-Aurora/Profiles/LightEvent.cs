@@ -8,7 +8,7 @@ using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles;
 
-public interface ILightEvent : IInitializableProfile, IAsyncDisposable
+public interface ILightEvent : IDisposable, IAsyncDisposable
 {
     void UpdateLights(EffectFrame frame);
 
@@ -26,6 +26,8 @@ public interface ILightEvent : IInitializableProfile, IAsyncDisposable
     bool IsOverlayEnabled { get; }
 
     LightEventConfig Config { get; }
+
+    Task<bool> Initialize(CancellationToken cancellationToken);
 }
 
 /// <summary>
