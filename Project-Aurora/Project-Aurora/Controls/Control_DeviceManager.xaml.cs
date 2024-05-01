@@ -45,6 +45,7 @@ public partial class Control_DeviceManager
         await Task.Run(() => UpdateControls(deviceConfig, deviceManager.DeviceContainers)).ConfigureAwait(false);
 
         var deviceManagerUpdatedHandle = DeviceManagerOnDevicesUpdated();
+        deviceManager.DevicesUpdated -= deviceManagerUpdatedHandle;
         deviceManager.DevicesUpdated += deviceManagerUpdatedHandle;
 
         Unloaded += (_, _) => deviceManager.DevicesUpdated -= deviceManagerUpdatedHandle;

@@ -348,8 +348,7 @@ partial class ConfigUi : INotifyPropertyChanged
                 break;
             }
             case AppExitMode.Minimize:
-                await MinimizeApp();
-                e.Cancel = true;
+                // let the window dispose itself
                 break;
             default:
                 await _controlInterface.ShutdownDevices();

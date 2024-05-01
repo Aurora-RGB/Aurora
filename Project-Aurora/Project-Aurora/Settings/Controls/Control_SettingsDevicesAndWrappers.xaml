@@ -7,8 +7,8 @@
              xmlns:utils1="clr-namespace:AuroraRgb.Utils"
              xmlns:settings="clr-namespace:AuroraRgb.Settings"
              mc:Ignorable="d"
-             Loaded="Control_SettingsDevicesAndWrappers_OnLoaded"
              Unloaded="Control_SettingsDevicesAndWrappers_OnUnloaded"
+             IsVisibleChanged="Control_SettingsDevicesAndWrappers_OnIsVisibleChanged"
              d:DesignHeight="600" d:DesignWidth="900">
     <Grid DataContext="{x:Static auroraRgb:Global.Configuration}">
         <Grid.ColumnDefinitions>

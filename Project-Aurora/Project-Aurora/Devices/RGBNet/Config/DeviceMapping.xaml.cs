@@ -60,6 +60,7 @@ public partial class DeviceMapping
         var ipcListener = await _ipcListener;
         if (ipcListener != null)
         {
+            ipcListener.AuroraCommandReceived -= OnAuroraCommandReceived;
             ipcListener.AuroraCommandReceived += OnAuroraCommandReceived;
         }
 

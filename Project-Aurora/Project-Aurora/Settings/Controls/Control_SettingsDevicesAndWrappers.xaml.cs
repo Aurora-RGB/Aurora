@@ -42,17 +42,18 @@ public partial class Control_SettingsDevicesAndWrappers
             ChromaUninstallButton.Visibility = Visibility.Hidden;
     }
 
-    private async void Control_SettingsDevicesAndWrappers_OnLoaded(object sender, RoutedEventArgs e)
+    private async void Control_SettingsDevicesAndWrappers_OnUnloaded(object sender, RoutedEventArgs e)
     {
-        if (!IsVisible)
-        {
-            return;
-        }
+        await Unload();
+    }
+
+    private async Task Load()
+    {
         await InitializeChromaEvents();
         InitializeLightsyncEvents();
     }
 
-    private async void Control_SettingsDevicesAndWrappers_OnUnloaded(object sender, RoutedEventArgs e)
+    private async Task Unload()
     {
         var razerManager = await _rzSdkManager;
         if (razerManager != null)
@@ -76,6 +77,7 @@ public partial class Control_SettingsDevicesAndWrappers
             var currentAppId = RzHelper.CurrentAppId;
             ChromaCurrentApplicationLabel.Content = $"{currentApp ?? "None"} [{currentAppId}]";
 
+            razerManager.AppDataUpdated -= HandleChromaAppChange;
             razerManager.AppDataUpdated += HandleChromaAppChange;
         }
         else
@@ -89,7 +91,9 @@ public partial class Control_SettingsDevicesAndWrappers
     private void InitializeLightsyncEvents()
     {
         var logitechSdkListener = LogitechSdkModule.LogitechSdkListener;
+        logitechSdkListener.ApplicationChanged -= LogitechSdkListenerOnApplicationChanged;
         logitechSdkListener.ApplicationChanged += LogitechSdkListenerOnApplicationChanged;
+        logitechSdkListener.StateChanged -= LogitechSdkListenerOnStateChanged;
         logitechSdkListener.StateChanged += LogitechSdkListenerOnStateChanged;
         UpdateLightsyncState();
         UpdateLightsyncApp(logitechSdkListener.Application);
@@ -385,6 +389,18 @@ public partial class Control_SettingsDevicesAndWrappers
         {
             Global.logger.Error(exc, "Exception during LightFX (64 bit) Wrapper install");
             MessageBox.Show("Aurora Wrapper Patch for LightFX (64 bit) could not be applied.\r\nException: " + exc.Message);
+        }
+    }
+
+    private async void Control_SettingsDevicesAndWrappers_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (!IsVisible)
+        {
+            await Unload();
+        }
+        else
+        {
+            await Load();
         }
     }
 }

@@ -52,6 +52,7 @@ public partial class Control_PluginManager
         {
             return;
         }
+        AmdMonitorToggle.Checked -= AmdMonitorToggleButton_OnChecked;
         AmdMonitorToggle.Checked += AmdMonitorToggleButton_OnChecked;
 
         UpdateInpOutStatus();
