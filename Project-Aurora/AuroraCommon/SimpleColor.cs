@@ -11,7 +11,12 @@ public readonly record struct SimpleColor(byte R, byte G, byte B, byte A = 255)
     public static readonly SimpleColor White = new(255, 255, 255);
     public static readonly SimpleColor Black = new(0, 0, 0);
 
-    public int ToArgb() => (A << 24) | (R << 16) | (G << 8) | B;
+    private const int ArgbAlphaShift = 24;
+    private const int ArgbRedShift = 16;
+    private const int ArgbGreenShift = 8;
+    private const int ArgbBlueShift = 0;
+    
+    public int ToArgb() => (A << ArgbAlphaShift) | (R << ArgbRedShift) | (G << ArgbGreenShift) | B << ArgbBlueShift;
 
     public static explicit operator Color(SimpleColor color)
     {
@@ -25,20 +30,15 @@ public readonly record struct SimpleColor(byte R, byte G, byte B, byte A = 255)
 
     public static SimpleColor FromArgb(int argb)
     {
-        const int argbAlphaShift = 24;
-        const int argbRedShift = 16;
-        const int argbGreenShift = 8;
-        const int argbBlueShift = 0;
-        
-        var r = unchecked((byte)(argb >> argbRedShift));
-        var g = unchecked((byte)(argb >> argbGreenShift));
-        var b = unchecked((byte)(argb >> argbBlueShift));
-        var a = unchecked((byte)(argb >> argbAlphaShift));
+        var r = unchecked((byte)(argb >> ArgbRedShift));
+        var g = unchecked((byte)(argb >> ArgbGreenShift));
+        var b = unchecked((byte)(argb >> ArgbBlueShift));
+        var a = unchecked((byte)(argb >> ArgbAlphaShift));
 
         return new SimpleColor(r, g, b, a);
     }
 
-    public static SimpleColor FromArgb(byte red, byte green, byte blue, byte alpha = 255)
+    public static SimpleColor FromRgba(byte red, byte green, byte blue, byte alpha = 255)
     {
         return new SimpleColor(red, green, blue, alpha);
     }

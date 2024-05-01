@@ -148,7 +148,7 @@ public class DualshockDevice : DefaultDevice
 
     protected override void RegisterVariables(VariableRegistry variableRegistry)
     {
-        variableRegistry.Register($"{DeviceName}_restore_dualshock", SimpleColor.FromArgb(0, 0, 255), "Restore Color");
+        variableRegistry.Register($"{DeviceName}_restore_dualshock", SimpleColor.FromRgba(0, 0, 255), "Restore Color");
         variableRegistry.Register($"{DeviceName}_devicekey", DeviceKeys.Peripheral, "Key to Use", DeviceKeys.MOUSEPADLIGHT15, DeviceKeys.Peripheral_Logo);
         variableRegistry.Register($"{DeviceName}_disconnect_when_stop", false, "Disconnect when Stopping");
         variableRegistry.Register($"{DeviceName}_auto_init", false, "Initialize automatically when plugged in");

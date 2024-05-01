@@ -271,7 +271,7 @@ public partial class Control_VariableRegistryItem
             return;
         }
         var clr = ctrlClr.Value;
-        VarRegistry.SetVariable(VariableName, new SimpleColor(clr.A, clr.R, clr.G, clr.B));
+        VarRegistry.SetVariable(VariableName, new SimpleColor(clr.R, clr.G, clr.B, clr.A));
     }
 
     private void VariableChanged<T>(object? sender, RoutedPropertyChangedEventArgs<T> e) where T : notnull

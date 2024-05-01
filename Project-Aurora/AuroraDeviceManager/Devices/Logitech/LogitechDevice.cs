@@ -192,7 +192,7 @@ public class LogitechDevice : DefaultDevice
     protected override void RegisterVariables(VariableRegistry variableRegistry)
     {
         variableRegistry.Register($"{DeviceName}_set_default", false, "Set Default Color");
-        variableRegistry.Register($"{DeviceName}_default_color", SimpleColor.FromArgb(255, 255, 255), "Default Color");
+        variableRegistry.Register($"{DeviceName}_default_color", SimpleColor.FromRgba(255, 255, 255), "Default Color");
         variableRegistry.Register($"{DeviceName}_override_dll", false, "Override DLL", null, null, "Requires restart to take effect");
         variableRegistry.Register($"{DeviceName}_override_dll_option", LGDLL.GHUB, "Override DLL Selection", null, null, "Requires restart to take effect");
         variableRegistry.Register($"{DeviceName}_devicekey", DeviceKeys.Peripheral_Logo, "Key to Use", DeviceKeys.MOUSEPADLIGHT15, DeviceKeys.Peripheral);

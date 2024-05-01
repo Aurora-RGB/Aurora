@@ -26,7 +26,7 @@ public class UnifiedHIDDevice : DefaultDevice
 
         variableRegistry.Register($"{DeviceName}_update_interval", 0, "Update interval", null, 0);
         variableRegistry.Register($"{DeviceName}_enable_shutdown_color", false, "Enable shutdown color");
-        variableRegistry.Register($"{DeviceName}_shutdown_color", SimpleColor.FromArgb(255, 255, 255, 255), "Shutdown color");
+        variableRegistry.Register($"{DeviceName}_shutdown_color", SimpleColor.FromRgba(255, 255, 255, 255), "Shutdown color");
 
         foreach (var device in allDevices)
             variableRegistry.Register($"UnifiedHID_{device.GetType().Name}_enable", false, 

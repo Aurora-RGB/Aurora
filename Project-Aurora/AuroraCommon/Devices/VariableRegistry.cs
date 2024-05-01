@@ -85,16 +85,15 @@ public class VariableRegistryItem : ICloneable
             _ => str
         };
 
-
         SimpleColor FromRgb()
         {
             var rgb = colors.ToArray();
-            return SimpleColor.FromArgb(rgb[0], rgb[1], rgb[2]);
+            return SimpleColor.FromRgba(rgb[0], rgb[1], rgb[2]);
         }
         SimpleColor FromArgb()
         {
             var argb = colors.ToArray();
-            return SimpleColor.FromArgb(argb[0], argb[1], argb[2], argb[3]);
+            return SimpleColor.FromRgba(argb[1], argb[2], argb[3], argb[0]);
         }
     }
 
