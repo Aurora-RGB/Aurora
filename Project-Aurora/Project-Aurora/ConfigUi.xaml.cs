@@ -15,6 +15,7 @@ using AuroraRgb.Controls;
 using AuroraRgb.Devices;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.Layouts;
+using AuroraRgb.Modules.Razer;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
@@ -22,7 +23,6 @@ using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using Common;
 using PropertyChanged;
-using RazerSdkReader;
 using Application = AuroraRgb.Profiles.Application;
 using Brushes = System.Windows.Media.Brushes;
 using Timer = System.Timers.Timer;
@@ -80,7 +80,7 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private CancellationTokenSource _keyboardUpdateCancel = new();
 
-    public ConfigUi(Task<ChromaReader?> rzSdkManager, Task<PluginManager> pluginManager,
+    public ConfigUi(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager,
         Task<KeyboardLayoutManager> layoutManager, Task<AuroraHttpListener?> httpListener,
         Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager, AuroraControlInterface controlInterface)
     {

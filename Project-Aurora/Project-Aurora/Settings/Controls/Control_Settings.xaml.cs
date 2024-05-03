@@ -11,7 +11,7 @@ using AuroraRgb.Devices.RGBNet.Config;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.HardwareMonitor;
-using RazerSdkReader;
+using AuroraRgb.Modules.Razer;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
 
@@ -24,7 +24,7 @@ public partial class Control_Settings
 {
     private readonly Task<AuroraHttpListener?> _httpListener;
 
-    public Control_Settings(Task<ChromaReader?> rzSdkManager, Task<PluginManager> pluginManager, Task<AuroraHttpListener?> httpListener, Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
+    public Control_Settings(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager, Task<AuroraHttpListener?> httpListener, Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
     {
         _httpListener = httpListener;
         InitializeComponent();

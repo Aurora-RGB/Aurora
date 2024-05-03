@@ -21,7 +21,7 @@ public enum RazerChromaInstallerExitCode
     RestartRequired = 3010
 }
 
-public static class RazerChromaUtils
+public static class ChromaInstallationUtils
 {
     public static async Task<int> UninstallAsync() => await Task.Run(() =>
     {
@@ -186,7 +186,7 @@ public static class RazerChromaUtils
             }
         }
 
-        if (tasks.Count > 0)
+        if (tasks.Count == 0)
         {
             return;
         }

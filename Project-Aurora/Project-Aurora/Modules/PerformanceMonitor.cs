@@ -101,11 +101,21 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
 
     private void ProcessMonitorOnProcessStarted(object? sender, ProcessStarted e)
     {
+        if (e.ProcessName != RazerChromeServerProcessName)
+        {
+            return;
+        }
+
         _rzStreamCpuCounter = new PerformanceCounter("Process", "% Processor Time", RazerChromeServerProcessName, true);
     }
 
     private void ProcessMonitorOnProcessStopped(object? sender, ProcessStopped e)
     {
+        if (e.ProcessName != RazerChromeServerProcessName)
+        {
+            return;
+        }
+
         _rzStreamCpuCounter?.Dispose();
         _rzStreamCpuCounter = null;
     }
@@ -122,7 +132,7 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
             var cpuUsage = _rzStreamCpuCounter.NextValue();
             if (cpuUsage > 80)
             {
-                RazerChromaUtils.DisableChromaBloat();
+                ChromaInstallationUtils.DisableChromaBloat();
             }
         }
         catch { /* ignore */ }

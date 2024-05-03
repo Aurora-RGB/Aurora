@@ -6,6 +6,8 @@
         <Platforms>x64</Platforms>
         <OutputType>WinExe</OutputType>
         <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
 
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
@@ -19,8 +21,6 @@
         <AssemblyName>AuroraRgb</AssemblyName>
         <LangVersion>latest</LangVersion>
         <NeutralLanguage>en</NeutralLanguage>
-        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
         <UseWPF>true</UseWPF>
         <ApplicationIcon>Resources\aurora_icon.ico</ApplicationIcon>
         <ApplicationManifest>app.manifest</ApplicationManifest>

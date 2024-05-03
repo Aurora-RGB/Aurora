@@ -87,8 +87,6 @@ public class LayoutLoad(string layoutsPath, bool loadLinkLeds)
                 await LoadGenericLayout(headsetFeaturePath, cancellationToken);
             }
 
-            //TODO also check for Lightsync
-            //TODO check if rzSdk or Lightsync gets enabled after this
             if (chromaLeds == PreferredChromaLeds.Automatic && loadLinkLeds)
             {
                 chromaLeds = PreferredChromaLeds.Suggested;

@@ -3,21 +3,13 @@ using System.Collections.Generic;
 
 namespace AuroraRgb.Modules.Razer;
 
-public readonly struct RzSdkVersion : IComparable<RzSdkVersion>
+public readonly struct RzSdkVersion(int major, int minor, int revision) : IComparable<RzSdkVersion>
 {
-    private int Major { get; }
-    private int Minor { get; }
-    private int Revision { get; }
+    private int Major { get; } = major;
+    private int Minor { get; } = minor;
+    private int Revision { get; } = revision;
 
-    public RzSdkVersion(int major, int minor, int revision)
-    {
-        Major = major;
-        Minor = minor;
-        Revision = revision;
-    }
-
-    public override bool Equals(object obj)
-        => obj is RzSdkVersion ver && CompareTo(ver) == 0;
+    public override bool Equals(object? obj) => obj is RzSdkVersion ver && CompareTo(ver) == 0;
 
     public override string ToString() => $"{Major}.{Minor}.{Revision}";
 

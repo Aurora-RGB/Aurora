@@ -9,7 +9,6 @@ using AuroraRgb.Modules.Inputs;
 using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
-using RazerSdkReader;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -72,7 +71,6 @@ public static class Global
     public static KeyboardLayoutManager? kbLayout { get; set; }                //TODO module access
     public static Effects effengine { get; set; }
     public static KeyRecorder? key_recorder { get; set; }
-    public static ChromaReader? razerSdkManager { get; set; }                  //TODO module access
     public static AudioDeviceProxy? CaptureProxy { get; set; }
     public static AudioDeviceProxy? RenderProxy { get; set; }
 

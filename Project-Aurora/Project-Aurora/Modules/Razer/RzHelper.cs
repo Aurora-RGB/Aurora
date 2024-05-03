@@ -1,23 +1,17 @@
 ﻿using System;
 using Microsoft.Win32;
+using RazerSdkReader;
 using RazerSdkReader.Structures;
 
 namespace AuroraRgb.Modules.Razer;
 
-public class ChromaAppChangedEventArgs : EventArgs
+public class ChromaAppChangedEventArgs(string? applicationProcess) : EventArgs
 {
-    public ChromaAppChangedEventArgs(string applicationProcess)
-    {
-        ApplicationProcess = applicationProcess;
-    }
-
-    public string ApplicationProcess { get; }
+    public string? ApplicationProcess { get; } = applicationProcess;
 }
 
 public static class RzHelper
 {
-    private static readonly EmptyGrid EmptyGrid = new();
-
     public static IRzGrid KeyboardColors { get; } = new ConnectedGrid();
     public static IRzGrid MousepadColors { get; } = new ConnectedGrid();
     public static IRzGrid MouseColors { get; } = new ConnectedGrid();
@@ -26,7 +20,7 @@ public static class RzHelper
 
     public static event EventHandler<ChromaAppChangedEventArgs>? ChromaAppChanged;
 
-    public static uint CurrentAppId;
+    public static uint CurrentAppId { get; private set; }
 
     public static string? CurrentAppExecutable
     {
@@ -83,7 +77,7 @@ public static class RzHelper
 
     public static bool IsStale()
     {
-        if (Global.razerSdkManager == null || _lastFetch > _lastUpdate)
+        if (_lastFetch > _lastUpdate)
         {
             return true;
         }
@@ -91,17 +85,10 @@ public static class RzHelper
         return false;
     }
 
-    public static bool IsCurrentAppValid()
-        => !string.IsNullOrEmpty(CurrentAppExecutable) && CurrentAppExecutable != Global.AuroraExe;
+    public static bool IsCurrentAppValid() => !string.IsNullOrEmpty(CurrentAppExecutable) && CurrentAppExecutable != Global.AuroraExe;
 
-    public static void Initialize()
+    public static void Initialize(ChromaReader sdkManager)
     {
-        var sdkManager = Global.razerSdkManager;
-        if (sdkManager == null)
-        {
-            return;
-        }
-        
         sdkManager.KeyboardUpdated += (object? _, in ChromaKeyboard keyboard) =>
         {
             KeyboardColors.Provider = keyboard;
@@ -153,10 +140,5 @@ public static class RzHelper
             CurrentAppId = currentAppId;
             CurrentAppExecutable = currentAppName;
         };
-
-
-        //var appList = sdkManager.GetDataProvider<RzAppListDataProvider>();
-        //appList.Update();
-        //CurrentAppExecutable = sdkManager.CurrentAppExecutable ?? string.Empty;
     }
 }

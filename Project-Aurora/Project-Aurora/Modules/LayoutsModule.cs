@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using AuroraRgb.Modules.Layouts;
-using RazerSdkReader;
+using AuroraRgb.Modules.Razer;
 
 namespace AuroraRgb.Modules;
 
-public sealed class LayoutsModule(Task<ChromaReader?> rzSdk, Task onlineSettingsLayoutsUpdate) : AuroraModule
+public sealed class LayoutsModule(Task<ChromaSdkManager> rzSdk, Task onlineSettingsLayoutsUpdate) : AuroraModule
 {
     private KeyboardLayoutManager? _layoutManager;
     private readonly TaskCompletionSource<KeyboardLayoutManager> _taskCompletionSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -24,6 +24,7 @@ public sealed class LayoutsModule(Task<ChromaReader?> rzSdk, Task onlineSettings
 
     public override ValueTask DisposeAsync()
     {
+        _layoutManager?.Dispose();
         return ValueTask.CompletedTask;
     }
 }

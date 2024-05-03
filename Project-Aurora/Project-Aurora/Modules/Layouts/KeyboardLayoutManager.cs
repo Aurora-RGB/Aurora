@@ -8,19 +8,20 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using AuroraRgb.EffectsEngine;
+using AuroraRgb.Modules.Logitech;
+using AuroraRgb.Modules.Razer;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls.Keycaps;
 using AuroraRgb.Settings.Layouts;
 using AuroraRgb.Utils;
 using Common;
 using Common.Devices;
-using RazerSdkReader;
 using Application = System.Windows.Application;
 using Color = System.Drawing.Color;
 
 namespace AuroraRgb.Modules.Layouts;
 
-public class KeyboardLayoutManager
+public sealed class KeyboardLayoutManager : IDisposable
 {
     private const string CulturesFolder = "kb_layouts";
 
@@ -42,11 +43,13 @@ public class KeyboardLayoutManager
 
     private readonly string _layoutsPath;
 
-    private readonly Task<ChromaReader?> _rzSdk;
+    private readonly Task<ChromaSdkManager> _rzSdk;
 
     private CancellationTokenSource _cancellationTokenSource = new();
+    private bool _loadLinkLeds;
+    private ChromaSdkManager? _chromaSdkManager;
 
-    public KeyboardLayoutManager(Task<ChromaReader?> rzSdk)
+    public KeyboardLayoutManager(Task<ChromaSdkManager> rzSdk)
     {
         _rzSdk = rzSdk;
         _layoutsPath = Path.Combine(Global.ExecutingDirectory, CulturesFolder);
@@ -61,9 +64,37 @@ public class KeyboardLayoutManager
 
     public async Task Initialize()
     {
+        _chromaSdkManager = await _rzSdk;
+        _loadLinkLeds = _chromaSdkManager.ChromaReader is not null || LogitechSdkModule.LogitechSdkListener.State != LightsyncSdkState.Disabled;
+
+        _chromaSdkManager.StateChanged += ChromaSdkManagerOnStateChanged;
+        LogitechSdkModule.LogitechSdkListener.StateChanged += LogitechSdkListenerOnStateChanged;
+
         await LoadBrandDefault();
 
+        //TODO listen for online layout load
         Global.Configuration.PropertyChanged += Configuration_PropertyChanged;
+    }
+
+    private async void ChromaSdkManagerOnStateChanged(object? sender, ChromaSdkStateChangedEventArgs e)
+    {
+        await RefreshLinkLayout();
+    }
+
+    private async void LogitechSdkListenerOnStateChanged(object? sender, EventArgs e)
+    {
+        await RefreshLinkLayout();
+    }
+
+    private async Task RefreshLinkLayout()
+    {
+        var linksCurrentlyLoaded = _loadLinkLeds;
+        _loadLinkLeds = _chromaSdkManager?.ChromaReader is not null || LogitechSdkModule.LogitechSdkListener.State != LightsyncSdkState.Disabled;
+
+        if (linksCurrentlyLoaded != _loadLinkLeds)
+        {
+            await LoadBrandDefault();
+        }
     }
 
     private async Task LoadBrandDefault()
@@ -108,7 +139,8 @@ public class KeyboardLayoutManager
             cancellationTokenSource.Dispose();
             return;
         }
-        var layoutLoad = new LayoutLoad(_layoutsPath, await _rzSdk is not null);
+
+        var layoutLoad = new LayoutLoad(_layoutsPath, _loadLinkLeds);
         try
         {
             await layoutLoad.LoadBrand(
@@ -335,5 +367,15 @@ public class KeyboardLayoutManager
             var drawingColor = Color.FromArgb(255, opaqueColor.R, opaqueColor.G, opaqueColor.B);
             value.SetColor(ColorUtils.DrawingColorToMediaColor(drawingColor));
         }
+    }
+
+    public void Dispose()
+    {
+        if (_chromaSdkManager != null) _chromaSdkManager.StateChanged -= ChromaSdkManagerOnStateChanged;
+        LogitechSdkModule.LogitechSdkListener.StateChanged -= LogitechSdkListenerOnStateChanged;
+
+        _rzSdk.Dispose();
+        _cancellationTokenSource.Dispose();
+        VirtualKeyboard.Dispose();
     }
 }

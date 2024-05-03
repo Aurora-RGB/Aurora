@@ -20,10 +20,10 @@ namespace AuroraRgb.Settings.Controls;
 
 public partial class Control_SettingsDevicesAndWrappers
 {
-    private readonly Task<ChromaReader?> _rzSdkManager;
+    private readonly Task<ChromaSdkManager> _rzSdkManager;
     private readonly Task<DeviceManager> _deviceManager;
     
-    public Control_SettingsDevicesAndWrappers(Task<ChromaReader?> rzSdkManager,
+    public Control_SettingsDevicesAndWrappers(Task<ChromaSdkManager> rzSdkManager,
         Task<DeviceManager> deviceManager)
     {
         _rzSdkManager = rzSdkManager;
@@ -55,7 +55,7 @@ public partial class Control_SettingsDevicesAndWrappers
 
     private async Task Unload()
     {
-        var razerManager = await _rzSdkManager;
+        var razerManager = (await _rzSdkManager).ChromaReader;
         if (razerManager != null)
         {
             razerManager.AppDataUpdated -= HandleChromaAppChange;
@@ -67,25 +67,37 @@ public partial class Control_SettingsDevicesAndWrappers
 
     private async Task InitializeChromaEvents()
     {
-        var razerManager = await _rzSdkManager;
-        if (razerManager != null)
-        {
-            ChromaConnectionStatusLabel.Content = "Success";
-            ChromaConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.LightGreen);
+        var chromaSdkManager = await _rzSdkManager;
+        chromaSdkManager.StateChanged += ChromaSdkManagerOnStateChanged;
+        
+        var chromaReader = chromaSdkManager.ChromaReader;
+        UpdateChromaStatus(chromaReader);
+    }
 
-            var currentApp = RzHelper.CurrentAppExecutable;
-            var currentAppId = RzHelper.CurrentAppId;
-            ChromaCurrentApplicationLabel.Content = $"{currentApp ?? "None"} [{currentAppId}]";
+    private void ChromaSdkManagerOnStateChanged(object? sender, ChromaSdkStateChangedEventArgs e)
+    {
+        Dispatcher.BeginInvoke(() => UpdateChromaStatus(e.ChromaReader));
+    }
 
-            razerManager.AppDataUpdated -= HandleChromaAppChange;
-            razerManager.AppDataUpdated += HandleChromaAppChange;
-        }
-        else
+    private void UpdateChromaStatus(ChromaReader? chromaReader)
+    {
+        if (chromaReader == null)
         {
             ChromaConnectionStatusLabel.Content = "Failure";
             ChromaConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
             ChromaDisableDeviceControlButton.IsEnabled = false;
+            return;
         }
+
+        ChromaConnectionStatusLabel.Content = "Success";
+        ChromaConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.LightGreen);
+
+        var currentApp = RzHelper.CurrentAppExecutable;
+        var currentAppId = RzHelper.CurrentAppId;
+        ChromaCurrentApplicationLabel.Content = $"{currentApp ?? "None"} [{currentAppId}]";
+
+        chromaReader.AppDataUpdated -= HandleChromaAppChange;
+        chromaReader.AppDataUpdated += HandleChromaAppChange;
     }
 
     private void InitializeLightsyncEvents()
@@ -162,7 +174,8 @@ public partial class Control_SettingsDevicesAndWrappers
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
                     break;
                 default:
-                    throw new NotImplementedException("LogitechSdkListener.State: " + logitechSdkListener.State + "Unexpected Enum value");
+                    Global.logger.Error("LogitechSdkListener.State: {0} Unexpected Enum value", logitechSdkListener.State);
+                    break;
             }
         }, DispatcherPriority.Loaded);
     }
@@ -175,7 +188,7 @@ public partial class Control_SettingsDevicesAndWrappers
         ChromaUninstallButton.IsEnabled = false;
 
         SetButtonContent("Uninstalling...");
-        var uninstallSuccess = await RazerChromaUtils.UninstallAsync()
+        var uninstallSuccess = await ChromaInstallationUtils.UninstallAsync()
             .ContinueWith(async t =>
             {
                 if (t.Exception != null)
@@ -196,7 +209,7 @@ public partial class Control_SettingsDevicesAndWrappers
             return;
 
         SetButtonContent("Downloading...");
-        var download = await RazerChromaUtils.DownloadAsync()
+        var download = await ChromaInstallationUtils.DownloadAsync()
             .ContinueWith(t =>
             {
                 if (t.Exception == null) return t;
@@ -210,7 +223,7 @@ public partial class Control_SettingsDevicesAndWrappers
             return;
 
         SetButtonContent("Installing...");
-        await RazerChromaUtils.InstallAsync(downloadPath)
+        await ChromaInstallationUtils.InstallAsync(downloadPath)
             .ContinueWith(async t =>
             {
                 if (t.Exception != null)
@@ -221,7 +234,7 @@ public partial class Control_SettingsDevicesAndWrappers
                 else
                 {
                     SetButtonContent("Disabling bloat...");
-                    RazerChromaUtils.DisableChromaBloat();
+                    ChromaInstallationUtils.DisableChromaBloat();
                     SetButtonContent("Done!");
                     ShowMessageBox("Installation successful!\nPlease restart aurora for changes to take effect.",
                         "Restart required!");
@@ -268,7 +281,7 @@ public partial class Control_SettingsDevicesAndWrappers
         Task.Run(async () =>
         {
             SetButtonContent("Uninstalling");
-            await RazerChromaUtils.UninstallAsync()
+            await ChromaInstallationUtils.UninstallAsync()
                 .ContinueWith(async t =>
                 {
                     if (t.Exception != null)
@@ -289,7 +302,7 @@ public partial class Control_SettingsDevicesAndWrappers
 
     private async void razer_wrapper_disable_device_control_button_Click(object? sender, RoutedEventArgs e)
     {
-        await RazerChromaUtils.DisableDeviceControlAsync();
+        await ChromaInstallationUtils.DisableDeviceControlAsync();
     }
 
     private void Lightsync_install_button_Click(object? sender, RoutedEventArgs e)

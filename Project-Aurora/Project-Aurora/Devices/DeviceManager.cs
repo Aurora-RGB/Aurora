@@ -9,7 +9,6 @@ using AuroraRgb.Modules;
 using Common;
 using Common.Data;
 using Common.Devices;
-using RazerSdkReader;
 
 namespace AuroraRgb.Devices;
 
@@ -31,7 +30,6 @@ public sealed class DeviceManager : IDisposable
 
     public List<DeviceContainer> DeviceContainers { get; } = [];
 
-    private readonly Task<ChromaReader?> _rzSdkManager;
     private readonly AuroraControlInterface _auroraControlInterface;
     private readonly MemorySharedArray<SimpleColor> _sharedDeviceColor;
 
@@ -43,9 +41,8 @@ public sealed class DeviceManager : IDisposable
 
     public DevicesPipe DevicesPipe { get; } = new();
 
-    public DeviceManager(Task<ChromaReader?> rzSdkManager, AuroraControlInterface auroraControlInterface)
+    public DeviceManager(AuroraControlInterface auroraControlInterface)
     {
-        _rzSdkManager = rzSdkManager;
         _auroraControlInterface = auroraControlInterface;
         _sharedDeviceColor = new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap, Constants.MaxKeyId);
 
@@ -53,12 +50,12 @@ public sealed class DeviceManager : IDisposable
         _deviceManagerInfo.Updated += OnDeviceManagerInfoOnUpdated;
     }
 
-    public async Task InitializeDevices()
+    public Task InitializeDevices()
     {
         _dmStartCount = 0;
-        await _rzSdkManager;
 
         AttachOrCreateProcess();
+        return Task.CompletedTask;
     }
 
     private void AttachOrCreateProcess()

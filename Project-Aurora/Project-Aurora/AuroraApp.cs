@@ -36,7 +36,7 @@ public sealed class AuroraApp : IDisposable
         
         _controlInterface = new AuroraControlInterface(IpcListenerModule.IpcListener);
         _razerSdkModule = new RazerSdkModule(LightingStateManagerModule.LightningStateManager);
-        _devicesModule = new DevicesModule(_razerSdkModule.RzSdkManager, _controlInterface);
+        _devicesModule = new DevicesModule(_controlInterface);
         var lightingStateManagerModule = new LightingStateManagerModule(
             PluginsModule.PluginManager, IpcListenerModule.IpcListener, _httpListenerModule.HttpListener,
             _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor
