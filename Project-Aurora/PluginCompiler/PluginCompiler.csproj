@@ -1,12 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
+        <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Platforms>x64</Platforms>
-        <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
         <OutputType>Exe</OutputType>
-        <PlatformTarget>x64</PlatformTarget>
+        <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        
+        <PublishSelfContained>true</PublishSelfContained>
+        <PublishSingleFile>true</PublishSingleFile>
+
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>$(SolutionDir)..\Build\$(Configuration)\win10-x64</OutputPath>
         
         <InformationalVersion>1.0.0</InformationalVersion>
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
@@ -15,10 +22,11 @@
         
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
-        <OutputPath>$(SolutionDir)..\Build\$(Configuration)</OutputPath>
         <Nullable>enable</Nullable>
         
+        <!--
         <ReadyToRun>true</ReadyToRun>
+        -->
     </PropertyGroup>
 
     <ItemGroup>
