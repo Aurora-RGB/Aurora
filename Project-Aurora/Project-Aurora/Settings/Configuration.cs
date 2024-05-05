@@ -64,6 +64,8 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     [JsonProperty("updates_check_on_start_up")]
     public bool UpdatesCheckOnStartUp { get; set; } = true;
 
+    public bool UpdateBackgroundTemp { get; set; }
+
     [JsonProperty("start_silently")]
     public bool StartSilently { get; set; }
 
@@ -96,14 +98,14 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
 
     public bool OverlaysInPreview { get; set; } = true;
 
-    public ObservableCollection<string> ExcludedPrograms { get; set; } = new();
+    public ObservableCollection<string> ExcludedPrograms { get; set; } = [];
 
-    public List<BitmapAccuracy> BitmapAccuracies { get; } = new()
-    {
+    public List<BitmapAccuracy> BitmapAccuracies { get; } =
+    [
         BitmapAccuracy.Best,
         BitmapAccuracy.Good,
         BitmapAccuracy.Lowest
-    };
+    ];
 
     //Blackout and Night theme
     [JsonProperty("time_based_dimming_enabled")]
@@ -184,7 +186,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
 
     public ObservableConcurrentDictionary<string, IEvaluatable> EvaluatableTemplates { get; set; } = new();
 
-    public List<string> ProfileOrder { get; set; } = new();
+    public List<string> ProfileOrder { get; set; } = [];
 
     [JsonProperty("GSIAudioRenderDevice", NullValueHandling = NullValueHandling.Ignore)]
     public string GsiAudioRenderDevice { get; set; } = AudioDevices.DefaultDeviceId;

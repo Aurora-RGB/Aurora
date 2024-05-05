@@ -13,14 +13,14 @@ namespace Aurora_Updater;
 public partial class MainForm : Form
 {
     private readonly System.Windows.Forms.Timer _progressTimer = new();
-    private readonly Thread _updaterThread;
     private CancellationTokenSource _cancellation = new();
+    private readonly UpdateManager _updateManager;
 
-    public MainForm()
+    public MainForm(UpdateManager updateManager)
     {
-        _updaterThread = new Thread(() => StaticStorage.Manager.RetrieveUpdate().Wait());
+        _updateManager = updateManager;
         InitializeComponent();
-        StaticStorage.Manager.ClearLog();
+        updateManager.ClearLog();
         Icon = Resources.Aurora_updater;
     }
 
@@ -29,13 +29,11 @@ public partial class MainForm : Form
         _progressTimer.Interval = 1500;
         _progressTimer.Tick += UpdateProgressTick;
 
-        var logs = StaticStorage.Manager.GetObservable();
+        var logs = _updateManager.GetObservable();
         logs.CollectionChanged += LogAdded;
         
         _progressTimer.Enabled = true;
         _progressTimer.Start();
-        _updaterThread.IsBackground = true;
-        _updaterThread.Start();
     }
 
     [MethodImpl(MethodImplOptions.Synchronized)]
@@ -87,7 +85,7 @@ public partial class MainForm : Form
         {
             var tickCancellation = CancelPreviousTick();
 
-            var logs = StaticStorage.Manager.GetLog();
+            var logs = _updateManager.GetLog();
 
             var stringBuilder = new StringBuilder();
             for (var i = 0; i < logs.Length && !tickCancellation.IsCancellationRequested; i++)
@@ -105,7 +103,7 @@ public partial class MainForm : Form
 
             Invoke(() =>
             {
-                update_progress.Value = StaticStorage.Manager.GetTotalProgress();
+                update_progress.Value = _updateManager.GetTotalProgress();
 
                 richtextUpdateLog.SelectionStart = 0;
                 richtextUpdateLog.SelectionLength = richtextUpdateLog.TextLength;

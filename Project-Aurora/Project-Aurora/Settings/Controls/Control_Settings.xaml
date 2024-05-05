@@ -26,9 +26,10 @@
                     <Hyperlink NavigateUri="https://github.com/Aurora-RGB/Aurora/releases" RequestNavigate="Hyperlink_RequestNavigate"><Run Text="here"/></Hyperlink><Run Text="."/>
                 </TextBlock>
                 <Button Content="Check for Updates" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Click="updates_check_Click"/>
-                <CheckBox Content="Automatically check for updates on program start" IsChecked="{Binding UpdatesCheckOnStartUp}" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <CheckBox Content="Automatically check for pointer updates on program start" IsChecked="{Binding GetPointerUpdates}" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <CheckBox Content="Get Pre-release updates" IsChecked="{Binding GetDevReleases}" Margin="10,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <CheckBox Content="Automatically check for updates on program start" IsChecked="{Binding UpdatesCheckOnStartUp}" Margin="10,10,0,0" />
+                <CheckBox Content="Automatically update in the background"  Margin="10,10,0,0" IsChecked="{Binding UpdateBackgroundTemp}" />
+                <CheckBox Content="Automatically check for pointer updates on program start" IsChecked="{Binding GetPointerUpdates}" Margin="10,10,0,0" />
+                <CheckBox Content="Get Pre-release updates" IsChecked="{Binding GetDevReleases}" Margin="10,10,0,0" />
                 <TextBlock Margin="5,5,0,0">If you are on a pre-release build, you will get the pre-release updates even if you disable this.</TextBlock>
             </StackPanel>
         </TabItem>
@@ -136,10 +137,7 @@
                         Margin="0,10,0,0"
                         SelectedValue="{Binding LogLevel}"
                         ItemsSource="{utils1:EnumToItemsSource {x:Type events:LogEventLevel}}" DisplayMemberPath="Text"
-                        SelectedValuePath="Value"
-                        >
-                        
-                    </ComboBox>
+                        SelectedValuePath="Value" />
                 </StackPanel>
             </Grid>
         </TabItem>

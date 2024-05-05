@@ -3,27 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Security.Principal;
-using System.Windows.Forms;
 using System.Linq;
+using System.Security.Principal;
 using System.Threading;
+using System.Windows.Forms;
+using Version = SemanticVersioning.Version;
 
 namespace Aurora_Updater;
-
-/// <summary>
-///     The static storage.
-/// </summary>
-public static class StaticStorage
-{
-    #region Static Fields
-
-    /// <summary>
-    ///     The index.
-    /// </summary>
-    public static UpdateManager Manager;
-
-    #endregion
-}
 
 internal static class Program
 {
@@ -32,6 +18,7 @@ internal static class Program
     public static string ExePath { get; private set; } = "";
     private static UpdateType _installType = UpdateType.Undefined;
     private static bool _isElevated;
+    private static bool _isBackground;
 
     /// <summary>
     /// The main entry point for the application.
@@ -84,7 +71,7 @@ internal static class Program
                     MessageBoxButtons.OK);
             return;
         }
-        var versionMajor = VersionParser.ParseVersion(fileVersion);
+        var versionToCheck = VersionParser.ParseVersion(fileVersion);
 
         var owner = FileVersionInfo.GetVersionInfo(auroraPath).CompanyName;
         var repository = FileVersionInfo.GetVersionInfo(auroraPath).ProductName;
@@ -99,87 +86,92 @@ internal static class Program
         }
 
         //Initialize UpdateManager
+        if(!TryGetUpdateManager(versionToCheck, owner, repository, out var updateManager))
+        {
+            return;
+        }
+
+        var latestV = VersionParser.ParseVersion(updateManager.LatestRelease.TagName);
+        if (File.Exists("skipversion.txt"))
+        {
+            var skippedVersion = VersionParser.ParseVersion(File.ReadAllText("skipversion.txt"));
+            if (skippedVersion >= latestV)
+            {
+                return;
+            }
+        }
+
+        if (latestV <= versionToCheck)
+        {
+            if (!_isSilent)
+            {
+                MessageBox.Show(
+                    "You have latest version of Aurora installed.",
+                    "Aurora Updater",
+                    MessageBoxButtons.OK);
+            }
+            return;
+        }
+
+        var latestReleaseAssets = updateManager.LatestRelease.Assets;
+        var releaseAsset = latestReleaseAssets
+            .First(s => s.Name.StartsWith("release") || s.Name.StartsWith("Aurora-v"));
+        var installerAsset = latestReleaseAssets.First(s => s.Name.StartsWith("Aurora-setup-v"));
+        var userResult = new UpdateInfoForm
+        {
+            Changelog = updateManager.LatestRelease.Body,
+            UpdateDescription = updateManager.LatestRelease.Name,
+            UpdateVersion = latestV.ToString(),
+            CurrentVersion = versionToCheck.ToString(),
+            UpdateSize = releaseAsset.Size,
+            PreRelease = updateManager.LatestRelease.Prerelease,
+            UpdateTime = releaseAsset.CreatedAt,
+            DownloadTime = releaseAsset.DownloadCount + installerAsset?.DownloadCount ?? 0,
+        };
+        
+        if (!_isElevated)
+        {
+            //Request user to grant admin rights
+            TryRunAsAdmin();
+            return;
+        }
+
+        var updaterThread = new Thread(() => updateManager.RetrieveUpdate().Wait())
+        {
+            IsBackground = !_isBackground,
+        };
+
+        if (_isBackground)
+        {
+            updaterThread.Start();
+            return;
+        }
+
+        userResult.ShowDialog();
+        if (userResult.DialogResult != DialogResult.OK)
+            return;
+
+        var updateForm = new MainForm(updateManager);
+        updaterThread.Start();
+        updateForm.ShowDialog();
+    }
+    
+    private static bool TryGetUpdateManager(Version version, string owner, string repository, [MaybeNullWhen(false)] out UpdateManager updateManager)
+    {
         try
         {
-            StaticStorage.Manager = new UpdateManager(versionMajor, owner, repository);
+            updateManager = new UpdateManager(version, owner, repository);
+            return true;
         }
         catch (Exception exc)
         {
             MessageBox.Show(
                 $"Could not find update.\r\nError:\r\n{exc}",
                 "Aurora Updater - Error");
-            return;
         }
 
-        if (_installType != UpdateType.Undefined)
-        {
-            if (_isElevated)
-            {
-                var updateForm = new MainForm();
-                updateForm.ShowDialog();
-            }
-            else
-            {
-                MessageBox.Show(
-                    "Updater was not granted Admin rights.",
-                    "Aurora Updater - Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-        }
-        else
-        {
-            var latestV = VersionParser.ParseVersion(StaticStorage.Manager.LatestRelease.TagName);
-            if (File.Exists("skipversion.txt"))
-            {
-                var skippedVersion = VersionParser.ParseVersion(File.ReadAllText("skipversion.txt"));
-                if (skippedVersion >= latestV)
-                {
-                    return;
-                }
-            }
-
-            if (latestV <= versionMajor)
-            {
-                if (!_isSilent)
-                    MessageBox.Show(
-                        "You have latest version of Aurora installed.",
-                        "Aurora Updater",
-                        MessageBoxButtons.OK);
-            }
-            else
-            {
-                var latestReleaseAssets = StaticStorage.Manager.LatestRelease.Assets;
-                var releaseAsset = latestReleaseAssets
-                    .First(s => s.Name.StartsWith("release") || s.Name.StartsWith("Aurora-v"));
-                var installerAsset = latestReleaseAssets.First(s => s.Name.StartsWith("Aurora-setup-v"));
-                var userResult = new UpdateInfoForm
-                {
-                    Changelog = StaticStorage.Manager.LatestRelease.Body,
-                    UpdateDescription = StaticStorage.Manager.LatestRelease.Name,
-                    UpdateVersion = latestV.ToString(),
-                    CurrentVersion = versionMajor.ToString(),
-                    UpdateSize = releaseAsset.Size,
-                    PreRelease = StaticStorage.Manager.LatestRelease.Prerelease,
-                    UpdateTime = releaseAsset.CreatedAt,
-                    DownloadTime = releaseAsset.DownloadCount + installerAsset?.DownloadCount ?? 0,
-                };
-
-                userResult.ShowDialog();
-
-                if (userResult.DialogResult != DialogResult.OK) return;
-                if (_isElevated)
-                {
-                    var updateForm = new MainForm();
-                    updateForm.ShowDialog();
-                }
-                else
-                {
-                    //Request user to grant admin rights
-                    TryRunAsAdmin();
-                }
-            }
-        }
+        updateManager = null;
+        return false;
     }
 
     private static void ProcessArgs(IEnumerable<string> args)
@@ -199,6 +191,9 @@ internal static class Program
                     break;
                 case "-update_minor":
                     _installType = UpdateType.Minor;
+                    break;
+                case "-background":
+                    _isBackground = true;
                     break;
             }
 

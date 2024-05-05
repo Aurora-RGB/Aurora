@@ -1,0 +1,23 @@
+﻿<fluentWpf:AcrylicWindow x:Class="AuroraRgb.Controls.Window_Changelogs"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:fluentWpf="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+                         xmlns:mdXaml="https://github.com/whistyun/MdXaml"
+                         xmlns:updates="clr-namespace:AuroraRgb.Modules.Updates"
+                         mc:Ignorable="d"
+                         Closed="Window_Changelogs_OnClosed"
+                         Title="While you were away..." MinHeight="450" Width="600">
+    <ItemsControl Name="MarkdownScrollViewer" MaxWidth="Infinity">
+        <ItemsControl.ItemTemplate>
+            <DataTemplate d:DataType="{x:Type updates:AuroraChangelog}">
+                <StackPanel>
+                    <TextBlock FontSize="32" Text="{Binding VersionTag}" />
+                    <mdXaml:MarkdownScrollViewer MarkdownStyleName="Sasabune" Markdown="{Binding Content}" Margin="20, 20, 5, 50" />
+                    <Separator />
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
+</fluentWpf:AcrylicWindow>

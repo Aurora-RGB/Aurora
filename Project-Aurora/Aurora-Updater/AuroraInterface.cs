@@ -8,7 +8,7 @@ public class AuroraInterface
 {
     private readonly byte[] _end = "\n"u8.ToArray();
     
-    public async Task RestartAurora()
+    public async Task RestartAll()
     {
         await SendAuroraCommand("restartAll");
     }

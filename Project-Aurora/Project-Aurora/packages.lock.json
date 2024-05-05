@@ -87,6 +87,16 @@
           "System.Management": "7.0.0"
         }
       },
+      "MdXaml": {
+        "type": "Direct",
+        "requested": "[1.27.0, )",
+        "resolved": "1.27.0",
+        "contentHash": "VWhqhCeKVkJe8vkPmXuGZlRX01WDrTugOLeUvJn18jH/8DrGGVBvtgIlJoELHD2f1DiEWqF3lxxjV55vnzE7Tg==",
+        "dependencies": {
+          "AvalonEdit": "6.3.0.90",
+          "MdXaml.Plugins": "1.27.0"
+        }
+      },
       "Microsoft.Experimental.Collections": {
         "type": "Direct",
         "requested": "[1.0.6-e190117-3, )",
@@ -298,6 +308,11 @@
         "resolved": "3.5.50211.1",
         "contentHash": "CJ2hQCO4gBlMd4OyagGwVYETd99OsG0cn7d0ZlJFLlTK9R5qcLQp4R8+Tp3ZL6Lf3JxZhMTWWsJG0+4KJ97Spg=="
       },
+      "AvalonEdit": {
+        "type": "Transitive",
+        "resolved": "6.3.0.90",
+        "contentHash": "WVTb5MxwGqKdeasd3nG5udlV4t6OpvkFanziwI133K0/QJ5FvZmfzRQgpAjGTJhQfIA8GP7AzKQ3sTY9JOFk8Q=="
+      },
       "DynamicLanguageRuntime": {
         "type": "Transitive",
         "resolved": "1.3.4",
@@ -324,6 +339,11 @@
           "DynamicLanguageRuntime": "1.3.4",
           "Mono.Unix": "7.1.0-final.1.21458.1"
         }
+      },
+      "MdXaml.Plugins": {
+        "type": "Transitive",
+        "resolved": "1.27.0",
+        "contentHash": "We7LtBdoukRg9mqTfa1f5n8z/GQPMKBRj3URk9DiMuqzIHkW1lTgK5njVPSScxsRt4YzW22423tSnLWNm2MJKg=="
       },
       "Microsoft.CSharp": {
         "type": "Transitive",

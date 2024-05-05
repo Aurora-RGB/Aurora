@@ -13,6 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using AuroraRgb.Controls;
 using AuroraRgb.Devices;
+using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Modules.Razer;
@@ -67,6 +68,9 @@ partial class ConfigUi : INotifyPropertyChanged
     private static bool IsDragging { get; set; }
 
     public readonly Uri BaseUri;
+
+    private readonly UpdateModule _updateModule;
+    private static bool _changelogsShown;
     
     public Application? FocusedApplication
     {
@@ -82,13 +86,15 @@ partial class ConfigUi : INotifyPropertyChanged
 
     public ConfigUi(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager,
         Task<KeyboardLayoutManager> layoutManager, Task<AuroraHttpListener?> httpListener,
-        Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager, AuroraControlInterface controlInterface)
+        Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager,
+        AuroraControlInterface controlInterface, UpdateModule updateModule)
     {
         BaseUri = BaseUriHelper.GetBaseUri(this);
         
         _layoutManager = layoutManager;
         _lightingStateManager = lightingStateManager;
         _controlInterface = controlInterface;
+        _updateModule = updateModule;
 
         _settingsControl = new Control_Settings(rzSdkManager, pluginManager, httpListener, deviceManager, ipcListener);
         
@@ -273,6 +279,17 @@ partial class ConfigUi : INotifyPropertyChanged
 
         await GenerateProfileStack();
         UpdateManagerStackFocus(ctrlLayerManager, true);
+
+        if (_changelogsShown)
+        {
+            return;
+        }
+        var changelogs = await _updateModule.Changelogs;
+        if (changelogs.Length == 0) return;
+        
+        var changelogWindow = new Window_Changelogs(changelogs, _updateModule);
+        changelogWindow.Show();
+        _changelogsShown = true;
     }
 
    private static IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)

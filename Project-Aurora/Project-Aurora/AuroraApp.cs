@@ -15,6 +15,7 @@ namespace AuroraRgb;
 
 public sealed class AuroraApp : IDisposable
 {
+    private static readonly UpdateModule UpdateModule = new();
     private static readonly PluginsModule PluginsModule = new();
     private static readonly IpcListenerModule IpcListenerModule = new();
     
@@ -46,7 +47,7 @@ public sealed class AuroraApp : IDisposable
         
         _modules =
         [
-            new UpdateModule(),
+            UpdateModule,
             new UpdateCleanup(),
             new InputsModule(),
             new MediaInfoModule(),
@@ -169,7 +170,7 @@ public sealed class AuroraApp : IDisposable
         var stopwatch = Stopwatch.StartNew();
         var configUi = new ConfigUi(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
-            LightingStateManagerModule.LightningStateManager, _controlInterface);
+            LightingStateManagerModule.LightningStateManager, _controlInterface, UpdateModule);
         Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);
         
         stopwatch.Restart();
