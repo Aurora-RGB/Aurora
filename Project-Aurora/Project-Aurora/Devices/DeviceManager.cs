@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.Modules;
 using Common;
@@ -135,22 +136,34 @@ public sealed class DeviceManager : IDisposable
             return;
         }
         _process ??= Process.GetProcessesByName(DeviceManagerProcess).FirstOrDefault();
-        if (_process != null)
+        if (_process == null)
         {
-            var process = _process;
-            _process = null;
-
-            if (await IsDeviceManagerUp())
-            {
-                await DevicesPipe.Shutdown();
-            }
-            else
-            {
-                process.Kill();
-            }
-            await process.WaitForExitAsync();
-            DevicesUpdated?.Invoke(this, new DevicesUpdatedEventArgs([]));
+            return;
         }
+
+        var process = _process;
+        _process = null;
+
+        if (await IsDeviceManagerUp())
+        {
+            await DevicesPipe.Shutdown();
+        }
+        else
+        {
+            process.Kill();
+        }
+
+        using var processWaitTimeout = new CancellationTokenSource(1500);
+        try
+        {
+            await process.WaitForExitAsync(processWaitTimeout.Token);
+        }
+        catch (TaskCanceledException)
+        {
+            process.Kill();
+        }
+
+        DevicesUpdated?.Invoke(this, new DevicesUpdatedEventArgs([]));
     }
 
     public async Task ResetDevices()
