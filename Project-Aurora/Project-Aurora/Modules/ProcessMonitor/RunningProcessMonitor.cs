@@ -64,18 +64,27 @@ public sealed class RunningProcessMonitor : IDisposable {
         // Listen for new processes
         _startWatcher = new ManagementEventWatcher("SELECT ProcessName FROM Win32_ProcessStartTrace");
         _startWatcher.EventArrived += OnProcessStarted;
-        _startWatcher.Start();
 
         // Listen for closed processes 
         _shortStopWatcher = new ManagementEventWatcher("SELECT ProcessName FROM Win32_ProcessStopTrace");
         _shortStopWatcher.EventArrived += ShortProcessStopped;
-        _shortStopWatcher.Start();
 
         // Listen for closed processes 
         var query = new WqlEventQuery("__InstanceDeletionEvent", TimeSpan.FromSeconds(1), "TargetInstance isa 'Win32_Process'");
         _longStopWatcher = new ManagementEventWatcher(query);
         _longStopWatcher.EventArrived += LongProcessStopped;
-        _longStopWatcher.Start();
+
+        try
+        {
+            _startWatcher.Start();
+            _shortStopWatcher.Start();
+            _longStopWatcher.Start();
+        }
+        catch (ManagementException e)
+        {
+            Global.logger.Fatal(e, "WMI is corrupt");
+            Process.Start("explorer", "https://www.project-aurora.com/Docs/diagnostics/repair-wmi/");
+        }
     }
 
     private void OnProcessStarted(object? sender, EventArrivedEventArgs e)
