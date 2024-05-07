@@ -31,7 +31,8 @@ public class UpdateManager
     private int? _previousPercentage;
     private int _secondsLeft = 12;
 
-    public readonly Release LatestRelease;
+    public readonly List<Release> MissingReleases = [];
+    public readonly Release LatestRelease = new("Release fetch failed");
     private readonly LogEntry _downloadLogEntry = new("Download 0%");
 
     public UpdateManager(Version version, string author, string repoName)
@@ -47,14 +48,16 @@ public class UpdateManager
         }
 
         var updateInfo = new UpdateInfo(version, author, repoName, config.GetDevReleases);
+        var getPreReleases = updateInfo.IsCurrentlyPreRelease().Result;
 
         PerformCleanup();
-        var tries = 5;
-        do
+        var tries = 6;
+        while(tries-- != 0)
         {
             try
             {
-                LatestRelease = updateInfo.FetchData().Result;
+                MissingReleases = updateInfo.FetchMissingReleases().ToList();
+                LatestRelease = MissingReleases.First(r => getPreReleases || !r.Prerelease);
                 return;
             }
             catch (AggregateException e)
@@ -68,9 +71,7 @@ public class UpdateManager
                     throw;
                 }
             }
-        } while (LatestRelease == null && tries-- != 0);
-
-        LatestRelease = new Release("Release fetch failed");
+        }
     }
 
     public void ClearLog()
@@ -97,9 +98,7 @@ public class UpdateManager
     {
         try
         {
-            var changelogFile = $"./changelogs/{LatestRelease.TagName}.txt";
-            Directory.CreateDirectory(Path.GetDirectoryName(changelogFile)!);
-            await File.WriteAllTextAsync(changelogFile, $"{LatestRelease.Body}");
+            await SaveChangelogs(MissingReleases);
 
             var assets = LatestRelease.Assets;
             var url = assets.First(s => s.Name.StartsWith("release") || s.Name.StartsWith("Aurora-v")).BrowserDownloadUrl;
@@ -140,6 +139,21 @@ public class UpdateManager
         }
     }
 
+    private static async Task SaveChangelogs(IEnumerable<Release> releases)
+    {
+        foreach (var release in releases)
+        {
+            await SaveChangelog(release);
+        }
+    }
+
+    private static async Task SaveChangelog(Release release)
+    {
+        var changelogFile = $"./changelogs/{release.TagName}.txt";
+        Directory.CreateDirectory(Path.GetDirectoryName(changelogFile)!);
+        await File.WriteAllTextAsync(changelogFile, $"{release.Body}");
+    }
+
     private async Task UpdatePlugin(IEnumerable<ReleaseAsset> releaseAssets, WebClient client)
     {
         var installDirPlugin = Path.Combine(Program.ExePath, "Plugins");
@@ -160,7 +174,7 @@ public class UpdateManager
         }
     }
 
-    private class PluginUpdater(ReleaseAsset pluginDll, WebClient client, Uri address, ObservableCollection<LogEntry> log)
+    private class PluginUpdater(ReleaseAsset pluginDll, WebClient client, Uri address, ICollection<LogEntry> log)
     {
         internal async Task UpdatePlugin(string installDirPlugin)
         {
