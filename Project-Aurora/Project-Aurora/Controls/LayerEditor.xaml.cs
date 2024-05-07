@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -9,156 +8,122 @@ using System.Windows.Shapes;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 
-namespace AuroraRgb.Controls
+namespace AuroraRgb.Controls;
+
+/// <summary>
+/// Interaction logic for LayerEditor.xaml
+/// </summary>
+public partial class LayerEditor
 {
-    /// <summary>
-    /// Interaction logic for LayerEditor.xaml
-    /// </summary>
-    public partial class LayerEditor : UserControl
+    private static Canvas _staticCanvas = new();
+    private static Style _style = new();
+
+    public LayerEditor()
     {
-        //static FreeFormObject activeLayer = new FreeFormObject();
+        InitializeComponent();
 
-        private static Canvas static_canvas = new Canvas();
-        private static Style style = new Style();
+        _staticCanvas = editor_canvas;
+        _style = FindResource("DesignerItemStyle") as Style;
+    }
 
-        //public static event EventHandler SequenceUpdated;
+    public static void AddKeySequenceElement(FreeFormObject freeForm, Color elementColor, string elementName)
+    {
+        var existingControl = FindElementByTag(freeForm);
 
-        public LayerEditor()
+        if (existingControl != null) return;
+
+        var transform = new RotateTransform
         {
-            InitializeComponent();
+            Angle = freeForm.Angle
+        };
 
-            static_canvas = editor_canvas;
-            style = this.FindResource("DesignerItemStyle") as Style;
+        var label = new Label();
+        label.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
+        label.Content = elementName;
+        label.IsHitTestVisible = false;
+
+        Shape content =  new Rectangle();
+        content.Fill = new SolidColorBrush(elementColor);
+        content.IsHitTestVisible = false;
+        content.Opacity = 0.50D;
+
+        var contentGrid = new Grid();
+        contentGrid.IsHitTestVisible = false;
+        contentGrid.Children.Add(content);
+        contentGrid.Children.Add(label);
+
+        var transformControl = new ContentControl();
+        transformControl.Width = freeForm.Width;
+        transformControl.Height = freeForm.Height;
+        transformControl.Style = _style;
+        transformControl.Tag = freeForm;
+        transformControl.Content = contentGrid;
+        transformControl.SizeChanged += NewcontrolSizeChanged;
+
+        transformControl.SetValue(Selector.IsSelectedProperty, true);
+        transformControl.SetValue(Canvas.TopProperty, (double)(freeForm.Y + Effects.Canvas.GridBaselineY));
+        transformControl.SetValue(Canvas.LeftProperty, (double)(freeForm.X + Effects.Canvas.GridBaselineX));
+        transformControl.SetValue(RenderTransformProperty, transform);
+
+        var descriptor = DependencyPropertyDescriptor.FromProperty(
+            Canvas.LeftProperty, typeof(ContentControl)
+        );
+        descriptor.AddValueChanged(transformControl, OnCanvasLeftChanged);
+        var descriptorTop = DependencyPropertyDescriptor.FromProperty(
+            Canvas.TopProperty, typeof(ContentControl)
+        );
+        descriptorTop.AddValueChanged(transformControl, OnCanvasTopChanged);
+        var descriptorAngle = DependencyPropertyDescriptor.FromProperty(
+            RenderTransformProperty, typeof(ContentControl)
+        );
+        descriptorAngle.AddValueChanged(transformControl, OnAngleChanged);
+
+        _staticCanvas.Children.Add(transformControl);
+
+        void OnAngleChanged(object? sender, EventArgs e)
+        {
+            var item = transformControl.GetValue(RenderTransformProperty) as RotateTransform;
+
+            freeForm.Angle = (float)item.Angle;
         }
 
-        private static void ClearElements()
+        void OnCanvasTopChanged(object? sender, EventArgs e)
         {
-            static_canvas.Children.Clear();
+            var item = transformControl.GetValue(Canvas.TopProperty);
+            freeForm.Y = (float)(double)item - Effects.Canvas.GridBaselineY;
         }
 
-        public static void ClearLayers()
+        void OnCanvasLeftChanged(object? sender, EventArgs e)
         {
-            ClearElements();
+            var item = transformControl.GetValue(Canvas.LeftProperty);
+            freeForm.X = (float)(double)item - Effects.Canvas.GridBaselineX;
         }
 
-        public static void AddKeySequenceElement(FreeFormObject element, Color element_color, String element_name)
+        void NewcontrolSizeChanged(object? sender, SizeChangedEventArgs e)
         {
-            ContentControl existingControl = FindElementByTag(element);
+            freeForm.Width = (float)transformControl.ActualWidth;
+            freeForm.Height = (float)transformControl.ActualHeight;
+        }
+    }
 
-            if (existingControl == null)
-            {
-                ContentControl newcontrol = new ContentControl();
-                newcontrol.Width = element.Width;
-                newcontrol.Height = element.Height;
-                newcontrol.SetValue(Selector.IsSelectedProperty, true);
-                newcontrol.SetValue(Canvas.TopProperty, (double)(element.Y + Effects.Canvas.GridBaselineY));
-                newcontrol.SetValue(Canvas.LeftProperty, (double)(element.X + Effects.Canvas.GridBaselineX));
-                RotateTransform transform = new RotateTransform();
-                transform.Angle = element.Angle;
-                newcontrol.SetValue(RenderTransformProperty, transform);
-                newcontrol.Style = style;
-                newcontrol.Tag = element;
-                newcontrol.SizeChanged += Newcontrol_SizeChanged;
-                var descriptor = DependencyPropertyDescriptor.FromProperty(
-                    Canvas.LeftProperty, typeof(ContentControl)
-                  );
-                descriptor.AddValueChanged(newcontrol, OnCanvasLeftChanged);
-                var descriptor_top = DependencyPropertyDescriptor.FromProperty(
-                    Canvas.TopProperty, typeof(ContentControl)
-                  );
-                descriptor_top.AddValueChanged(newcontrol, OnCanvasTopChanged);
-                var descriptor_angle = DependencyPropertyDescriptor.FromProperty(
-                    RenderTransformProperty, typeof(ContentControl)
-                  );
-                descriptor_angle.AddValueChanged(newcontrol, OnAngleChanged);
+    public static void RemoveKeySequenceElement(FreeFormObject element)
+    {
+        var existingControl = FindElementByTag(element);
 
-                Shape content = new Rectangle();
+        if (existingControl != null)
+        {
+            _staticCanvas.Children.Remove(existingControl);
+        }
+    }
 
-                content = new Rectangle();
-                content.Fill = new SolidColorBrush(element_color);
-
-                content.IsHitTestVisible = false;
-                content.Opacity = 0.50D;
-
-                Grid content_grid = new Grid();
-                content_grid.IsHitTestVisible = false;
-                content_grid.Children.Add(content);
-
-                Label label = new Label();
-                label.Foreground = new SolidColorBrush(Color.FromRgb(0, 0, 0));
-                label.Content = element_name;
-                label.IsHitTestVisible = false;
-                content_grid.Children.Add(label);
-
-                newcontrol.Content = content_grid;
-
-                static_canvas.Children.Add(newcontrol);
-            }
+    private static ContentControl? FindElementByTag(FreeFormObject tag)
+    {
+        foreach (var child in _staticCanvas.Children)
+        {
+            if (child is not ContentControl control || !ReferenceEquals(tag, control.Tag)) continue;
+            return control;
         }
 
-        public static void RemoveKeySequenceElement(FreeFormObject element)
-        {
-            ContentControl existingControl = FindElementByTag(element);
-
-            if (existingControl != null)
-            {
-                static_canvas.Children.Remove(existingControl);
-            }
-        }
-
-        private static ContentControl FindElementByTag(FreeFormObject tag)
-        {
-            ContentControl foundElement = null;
-
-            foreach (var child in static_canvas.Children)
-            {
-                if (child is ContentControl && ReferenceEquals(tag, (child as ContentControl).Tag))
-                {
-                    foundElement = child as ContentControl;
-                    break;
-                }
-            }
-
-            return foundElement;
-        }
-
-        private static void OnAngleChanged(object? sender, EventArgs e)
-        {
-            RotateTransform item = (sender as ContentControl).GetValue(RenderTransformProperty) as RotateTransform;
-
-            if ((sender as ContentControl).Tag != null && (sender as ContentControl).Tag is FreeFormObject)
-            {
-                ((sender as ContentControl).Tag as FreeFormObject).Angle = (float)item.Angle;
-            }
-        }
-
-        private static void OnCanvasTopChanged(object? sender, EventArgs e)
-        {
-            var contentControl = sender as ContentControl;
-
-            if (contentControl?.Tag is not FreeFormObject freeFormObject) return;
-
-            var item = contentControl.GetValue(Canvas.TopProperty);
-            freeFormObject.Y = float.Parse(item.ToString(), CultureInfo.InvariantCulture) - Effects.Canvas.GridBaselineY;
-        }
-
-        private static void OnCanvasLeftChanged(object? sender, EventArgs e)
-        {
-            var contentControl = sender as ContentControl;
-
-            if (contentControl?.Tag is not FreeFormObject freeFormObject) return;
-
-            var item = contentControl.GetValue(Canvas.LeftProperty);
-            freeFormObject.X = float.Parse(item.ToString(), CultureInfo.InvariantCulture) - Effects.Canvas.GridBaselineX;
-        }
-
-        private static void Newcontrol_SizeChanged(object? sender, SizeChangedEventArgs e)
-        {
-            if ((sender as ContentControl).Tag != null && (sender as ContentControl).Tag is FreeFormObject)
-            {
-                ((sender as ContentControl).Tag as FreeFormObject).Width = (float)((sender as ContentControl).ActualWidth);
-                ((sender as ContentControl).Tag as FreeFormObject).Height = (float)((sender as ContentControl).ActualHeight);
-            }
-        }
+        return null;
     }
 }
