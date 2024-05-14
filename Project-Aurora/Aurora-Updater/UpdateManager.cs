@@ -32,7 +32,7 @@ public class UpdateManager
     private int _secondsLeft = 12;
 
     public readonly List<Release> MissingReleases = [];
-    public readonly Release LatestRelease = new("Release fetch failed");
+    public readonly Release? LatestRelease = new("Release fetch failed");
     private readonly LogEntry _downloadLogEntry = new("Download 0%");
 
     public UpdateManager(Version version, string author, string repoName)
@@ -57,7 +57,7 @@ public class UpdateManager
             try
             {
                 MissingReleases = updateInfo.FetchMissingReleases().ToList();
-                LatestRelease = MissingReleases.First(r => getPreReleases || !r.Prerelease);
+                LatestRelease = MissingReleases.Find(r => getPreReleases || !r.Prerelease);
                 return;
             }
             catch (AggregateException e)
@@ -96,6 +96,8 @@ public class UpdateManager
 
     public async Task RetrieveUpdate()
     {
+        if(LatestRelease == null)
+            return;
         try
         {
             await SaveChangelogs(MissingReleases);

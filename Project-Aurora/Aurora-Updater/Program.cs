@@ -90,6 +90,8 @@ internal static class Program
         {
             return;
         }
+        if(updateManager.LatestRelease == null)
+            return;
 
         var latestV = VersionParser.ParseVersion(updateManager.LatestRelease.TagName);
         if (File.Exists("skipversion.txt"))

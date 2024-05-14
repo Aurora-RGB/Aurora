@@ -46,11 +46,11 @@ public class UpdateInfo(Version currentVersion, string author, string repoName, 
         if (IsDevelopmentBuild())
         {
             var lastRelease = await _gClient.Repository.Release.GetAll(author, repoName, new ApiOptions { PageCount = 1, PageSize = 3 });
-            //yield return lastRelease[0];
             foreach (var release in lastRelease)
             {
                 yield return release;
             }
+            yield break;
         }
         
         var page = 1;
