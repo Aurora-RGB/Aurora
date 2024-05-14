@@ -2,8 +2,8 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Common.Devices;
 using Common;
+using Common.Devices;
 using Common.Devices.RGBNet;
 using RGB.NET.Core;
 
@@ -69,6 +69,16 @@ public abstract class RgbNetDevice : DefaultDevice
                 timeWatch.Start();
 
                 Provider.Initialize(RGBDeviceType.All, true);
+                
+                
+
+                if (DeviceList.Count == 0)
+                {
+                    await Task.Delay(1500, cancellationToken);
+                    const string message = "No device detected yet!";
+                    ErrorMessage = message;
+                    throw new DeviceProviderException(new ApplicationException(message), false);
+                }
 
                 IsInitialized = true;
                 ErrorMessage = null;
@@ -209,6 +219,11 @@ public abstract class RgbNetDevice : DefaultDevice
     public bool NeedsLayout()
     {
         return _needsLayout;
+    }
+
+    public virtual bool HotplugEnabled()
+    {
+        return false;
     }
 
     protected virtual Task ConfigureProvider(CancellationToken cancellationToken)

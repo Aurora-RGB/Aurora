@@ -55,4 +55,9 @@ public class OpenRgbNetDevice : RgbNetDevice
         variableRegistry.Register($"{DeviceName}_port", 6742, "Port", 65535, 1024);
         variableRegistry.Register($"{DeviceName}_fallback_key", DeviceKeys.Peripheral_Logo, "Key to use for unknown leds. Select NONE to disable");
     }
+
+    public override bool HotplugEnabled()
+    {
+        return true;
+    }
 }

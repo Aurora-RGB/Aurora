@@ -48,7 +48,7 @@ public class CorsairRgbNetDevice : RgbNetDevice
 
         if (_icueDetectedOff)
         {
-            await Task.Delay(10000, cancellationToken);
+            await Task.Delay(5000, cancellationToken);
         }
 
         _icueDetectedOff = false;

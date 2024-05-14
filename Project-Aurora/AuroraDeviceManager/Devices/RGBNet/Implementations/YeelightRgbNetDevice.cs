@@ -38,4 +38,9 @@ public class YeelightRgbNetDevice : RgbNetDevice
         }
         YeelightProvider.Instance.MusicModeOnly = Global.DeviceConfig.VarRegistry.GetVariable<bool>($"{DeviceName}_music_mode_only");
     }
+
+    public override bool HotplugEnabled()
+    {
+        return true;
+    }
 }
