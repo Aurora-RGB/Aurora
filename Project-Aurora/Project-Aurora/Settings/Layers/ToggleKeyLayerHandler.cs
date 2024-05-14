@@ -53,6 +53,8 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
     public override void Dispose()
     {
         InputsModule.InputEvents.Result.KeyDown -= InputEvents_KeyDown;
+        _primaryBrush.Dispose();
+        _secondaryBrush.Dispose();
         base.Dispose();
     }
 

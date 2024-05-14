@@ -25,6 +25,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
             if (_invalidated)
             {
+                _brush?.Dispose();
                 _brush = new SolidBrush(_color);
 
                 VirtUpdate();

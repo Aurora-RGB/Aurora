@@ -26,6 +26,7 @@ public class AnimationFilledCircle : AnimationCircle
     {
         if (_brush == null || _invalidated)
         {
+            _brush?.Dispose();
             _brush = new SolidBrush(_color);
             _pen = new Pen(_color);
             _pen.Width = _width * (12 / (int)Global.Configuration.BitmapAccuracy);

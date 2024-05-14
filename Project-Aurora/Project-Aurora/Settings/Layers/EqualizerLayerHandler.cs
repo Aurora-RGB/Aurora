@@ -243,6 +243,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 
     private float[]? _previousFreqResults;
     private int _freq = 48000;
+    private readonly SolidBrush _backgroundBrush = new(Color.Transparent);
 
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
@@ -316,7 +317,9 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
             g.CompositingQuality = CompositingQuality.Invalid;
             // Draw a rectangle background over the entire source rect if bg is enabled
             if (bgEnabled)
-                g.FillRectangle(new SolidBrush(Properties.DimColor), SourceRect);
+            {
+                g.FillRectangle(_backgroundBrush, SourceRect);
+            }
 
             var waveStepAmount = localFft.Length / (int)SourceRect.Width;
 
@@ -331,6 +334,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = -Math.Max(Math.Min(fftVal / scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
                         g.DrawLine(new Pen(brush), x, halfHeight, x, halfHeight + yOff);
+                        brush.Dispose();
                     }
                     break;
                 case EqualizerType.WaveformBottom:
@@ -342,6 +346,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         g.DrawLine(new Pen(brush), x, SourceRect.Height, x,
                             SourceRect.Height - Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f,
                                 SourceRect.Height));
+                        brush.Dispose();
                     }
                     break;
                 case EqualizerType.PowerBars:
@@ -395,6 +400,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         g.SmoothingMode = SmoothingMode.AntiAlias;
                         g.FillRectangle(brush, x, y - height, barWidth, height);
+                        brush.Dispose();
                     }
                     break;
                 default:
@@ -468,8 +474,17 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         }
     }
 
+    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        base.PropertiesChanged(sender, args);
+
+        _backgroundBrush.Color = Properties.DimColor;
+    }
+
     public override void Dispose()
     {
+        base.Dispose();
+
         _disposed = true;
         if (_deviceProxy == null) return;
         _deviceProxy.WaveInDataAvailable -= OnDataAvailable;

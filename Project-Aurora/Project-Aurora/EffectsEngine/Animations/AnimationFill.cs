@@ -19,6 +19,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             // Offset has no effect on this. I think.
             if (_brush == null || _invalidated)
             {
+                _brush?.Dispose();
                 _brush = new SolidBrush(_color);
                 _invalidated = false;
             }

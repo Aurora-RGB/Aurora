@@ -46,6 +46,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             // Offset has no effect on this type of animation frame
             if (_brush == null || _invalidated)
             {
+                _brush?.Dispose();
                 _brush = new SolidBrush(_color);
 
                 VirtUpdate();
@@ -56,7 +57,9 @@ namespace AuroraRgb.EffectsEngine.Animations
             {
                 var region = Effects.Canvas.GetRectangle(kvp.Key);
 
-                g.FillRectangle(new SolidBrush(kvp.Value), region.Left, region.Top, region.Width, region.Height);
+                var solidBrush = new SolidBrush(kvp.Value);
+                g.FillRectangle(solidBrush, region.Left, region.Top, region.Width, region.Height);
+                solidBrush.Dispose();
             }
         }
 

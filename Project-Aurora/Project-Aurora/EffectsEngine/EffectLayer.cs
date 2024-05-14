@@ -23,6 +23,10 @@ namespace AuroraRgb.EffectsEngine
         private static readonly Lazy<EffectLayer> EmptyLayerFactory = new(
             () => new EffectLayer("EmptyLayer", true), LazyThreadSafetyMode.PublicationOnly);
         public static EffectLayer EmptyLayer => EmptyLayerFactory.Value;
+        
+        // Yes, this is no thread-safe but Aurora isn't supposed to take up resources
+        // This is done to prevent memory leaks from creating new brushes
+        private readonly SolidBrush _solidBrush = new(Color.Transparent);
 
         private readonly string _name;
         private Bitmap _colormap;
@@ -231,6 +235,7 @@ namespace AuroraRgb.EffectsEngine
             _textureBrush?.Dispose();
             _textureBrush = null;
             _transformedDrawExcludeMap?.Dispose();
+            _solidBrush.Dispose();
         }
 
         /// <summary>
@@ -289,14 +294,14 @@ namespace AuroraRgb.EffectsEngine
         /// </summary>
         /// <param name="color">Color to be used during bitmap fill</param>
         /// <returns>Itself</returns>
-        [Obsolete("Use with Brush argument")]
         public void FillOver(Color color)
         {
             using (var g = Graphics.FromImage(_colormap))
             {
                 g.CompositingMode = CompositingMode.SourceOver;
                 g.SmoothingMode = SmoothingMode.None;
-                g.FillRectangle(new SolidBrush(color), Dimension);
+                _solidBrush.Color = color;
+                g.FillRectangle(_solidBrush, Dimension);
             }
 
             Invalidate();
@@ -355,7 +360,11 @@ namespace AuroraRgb.EffectsEngine
         /// <param name="sequence">KeySequence to specify what regions of the bitmap need to be changed</param>
         /// <param name="color">Color to be used</param>
         /// <returns>Itself</returns>
-        public void Set(KeySequence sequence, Color color) => Set(sequence, new SolidBrush(color));
+        public void Set(KeySequence sequence, Color color)
+        {
+            _solidBrush.Color = color;
+            Set(sequence, _solidBrush);
+        }
 
         /// <summary>
         /// Sets a specific KeySequence on the bitmap with a specified brush.
@@ -572,7 +581,8 @@ namespace AuroraRgb.EffectsEngine
         /// <param name="color">Color to be used</param>
         private void SetOneKey(DeviceKeys key, Color color)
         {
-            SetOneKey(key, new SolidBrush(color));
+            _solidBrush.Color = color;
+            SetOneKey(key, _solidBrush);
         }
 
         private readonly Dictionary<DeviceKeys, Color> _keyColors = new(Effects.MaxDeviceId);
@@ -933,7 +943,9 @@ namespace AuroraRgb.EffectsEngine
                 myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
                 g.Transform = myMatrix;
-                g.FillRectangle(new SolidBrush(ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal)), rect);
+                var color = ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal);
+                _solidBrush.Color = color;
+                g.FillRectangle(_solidBrush, rect);
                 Invalidate();
             }
             else
@@ -948,8 +960,10 @@ namespace AuroraRgb.EffectsEngine
                 g.Transform = myMatrix;
 
                 var rectRest = new RectangleF(xPos, yPos, width, height);
-                g.FillRectangle(new SolidBrush(backgroundColor), rectRest);
-                g.FillRectangle(new SolidBrush(foregroundColor), rect);
+                _solidBrush.Color = backgroundColor;
+                g.FillRectangle(_solidBrush, rectRest);
+                _solidBrush.Color = foregroundColor;
+                g.FillRectangle(_solidBrush, rect);
                 Invalidate();
             }
         }
@@ -1018,7 +1032,9 @@ namespace AuroraRgb.EffectsEngine
                 myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
                 g.Transform = myMatrix;
-                g.FillRectangle(new SolidBrush(spectrum.GetColorAt((float)progressTotal, 1.0f, flashAmount)), rect);
+                var color = spectrum.GetColorAt((float)progressTotal, 1.0f, flashAmount);
+                _solidBrush.Color = color;
+                g.FillRectangle(_solidBrush, rect);
             }
             else
             {

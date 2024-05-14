@@ -35,4 +35,11 @@ public class SolidColorLayerHandler : LayerHandler<LayerHandlerProperties>
         _propertiesSequence = Properties.Sequence;
         EffectLayer.Invalidate();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        
+        _brush.Dispose();
+    }
 }

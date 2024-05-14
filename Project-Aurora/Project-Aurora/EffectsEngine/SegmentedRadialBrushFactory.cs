@@ -86,6 +86,7 @@ namespace AuroraRgb.EffectsEngine {
             // Create and draw texture
             var texture = new Bitmap(textureSize, textureSize);
             using (var gfx = Graphics.FromImage(texture)) {
+                var solidBrush = new SolidBrush(Color.Transparent);
                 for (var i = 0; i < segmentCount; i++) {
 
                     // Move the stop index forwards if required.
@@ -104,11 +105,13 @@ namespace AuroraRgb.EffectsEngine {
                         );
 
                     // Draw this segment
-                    gfx.FillPie(new SolidBrush(color), renderArea, i * angle, angle);
+                    solidBrush.Color = color;
+                    gfx.FillPie(solidBrush, renderArea, i * angle, angle);
 
                     // Bump the offset
                     currentOffset += segmentOffset;
                 }
+                solidBrush.Dispose();
             }
 
             // Create the texture brush from our custom bitmap texture

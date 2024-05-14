@@ -24,7 +24,7 @@ public sealed class EventIdle : LightEvent
 
     internal readonly DeviceKeys[] AllKeys = Enum.GetValues(typeof(DeviceKeys)).Cast<DeviceKeys>().ToArray();
 
-    private AwayEffect _awayEffect = new DimEffect();
+    private AwayEffect _awayEffect = DimEffect.Instance;
 
     public EventIdle()
     {
@@ -51,7 +51,7 @@ public sealed class EventIdle : LightEvent
         _awayEffect = Global.Configuration.IdleType switch
         {
             IdleEffects.None => new NoneEffect(),
-            IdleEffects.Dim => new DimEffect(),
+            IdleEffects.Dim => DimEffect.Instance,
             IdleEffects.ColorBreathing => new ColorBreathingEffect(this),
             IdleEffects.RainbowShift_Horizontal => new RainbowShiftHorizontal(this),
             IdleEffects.RainbowShift_Vertical => new RainbowShiftVertical(this),
@@ -116,7 +116,12 @@ internal class NoneEffect : AwayEffect
 
 internal class DimEffect : AwayEffect
 {
+    public static DimEffect Instance { get; } = new();
     private readonly Brush _dimBrush = new SolidBrush(Color.FromArgb(125, 0, 0, 0));
+
+    private DimEffect()
+    {
+    }
 
     public override void Update(EffectLayer layer)
     {
