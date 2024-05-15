@@ -9,15 +9,18 @@
                          mc:Ignorable="d"
                          Closed="Window_Changelogs_OnClosed"
                          Title="While you were away..." MinHeight="450" Width="600">
-    <ItemsControl Name="MarkdownScrollViewer" MaxWidth="Infinity">
-        <ItemsControl.ItemTemplate>
-            <DataTemplate d:DataType="{x:Type updates:AuroraChangelog}">
-                <StackPanel>
-                    <TextBlock FontSize="32" Text="{Binding VersionTag}" />
-                    <mdXaml:MarkdownScrollViewer MarkdownStyleName="Sasabune" Markdown="{Binding Content}" Margin="20, 20, 5, 50" />
-                    <Separator />
-                </StackPanel>
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
-    </ItemsControl>
+    <ScrollViewer Name="ScrollViewer" PreviewMouseWheel="UIElement_OnPreviewMouseWheel">
+        <ItemsControl Name="MarkdownScrollViewer">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate d:DataType="{x:Type updates:AuroraChangelog}">
+                    <StackPanel>
+                        <TextBlock FontSize="32" Text="{Binding VersionTag}" />
+                        <mdXaml:MarkdownScrollViewer
+                            MarkdownStyleName="Sasabune" Markdown="{Binding Content}" Margin="20, 20, 5, 50" />
+                        <Separator />
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </ScrollViewer>
 </fluentWpf:AcrylicWindow>

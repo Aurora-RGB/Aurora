@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Input;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Updates;
 using AuroraRgb.Utils;
@@ -33,5 +34,11 @@ public sealed partial class Window_Changelogs : IDisposable
     private void Window_Changelogs_OnClosed(object? sender, EventArgs e)
     {
         DeleteChangelogs();
+    }
+
+    private void UIElement_OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset - e.Delta);
+        e.Handled = true;
     }
 }
