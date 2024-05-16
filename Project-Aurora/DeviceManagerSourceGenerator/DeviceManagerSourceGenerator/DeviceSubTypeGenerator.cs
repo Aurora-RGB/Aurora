@@ -31,9 +31,13 @@ public class DeviceSubTypeGenerator : ISourceGenerator
         }
 
         // Get all types in the compilation that implement the interface
-        var subTypes = context.Compilation.GetSymbolsWithName(s => true)
+        var subTypes = context.Compilation.GetSymbolsWithName(_ => true)
             .OfType<INamedTypeSymbol>()
-            .Where(t => t.AllInterfaces.Contains(deviceInterface) && !t.IsAbstract && !t.Equals(deviceInterface, SymbolEqualityComparer.Default));
+            .Where(t =>
+                t.AllInterfaces.Contains(deviceInterface) &&    //is subclass of IDevice
+                !t.IsAbstract &&            //is concrete class
+                t.Constructors.Any(ctor => ctor.Parameters.Length == 0)  //has default constructor
+                );
 
         // Generate source code for listing sub-types
         // Generate a simple class with a static method returning sub-types
@@ -43,14 +47,23 @@ public class DeviceSubTypeGenerator : ISourceGenerator
                             // {{DateTime.Now}}
 
                             using System;
+                            using System.Linq.Expressions;
 
                             namespace AuroraDeviceManager.Devices;
 
                             public static class {{GeneratedClassName}}
                             {
+                                private static readonly Func<IDevice>[] DeviceFuncs = DeviceSubTypes.GetSubTypes()
+                                    .Select(t => Expression.Lambda<Func<IDevice>>(Expression.New(t)).Compile()).ToArray();
+
                                 public static Type[] GetSubTypes()
                                 {
                                     return [ {{subTypeList}} ];
+                                }
+                                                        
+                                public static IEnumerable<IDevice> GetInstances()
+                                {
+                                    return DeviceFuncs.Select(exp => exp.Invoke());
                                 }
                             }
                             """;

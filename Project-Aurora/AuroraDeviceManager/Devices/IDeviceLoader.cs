@@ -15,10 +15,7 @@ internal sealed class AssemblyDeviceLoader : IDeviceLoader
 
     private static IEnumerable<IDevice> LoadFromGenerated()
     {
-        return from type in DeviceSubTypes.GetSubTypes()
-            where type != typeof(ScriptedDevice.ScriptedDevice)
-                  && type.GetConstructor(Type.EmptyTypes) != null
-            let inst = (IDevice)Activator.CreateInstance(type)
+        return from inst in DeviceSubTypes.GetInstances()
             orderby inst.DeviceName
             select inst;
     }
