@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Threading;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
@@ -245,6 +246,9 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
     private int _freq = 48000;
     private readonly SolidBrush _backgroundBrush = new(Color.Transparent);
 
+    private long _lastRender = Time.GetMillisecondsSinceEpoch();
+    private Timer? _aliveTimer;
+
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
         _ffts = new Complex[FftLength];
@@ -252,6 +256,27 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 
         _sampleAggregator.FftCalculated += FftCalculated;
         _sampleAggregator.PerformFft = true;
+        
+        StartAliveTimer();
+    }
+
+    private void StartAliveTimer()
+    {
+        _aliveTimer = new Timer(AliveTimerCallback, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
+    }
+
+    private void AliveTimerCallback(object? state)
+    {
+        var now = Time.GetMillisecondsSinceEpoch();
+        if (now - _lastRender <= TimeSpan.FromSeconds(20).Milliseconds || _deviceProxy == null) return;
+        
+        // 20 sec passed since last render, dispose proxy
+        var deviceProxy = _deviceProxy;
+        _deviceProxy = null;
+        deviceProxy.Dispose();
+
+        _aliveTimer?.Dispose();
+        _aliveTimer = null;
     }
 
     protected override UserControl CreateControl()
@@ -264,6 +289,11 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 
         if (DeviceProxy.Device == null)
             return EffectLayer.EmptyLayer;
+
+        if (_aliveTimer == null)
+        {
+            StartAliveTimer();
+        }
 
         // The system sound as a value between 0.0 and 1.0
         var systemSoundNormalized = DeviceProxy.Device?.AudioMeterInformation?.MasterPeakValue ?? 1f;
