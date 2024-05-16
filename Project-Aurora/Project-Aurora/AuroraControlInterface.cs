@@ -33,6 +33,9 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
     {
         switch (e)
         {
+            case "restartAurora":
+                RestartAurora();
+                break;
             case "restartAll":
                 ShutdownDevices().Wait();
                 RestartAurora();
@@ -40,6 +43,9 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
             case "shutdown":
                 ShutdownDevices().Wait();
                 ExitApp();
+                break;
+            case "restartDevices":
+                RestartDevices().Wait();
                 break;
             case "quitDevices":
                 ShutdownDevices().Wait();

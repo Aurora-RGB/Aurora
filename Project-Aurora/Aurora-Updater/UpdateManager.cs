@@ -8,6 +8,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
@@ -31,9 +33,14 @@ public class UpdateManager
     private int? _previousPercentage;
     private int _secondsLeft = 12;
 
-    public readonly List<Release> MissingReleases = [];
+    public readonly IReadOnlyList<Release> MissingReleases = [];
     public readonly Release? LatestRelease = new("Release fetch failed");
     private readonly LogEntry _downloadLogEntry = new("Download 0%");
+
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new(new JsonSerializerOptions
+    {
+        Converters = { new JsonStringEnumConverter() }
+    });
 
     public UpdateManager(Version version, string author, string repoName)
     {
@@ -57,7 +64,7 @@ public class UpdateManager
             try
             {
                 MissingReleases = updateInfo.FetchMissingReleases().ToList();
-                LatestRelease = MissingReleases.Find(r => getPreReleases || !r.Prerelease);
+                LatestRelease = MissingReleases.FirstOrDefault(r => getPreReleases || !r.Prerelease);
                 return;
             }
             catch (AggregateException e)
@@ -132,12 +139,41 @@ public class UpdateManager
                 shutdownTimer.Elapsed += ShutdownTimerElapsed;
                 shutdownTimer.Start();
 
-                await RestartAurora();
+                var auroraUpdated = MissingReleases.Any(r => ContainsComponentUpdate(r, UpdateComponent.Aurora));
+                var deviceManagerUpdated = MissingReleases.Any(r => ContainsComponentUpdate(r, UpdateComponent.DeviceManager));
+                
+                var auroraInterface = new AuroraInterface();
+
+                if (!auroraUpdated && deviceManagerUpdated)
+                {
+                    await RestartDeviceManager(auroraInterface);
+                }
+                else
+                {
+                    await (deviceManagerUpdated ? ShutdownDeviceManager(auroraInterface) : Task.CompletedTask);
+                    await (auroraUpdated ? RestartAurora(auroraInterface) : Task.CompletedTask);
+                }
+
+                PerformCleanup();
             }
         }
         catch (Exception exc)
         {
             _log.Add(new LogEntry(exc.Message, Color.Red));
+        }
+
+        bool ContainsComponentUpdate(Release release, UpdateComponent component)
+        {
+            try
+            {
+                var componentsLine = release.Body[release.Body.LastIndexOf('\n')..];
+                var updateComponents = JsonSerializer.Deserialize<UpdateComponent[]>(componentsLine, _jsonSerializerOptions)!;
+                return updateComponents.Contains(component);
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 
@@ -153,7 +189,16 @@ public class UpdateManager
     {
         var changelogFile = $"./changelogs/{release.TagName}.txt";
         Directory.CreateDirectory(Path.GetDirectoryName(changelogFile)!);
-        await File.WriteAllTextAsync(changelogFile, $"{release.Body}");
+
+        if (release.Body.EndsWith(']'))
+        {
+            var changelog = release.Body[..release.Body.LastIndexOf('\n')];
+            await File.WriteAllTextAsync(changelogFile, changelog);
+        }
+        else
+        {
+            await File.WriteAllTextAsync(changelogFile, release.Body);
+        }
     }
 
     private async Task UpdatePlugin(IEnumerable<ReleaseAsset> releaseAssets, WebClient client)
@@ -176,7 +221,7 @@ public class UpdateManager
         }
     }
 
-    private class PluginUpdater(ReleaseAsset pluginDll, WebClient client, Uri address, ICollection<LogEntry> log)
+    private sealed class PluginUpdater(ReleaseAsset pluginDll, WebClient client, Uri address, ICollection<LogEntry> log)
     {
         internal async Task UpdatePlugin(string installDirPlugin)
         {
@@ -215,19 +260,26 @@ public class UpdateManager
         Environment.Exit(0); //Exit, no further action required
     }
 
-    private async Task RestartAurora()
+    private async Task RestartAurora(AuroraInterface auroraInterface)
     {
         //gracefully, find currently open aurora processes
         var auroraProcesses = Process.GetProcessesByName(AuroraProcessName);
-        var dmProcesses = Process.GetProcessesByName(DeviceManagerProcessName);
-        var allAuroraProcesses = auroraProcesses.Concat(dmProcesses).ToList();
-
-        var auroraExitTasks = allAuroraProcesses
+        var auroraExitTasks = auroraProcesses
             .Select(p => p.WaitForExitAsync());
 
         try
         {
-            await ShutdownProcesses(auroraProcesses, dmProcesses);
+            if (auroraProcesses.Length > 0)
+            {
+                try
+                {
+                    await auroraInterface.RestartAurora();
+                }
+                catch
+                {
+                    //ignore
+                }
+            }
 
             //Kill all Aurora instances
             await Task.WhenAny(
@@ -236,15 +288,13 @@ public class UpdateManager
             );
 
             //forcefully
-            foreach (var proc in allAuroraProcesses)
+            foreach (var proc in auroraProcesses)
                 proc.Kill();
 
             if (auroraProcesses.Length == 0)
             {
                 StartAurora();
             }
-
-            PerformCleanup();
         }
         catch (Exception exc)
         {
@@ -259,6 +309,40 @@ public class UpdateManager
         }
     }
 
+    private async Task RestartDeviceManager(AuroraInterface auroraInterface)
+    {
+        await auroraInterface.RestartDeviceManager();
+    }
+
+    private async Task ShutdownDeviceManager(AuroraInterface auroraInterface)
+    {
+        var dmProcesses = Process.GetProcessesByName(DeviceManagerProcessName);
+        var dmExitTasks = dmProcesses
+            .Select(p => p.WaitForExitAsync());
+        if (dmProcesses.Length <= 0)
+        {
+            return;
+        }
+
+        try
+        {
+            await auroraInterface.ShutdownDeviceManager();
+            //Kill all Aurora instances
+            await Task.WhenAny(
+                Task.Delay(TimeSpan.FromSeconds(5)),
+                Task.WhenAll(dmExitTasks)
+            );
+
+            //forcefully
+            foreach (var proc in dmProcesses)
+                proc.Kill();
+        }
+        catch
+        {
+            //ignore    
+        }
+    }
+
     private void StartAurora()
     {
         var auroraProc = new ProcessStartInfo
@@ -266,39 +350,6 @@ public class UpdateManager
             FileName = Path.Combine(Program.ExePath, "AuroraRgb.exe")
         };
         Process.Start(auroraProc);
-    }
-
-    private static async Task ShutdownProcesses(Process[] auroraProcesses, Process[] dmProcesses)
-    {
-        var auroraInterface = new AuroraInterface();
-        if (auroraProcesses.Length > 0)
-        {
-            try
-            {
-                await auroraInterface.RestartAll();
-            }
-            catch
-            {
-                await ShutdownDmProcess(dmProcesses, auroraInterface);
-            }
-        }
-        else
-        {
-            await ShutdownDmProcess(dmProcesses, auroraInterface);
-        }
-    }
-
-    private static async Task ShutdownDmProcess(Process[] dmProcesses, AuroraInterface auroraInterface)
-    {
-        if (dmProcesses.Length <= 0) return;
-        try
-        {
-            await auroraInterface.ShutdownDeviceManager();
-        }
-        catch
-        {
-            //ignore    
-        }
     }
 
     private bool ExtractUpdate()
@@ -348,7 +399,7 @@ public class UpdateManager
                         try
                         {
                             auroraProcess.Kill();
-                        }catch { /* */ }
+                        }catch { /* probably closed anyway */ }
                     }
 
                     if (processes.Length > 0)
@@ -400,11 +451,4 @@ public class UpdateManager
         if (File.Exists(Path.Combine(Program.ExePath, "update.zip")))
             File.Delete(Path.Combine(Program.ExePath, "update.zip"));
     }
-}
-
-public enum UpdateType
-{
-    Undefined,
-    Major,
-    Minor
 }

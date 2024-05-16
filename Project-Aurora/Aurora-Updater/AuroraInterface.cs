@@ -7,12 +7,17 @@ namespace Aurora_Updater;
 public class AuroraInterface
 {
     private readonly byte[] _end = "\n"u8.ToArray();
-    
-    public async Task RestartAll()
+
+    public async Task RestartDeviceManager()
     {
-        await SendAuroraCommand("restartAll");
+        await SendAuroraCommand("restartDevices");
     }
-    
+
+    public async Task RestartAurora()
+    {
+        await SendAuroraCommand("restartAurora");
+    }
+
     public async Task ShutdownDeviceManager()
     {
         await SendDeviceCommand("quit");
@@ -34,10 +39,10 @@ public class AuroraInterface
         await client.ConnectAsync(2000);
         if (!client.IsConnected)
             return;
-        
+
         client.Write(command, 0, command.Length);
         client.Write(_end, 0, _end.Length);
-        
+
         client.Flush();
         client.Close();
     }
