@@ -15,11 +15,12 @@ namespace AuroraRgb;
 
 public sealed class AuroraApp : IDisposable
 {
+    public AuroraControlInterface ControlInterface { get; }
+
     private static readonly UpdateModule UpdateModule = new();
     private static readonly PluginsModule PluginsModule = new();
     private static readonly IpcListenerModule IpcListenerModule = new();
-    
-    private readonly AuroraControlInterface _controlInterface;
+
     private readonly HttpListenerModule _httpListenerModule = new();
     private readonly ProcessesModule _processesModule = new();
     private readonly RazerSdkModule _razerSdkModule;
@@ -35,9 +36,9 @@ public sealed class AuroraApp : IDisposable
     {
         _isSilent = isSilent;
         
-        _controlInterface = new AuroraControlInterface(IpcListenerModule.IpcListener);
+        ControlInterface = new AuroraControlInterface(IpcListenerModule.IpcListener);
         _razerSdkModule = new RazerSdkModule(LightingStateManagerModule.LightningStateManager);
-        _devicesModule = new DevicesModule(_controlInterface);
+        _devicesModule = new DevicesModule(ControlInterface);
         var lightingStateManagerModule = new LightingStateManagerModule(
             PluginsModule.PluginManager, IpcListenerModule.IpcListener, _httpListenerModule.HttpListener,
             _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor
@@ -67,7 +68,7 @@ public sealed class AuroraApp : IDisposable
             new PerformanceMonitor(ProcessesModule.RunningProcessMonitor)
         ];
         
-        _trayIcon = new AuroraTrayIcon(_controlInterface);
+        _trayIcon = new AuroraTrayIcon(ControlInterface);
     }
 
     public async Task OnStartup()
@@ -92,9 +93,9 @@ public sealed class AuroraApp : IDisposable
             .Where(t => t!= null)
             .ToArray();
 
-        _controlInterface.TrayIcon = _trayIcon.TrayIcon;
-        _controlInterface.DeviceManager = await _devicesModule.DeviceManager;
-        await _controlInterface.Initialize();
+        ControlInterface.TrayIcon = _trayIcon.TrayIcon;
+        ControlInterface.DeviceManager = await _devicesModule.DeviceManager;
+        await ControlInterface.Initialize();
         _trayIcon.DisplayWindow += TrayIcon_OnDisplayWindow;
         var configUi = CreateWindow();
 
@@ -170,7 +171,7 @@ public sealed class AuroraApp : IDisposable
         var stopwatch = Stopwatch.StartNew();
         var configUi = new ConfigUi(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
-            LightingStateManagerModule.LightningStateManager, _controlInterface, UpdateModule);
+            LightingStateManagerModule.LightningStateManager, ControlInterface, UpdateModule);
         Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);
         
         stopwatch.Restart();

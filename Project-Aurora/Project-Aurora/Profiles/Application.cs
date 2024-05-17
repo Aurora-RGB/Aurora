@@ -314,8 +314,12 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                         continue;
                     }
 
-                    WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged), async (_, _) =>
+                    WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged), async (_, e) =>
                     {
+                        if (e.PropertyName == nameof(Layer.Error))
+                        {
+                            return;
+                        }
                         await SaveProfile(prof, path);
                     });
                 }

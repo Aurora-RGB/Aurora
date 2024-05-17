@@ -25,7 +25,7 @@ public partial class App
     private static bool IsSilent { get; set; }
 
     private static readonly SemaphoreSlim PreventShutdown = new(0);
-    private AuroraApp? _auroraApp;
+    public AuroraApp? AuroraApp { get; private set; }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
@@ -40,8 +40,8 @@ public partial class App
         if (!Global.isDebug)
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        _auroraApp = new AuroraApp(IsSilent);
-        await _auroraApp.OnStartup();
+        AuroraApp = new AuroraApp(IsSilent);
+        await AuroraApp.OnStartup();
 
         SessionEnding += (_, sessionEndingParams) =>
         {
@@ -73,7 +73,7 @@ public partial class App
             }
 
             Closing = true;
-            _auroraApp?.Dispose();
+            AuroraApp?.Dispose();
             Environment.Exit(0);
         }
         catch (AbandonedMutexException)
@@ -136,10 +136,10 @@ public partial class App
             ConfigManager.Save(Global.Configuration);
 
         var forceExitTimer = StartForceExitTimer();
-        if (_auroraApp != null)
+        if (AuroraApp != null)
         {
-            var auroraShutdownTask = _auroraApp.Shutdown();
-            _auroraApp.Dispose();
+            var auroraShutdownTask = AuroraApp.Shutdown();
+            AuroraApp.Dispose();
             await auroraShutdownTask;
         }
         (Global.logger as Logger)?.Dispose();

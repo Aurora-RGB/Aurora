@@ -11,6 +11,7 @@
         <ResourceDictionary>
             <utils:TextCharacterLimitConv x:Key="TextCharacterLimitConv" MaxLength="24"/>
             <utils:IsNullToBooleanConverter x:Key="NullToBoolConv" ReturnValWhenNull="False" />
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
     
@@ -19,8 +20,8 @@
         <Border Background="#54A8A8A8" CornerRadius="8" VerticalAlignment="Top" Height="25">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"></ColumnDefinition>
-                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <TextBlock TextWrapping="Wrap" Text="{Binding ListTitle}" VerticalAlignment="Top" Margin="10,3,10,0"/>
                 <TextBlock Grid.Column="1" Name="TooltipText" ToolTip="{Binding Tooltip}" ToolTipService.InitialShowDelay="0" ToolTipService.BetweenShowDelay="0"
@@ -54,7 +55,8 @@
                         <TextBlock Margin="23,0,-3,0">Daytime</TextBlock>
                     </Grid>
                 </RadioButton>
-                <RadioButton x:Name="showSecondaryCollection" GroupName="TimeSelection" HorizontalAlignment="Left" Margin="91,0,0,0" VerticalAlignment="Top" ToolTip="Nighttime" Checked="CollectionSelection_Checked">
+                <RadioButton x:Name="showSecondaryCollection" GroupName="TimeSelection" HorizontalAlignment="Left"
+                             Margin="91,0,0,0" VerticalAlignment="Top" ToolTip="Nighttime" Checked="CollectionSelection_Checked">
                     <Grid>
                         <Image Source="/AuroraRgb;component/Resources/Nighttime_Icon.png" HorizontalAlignment="Left" Margin="0,0,0,0" />
                         <TextBlock Margin="20,0,0,0">Nighttime</TextBlock>
@@ -70,7 +72,13 @@
                     <HierarchicalDataTemplate>
                         <DockPanel  HorizontalAlignment="Stretch" Width="192" >
                             <CheckBox IsChecked="{Binding Path=Enabled, Mode=TwoWay}" />
-                            <Image Source="/AuroraRgb;component/Resources/Layers_Drag.png" Tag="Dragger" Cursor="SizeNS" Width="16" Height="16" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,0,5,0" ToolTip="Drag to rearrange layers"/>
+                            <Border Visibility= "{Binding Error, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                    CornerRadius="30" Width="15" Height="15" Padding="0,0,0,0"
+                                    Background="DarkRed" BorderBrush="Black" BorderThickness="1">
+                                <TextBlock HorizontalAlignment="Center" Text="!" />
+                            </Border>
+                            <Image Source="/AuroraRgb;component/Resources/Layers_Drag.png" Tag="Dragger" Cursor="SizeNS" Width="16" Height="16" DockPanel.Dock="Right"
+                                   HorizontalAlignment="Right" Margin="0,0,5,0" ToolTip="Drag to rearrange layers"/>
                             <TextBlock Text="{Binding Path=Name, Converter={StaticResource ResourceKey=TextCharacterLimitConv}}"/>
                         </DockPanel>
                     </HierarchicalDataTemplate>

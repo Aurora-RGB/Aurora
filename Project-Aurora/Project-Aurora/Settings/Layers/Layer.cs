@@ -50,13 +50,19 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
     #endregion
 
     public event PropertyChangedEventHandler? PropertyChanged;
+    
+    [JsonIgnore]
+    public bool Error { get; private set; }
+
+    private int _renderErrors;
 
     private void OnHandlerChanged() {
         if (AssociatedApplication != null)
             Handler.SetApplication(AssociatedApplication);
     }
 
-    public EffectLayer Render(IGameState gs) {
+    public EffectLayer Render(IGameState gs)
+    {
         if (OverrideLogic != null)
         {
             // For every property which has an override logic assigned
@@ -76,7 +82,29 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             }
         }
 
-        return ((dynamic)Handler.Properties).Enabled ? Handler.PostRenderFX(Handler.Render(gs)) : EffectLayer.EmptyLayer;
+        if (!((dynamic)Handler.Properties).Enabled)
+            return EffectLayer.EmptyLayer;
+        try
+        {
+            var effectLayer = Handler.PostRenderFX(Handler.Render(gs));
+            _renderErrors = 0;
+            Error = false;
+            return effectLayer;
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error(e, "Layer render error");
+            if (++_renderErrors == 3)
+            {
+                Error = true;
+                var appAuroraApp = ((App)System.Windows.Application.Current).AuroraApp!;
+                var controlInterface = appAuroraApp.ControlInterface;
+                
+                controlInterface.ShowErrorNotification($"Layer \'{Name}\" fails to render. Check logs for details");
+            }
+        }
+
+        return EffectLayer.EmptyLayer;
     }
 
     public void SetProfile(Application profile) {
