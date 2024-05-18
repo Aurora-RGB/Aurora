@@ -23,6 +23,13 @@ public enum RazerChromaInstallerExitCode
 
 public static class ChromaInstallationUtils
 {
+    private const string DevicesXml = "Devices.xml";
+    private const string FileContent = """
+                                       <?xml version="1.0" encoding="utf-8"?>
+                                       <devices>
+                                       </devices>
+                                       """;
+
     public static async Task<int> UninstallAsync() => await Task.Run(() =>
     {
         if (RzHelper.GetSdkVersion() == new RzSdkVersion())
@@ -159,32 +166,9 @@ public static class ChromaInstallationUtils
 
     public static async Task DisableDeviceControlAsync()
     {
-        const string fileContent = """
-                            <?xml version="1.0" encoding="utf-8"?>
-                            <devices>
-                            </devices>
-                            """;
-
         List<Task> tasks = [];
-        var chromaPath = GetChromaPath();
-        if (chromaPath != null && File.Exists(chromaPath))
-        {
-            var length = File.Open(Path.Combine(chromaPath, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
-            if (length <= fileContent.Length)
-            {
-                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath, "Devices.xml"), fileContent));
-            }
-        }
-
-        var chromaPath64 = GetChromaPath64();
-        if (chromaPath64 != null && File.Exists(chromaPath64))
-        {
-            var length64 = File.Open(Path.Combine(chromaPath64, "Devices.xml"), FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
-            if (length64 <= fileContent.Length)
-            {
-                tasks.Add(File.WriteAllTextAsync(Path.Combine(chromaPath64, "Devices.xml"), fileContent));
-            }
-        }
+        ReplaceDevicesXml(tasks, GetChromaPath());
+        ReplaceDevicesXml(tasks, GetChromaPath64());
 
         if (tasks.Count == 0)
         {
@@ -194,6 +178,22 @@ public static class ChromaInstallationUtils
         await Task.WhenAll(tasks.ToArray());
 
         RestartChromaService();
+    }
+
+    private static void ReplaceDevicesXml(List<Task> tasks, string? chromaPath)
+    {
+        if (chromaPath == null) return;
+
+        var xmlFile = Path.Combine(chromaPath, DevicesXml);
+        if (File.Exists(xmlFile))
+        {
+            var length = File.Open(xmlFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite).Length;
+            if (length <= FileContent.Length)
+            {
+                return;
+            }
+        }
+        tasks.Add(File.WriteAllTextAsync(xmlFile, FileContent));
     }
 
     public static void DisableChromaBloat()
@@ -236,15 +236,13 @@ public static class ChromaInstallationUtils
     {
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         var key = hklm.OpenSubKey(@"Software\Razer Chroma SDK");
-        var path = key?.GetValue("InstallPath", null) as string;
-        return path;
+        return key?.GetValue("InstallPath", null) as string;
     }
 
     private static string? GetChromaPath64()
     {
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         var key = hklm.OpenSubKey(@"Software\Razer Chroma SDK");
-        var path = key?.GetValue("InstallPath64", null) as string;
-        return path;
+        return key?.GetValue("InstallPath64", null) as string;
     }
 }
