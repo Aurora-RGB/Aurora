@@ -139,15 +139,16 @@ public partial class Control_ProfilesStack
             Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)),
             Margin = new Thickness(0, 5, 0, 0),
         };
+        var applicationSettings = application.Settings;
 
         profileGrid.Children.Add(profileImage);
-        if (isGeneric)
+        if (isGeneric && (!applicationSettings?.Hidden ?? ShowHidden is true or true))
         {
             AddProfileRemoveButton(application, profileGrid);
         }
-        
-        var profileDisabled = !application.Settings?.IsEnabled ?? false;
-        if (profileDisabled)
+
+        var profileDisabled = !applicationSettings?.IsEnabled ?? ShowHidden;
+        if (profileDisabled && (!applicationSettings?.Hidden ?? ShowHidden is true or true))
         {
             AddProfileDisabledImage(application, profileGrid);
         }
