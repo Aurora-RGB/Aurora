@@ -44,7 +44,7 @@ public sealed class UpdateModule : AuroraModule
         try
         {
             var arguments = "-silent";
-            if (!Global.isDebug && Global.Configuration.UpdateBackgroundTemp)
+            if (!Global.isDebug && Global.Configuration.UpdateBackground)
             {
                 arguments += " -background";
             }

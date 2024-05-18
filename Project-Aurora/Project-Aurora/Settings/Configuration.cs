@@ -64,7 +64,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     [JsonProperty("updates_check_on_start_up")]
     public bool UpdatesCheckOnStartUp { get; set; } = true;
 
-    public bool UpdateBackgroundTemp { get; set; }
+    public bool UpdateBackground { get; set; } = true;
 
     [JsonProperty("start_silently")]
     public bool StartSilently { get; set; }
