@@ -14,13 +14,11 @@ public sealed class AudioCaptureModule : AuroraModule
     private AudioDeviceProxy? _renderProxy;
     private AudioDeviceProxy? _captureProxy;
 
-    protected override Task Initialize()
+    protected override async Task Initialize()
     {
-        InitializeLocalInfoProxies();
+        await Application.Current.Dispatcher.BeginInvoke(InitializeLocalInfoProxies);
 
         Global.Configuration.PropertyChanged += ConfigurationOnAudioCaptureChanged;
-
-        return Task.CompletedTask;
     }
 
     private void ConfigurationOnAudioCaptureChanged(object? sender, PropertyChangedEventArgs e)
