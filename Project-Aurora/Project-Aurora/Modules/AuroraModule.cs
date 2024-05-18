@@ -15,7 +15,7 @@ public abstract class AuroraModule : IDisposable, IAsyncDisposable
     {
         Name = "Initialize Threads",
         Concurrency = 25,
-        MaxThreads = 1,
+        MaxThreads = 8,
     };
 
     private TaskCompletionSource? _taskSource;
