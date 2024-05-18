@@ -2,8 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers;
+using Debounce.Core;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using PropertyChanged;
@@ -29,6 +33,8 @@ public class ScriptSettings : INotifyPropertyChanged
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithInheritors)]
 public abstract class ApplicationProfile : INotifyPropertyChanged, IDisposable
 {
+    private static int _backupFileNumber;
+
     public string ProfileName { get; set; }
     public Keybind TriggerKeybind { get; set; }
     [JsonIgnore] public string ProfileFilepath { get; set; }
@@ -36,12 +42,21 @@ public abstract class ApplicationProfile : INotifyPropertyChanged, IDisposable
     public ObservableCollection<Layer> Layers { get; set; }
     public ObservableCollection<Layer> OverlayLayers { get; set; }
 
+    private string? _savePath;
+    private Debouncer _saveDebouncer;
+
+
     protected ApplicationProfile()
     {
+        _saveDebouncer = new Debouncer(() =>
+        {
+            SaveProfile().Wait();
+        }, 850);
+        
         Reset();
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public virtual void Reset()
     {
@@ -58,6 +73,38 @@ public abstract class ApplicationProfile : INotifyPropertyChanged, IDisposable
 
         foreach (var l in OverlayLayers)
             l.SetProfile(app);
+    }
+
+    public void SaveProfile(string path)
+    {
+        _savePath = path;
+        _saveDebouncer.Debounce();
+    }
+
+    private async Task SaveProfile()
+    {
+        try
+        {
+            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
+            var content = JsonConvert.SerializeObject(this, Formatting.Indented, settings);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(_savePath!));
+            if (File.Exists(_savePath!))
+            {
+                var backupFile = _savePath! + ".backup" + _backupFileNumber++;
+                File.Move(_savePath!, backupFile);
+                await File.WriteAllTextAsync(_savePath!, content, Encoding.UTF8);
+                File.Delete(backupFile);
+            }
+            else
+            {
+                await File.WriteAllTextAsync(_savePath!, content, Encoding.UTF8);
+            }
+        }
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Exception Saving Profile: {Path}", _savePath!);
+        }
     }
 
     public void Dispose()

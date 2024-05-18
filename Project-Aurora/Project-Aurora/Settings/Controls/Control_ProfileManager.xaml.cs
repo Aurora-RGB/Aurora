@@ -96,7 +96,7 @@ public partial class Control_ProfileManager
             .FirstOrDefault(profile => Path.GetFileNameWithoutExtension(profile.ProfileFilepath).Equals(FocusedApplication?.Settings?.SelectedProfile));
     }
 
-    private async void lstProfiles_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private void lstProfiles_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count != 1) return;
         if (lstProfiles.SelectedItem != null)
@@ -105,7 +105,7 @@ public partial class Control_ProfileManager
                 throw new ArgumentException($"Items contained in the ListView must be of type 'ProfileSettings', not '{lstProfiles.SelectedItem.GetType()}'");
 
             if (FocusedApplication != null)
-                await FocusedApplication?.SwitchToProfile(profile);
+                FocusedApplication?.SwitchToProfile(profile);
 
             ProfileSelected?.Invoke(profile);
             btnDeleteProfile.IsEnabled = true;
@@ -121,7 +121,7 @@ public partial class Control_ProfileManager
         lstProfiles.SelectedIndex = lstProfiles.Items.Count - 1;
     }
 
-    private async void buttonDeleteProfile_Click(object? sender, EventArgs e)
+    private void buttonDeleteProfile_Click(object? sender, EventArgs e)
     {
         if (lstProfiles.SelectedIndex <= -1) return;
         if (FocusedApplication.Profiles.Count == 1)
@@ -135,7 +135,7 @@ public partial class Control_ProfileManager
                 "Confirm action", MessageBoxButton.YesNo, MessageBoxImage.Information) != MessageBoxResult.Yes) return;
         var profile = (ApplicationProfile)lstProfiles.SelectedItem;
 
-        await FocusedApplication.DeleteProfile(profile);
+        FocusedApplication.DeleteProfile(profile);
     }
 
     private void btnProfilePath_Click(object? sender, RoutedEventArgs e)
@@ -209,7 +209,7 @@ public partial class Control_ProfileManager
         }
     }
 
-    private async void btnExportProfile_Click(object? sender, EventArgs e)
+    private void btnExportProfile_Click(object? sender, EventArgs e)
     {
         var dialog = new SaveFileDialog
         {
@@ -218,7 +218,7 @@ public partial class Control_ProfileManager
         };
 
         if (dialog.ShowDialog() == true)
-            await FocusedApplication.SaveProfile(FocusedApplication.Profile, dialog.FileName);
+            FocusedApplication.SaveProfile(FocusedApplication.Profile, dialog.FileName);
     }
 
     private void btnCopyProfile_Click(object? sender, EventArgs e)
@@ -235,7 +235,7 @@ public partial class Control_ProfileManager
 
         // Since we may be copying from one application to another, we need to re-create an application
         // profile since GTA profiles would not work with Desktop profiles for example.
-        var @new = await FocusedApplication.AddNewProfile(src.ProfileName + " - Copy");
+        var @new = FocusedApplication.AddNewProfile(src.ProfileName + " - Copy");
         @new.TriggerKeybind = src.TriggerKeybind.Clone();
         @new.Layers.Clear();
 
@@ -245,7 +245,7 @@ public partial class Control_ProfileManager
         for (var i = 0; i < src.Layers.Count; i++)
             if (FocusedApplication.IsAllowedLayer(src.Layers[i].Handler.GetType()))
                 @new.Layers.Add((Layer)src.Layers[i].Clone());
-            
-        await FocusedApplication.SaveProfiles();
+
+        FocusedApplication.SaveProfiles();
     }
 }

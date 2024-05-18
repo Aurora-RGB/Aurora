@@ -6,7 +6,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,6 +19,7 @@ using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using AuroraRgb.Vorons;
 using Common.Utils;
+using Debounce.Core;
 using IronPython.Hosting;
 using IronPython.Runtime.Types;
 using JetBrains.Annotations;
@@ -58,6 +58,8 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     #endregion
 
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    private readonly Debouncer _saveProfileDebouncer;
 
     private static Uri GetBaseUri()
     {
@@ -142,7 +144,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     public IEnumerable<LayerHandlerMeta> AllowedLayers
         => Global.LightingStateManager.LayerHandlers.Values.Where(val => val.IsDefault || Config.ExtraAvailableLayers.Contains(val.Type));
 
-    public async Task SwitchToProfile(ApplicationProfile? newProfileSettings)
+    public void SwitchToProfile(ApplicationProfile? newProfileSettings)
     {
         if (Disposed)
             return;
@@ -150,7 +152,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (newProfileSettings == null || Profile == newProfileSettings) return;
         if (Profile != null)
         {
-            await SaveProfile();
+            SaveProfile();
             Profile.PropertyChanged -= Profile_PropertyChanged;
         }
 
@@ -169,17 +171,17 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         return profile;
     }
 
-    private async Task AddDefaultProfile()
+    private void AddDefaultProfile()
     {
-        await AddNewProfile("default");
+        AddNewProfile("default");
     }
 
-    public async Task AddNewProfile()
+    public void AddNewProfile()
     {
-        await AddNewProfile($"Profile {Profiles.Count + 1}");
+        AddNewProfile($"Profile {Profiles.Count + 1}");
     }
 
-    public async Task<ApplicationProfile?> AddNewProfile(string profileName)
+    public ApplicationProfile? AddNewProfile(string profileName)
     {
         if (Disposed)
             return null;
@@ -188,14 +190,14 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
         Profiles.Add(newProfile);
 
-        await SaveProfiles();
+        SaveProfiles();
 
-        await SwitchToProfile(newProfile);
+        SwitchToProfile(newProfile);
 
         return newProfile;
     }
 
-    public async Task DeleteProfile(ApplicationProfile? profile)
+    public void DeleteProfile(ApplicationProfile? profile)
     {
         if (Disposed)
             return;
@@ -210,7 +212,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             Profiles.Remove(profile);
 
         if (profile.Equals(Profile))
-            await SwitchToProfile(Profiles[Math.Min(profileIndex, Profiles.Count - 1)]);
+            SwitchToProfile(Profiles[Math.Min(profileIndex, Profiles.Count - 1)]);
 
         if (File.Exists(profile.ProfileFilepath))
         {
@@ -224,7 +226,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             }
         }
 
-        await SaveProfiles();
+        SaveProfiles();
     }
 
     private string GetValidFilename(string filename)
@@ -268,7 +270,6 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     //hacky fix to sort out MoD profile type change
     private readonly ISerializationBinder _binder = new AuroraSerializationBinder();
     private readonly JsonSerializer _serializer;
-    private static int _backupFileNumber;
 
     private async Task<ApplicationProfile?> LoadProfile(string path)
     {
@@ -320,13 +321,13 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                         {
                             return;
                         }
-                        await SaveProfile(prof, path);
+                        SaveProfile(prof, path);
                     });
                 }
 
                 collection.CollectionChanged += async (_, e) =>
                 {
-                    await SaveProfile(prof, path);
+                    SaveProfile(prof, path);
                     if (e.NewItems == null)
                     {
                         return;
@@ -335,9 +336,9 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                     foreach (Layer lyr in e.NewItems)
                         if (lyr != null)
                             WeakEventManager<Layer, PropertyChangedEventArgs>.AddHandler(lyr, nameof(lyr.PropertyChanged),
-                                async (_, _) =>
+                                (_, _) =>
                                 {
-                                    await SaveProfile(prof, path);
+                                    SaveProfile(prof, path);
                                 });
                 };
             }
@@ -380,10 +381,10 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
     }
 
-    private async void Profile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private void Profile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is ApplicationProfile profile)
-            await SaveProfile(profile);
+            SaveProfile(profile);
     }
 
     private bool RegisterEffect(string key, IEffectScript obj)
@@ -584,7 +585,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
 
         if (Profile == null)
-            await SwitchToProfile(Profiles.FirstOrDefault());
+            SwitchToProfile(Profiles.FirstOrDefault());
         else
             Settings.SelectedProfile = Path.GetFileNameWithoutExtension(Profile.ProfileFilepath);
 
@@ -624,41 +625,21 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }, DispatcherPriority.Input);
     }
 
-    private async Task SaveProfile()
+    private void SaveProfile()
     {
-        await SaveProfile(Profile);
+        SaveProfile(Profile);
     }
 
-    public async Task SaveProfile(ApplicationProfile profile, string? path = null)
+    public void SaveProfile(ApplicationProfile profile, string? path = null)
     {
         if (Disposed)
             return;
-        try
-        {
-            path ??= Path.Combine(GetProfileFolderPath(), profile.ProfileFilepath);
-            var settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
-            var content = JsonConvert.SerializeObject(profile, Formatting.Indented, settings);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-            if (File.Exists(path))
-            {
-                var backupFile = path + ".backup" + _backupFileNumber++;
-                File.Move(path, backupFile);
-                await File.WriteAllTextAsync(path, content, Encoding.UTF8);
-                File.Delete(backupFile);
-            }
-            else
-            {
-                await File.WriteAllTextAsync(path, content, Encoding.UTF8);
-            }
-        }
-        catch (Exception exc)
-        {
-            Global.logger.Error(exc, "Exception Saving Profile: {Path}", path);
-        }
+        path ??= Path.Combine(GetProfileFolderPath(), profile.ProfileFilepath);
+        profile.SaveProfile(path);
     }
 
-    public async Task SaveProfiles()
+    public void SaveProfiles()
     {
         if (Disposed)
             return;
@@ -672,7 +653,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
             foreach (var profile in Profiles)
             {
-                await SaveProfile(profile, Path.Combine(profilesPath, profile.ProfileFilepath));
+                SaveProfile(profile, Path.Combine(profilesPath, profile.ProfileFilepath));
             }
         }
         catch (Exception exc)
@@ -687,7 +668,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             return;
 
         await SaveSettings(Config.SettingsType);
-        await SaveProfiles();
+        SaveProfiles();
     }
 
     protected override async Task LoadSettings(Type settingsType)

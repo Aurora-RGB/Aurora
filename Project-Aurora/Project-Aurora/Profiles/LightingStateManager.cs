@@ -563,7 +563,7 @@ public sealed class LightingStateManager : IDisposable
         // The target profile is the NEXT valid profile after the currently selected one
         // (or the first valid one if the currently selected one doesn't share this keybind)
         var trg = (possibleProfiles.IndexOf(application.Profile) + 1) % possibleProfiles.Count;
-        application.SwitchToProfile(possibleProfiles[trg]).Wait();
+        application.SwitchToProfile(possibleProfiles[trg]);
     }
 
     public void GameStateUpdate(object? sender, IGameState gs)

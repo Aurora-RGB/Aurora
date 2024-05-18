@@ -25,6 +25,12 @@
         "resolved": "2.20.1.1",
         "contentHash": "Tc7NzVicXaVeT2wt9aYg0cuyuIpO+oPhJ5NRlJghP9KrlOJEtuQyLyWnBQyjVbestuntTSzQYvjKbIYdLexQ5Q=="
       },
+      "Debounce.Core": {
+        "type": "Direct",
+        "requested": "[1.0.0, )",
+        "resolved": "1.0.0",
+        "contentHash": "WkWCwaYCnAtvyq3QS3izHdt0rd0UwyBQLI0F5qShiWPvc2/IXYCEm3zTcLi3IajSV6W1JgV4vj6l25DkfqK1Nw=="
+      },
       "Dubya.WindowsMediaController": {
         "type": "Direct",
         "requested": "[2.5.0, )",

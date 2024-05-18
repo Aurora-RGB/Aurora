@@ -749,7 +749,7 @@ public static class ProfileImporter
             var inProf = (ApplicationProfile)JsonConvert.DeserializeObject(json, typeof(ApplicationProfile), jsonSerializerSettings)!;
 
             // Create a new profile on the current application (so that profiles can be imported from different applications)
-            var newProf = app.AddNewProfile(inProf.ProfileName).Result;
+            var newProf = app.AddNewProfile(inProf.ProfileName);
             newProf.TriggerKeybind = inProf.TriggerKeybind.Clone();
 
             // Copy any valid layers from the read profile to the new one
@@ -769,7 +769,7 @@ public static class ProfileImporter
             ImportLayers(inProf.OverlayLayers, newProf.OverlayLayers);
 
             // Force a save to write the new profile to disk in the appdata dir
-            app.SaveProfiles().Wait();
+            app.SaveProfiles();
         }
         catch (Exception ex)
         {

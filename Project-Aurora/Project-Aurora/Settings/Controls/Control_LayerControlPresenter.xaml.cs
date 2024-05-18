@@ -73,7 +73,7 @@ public partial class Control_LayerControlPresenter
         keyseq_ExcludeMask.Sequence = Layer.Handler._ExclusionMask;
         sldr_Opacity.Value = (int)(Layer.Handler.Opacity * 100.0f);
         lbl_Opacity_Text.Text = $"{(int)sldr_Opacity.Value} %";
-        await _Layer.AssociatedApplication.SaveProfiles();
+        _Layer.AssociatedApplication.SaveProfiles();
 
         overridesEditor.ForcePropertyListUpdate();
     }

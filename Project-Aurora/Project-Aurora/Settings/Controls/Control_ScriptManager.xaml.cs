@@ -42,8 +42,8 @@ public partial class Control_ScriptManager
         DataContext = this;
     }
 
-    private async void CheckBox_Checked(object? sender, RoutedEventArgs e)
+    private void CheckBox_Checked(object? sender, RoutedEventArgs e)
     {
-        await ProfileManager.SaveProfiles();
+        ProfileManager.SaveProfiles();
     }
 }
