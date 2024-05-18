@@ -344,6 +344,8 @@ partial class ConfigUi : INotifyPropertyChanged
             await FocusedApplication.SaveAll();
         }
 
+        FocusedApplication = null;
+
         switch (Global.Configuration.CloseMode)
         {
             case AppExitMode.Ask:
