@@ -31,7 +31,7 @@ using Timer = System.Timers.Timer;
 namespace AuroraRgb;
 
 [DoNotNotify]
-partial class ConfigUi : INotifyPropertyChanged
+sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 {
     private readonly  Control_Settings _settingsControl;
     private readonly Control_LayerControlPresenter _layerPresenter = new();
@@ -185,7 +185,8 @@ partial class ConfigUi : INotifyPropertyChanged
         _keyboardUpdateCancel.Dispose();
         _keyboardUpdateCancel = new CancellationTokenSource();
 
-        await Dispatcher.BeginInvoke(_updateKeyboardLayouts, IsDragging ? DispatcherPriority.Background : DispatcherPriority.Render);
+        var dispatcherPriority = IsDragging ? DispatcherPriority.Background : DispatcherPriority.Render;
+        await Dispatcher.InvokeAsync(_updateKeyboardLayouts, dispatcherPriority, _keyboardUpdateCancel.Token);
     }
 
     public void Display()
@@ -317,6 +318,7 @@ partial class ConfigUi : INotifyPropertyChanged
     private async void Window_Unloaded(object sender, RoutedEventArgs e)
     {
         _virtualKeyboardTimer.Stop();
+        await _keyboardUpdateCancel.CancelAsync();
 
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
 
@@ -339,6 +341,9 @@ partial class ConfigUi : INotifyPropertyChanged
 
     private async void Window_Closing(object? sender, CancelEventArgs e)
     {
+        _virtualKeyboardTimer.Stop();
+        await _keyboardUpdateCancel.CancelAsync();
+
         if (FocusedApplication != null)
         { 
             await FocusedApplication.SaveAll();
@@ -508,4 +513,9 @@ partial class ConfigUi : INotifyPropertyChanged
     private HwndSource? windowHwndSource;
 
     #endregion
+
+    public void Dispose()
+    {
+        _virtualKeyboardTimer.Dispose();
+    }
 }
