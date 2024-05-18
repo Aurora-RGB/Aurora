@@ -169,17 +169,17 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         return profile;
     }
 
-    private void AddDefaultProfile()
+    private async Task AddDefaultProfile()
     {
-        AddNewProfile("default");
+        await AddNewProfile("default");
     }
 
-    public void AddNewProfile()
+    public async Task AddNewProfile()
     {
-        AddNewProfile($"Profile {Profiles.Count + 1}");
+        await AddNewProfile($"Profile {Profiles.Count + 1}");
     }
 
-    public ApplicationProfile AddNewProfile(string profileName)
+    public async Task<ApplicationProfile?> AddNewProfile(string profileName)
     {
         if (Disposed)
             return null;
@@ -188,9 +188,9 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
         Profiles.Add(newProfile);
 
-        SaveProfiles().Wait();
+        await SaveProfiles();
 
-        SwitchToProfile(newProfile).Wait();
+        await SwitchToProfile(newProfile);
 
         return newProfile;
     }
@@ -380,10 +380,10 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         }
     }
 
-    private void Profile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    private async void Profile_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is ApplicationProfile profile)
-            SaveProfile(profile).Wait();
+            await SaveProfile(profile);
     }
 
     private bool RegisterEffect(string key, IEffectScript obj)

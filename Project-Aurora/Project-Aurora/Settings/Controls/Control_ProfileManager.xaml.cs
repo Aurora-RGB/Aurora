@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -236,7 +235,7 @@ public partial class Control_ProfileManager
 
         // Since we may be copying from one application to another, we need to re-create an application
         // profile since GTA profiles would not work with Desktop profiles for example.
-        var @new = FocusedApplication.AddNewProfile(src.ProfileName + " - Copy");
+        var @new = await FocusedApplication.AddNewProfile(src.ProfileName + " - Copy");
         @new.TriggerKeybind = src.TriggerKeybind.Clone();
         @new.Layers.Clear();
 

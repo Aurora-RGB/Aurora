@@ -312,7 +312,7 @@ public partial class Control_ProfilesStack
         }
     }
 
-    private void mbtnHidden_Checked(object? sender, RoutedEventArgs e)
+    private async void mbtnHidden_Checked(object? sender, RoutedEventArgs e)
     {
         if (sender is not MenuItem btn)
         {
@@ -325,7 +325,7 @@ public partial class Control_ProfilesStack
         if (!ShowHidden && btn.IsChecked)
             img.Visibility = Visibility.Collapsed;
 
-        (img.Tag as Application)?.SaveProfiles().Wait();
+        await (img.Tag is Application application ? application.SaveProfiles() : Task.CompletedTask);
     }
 
     private void cmenuProfiles_ContextMenuOpening(object? sender, ContextMenuEventArgs e)

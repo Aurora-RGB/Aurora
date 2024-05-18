@@ -749,7 +749,7 @@ public static class ProfileImporter
             var inProf = (ApplicationProfile)JsonConvert.DeserializeObject(json, typeof(ApplicationProfile), jsonSerializerSettings)!;
 
             // Create a new profile on the current application (so that profiles can be imported from different applications)
-            var newProf = app.AddNewProfile(inProf.ProfileName);
+            var newProf = app.AddNewProfile(inProf.ProfileName).Result;
             newProf.TriggerKeybind = inProf.TriggerKeybind.Clone();
 
             // Copy any valid layers from the read profile to the new one
