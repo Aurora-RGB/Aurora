@@ -324,14 +324,14 @@ public sealed class LightingStateManager : IDisposable
     private readonly Semaphore _updateLock = new(1, 1);
     private bool _locked;
 
-    public async Task InitUpdate()
+    public Task InitUpdate()
     {
-        await _deviceManager;
         _watch.Start();
         _updateTimer = new Timer(_ =>
         {
             TimerUpdate();
         }, null, 0, Timeout.Infinite);
+        return Task.CompletedTask;
     }
 
     private void TimerUpdate()

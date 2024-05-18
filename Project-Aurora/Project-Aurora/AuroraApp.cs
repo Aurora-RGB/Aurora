@@ -50,19 +50,19 @@ public sealed class AuroraApp : IDisposable
         [
             UpdateModule,
             new UpdateCleanup(),
+            _devicesModule,
             new InputsModule(),
             new MediaInfoModule(),
             new AudioCaptureModule(),
             new PointerUpdateModule(),
             new HardwareMonitorModule(),
-            PluginsModule,
             IpcListenerModule,
             _httpListenerModule,
             _processesModule,
             new LogitechSdkModule(ProcessesModule.RunningProcessMonitor),
-            _razerSdkModule, //depends LSM
-            _devicesModule,  //depends Chroma
-            lightingStateManagerModule, //depends DeviceManager
+            _razerSdkModule,
+            PluginsModule,
+            lightingStateManagerModule,
             onlineSettings,
             _layoutsModule,
             new PerformanceMonitor(ProcessesModule.RunningProcessMonitor)
