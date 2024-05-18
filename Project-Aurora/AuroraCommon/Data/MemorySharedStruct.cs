@@ -67,11 +67,6 @@ public sealed class MemorySharedStruct<T> : SignaledMemoryObject where T : struc
 
         // Marshal the byte array back to a struct
         return (T)Marshal.PtrToStructure(_readPointer, typeof(T));
-
-        // Read the data at the calculated offset
-        _accessor.Read(0, out T result);
-
-        return result;
     }
 
     public void WriteObject(T element)
@@ -79,7 +74,7 @@ public sealed class MemorySharedStruct<T> : SignaledMemoryObject where T : struc
         // Marshal the struct to a byte array
         Marshal.StructureToPtr(element, _writePointer, true);
 
-        if (!_accessor.CanWrite)
+        if (!_accessor.CanWrite || Disposed)
         {
             return;
         }

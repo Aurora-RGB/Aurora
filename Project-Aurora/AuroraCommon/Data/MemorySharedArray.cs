@@ -104,7 +104,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
         // Calculate the offset for the specified element
         long offset = ElementOffset() + index * ElementSize;
 
-        if (!_accessor.CanRead)
+        if (!_accessor.CanWrite || Disposed)
         {
             return default;
         }
@@ -114,11 +114,6 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
 
         // Marshal the byte array back to a struct
         return (T)Marshal.PtrToStructure(_readPointer, typeof(T));
-        
-        // Read the data at the calculated offset
-        _accessor.Read(offset, out T result);
-
-        return result;
     }
 
     public void WriteDictionary<E>(IReadOnlyDictionary<E, T> dictionary) where E : Enum
@@ -134,7 +129,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
 
             // Write the data at the calculated offset
             var element = pair.Value;
-            if (!_accessor.CanWrite)
+            if (!_accessor.CanWrite || Disposed)
             {
                 return;
             }
@@ -157,8 +152,6 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
 
             // Write the data at the calculated offset
             WriteObject(ElementOffset() + offset, e);
-            //var element = e;
-            //_accessor.Write(ElementOffset() + offset, ref element);
         }
 
         SignalUpdated();
@@ -185,6 +178,10 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
         // Marshal the struct to a byte array
         Marshal.StructureToPtr(element, _writePointer, true);
 
+        if (!_accessor.CanWrite || Disposed)
+        {
+            return;
+        }
         _accessor.WriteArray(offset, _writeBuffer, 0, _writeBuffer.Length);
     }
 
