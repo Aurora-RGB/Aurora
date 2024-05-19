@@ -290,6 +290,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         if (DeviceProxy.Device == null)
             return EffectLayer.EmptyLayer;
 
+        _lastRender = Time.GetMillisecondsSinceEpoch();
         if (_aliveTimer == null)
         {
             StartAliveTimer();
@@ -336,7 +337,6 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
             default:
                 throw new InvalidOperationException(Properties.BackgroundMode + " is not implemented");
         }
-
 
         // Use the new transform render method to draw the equalizer layer
         EffectLayer.DrawTransformed(Properties.Sequence, g =>
