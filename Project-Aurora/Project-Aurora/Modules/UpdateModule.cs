@@ -64,6 +64,10 @@ public sealed class UpdateModule : AuroraModule
     private static Task<AuroraChangelog[]> ReadChangelogs()
     {
         var changelogsFolder = Path.Join(Global.ExecutingDirectory, "changelogs");
+        if (!Path.Exists(changelogsFolder))
+        {
+            return Task.FromResult(Array.Empty<AuroraChangelog>());
+        }
         var fileContents = Directory.EnumerateFiles(changelogsFolder)
             .OrderDescending()
             .Select(ReadChangelog);
