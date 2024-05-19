@@ -13,9 +13,9 @@ using Common.Devices;
 
 namespace AuroraRgb.Devices;
 
-public sealed class DevicesUpdatedEventArgs(IEnumerable<DeviceContainer> deviceContainers) : EventArgs
+public sealed class DevicesUpdatedEventArgs(ImmutableList<DeviceContainer> deviceContainers) : EventArgs
 {
-    public IEnumerable<DeviceContainer> DeviceContainers { get; } = deviceContainers;
+    public ImmutableList<DeviceContainer> DeviceContainers { get; } = deviceContainers;
 }
 
 public sealed class DeviceManager : IDisposable

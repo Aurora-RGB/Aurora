@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -18,6 +19,8 @@ public partial class Control_DeviceManager
 {
     private readonly Task<DeviceManager> _deviceManager;
     private readonly Task<IpcListener?> _ipcListener;
+
+    private CancellationTokenSource _updateCancelTokenSource = new();
 
     public Control_DeviceManager(Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
     {
@@ -61,23 +64,35 @@ public partial class Control_DeviceManager
         }
     }
 
-    private async Task UpdateControls(DeviceConfig deviceConfig, IEnumerable<DeviceContainer> deviceContainers)
+    private async Task UpdateControls(DeviceConfig deviceConfig, IList<DeviceContainer> deviceContainers)
     {
+        var cancelSource = new CancellationTokenSource();
+        await _updateCancelTokenSource.CancelAsync();
+        
         var deviceManager = await _deviceManager;
         var isDeviceManagerUp = await deviceManager.IsDeviceManagerUp();
-        Dispatcher.BeginInvoke(() =>
+        if (isDeviceManagerUp && deviceContainers.Count == 0)
         {
+            return;
+        }
+        await Dispatcher.InvokeAsync(() =>
+        {
+            var oldToken = _updateCancelTokenSource;
+            _updateCancelTokenSource = cancelSource;
+
+            oldToken.Dispose();
+
             LstDevices.Children.Clear();
             NoDevManTextBlock.Visibility = isDeviceManagerUp ? Visibility.Collapsed : Visibility.Visible;
+            PopulateDevices(deviceConfig, deviceContainers, cancelSource.Token);
         }, DispatcherPriority.Loaded);
-        PopulateDevices(deviceConfig, deviceContainers);
     }
 
-    private void PopulateDevices(DeviceConfig deviceConfig, IEnumerable<DeviceContainer> deviceContainers)
+    private void PopulateDevices(DeviceConfig deviceConfig, IEnumerable<DeviceContainer> deviceContainers, CancellationToken cancelSourceToken)
     {
         foreach (var deviceContainer in deviceContainers)
         {
-            Dispatcher.BeginInvoke(() =>
+            Dispatcher.InvokeAsync(() =>
             {
                 var controlDeviceItem = new Control_DeviceItem(deviceConfig, deviceContainer);
                 var listViewItem = new ListViewItem
@@ -85,7 +100,7 @@ public partial class Control_DeviceManager
                     Content = controlDeviceItem,
                 };
                 LstDevices.Children.Add(listViewItem);
-            }, DispatcherPriority.Loaded);
+            }, DispatcherPriority.Loaded, cancelSourceToken);
         }
     }
 
