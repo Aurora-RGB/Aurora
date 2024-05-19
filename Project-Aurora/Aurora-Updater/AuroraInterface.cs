@@ -13,24 +13,19 @@ public class AuroraInterface
         await SendAuroraCommand("restartDevices");
     }
 
+    public async Task ShutdownDeviceManager()
+    {
+        await SendAuroraCommand("quitDevices");
+    }
+
     public async Task RestartAurora()
     {
         await SendAuroraCommand("restartAurora");
     }
 
-    public async Task ShutdownDeviceManager()
-    {
-        await SendDeviceCommand("quit");
-    }
-
     private Task SendAuroraCommand(string command)
     {
         return SendCommand(Encoding.UTF8.GetBytes(command), "aurora\\interface");
-    }
-
-    private Task SendDeviceCommand(string command)
-    {
-        return SendCommand(Encoding.UTF8.GetBytes(command), "Aurora\\DeviceManager");
     }
 
     private async Task SendCommand(byte[] command, string pipeName)

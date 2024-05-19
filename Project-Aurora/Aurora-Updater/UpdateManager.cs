@@ -42,6 +42,8 @@ public class UpdateManager
         Converters = { new JsonStringEnumConverter() }
     });
 
+    private readonly AuroraInterface _auroraInterface = new();
+
     public UpdateManager(Version version, string author, string repoName)
     {
         UpdaterConfiguration config;
@@ -141,17 +143,15 @@ public class UpdateManager
 
                 var auroraUpdated = MissingReleases.Any(r => ContainsComponentUpdate(r, UpdateComponent.Aurora));
                 var deviceManagerUpdated = MissingReleases.Any(r => ContainsComponentUpdate(r, UpdateComponent.DeviceManager));
-                
-                var auroraInterface = new AuroraInterface();
 
                 if (!auroraUpdated && deviceManagerUpdated)
                 {
-                    await RestartDeviceManager(auroraInterface);
+                    await RestartDeviceManager();
                 }
                 else
                 {
-                    await (deviceManagerUpdated ? ShutdownDeviceManager(auroraInterface) : Task.CompletedTask);
-                    await (auroraUpdated ? RestartAurora(auroraInterface) : Task.CompletedTask);
+                    await (deviceManagerUpdated ? ShutdownDeviceManager() : Task.CompletedTask);
+                    await (auroraUpdated ? RestartAurora() : Task.CompletedTask);
                 }
 
                 PerformCleanup();
@@ -260,7 +260,7 @@ public class UpdateManager
         Environment.Exit(0); //Exit, no further action required
     }
 
-    private async Task RestartAurora(AuroraInterface auroraInterface)
+    private async Task RestartAurora()
     {
         //gracefully, find currently open aurora processes
         var auroraProcesses = Process.GetProcessesByName(AuroraProcessName);
@@ -273,7 +273,7 @@ public class UpdateManager
             {
                 try
                 {
-                    await auroraInterface.RestartAurora();
+                    await _auroraInterface.RestartAurora();
                 }
                 catch
                 {
@@ -309,24 +309,24 @@ public class UpdateManager
         }
     }
 
-    private async Task RestartDeviceManager(AuroraInterface auroraInterface)
+    private async Task RestartDeviceManager()
     {
-        await auroraInterface.RestartDeviceManager();
+        await _auroraInterface.RestartDeviceManager();
     }
 
-    private async Task ShutdownDeviceManager(AuroraInterface auroraInterface)
+    private async Task<bool> ShutdownDeviceManager()
     {
         var dmProcesses = Process.GetProcessesByName(DeviceManagerProcessName);
         var dmExitTasks = dmProcesses
             .Select(p => p.WaitForExitAsync());
         if (dmProcesses.Length <= 0)
         {
-            return;
+            return false;
         }
 
         try
         {
-            await auroraInterface.ShutdownDeviceManager();
+            await _auroraInterface.ShutdownDeviceManager();
             //Kill all Aurora instances
             await Task.WhenAny(
                 Task.Delay(TimeSpan.FromSeconds(5)),
@@ -341,6 +341,7 @@ public class UpdateManager
         {
             //ignore    
         }
+        return true;
     }
 
     private void StartAurora()
@@ -392,8 +393,18 @@ public class UpdateManager
                 }
                 catch (IOException e)
                 {
-                    var processName = fileEntry.FullName.Contains("/AuroraDeviceManager/") ? DeviceManagerProcessName : AuroraProcessName;
-                    var processes = Process.GetProcessesByName(processName);
+                    if (fileEntry.FullName.Contains("/AuroraDeviceManager/"))
+                    {
+                        var processClosed = ShutdownDeviceManager().Result;
+                        if (!processClosed)
+                        {
+                            MessageBox.Show($"{fileEntry.FullName} is inaccessible.\r\nPlease close AuroraRgb.exe and AuroraDeviceManager.exe.\n\n {e.StackTrace}");
+                        }
+                        i--;
+                        continue;
+                    }
+
+                    var processes = Process.GetProcessesByName(AuroraProcessName);
                     foreach (var auroraProcess in processes)
                     {
                         try
@@ -402,6 +413,7 @@ public class UpdateManager
                         }catch { /* probably closed anyway */ }
                     }
 
+                    //automatically retry without notifying user
                     if (processes.Length > 0)
                     {
                         i--;
@@ -409,7 +421,7 @@ public class UpdateManager
                     }
                     _log.Add(new LogEntry($"{fileEntry.FullName} is inaccessible.", Color.Red));
 
-                    MessageBox.Show($"{fileEntry.FullName} is inaccessible.\r\nPlease close Aurora.\r\n\r\n {e.StackTrace}");
+                    MessageBox.Show($"{fileEntry.FullName} is inaccessible.\r\nPlease close AuroraRgb.exe and AuroraDeviceManager.exe.\n\n {e.StackTrace}");
                     i--;
                 }
             }
