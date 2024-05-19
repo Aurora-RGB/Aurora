@@ -205,9 +205,16 @@ public static class ChromaInstallationUtils
     private static void DisableService(string serviceName)
     {
         using var service = new ServiceController(serviceName);
-        ServiceHelper.ChangeStartMode(service, ServiceStartMode.Manual);
-        service.Stop();
-        service.WaitForStatus(ServiceControllerStatus.Stopped);
+        try
+        {
+            ServiceHelper.ChangeStartMode(service, ServiceStartMode.Manual);
+            service.Stop();
+            service.WaitForStatus(ServiceControllerStatus.Stopped);
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error(e, "Error disabling chroma service {ServiceName}", serviceName);
+        }
     }
 
     private static void RestartChromaService()

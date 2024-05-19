@@ -227,21 +227,25 @@ public partial class Control_SettingsDevicesAndWrappers
             .ContinueWith(async t =>
             {
                 if (t.Exception != null)
+                {
                     HandleExceptions(t.Exception);
-                else if (await t == (int)RazerChromaInstallerExitCode.RestartRequired)
+                    return;
+                }
+
+                SetButtonContent("Disabling bloat...");
+                ChromaInstallationUtils.DisableChromaBloat();
+                SetButtonContent("Done!");
+
+                if (await t == (int)RazerChromaInstallerExitCode.RestartRequired)
                     ShowMessageBox("The installer requested system restart!\nPlease reboot your pc.",
                         "Restart required!");
                 else
                 {
-                    SetButtonContent("Disabling bloat...");
-                    ChromaInstallationUtils.DisableChromaBloat();
-                    SetButtonContent("Done!");
-                    ShowMessageBox("Installation successful!\nPlease restart aurora for changes to take effect.",
-                        "Restart required!");
+                    ShowMessageBox("Installation successful!\nRestart of Aurora may be needed.",
+                        "Chroma SDK Installed!");
                 }
             })
             .ConfigureAwait(false);
-        return;
 
         void HandleExceptions(AggregateException ae)
         {

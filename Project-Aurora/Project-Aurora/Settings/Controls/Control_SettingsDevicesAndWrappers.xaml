@@ -121,7 +121,7 @@
                                VerticalAlignment="Center" />
                         <Label x:Name="ChromaSupportedVersionsLabel" Grid.Row="0" Grid.Column="1" Padding="0"
                                Margin="5 0 5 0" VerticalAlignment="Center" />
-                        <Button x:Name="ChromaInstallButton" Grid.Row="0" Grid.Column="2" Content="Install" Width="75"
+                        <Button x:Name="ChromaInstallButton" Grid.Row="0" Grid.Column="2" Content="Install" Width="90"
                                 Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Click="razer_wrapper_install_button_Click" />
                         <Button x:Name="ChromaUninstallButton" Grid.Row="0" Grid.Column="2" Content="Uninstall"
@@ -130,8 +130,8 @@
 
                         <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
                             <Button x:Name="ChromaDisableDeviceControlButton"
-                                    HorizontalAlignment="Right"
-                                    Content="Disable Device Control" Width="160"
+                                    HorizontalAlignment="Right" Margin="5 0 5 0"
+                                    Content="Disable Device Control" Width="155"
                                     ToolTipService.InitialShowDelay="0"
 ToolTip="Disabling device control will stop ChromaSDK from controlling Razer Devices.&#x0a;After this you have to control them with OpenRGB. To enable it back reinstall ChromaSDK&#x0a;Synapse still needs to be closed completely"
                                     VerticalAlignment="Center"
