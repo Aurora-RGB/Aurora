@@ -25,8 +25,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
         {
             try
             {
-                var act = ThreadTasks.Take(ThreadCancelSource.Token);
-                act.Invoke();
+                ThreadTasks.Take(ThreadCancelSource.Token).Invoke();
             }
             catch (OperationCanceledException)
             {
@@ -65,12 +64,12 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
     /// <summary>Creates a new reference to the audio device with the given ID with the given flow direction.</summary>
     public AudioDeviceProxy(string? deviceId, DataFlow flow)
     {
-        Flow = flow;
-        DeviceId = deviceId ?? AudioDevices.DefaultDeviceId;
         ThreadTasks.Add(() =>
         {
             _deviceEnumerator.RegisterEndpointNotificationCallback(this);
         });
+        Flow = flow;
+        DeviceId = deviceId ?? AudioDevices.DefaultDeviceId;
         
         Instances.Add(this);
     }
@@ -103,6 +102,9 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
     public MMDevice? Device { get; private set; }
     public WasapiCapture? WaveIn { get; private set; }
     public string? DeviceName { get; private set; }
+
+    public bool IsMuted { get; private set; }
+    public float Volume { get; private set; }
 
     /// <summary>Gets the currently assigned direction of this device.</summary>
     public DataFlow Flow { get; set; }
@@ -137,7 +139,12 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
                 : _deviceEnumerator.EnumerateAudioEndPoints(Flow, DeviceState.Active)
                     .FirstOrDefault(d => d.ID == DeviceId); // Otherwise, get the one with this ID
             if (mmDevice == null) return;
-            if (mmDevice.ID == Device?.ID) return;
+            if (mmDevice.ID == Device?.ID)
+            {
+                mmDevice.Dispose();
+                return;
+            }
+
             SetDevice(mmDevice);
         });
     }
@@ -161,7 +168,10 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
         {
             SetDeviceOnThread(mmDevice);
         }
-        ThreadTasks.Add(() => SetDeviceOnThread(mmDevice));
+        else
+        {
+            ThreadTasks.Add(() => SetDeviceOnThread(mmDevice));
+        }
     }
 
     private void SetDeviceOnThread(MMDevice? mmDevice)
@@ -176,7 +186,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
         var fallbackDevice = Device;
         try
         {
-            // Get a WaveIn from the device and start it, adding any events as requied
+            // Get a WaveIn from the device and start it, adding any events as required
             WaveIn = Flow == DataFlow.Render ? new WasapiLoopbackCapture(mmDevice) : new WasapiCapture(mmDevice);
             if (_waveInDataAvailable != null)
             {
@@ -192,6 +202,11 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
             }
             fallbackWaveIn?.Dispose();
             fallbackDevice?.Dispose();
+            
+            IsMuted = Device.AudioEndpointVolume.Mute;
+            Volume = Device.AudioEndpointVolume.MasterVolumeLevelScalar;
+            Device.AudioEndpointVolume.OnVolumeNotification += AudioEndpointVolumeOnOnVolumeNotification;
+            
             DeviceChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception e)
@@ -206,6 +221,12 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
             DeviceChanged?.Invoke(this, EventArgs.Empty);
             Global.logger.Error(e, "Error while switching sound device");
         }
+    }
+
+    private void AudioEndpointVolumeOnOnVolumeNotification(AudioVolumeNotificationData data)
+    {
+        IsMuted = data.Muted;
+        Volume = data.MasterVolume;
     }
 
     private void WaveInOnRecordingStopped(object? sender, StoppedEventArgs e)
@@ -233,7 +254,10 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
         {
             DisposeCurrentDeviceOnThread();
         }
-        ThreadTasks.Add(DisposeCurrentDeviceOnThread);
+        else
+        {
+            ThreadTasks.Add(DisposeCurrentDeviceOnThread);
+        }
     }
 
     private void DisposeCurrentDeviceOnThread()
@@ -246,7 +270,11 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
 
         WaveIn = null;
 
-        Device?.Dispose();
+        if (Device != null)
+        {
+            Device.AudioEndpointVolume.OnVolumeNotification -= AudioEndpointVolumeOnOnVolumeNotification;
+            Device.Dispose();
+        }
         Device = null;
         DeviceName = string.Empty;
 
@@ -262,12 +290,21 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
         switch (newState)
         {
             case DeviceState.Active:
-                ThreadTasks.Add(() =>
+                if (Thread.CurrentThread == NAudioThread)
                 {
                     DisposeCurrentDevice();
                     var mmDevice = _deviceEnumerator.GetDevice(DeviceId);
                     SetDevice(mmDevice);
-                });
+                }
+                else
+                {
+                    ThreadTasks.Add(() =>
+                    {
+                        DisposeCurrentDevice();
+                        var mmDevice = _deviceEnumerator.GetDevice(DeviceId);
+                        SetDevice(mmDevice);
+                    });
+                }
                 break;
             case DeviceState.Disabled:
             case DeviceState.Unplugged:
@@ -326,6 +363,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
             audioDeviceProxy.Dispose();
         }
         Instances.Clear();
+        ThreadCancelSource.Dispose();
     }
 
     #region IDisposable Implementation
