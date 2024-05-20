@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.Razer;
+using AuroraRgb.Settings;
 
 namespace AuroraRgb.Modules;
 
-public sealed class RazerSdkModule(Task lsmLoadTask) : AuroraModule
+public sealed class RazerSdkModule : AuroraModule
 {
-    private readonly ChromaSdkManager _razerSdkManager = new();
 
-    public Task<ChromaSdkManager> RzSdkManager => Task.FromResult(_razerSdkManager);
+    private static readonly TaskCompletionSource<ChromaSdkManager> RzSdkManagerTaskSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public static Task<ChromaSdkManager> RzSdkManager => RzSdkManagerTaskSource.Task;
 
     protected override async Task Initialize()
     {
@@ -30,22 +32,27 @@ public sealed class RazerSdkModule(Task lsmLoadTask) : AuroraModule
                 Global.logger.Error(e, "Error disabling device control automatically");
             }
         }
-
-        await lsmLoadTask; //wait for ChromaApplication.Settings to load TODO decouple chroma settings from profile
-        await _razerSdkManager.Initialize();
+        
+        var auroraChromaSettings = await ConfigManager.LoadChromaConfig();
+        var razerSdkManager = new ChromaSdkManager(auroraChromaSettings);
+        await razerSdkManager.Initialize();
+        RzSdkManagerTaskSource.SetResult(razerSdkManager);
         Global.logger.Information("RazerSdkManager loaded successfully!");
     }
 
-    public override ValueTask DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         try
         {
-            _razerSdkManager.Dispose();
+            if (!RzSdkManager.IsCompleted)
+            {
+                return;
+            }
+            (await RzSdkManager).Dispose();
         }
         catch (Exception exc)
         {
             Global.logger.Fatal(exc, "RazerManager failed to dispose!");
         }
-        return ValueTask.CompletedTask;
     }
 }

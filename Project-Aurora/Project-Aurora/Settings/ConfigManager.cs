@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 using Common.Devices;
 using Newtonsoft.Json;
@@ -108,6 +109,36 @@ public static class ConfigManager
         return System.Text.Json.JsonSerializer.Deserialize<DeviceConfig>(content) ?? await MigrateDeviceConfig();
     }
 
+    public static async Task<AuroraChromaSettings> LoadChromaConfig()
+    {
+        AuroraChromaSettings config;
+        try
+        {
+            config = await TryLoadChroma();
+        }
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Exception loading AuroraChromaSettings. Error: ");
+            config = new AuroraChromaSettings();
+        }
+
+        return config;
+    }
+
+    private static async Task<AuroraChromaSettings> TryLoadChroma()
+    {
+        if (!File.Exists(AuroraChromaSettings.ConfigFile))
+        {
+            // first time start
+            var chromaSettings = new AuroraChromaSettings();
+            await SaveAsync(chromaSettings);
+            return chromaSettings;
+        }
+
+        var content = await File.ReadAllTextAsync(AuroraChromaSettings.ConfigFile, Encoding.UTF8);
+        return System.Text.Json.JsonSerializer.Deserialize(content, ChromaSourceGenerationContext.Default.AuroraChromaSettings) ?? new AuroraChromaSettings();
+    }
+
     public static void Save(IAuroraConfig configuration)
     {
         var path = configuration.ConfigPath;
@@ -128,6 +159,24 @@ public static class ConfigManager
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         File.WriteAllText(path, content, Encoding.UTF8);
+    }
+
+    public static async Task SaveAsync(IAuroraConfig configuration)
+    {
+        var path = configuration.ConfigPath;
+        var currentTime = Time.GetMillisecondsSinceEpoch();
+
+        if (LastSaveTimes.TryGetValue(path, out var lastSaveTime) && lastSaveTime + SaveInterval > currentTime) return;
+
+        LastSaveTimes[path] = currentTime;
+
+        var content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
+        });
+
+        Directory.CreateDirectory(Path.GetDirectoryName(path));
+        await File.WriteAllTextAsync(path, content, Encoding.UTF8);
     }
 
     private static Configuration CreateDefaultConfigurationFile()

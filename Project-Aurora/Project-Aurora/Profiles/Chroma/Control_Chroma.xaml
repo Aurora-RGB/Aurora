@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:chroma="clr-namespace:AuroraRgb.Profiles.Chroma"
              mc:Ignorable="d" 
+             Unloaded="Control_Chroma_OnUnloaded"
              d:DesignHeight="450" d:DesignWidth="850" Height="Auto" Width="Auto">
     <Grid>
         <TabControl>
@@ -13,11 +14,9 @@
                     <StackPanel Orientation="Horizontal">
                         <StackPanel>
                             <TextBlock Text="Enabled Processes" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <ListBox ItemsSource="{Binding EnabledPrograms,
-                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWay}"
-                                     SelectedItem="{Binding SelectedEnabledProgram,
-                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWayToSource}"
-                                     Width="160" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <ListBox ItemsSource="{Binding EnabledPrograms, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWay}"
+                                     SelectedItem="{Binding SelectedEnabledProgram, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWayToSource}"
+                                     Width="360" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
                         <StackPanel >
                             <TextBlock Text="" HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -26,11 +25,9 @@
                         </StackPanel>
                         <StackPanel>
                             <TextBlock Text="Excluded Processes" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                            <ListBox ItemsSource="{Binding ExcludedPrograms,
-                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWay}"
-                                     SelectedItem="{Binding SelectedExcludedProgram,
-                             RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWayToSource}"
-                                     Width="160" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                            <ListBox ItemsSource="{Binding ExcludedPrograms, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWay}"
+                                     SelectedItem="{Binding SelectedExcludedProgram, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type chroma:Control_Chroma}}, Mode=OneWayToSource}"
+                                     Width="360" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
                     </StackPanel>
                 </StackPanel>

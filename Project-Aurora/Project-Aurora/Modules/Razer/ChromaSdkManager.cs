@@ -10,7 +10,7 @@ public class ChromaSdkStateChangedEventArgs(ChromaReader? chromaReader) : EventA
     public ChromaReader? ChromaReader => chromaReader;
 }
 
-public sealed class ChromaSdkManager : IDisposable
+public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) : IDisposable
 {
     private const string RzServiceProcessName = "rzsdkservice.exe";
 
@@ -18,10 +18,13 @@ public sealed class ChromaSdkManager : IDisposable
 
     public ChromaReader? ChromaReader { get; private set; }
 
+    public ChromaRegistrySettings ChromaRegistrySettings { get; } = new(auroraChromaSettings);
+
     internal async Task Initialize()
     {
         try
         {
+            ChromaRegistrySettings.Initialize();
             var chromaReader = TryLoadChroma();
             ChromaReader = chromaReader;
             StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));

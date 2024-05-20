@@ -23,7 +23,6 @@ public sealed class AuroraApp : IDisposable
 
     private readonly HttpListenerModule _httpListenerModule = new();
     private readonly ProcessesModule _processesModule = new();
-    private readonly RazerSdkModule _razerSdkModule;
     private readonly DevicesModule _devicesModule;
     private readonly LayoutsModule _layoutsModule;
 
@@ -37,14 +36,13 @@ public sealed class AuroraApp : IDisposable
         _isSilent = isSilent;
         
         ControlInterface = new AuroraControlInterface(IpcListenerModule.IpcListener);
-        _razerSdkModule = new RazerSdkModule(LightingStateManagerModule.LightningStateManager);
         _devicesModule = new DevicesModule(ControlInterface);
         var lightingStateManagerModule = new LightingStateManagerModule(
             PluginsModule.PluginManager, IpcListenerModule.IpcListener, _httpListenerModule.HttpListener,
             _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor
         );
         var onlineSettings = new OnlineSettings(ProcessesModule.RunningProcessMonitor);
-        _layoutsModule = new LayoutsModule(_razerSdkModule.RzSdkManager, onlineSettings.LayoutsUpdate);
+        _layoutsModule = new LayoutsModule(RazerSdkModule.RzSdkManager, onlineSettings.LayoutsUpdate);
         
         _modules =
         [
@@ -60,7 +58,7 @@ public sealed class AuroraApp : IDisposable
             _httpListenerModule,
             _processesModule,
             new LogitechSdkModule(ProcessesModule.RunningProcessMonitor),
-            _razerSdkModule,
+            new RazerSdkModule(),
             PluginsModule,
             lightingStateManagerModule,
             onlineSettings,
@@ -169,7 +167,7 @@ public sealed class AuroraApp : IDisposable
     {
         Global.logger.Information("Loading ConfigUI...");
         var stopwatch = Stopwatch.StartNew();
-        var configUi = new ConfigUi(_razerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
+        var configUi = new ConfigUi(RazerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
             LightingStateManagerModule.LightningStateManager, ControlInterface, UpdateModule);
         Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);
