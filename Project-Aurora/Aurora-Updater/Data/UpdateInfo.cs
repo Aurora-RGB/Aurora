@@ -76,7 +76,7 @@ public class UpdateInfo(Version currentVersion, string author, string repoName, 
         return VersionParser.ParseVersion(release.TagName) > currentVersion;
     }
 
-    private bool IsDevelopmentBuild()
+    public bool IsDevelopmentBuild()
     {
         return currentVersion is { Major: 0, Minor: 0 };
     }

@@ -138,6 +138,11 @@ internal static class Program
             return;
         }
 
+        if (updateManager.UpdateInfo.IsDevelopmentBuild())
+        {
+            _isBackground = false;
+        }
+
         var updaterThread = new Thread(() => updateManager.RetrieveUpdate().Wait())
         {
             IsBackground = !_isBackground,

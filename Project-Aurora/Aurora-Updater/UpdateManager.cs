@@ -43,6 +43,7 @@ public class UpdateManager
     });
 
     private readonly AuroraInterface _auroraInterface = new();
+    public UpdateInfo UpdateInfo { get; }
 
     public UpdateManager(Version version, string author, string repoName)
     {
@@ -56,8 +57,8 @@ public class UpdateManager
             config = new UpdaterConfiguration(false);
         }
 
-        var updateInfo = new UpdateInfo(version, author, repoName, config.GetDevReleases);
-        var getPreReleases = updateInfo.IsCurrentlyPreRelease().Result;
+        UpdateInfo = new UpdateInfo(version, author, repoName, config.GetDevReleases);
+        var getPreReleases = UpdateInfo.IsCurrentlyPreRelease().Result;
 
         PerformCleanup();
         var tries = 6;
@@ -65,7 +66,7 @@ public class UpdateManager
         {
             try
             {
-                MissingReleases = updateInfo.FetchMissingReleases().ToList();
+                MissingReleases = UpdateInfo.FetchMissingReleases().ToList();
                 LatestRelease = MissingReleases.FirstOrDefault(r => getPreReleases || !r.Prerelease);
                 return;
             }
