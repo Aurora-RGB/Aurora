@@ -68,6 +68,7 @@ public static class ConfigManager
                 new JsonSerializerSettings
                 {
                     ObjectCreationHandling = ObjectCreationHandling.Replace,
+                    TypeNameHandling = TypeNameHandling.All,
                 })!;
     }
 
