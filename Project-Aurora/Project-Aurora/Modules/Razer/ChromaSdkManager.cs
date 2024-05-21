@@ -22,6 +22,10 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
 
     internal async Task Initialize()
     {
+        var runningProcessMonitor = await ProcessesModule.RunningProcessMonitor;
+        runningProcessMonitor.ProcessStarted += RunningProcessMonitorOnProcessStarted;
+        runningProcessMonitor.ProcessStopped += RunningProcessMonitorOnProcessStopped;
+
         try
         {
             ChromaRegistrySettings.Initialize();
@@ -33,10 +37,6 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
         {
             Global.logger.Fatal(exc, "RazerSdkManager failed to load!");
         }
-
-        var runningProcessMonitor = await ProcessesModule.RunningProcessMonitor;
-        runningProcessMonitor.ProcessStarted += RunningProcessMonitorOnProcessStarted;
-        runningProcessMonitor.ProcessStopped += RunningProcessMonitorOnProcessStopped;
     }
 
     private void RunningProcessMonitorOnProcessStarted(object? sender, ProcessStarted e)
