@@ -504,6 +504,8 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                         }
 
                         break;
+                    case ".dll":
+                        break;
                     default:
                         Global.logger.Warning("Script with path {Script} has an unsupported type/ext! ({Ext})", script, ext);
                         continue;
