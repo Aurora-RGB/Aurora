@@ -62,11 +62,6 @@ public class ChromaRegistrySettings
         }
 
         AllChromaApps = chromaAppList.Split(';').ToList();
-        FilterAndSetProcesses();
-    }
-
-    private void FilterAndSetProcesses()
-    {
         ChromaAppsChanged?.Invoke(this, EventArgs.Empty);
     }
 
