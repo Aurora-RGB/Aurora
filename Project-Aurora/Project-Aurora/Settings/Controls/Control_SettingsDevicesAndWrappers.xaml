@@ -167,6 +167,8 @@ ToolTip="Disabling device control will stop ChromaSDK from controlling Razer Dev
                             <RowDefinition Height="20" />
                             <RowDefinition Height="20" />
                             <RowDefinition Height="20" />
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="20" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="220" />
@@ -174,20 +176,21 @@ ToolTip="Disabling device control will stop ChromaSDK from controlling Razer Dev
                             <ColumnDefinition Width="20*" />
                         </Grid.ColumnDefinitions>
                         
-                        <TextBlock Foreground="LightGray">Not compatible with LGS and GHUB</TextBlock>
+                        <TextBlock Foreground="LightGray">LGS autostart is disabled</TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="1" Name="LgsAutostartStatus" Foreground="Green">✔</TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">LGS is not running</TextBlock>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Name="LgsRunningStatus" Foreground="LightGray">‐</TextBlock>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Foreground="LightGray">LGS Lightsync binary exists</TextBlock>
+                        <TextBlock Grid.Row="2" Grid.Column="1" Name="LightsyncDllStatus" Foreground="Red">✗ TODO</TextBlock>
 
-                        <Button Grid.Row="0" Grid.Column="2" Content="Install" Width="75"
-                                Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                Click="Lightsync_install_button_Click" />
-
-                        <Label x:Name="LightsyncConnectionStatusLabel" Margin="5 0 5 0" Grid.Row="1" Grid.Column="2"
+                        <Label x:Name="LightsyncConnectionStatusLabel" Margin="5 0 5 0" Grid.Row="4" Grid.Column="2" Content="status"
                                Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                        
-                        <CheckBox Grid.Column="0" Grid.Row="1" IsChecked="{Binding EnableLightsyncTakeover}">Enable integration takeover</CheckBox>
 
-                        <Label Grid.Row="2" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
+                        <CheckBox Grid.Row="4" Grid.Column="0" IsChecked="{Binding EnableLightsyncTakeover}">Enable integration takeover</CheckBox>
+
+                        <Label Grid.Row="3" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
                                VerticalAlignment="Center" />
-                        <Label x:Name="LightsyncCurrentApplicationLabel" Grid.Row="2" Grid.Column="2" Width="300"
+                        <Label x:Name="LightsyncCurrentApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300" Content="application name"
                                Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
                     </Grid>
                 </GroupBox>

@@ -13,7 +13,6 @@ using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Utils;
 using Common.Devices;
 using Common.Utils;
-using Microsoft.Win32;
 using RGB.NET.Devices.Logitech;
 using Color = System.Drawing.Color;
 
@@ -63,25 +62,14 @@ public sealed class LogitechSdkListener : IDisposable
 
     public async Task Initialize(Task<RunningProcessMonitor> runningProcessMonitor)
     {
-        const string runReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-        using var runKey = Registry.LocalMachine.OpenSubKey(runReg);
-        var lgsLaunch = runKey?.GetValue("Launch LCore");
-        var lgsInstalled = lgsLaunch != null;
-        if (lgsInstalled)
+        var runApproved = LgsInstallationUtils.IsLgsInstalled() && LgsInstallationUtils.LgsAutorunEnabled();
+        if (runApproved)
         {
-            const string runApprovedReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
-            using var runApprovedKey = Registry.LocalMachine.OpenSubKey(runApprovedReg);
-            var lgsLaunchApproved = runApprovedKey?.GetValue("Launch LCore");
-            var runApproved = lgsLaunchApproved is byte[] startValue && startValue[0] == 2;
-
-            if (runApproved)
-            {
-                State = LightsyncSdkState.Conflicted;
-                return;
-            }
+            State = LightsyncSdkState.Conflicted;
+            return;
         }
 
-        if ((await runningProcessMonitor).IsProcessRunning("lcore.exe"))
+        if ((await runningProcessMonitor).IsProcessRunning(LgsInstallationUtils.LgsExe))
         {
             State = LightsyncSdkState.Conflicted;
             return;
@@ -105,21 +93,7 @@ public sealed class LogitechSdkListener : IDisposable
 
         _pipeListeners.Add(pipeListener);
 
-        State = IsInstalled() ? LightsyncSdkState.Waiting : LightsyncSdkState.NotInstalled;
-    }
-
-    private static bool IsInstalled()
-    {
-        const string registryPath64 = @"SOFTWARE\Classes\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary";
-        const string registryPath32 = @"SOFTWARE\Classes\WOW6432Node\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary";
-
-        using var key64 = Registry.LocalMachine.OpenSubKey(registryPath64);
-        using var key32 = Registry.LocalMachine.OpenSubKey(registryPath32);
-
-        var is64BitKeyPresent = File.Exists(key64?.GetValue(null)?.ToString()) ;
-        var is32BitKeyPresent = File.Exists(key32?.GetValue(null)?.ToString());
-        
-        return is64BitKeyPresent && is32BitKeyPresent;
+        State = LgsInstallationUtils.DllInstalled() ? LightsyncSdkState.Waiting : LightsyncSdkState.NotInstalled;
     }
 
     private void PipeListenerOnClientConnected(object? sender, EventArgs e)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
@@ -10,7 +9,6 @@ using AuroraRgb.Devices;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Modules.Razer;
-using Microsoft.Win32;
 using RazerSdkReader;
 using RazerSdkReader.Structures;
 using Application = System.Windows.Application;
@@ -22,6 +20,10 @@ public partial class Control_SettingsDevicesAndWrappers
 {
     private readonly Task<ChromaSdkManager> _rzSdkManager;
     private readonly Task<DeviceManager> _deviceManager;
+
+    private const string StatusConflict = """✗""";
+    private const string StatusCheck = """✔""";
+    private const string StatusNoMatter = "‐";
     
     public Control_SettingsDevicesAndWrappers(Task<ChromaSdkManager> rzSdkManager,
         Task<DeviceManager> deviceManager)
@@ -50,7 +52,7 @@ public partial class Control_SettingsDevicesAndWrappers
     private async Task Load()
     {
         await InitializeChromaEvents();
-        InitializeLightsyncEvents();
+        await InitializeLightsyncEvents();
     }
 
     private async Task Unload()
@@ -100,20 +102,20 @@ public partial class Control_SettingsDevicesAndWrappers
         chromaReader.AppDataUpdated += HandleChromaAppChange;
     }
 
-    private void InitializeLightsyncEvents()
+    private async Task InitializeLightsyncEvents()
     {
         var logitechSdkListener = LogitechSdkModule.LogitechSdkListener;
         logitechSdkListener.ApplicationChanged -= LogitechSdkListenerOnApplicationChanged;
         logitechSdkListener.ApplicationChanged += LogitechSdkListenerOnApplicationChanged;
         logitechSdkListener.StateChanged -= LogitechSdkListenerOnStateChanged;
         logitechSdkListener.StateChanged += LogitechSdkListenerOnStateChanged;
-        UpdateLightsyncState();
+        await UpdateLightsyncState();
         UpdateLightsyncApp(logitechSdkListener.Application);
     }
 
-    private void LogitechSdkListenerOnStateChanged(object? sender, EventArgs e)
+    private async void LogitechSdkListenerOnStateChanged(object? sender, EventArgs e)
     {
-        UpdateLightsyncState();
+        await UpdateLightsyncState();
     }
 
     private void HandleChromaAppChange(object? s, in ChromaAppData appData)
@@ -146,8 +148,16 @@ public partial class Control_SettingsDevicesAndWrappers
         }, DispatcherPriority.Loaded);
     }
 
-    private void UpdateLightsyncState()
+    private async Task UpdateLightsyncState()
     {
+
+        var isLgsInstalled = LgsInstallationUtils.IsLgsInstalled();
+        var lgsAutorunEnabled = LgsInstallationUtils.LgsAutorunEnabled();
+        var dllInstalled = LgsInstallationUtils.DllInstalled();
+
+        var runningProcessMonitor = await ProcessesModule.RunningProcessMonitor;
+        var lgsRunning = runningProcessMonitor.IsProcessRunning(LgsInstallationUtils.LgsExe);
+
         Dispatcher.BeginInvoke(() =>
         {
             var logitechSdkListener = LogitechSdkModule.LogitechSdkListener;
@@ -177,7 +187,61 @@ public partial class Control_SettingsDevicesAndWrappers
                     Global.logger.Error("LogitechSdkListener.State: {0} Unexpected Enum value", logitechSdkListener.State);
                     break;
             }
+
+            SetAutostartLabel(isLgsInstalled, lgsAutorunEnabled);
+            SetProcessRunningLabel(lgsRunning);
+            SetDllInstalledLabel(dllInstalled);
         }, DispatcherPriority.Loaded);
+    }
+
+    private void SetAutostartLabel(bool isLgsInstalled, bool lgsAutorunEnabled)
+    {
+        if (isLgsInstalled)
+        {
+            if (lgsAutorunEnabled)
+            {
+                LgsAutostartStatus.Text = StatusConflict;
+                LgsAutostartStatus.Foreground = Brushes.Red;
+            }
+            else
+            {
+                LgsAutostartStatus.Text = StatusCheck;
+                LgsAutostartStatus.Foreground = Brushes.Green;
+            }
+        }
+        else
+        {
+            LgsAutostartStatus.Text = StatusNoMatter;
+            LgsAutostartStatus.Foreground = Brushes.LightGray;
+        }
+    }
+
+    private void SetProcessRunningLabel(bool lgsRunning)
+    {
+        if (lgsRunning)
+        {
+            LgsRunningStatus.Text = StatusConflict;
+            LgsRunningStatus.Foreground = Brushes.Red;
+        }
+        else
+        {
+            LgsRunningStatus.Text = StatusCheck;
+            LgsRunningStatus.Foreground = Brushes.Green;
+        }
+    }
+
+    private void SetDllInstalledLabel(bool dllInstalled)
+    {
+        if (dllInstalled)
+        {
+            LightsyncDllStatus.Text = StatusCheck;
+            LightsyncDllStatus.Foreground = Brushes.Green;
+        }
+        else
+        {
+            LightsyncDllStatus.Text = StatusConflict;
+            LightsyncDllStatus.Foreground = Brushes.Red;
+        }
     }
 
     private void ResetDevices(object? sender, RoutedEventArgs e) => Task.Run(async () => await (await _deviceManager).ResetDevices());
@@ -199,8 +263,7 @@ public partial class Control_SettingsDevicesAndWrappers
 
                 if (await t != (int)RazerChromaInstallerExitCode.RestartRequired) return true;
                 ShowMessageBox(
-                    "The uninstaller requested system restart!\nPlease reboot your pc and re-run the installation.",
-                    "Restart required!");
+                    "The uninstaller requested system restart!\nPlease reboot your pc and re-run the installation.", "Restart required!");
                 return false;
             })
             .ConfigureAwait(false);
@@ -309,68 +372,13 @@ public partial class Control_SettingsDevicesAndWrappers
         await ChromaInstallationUtils.DisableDeviceControlAsync();
     }
 
-    private void Lightsync_install_button_Click(object? sender, RoutedEventArgs e)
-    {
-        const string wrapperFolder = "C:\\ProgramData\\Aurora";
-        const string dllName = "LogitechLed.dll";
-        
-        using var httpClient = new HttpClient();
-
-        try
-        {
-            InstallLightsync64(wrapperFolder, dllName, httpClient);
-            InstallLightsync86(wrapperFolder, dllName, httpClient);
-
-            LightsyncConnectionStatusLabel.Content = "Waiting for game";
-            MessageBox.Show("Logitech wrapper installed!");
-        }
-        catch (Exception exc)
-        {
-            Global.logger.Error(exc, "Error installing Lightsync wrapper!");
-            MessageBox.Show(exc.Message, "Error installing Lightsync wrapper!");
-        }
-    }
-
-    private const string ArtemisRepo =
-        "https://raw.githubusercontent.com/Artemis-RGB/Artemis.Plugins.Wrappers/04d1f6acf3a93b0c883118f174b18ced8e264a84";
-    private static void InstallLightsync64(string wrapperFolder, string dllName, HttpClient httpClient)
-    {
-        const string logiX64 = ArtemisRepo + "/src/Logitech/Artemis.Plugins.Wrappers.Logitech/x64/LogitechLed.dll";
-        var x64DllFolder = Path.Combine(wrapperFolder, "x64");
-        var x64DllPath = Path.Combine(x64DllFolder, dllName);
-
-        var x64Response = httpClient.GetAsync(new Uri(logiX64));
-        Directory.CreateDirectory(x64DllFolder);
-        using var fs = new FileStream(x64DllPath, FileMode.Create);
-        x64Response.Result.Content.CopyToAsync(fs).Wait();
-
-        using var key =Registry.LocalMachine.CreateSubKey(
-                @"SOFTWARE\Classes\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary", true);
-        key.SetValue(null, x64DllPath);
-    }
-
-    private static void InstallLightsync86(string wrapperFolder, string dllName, HttpClient httpClient)
-    {
-        const string logiX86 = ArtemisRepo + "/src/Logitech/Artemis.Plugins.Wrappers.Logitech/x86/LogitechLed.dll";
-        var x86DllFolder = Path.Combine(wrapperFolder, "x86");
-
-        var x86Response = httpClient.GetAsync(new Uri(logiX86));
-        Directory.CreateDirectory(x86DllFolder);
-        var x86DllPath = Path.Combine(x86DllFolder, dllName);
-        using var fs = new FileStream(x86DllPath, FileMode.Create);
-        x86Response.Result.Content.CopyToAsync(fs).Wait();
-
-        using var key = Registry.LocalMachine.CreateSubKey(
-            @"SOFTWARE\Classes\WOW6432Node\CLSID\{a6519e67-7632-4375-afdf-caa889744403}\ServerBinary", true);
-        key.SetValue(null, x86DllPath);
-    }
 
     private void wrapper_install_lightfx_32_Click(object? sender, RoutedEventArgs e)
     {
         try
         {
             var dialog = new FolderBrowserDialog();
-            DialogResult result = dialog.ShowDialog();
+            var result = dialog.ShowDialog();
 
             if (result != DialogResult.OK) return;
             using (var lightfxWrapper86 = new BinaryWriter(new FileStream(Path.Combine(dialog.SelectedPath, "LightFX.dll"), FileMode.Create)))
@@ -392,7 +400,7 @@ public partial class Control_SettingsDevicesAndWrappers
         try
         {
             var dialog = new FolderBrowserDialog();
-            DialogResult result = dialog.ShowDialog();
+            var result = dialog.ShowDialog();
 
             if (result != DialogResult.OK) return;
             using (var lightfxWrapper64 = new BinaryWriter(new FileStream(Path.Combine(dialog.SelectedPath, "LightFX.dll"), FileMode.Create)))
