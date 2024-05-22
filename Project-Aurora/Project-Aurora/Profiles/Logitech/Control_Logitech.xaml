@@ -10,7 +10,8 @@
             <TabItem Header="Overview for Chroma">
                 <StackPanel Margin="10">
                     <TextBlock>
-                        LGS from Logitech need to be installed.&#x0a;Applications will be detected automatically if conditions are met. Check Devices & Wrappers settings for details.
+                        LGS from Logitech need to be installed.&#x0a;
+                        Applications will be detected automatically if conditions are met. Check Devices &amp; Wrappers settings for details.
                     </TextBlock>
                 </StackPanel>
             </TabItem>
