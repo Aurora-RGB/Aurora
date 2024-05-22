@@ -15,6 +15,12 @@ public sealed class RazerSdkModule : AuroraModule
     protected override async Task Initialize()
     {
         Global.logger.Information("Loading RazerSdkManager");
+
+        var auroraChromaSettings = await ConfigManager.LoadChromaConfig();
+        var razerSdkManager = new ChromaSdkManager(auroraChromaSettings);
+        await razerSdkManager.Initialize();
+        RzSdkManagerTaskSource.SetResult(razerSdkManager);
+
         if (!RzHelper.IsSdkVersionSupported(RzHelper.GetSdkVersion()))
         {
             Global.logger.Warning("Currently installed razer sdk version \"{RzVersion}\" is not supported by the RazerSdkManager!", RzHelper.GetSdkVersion());
@@ -32,11 +38,6 @@ public sealed class RazerSdkModule : AuroraModule
                 Global.logger.Error(e, "Error disabling device control automatically");
             }
         }
-        
-        var auroraChromaSettings = await ConfigManager.LoadChromaConfig();
-        var razerSdkManager = new ChromaSdkManager(auroraChromaSettings);
-        await razerSdkManager.Initialize();
-        RzSdkManagerTaskSource.SetResult(razerSdkManager);
     }
 
     public override async ValueTask DisposeAsync()
