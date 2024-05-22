@@ -31,6 +31,7 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
             ChromaRegistrySettings.Initialize();
             var chromaReader = TryLoadChroma();
             ChromaReader = chromaReader;
+            Global.logger.Information("RazerSdkManager loaded successfully!");
             StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));
         }
         catch (Exception exc)
@@ -48,9 +49,13 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
 
         Global.logger.Information("Chroma service opened. Enabling Chroma integration...");
 
-        var chromaReader = TryLoadChroma();
-        ChromaReader = chromaReader;
-        StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));
+        Task.Run(async () =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            var chromaReader = TryLoadChroma();
+            ChromaReader = chromaReader;
+            StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));
+        });
     }
 
     private void RunningProcessMonitorOnProcessStopped(object? sender, ProcessStopped e)

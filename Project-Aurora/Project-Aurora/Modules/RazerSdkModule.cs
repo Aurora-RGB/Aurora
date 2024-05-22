@@ -37,7 +37,6 @@ public sealed class RazerSdkModule : AuroraModule
         var razerSdkManager = new ChromaSdkManager(auroraChromaSettings);
         await razerSdkManager.Initialize();
         RzSdkManagerTaskSource.SetResult(razerSdkManager);
-        Global.logger.Information("RazerSdkManager loaded successfully!");
     }
 
     public override async ValueTask DisposeAsync()
