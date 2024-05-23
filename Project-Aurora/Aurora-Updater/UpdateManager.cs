@@ -45,6 +45,8 @@ public class UpdateManager
     private readonly AuroraInterface _auroraInterface = new();
     public UpdateInfo UpdateInfo { get; }
 
+    private int _processQuitTries = 8;
+
     public UpdateManager(Version version, string author, string repoName)
     {
         UpdaterConfiguration config;
@@ -394,6 +396,10 @@ public class UpdateManager
                 }
                 catch (IOException e)
                 {
+                    if (_processQuitTries-- == 0)
+                    {
+                        throw;
+                    }
                     if (fileEntry.FullName.Contains("/AuroraDeviceManager/"))
                     {
                         var processClosed = ShutdownDeviceManager().Result;
