@@ -19,7 +19,12 @@ public sealed class ChromaApplication : Application
         EnableByDefault = true,
     })
     {
-        RazerSdkModule.RzSdkManager.Result.ChromaRegistrySettings.ChromaAppsChanged += ChromaRegistrySettingsOnChromaAppsChanged;
+        var chromaRegistrySettings = RazerSdkModule.RzSdkManager.Result.ChromaRegistrySettings;
+        chromaRegistrySettings.ChromaAppsChanged += ChromaRegistrySettingsOnChromaAppsChanged;
+        Config.ProcessNames = chromaRegistrySettings.AllChromaApps
+            .Where(processName => !string.IsNullOrWhiteSpace(processName))
+            .Where(s => !chromaRegistrySettings.ExcludedPrograms.Contains(s))
+            .ToArray();
     }
 
     private async void ChromaRegistrySettingsOnChromaAppsChanged(object? sender, EventArgs e)
