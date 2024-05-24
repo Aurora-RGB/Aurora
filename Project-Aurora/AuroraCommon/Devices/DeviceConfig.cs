@@ -8,6 +8,7 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
 {
     public const string FileName = "DeviceConfig.json";
 
+    [JsonIgnore]
     public static readonly string ConfigFile =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aurora", FileName);
 

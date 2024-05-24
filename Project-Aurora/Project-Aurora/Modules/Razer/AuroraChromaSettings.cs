@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text.Json.Serialization;
 using AuroraRgb.Devices;
 using Common.Devices;
 
@@ -9,6 +10,7 @@ public class AuroraChromaSettings : IAuroraConfig
 {
     public static readonly string ConfigFile = Path.Combine(Global.AppDataDirectory, "ChromaConfig.json");
     
+    [JsonIgnore]
     public string ConfigPath => ConfigFile;
     public List<string> DisabledApps { get; set; } = [DeviceManager.DeviceManagerExe, Global.AuroraExe];
 }
