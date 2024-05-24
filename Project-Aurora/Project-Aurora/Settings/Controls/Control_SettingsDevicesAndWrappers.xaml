@@ -124,9 +124,9 @@
                         <Button x:Name="ChromaInstallButton" Grid.Row="0" Grid.Column="2" Content="Install" Width="90"
                                 Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Click="razer_wrapper_install_button_Click" />
-                        <Button x:Name="ChromaUninstallButton" Grid.Row="0" Grid.Column="2" Content="Uninstall"
-                                Width="75" Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Right"
-                                Click="razer_wrapper_uninstall_button_Click" />
+                        <Button x:Name="ChromaAdvancedButton" Grid.Row="0" Grid.Column="2" Content="..."
+                                Width="25" Margin="25 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Click="ChromaAdvancedButton_OnClick"/>
 
                         <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
                             <Button x:Name="ChromaDisableDeviceControlButton"

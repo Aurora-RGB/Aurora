@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.ServiceProcess;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
+using AuroraRgb.Modules.Razer.RazerApi;
 using AuroraRgb.Utils;
 using Microsoft.Win32;
-using Newtonsoft.Json.Linq;
 
 namespace AuroraRgb.Modules.Razer;
 
@@ -34,24 +35,6 @@ public static class ChromaInstallationUtils
     {
         if (RzHelper.GetSdkVersion() == new RzSdkVersion())
             return (int)RazerChromaInstallerExitCode.InvalidState;
-
-        int DoUninstall(string filepath)
-        {
-            var filename = Path.GetFileName(filepath);
-            var path = Path.GetDirectoryName(filepath);
-            var processInfo = new ProcessStartInfo
-            {
-                FileName = filename,
-                WorkingDirectory = path,
-                UseShellExecute = true,
-                Arguments = $"/S _?={path}",
-                ErrorDialog = true
-            };
-
-            var process = Process.Start(processInfo);
-            process.WaitForExit(120000);
-            return process.ExitCode;
-        }
 
         using var hklm = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32);
         var key = hklm.OpenSubKey(@"Software\Razer\Synapse3\PID0302MW");
@@ -89,37 +72,57 @@ public static class ChromaInstallationUtils
         }
 
         return (int)RazerChromaInstallerExitCode.Success;
+
+        int DoUninstall(string filepath)
+        {
+            var filename = Path.GetFileName(filepath);
+            var path = Path.GetDirectoryName(filepath);
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = filename,
+                WorkingDirectory = path,
+                UseShellExecute = true,
+                Arguments = $"/S _?={path}",
+                ErrorDialog = true
+            };
+
+            var process = Process.Start(processInfo);
+            process.WaitForExit(120000);
+            return process.ExitCode;
+        }
     });
 
     private static async Task<string?> GetDownloadUrlAsync()
     {
+        const string endpoint = "prod";
+
         using var client = new HttpClient();
-        var endpoint = "prod";
-        var json = JObject.Parse(await client.GetStringAsync("https://discovery.razerapi.com/user/endpoints"));
-        var hash = json["endpoints"].Children().FirstOrDefault(c => c.Value<string>("name") == endpoint)?.Value<string>("hash");
+        var json = await client.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
+        var razerEndpoints = JsonSerializer.Deserialize(json, RazerApiSourceGenerationContext.Default.RazerEndpoints);
+        var hash = razerEndpoints?.Endpoints.Find(c => c.Name == endpoint)?.Hash;
 
         if (hash == null)
             return null;
 
-        var platformData = @"
-<PlatformRoot xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
-  <Platform>
-    <Arch>64</Arch>
-    <Locale>en</Locale>
-    <Mfr>Generic-MFR</Mfr>
-    <Model>Generic-MDL</Model>
-    <OS>Windows</OS>
-    <OSVer>10</OSVer>
-    <SKU>Generic-SKU</SKU>
-  </Platform>
-</PlatformRoot>
-";
+        const string platformData = """
+                                    <PlatformRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+                                      <Platform>
+                                        <Arch>64</Arch>
+                                        <Locale>en</Locale>
+                                        <Mfr>Generic-MFR</Mfr>
+                                        <Model>Generic-MDL</Model>
+                                        <OS>Windows</OS>
+                                        <OSVer>10</OSVer>
+                                        <SKU>Generic-SKU</SKU>
+                                      </Platform>
+                                    </PlatformRoot>
+                                    """;
 
         var request = new HttpRequestMessage(HttpMethod.Post, $"https://manifest.razerapi.com/api/legacy/{hash}/{endpoint}/productlist/get")
         {
             Content = new StringContent(platformData)
         };
-        request.Content.Headers.ContentType = new("application/xml");
+        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/xml");
         var response = await client.SendAsync(request);
         var xml = await response.Content.ReadAsStringAsync();
         var doc = new XmlDocument();
@@ -141,7 +144,7 @@ public static class ChromaInstallationUtils
         using var client = new HttpClient();
         await using var responseStream = await client.GetStreamAsync(url);
 
-        var path = Path.ChangeExtension(Path.GetTempFileName(), ".exe");
+        var path = Path.ChangeExtension(Path.GetRandomFileName(), ".exe");
         await using var fileStream = new FileStream(path, FileMode.CreateNew, FileAccess.Write);
         await responseStream.CopyToAsync(fileStream);
 
@@ -163,6 +166,23 @@ public static class ChromaInstallationUtils
         await process.WaitForExitAsync(new CancellationTokenSource(120000).Token);
         return process.ExitCode;
     }
+
+    public static void RestoreDeviceControl()
+    {
+        var chromaPath = GetChromaPath();
+        if (chromaPath != null)
+        {
+            File.Delete(chromaPath);
+        }
+
+        var chromaPath64 = GetChromaPath64();
+        if (chromaPath64 != null)
+        {
+            File.Delete(chromaPath64);
+        }
+        RestartChromaService();
+    }
+    
 
     public static async Task DisableDeviceControlAsync()
     {

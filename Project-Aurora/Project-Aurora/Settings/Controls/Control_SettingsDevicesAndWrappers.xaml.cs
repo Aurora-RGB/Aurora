@@ -41,7 +41,7 @@ public partial class Control_SettingsDevicesAndWrappers
         ChromaSupportedVersionsLabel.Content = $"[{RzHelper.SupportedFromVersion}-{RzHelper.SupportedToVersion}]";
 
         if (rzVersion == new RzSdkVersion())
-            ChromaUninstallButton.Visibility = Visibility.Hidden;
+            ChromaAdvancedButton.Visibility = Visibility.Hidden;
     }
 
     private async void Control_SettingsDevicesAndWrappers_OnUnloaded(object sender, RoutedEventArgs e)
@@ -249,7 +249,7 @@ public partial class Control_SettingsDevicesAndWrappers
     private async void razer_wrapper_install_button_Click(object? sender, RoutedEventArgs e)
     {
         ChromaInstallButton.IsEnabled = false;
-        ChromaUninstallButton.IsEnabled = false;
+        ChromaAdvancedButton.IsEnabled = false;
 
         SetButtonContent("Uninstalling...");
         var uninstallSuccess = await ChromaInstallationUtils.UninstallAsync()
@@ -307,6 +307,8 @@ public partial class Control_SettingsDevicesAndWrappers
                     ShowMessageBox("Installation successful!\nRestart of Aurora may be needed.",
                         "Chroma SDK Installed!");
                 }
+
+                ChromaAdvancedButton.Visibility = Visibility.Visible;
             })
             .ConfigureAwait(false);
 
@@ -323,48 +325,6 @@ public partial class Control_SettingsDevicesAndWrappers
 
         void ShowMessageBox(string message, string title, MessageBoxImage image = MessageBoxImage.Exclamation)
             => Application.Current.Dispatcher.Invoke(() => MessageBox.Show(message, title, MessageBoxButton.OK, image));
-    }
-
-    private void razer_wrapper_uninstall_button_Click(object? sender, RoutedEventArgs e)
-    {
-        void HandleExceptions(AggregateException ae)
-        {
-            ShowMessageBox(ae.ToString(), "Exception!", MessageBoxImage.Error);
-            ae.Handle(ex => {
-                Global.logger.Error(ex, "Razer wrapper uninstall error");
-                return true;
-            });
-        }
-
-        void SetButtonContent(string s)
-            => Application.Current.Dispatcher.Invoke(() => ChromaUninstallButton.Content = s);
-
-        void ShowMessageBox(string message, string title, MessageBoxImage image = MessageBoxImage.Exclamation)
-            => Application.Current.Dispatcher.Invoke(() => MessageBox.Show(message, title, MessageBoxButton.OK, image));
-
-        ChromaInstallButton.IsEnabled = false;
-        ChromaUninstallButton.IsEnabled = false;
-
-        Task.Run(async () =>
-        {
-            SetButtonContent("Uninstalling");
-            await ChromaInstallationUtils.UninstallAsync()
-                .ContinueWith(async t =>
-                {
-                    if (t.Exception != null)
-                        HandleExceptions(t.Exception);
-                    else if (await t == (int)RazerChromaInstallerExitCode.RestartRequired)
-                        ShowMessageBox("The uninstaller requested system restart!\nPlease reboot your pc.", "Restart required!");
-                    else if (await t == (int)RazerChromaInstallerExitCode.InvalidState)
-                        ShowMessageBox("There is nothing to install!", "Invalid State!");
-                    else
-                    {
-                        SetButtonContent("Done!");
-                        ShowMessageBox("Uninstallation successful!\nPlease restart aurora for changes to take effect.", "Restart required!");
-                    }
-                })
-                .ConfigureAwait(false);
-        });
     }
 
     private async void razer_wrapper_disable_device_control_button_Click(object? sender, RoutedEventArgs e)
@@ -427,5 +387,19 @@ public partial class Control_SettingsDevicesAndWrappers
         {
             await Load();
         }
+    }
+
+    private void ChromaAdvancedButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        ChromaInstallButton.IsEnabled = false;
+        ChromaAdvancedButton.IsEnabled = false;
+        var chromaSettings = new Window_ChromaSettings();
+        chromaSettings.Show();
+
+        chromaSettings.Closed += (_, _) =>
+        {
+            ChromaInstallButton.IsEnabled = true;
+            ChromaAdvancedButton.IsEnabled = true;
+        };
     }
 }
