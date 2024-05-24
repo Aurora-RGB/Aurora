@@ -11,11 +11,7 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
     public static readonly string ConfigFile =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aurora", FileName);
 
-    [JsonIgnore]
     public string ConfigPath => ConfigFile;
-
-    [JsonIgnore]
-    public JsonSerializerLibrary JsonSerializerLibrary => JsonSerializerLibrary.SystemText;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
