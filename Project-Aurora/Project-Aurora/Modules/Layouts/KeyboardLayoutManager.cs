@@ -103,6 +103,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         await cancellationTokenSource.CancelAsync();
 
         var newCancelSource = new CancellationTokenSource();
+        var cancellationToken = newCancelSource.Token;
         _cancellationTokenSource = newCancelSource;
         
         var layout = Global.Configuration.KeyboardLocalization;
@@ -144,7 +145,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         try
         {
             await layoutLoad.LoadBrand(
-                newCancelSource.Token,
+                cancellationToken,
                 Global.Configuration.KeyboardBrand,
                 Global.Configuration.MousePreference,
                 Global.Configuration.MousepadPreference,
@@ -157,14 +158,14 @@ public sealed class KeyboardLayoutManager : IDisposable
             {
                 try
                 {
-                    await CreateUserControl(layoutLoad.VirtualKeyboardGroup, newCancelSource.Token);
+                    await CreateUserControl(layoutLoad.VirtualKeyboardGroup, cancellationToken);
                     KeyboardLayoutUpdated?.Invoke(this);
                 }
                 catch (Exception e)
                 {
                     Global.logger.Error(e, "Keyboard control generation failed");
                 }
-            }, DispatcherPriority.Loaded, newCancelSource.Token);
+            }, DispatcherPriority.Loaded, cancellationToken);
             _virtualKeyboardGroup = layoutLoad.VirtualKeyboardGroup;
             LayoutKeyConversion = layoutLoad.LayoutKeyConversion;
         }
