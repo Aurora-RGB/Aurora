@@ -248,6 +248,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
 
     private long _lastRender = Time.GetMillisecondsSinceEpoch();
     private Timer? _aliveTimer;
+    private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
 
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
@@ -268,7 +269,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
     private void AliveTimerCallback(object? state)
     {
         var now = Time.GetMillisecondsSinceEpoch();
-        if (now - _lastRender <= TimeSpan.FromSeconds(20).Milliseconds || _deviceProxy == null) return;
+        if (now - _lastRender <= _inactiveTimeMilliseconds || _deviceProxy == null) return;
         
         Global.logger.Information("Audio Layer not being used, disposing device");
         // 20 sec passed since last render, dispose proxy
