@@ -74,13 +74,13 @@ public sealed class InputsModule : AuroraModule
         if (!(await InputEvents).Alt) return;
         
         e.Intercepted = true;
-        await Task.Factory.StartNew(() =>
+        await Task.Factory.StartNew(async () =>
             {
                 var brightness = Global.Configuration.GlobalBrightness;
                 brightness += e.GetDeviceKey() == DeviceKeys.VOLUME_UP ? 0.05f : -0.05f;
                 Global.Configuration.GlobalBrightness = Math.Max(0f, Math.Min(1f, brightness));
 
-                ConfigManager.Save(Global.Configuration);
+                await ConfigManager.SaveAsync(Global.Configuration);
             }
         );
     }

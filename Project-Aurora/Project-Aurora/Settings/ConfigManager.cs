@@ -8,6 +8,7 @@ using System.Windows;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 using Common.Devices;
+using Common.Utils;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings;
@@ -48,7 +49,7 @@ public static class ConfigManager
 
             if (result == MessageBoxResult.Yes)
             {
-                return CreateDefaultConfigurationFile();
+                return await CreateDefaultConfigurationFile();
             }
 
             App.ForceShutdownApp(-1);
@@ -59,11 +60,11 @@ public static class ConfigManager
     private static async Task<Configuration> Parse()
     {
         if (!File.Exists(Configuration.ConfigFile))
-            return CreateDefaultConfigurationFile();
+            return await CreateDefaultConfigurationFile();
         
         var content = await File.ReadAllTextAsync(Configuration.ConfigFile, Encoding.UTF8);
         return string.IsNullOrWhiteSpace(content)
-            ? CreateDefaultConfigurationFile()
+            ? await CreateDefaultConfigurationFile()
             : JsonConvert.DeserializeObject<Configuration>(content,
                 new JsonSerializerSettings
                 {
@@ -101,13 +102,13 @@ public static class ConfigManager
 
             // first time start
             var deviceConfig = new DeviceConfig();
-            Save(deviceConfig);
+            await SaveAsync(deviceConfig);
             return deviceConfig;
 
         }
 
         var content = await File.ReadAllTextAsync(DeviceConfig.ConfigFile, Encoding.UTF8);
-        return System.Text.Json.JsonSerializer.Deserialize<DeviceConfig>(content) ?? await MigrateDeviceConfig();
+        return System.Text.Json.JsonSerializer.Deserialize(content, CommonSourceGenerationContext.Default.DeviceConfig) ?? await MigrateDeviceConfig();
     }
 
     public static async Task<AuroraChromaSettings> LoadChromaConfig()
@@ -145,11 +146,7 @@ public static class ConfigManager
         var path = configuration.ConfigPath;
         var currentTime = Time.GetMillisecondsSinceEpoch();
 
-        if (LastSaveTimes.TryGetValue(path, out var lastSaveTime))
-        {
-            if (lastSaveTime + SaveInterval > currentTime)
-                return;
-        }
+        if (LastSaveTimes.TryGetValue(path, out var lastSaveTime) && lastSaveTime + SaveInterval > currentTime) return;
 
         LastSaveTimes[path] = currentTime;
 
@@ -180,11 +177,11 @@ public static class ConfigManager
         await File.WriteAllTextAsync(path, content, Encoding.UTF8);
     }
 
-    private static Configuration CreateDefaultConfigurationFile()
+    private static async Task<Configuration> CreateDefaultConfigurationFile()
     {
         Global.logger.Information("Creating default configuration");
         var config = new Configuration();
-        Save(config);
+        await SaveAsync(config);
         return config;
     }
 

@@ -30,6 +30,7 @@ public partial class App
     protected override async void OnStartup(StartupEventArgs e)
     {
         UseArgs(e);
+        AuroraApp = new AuroraApp(IsSilent);
         CheckRunningProcesses();
         base.OnStartup(e);
 
@@ -40,7 +41,6 @@ public partial class App
         if (!Global.isDebug)
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        AuroraApp = new AuroraApp(IsSilent);
         await AuroraApp.OnStartup();
 
         SessionEnding += (_, sessionEndingParams) =>
@@ -136,12 +136,9 @@ public partial class App
             ConfigManager.Save(Global.Configuration);
 
         var forceExitTimer = StartForceExitTimer();
-        if (AuroraApp != null)
-        {
-            var auroraShutdownTask = AuroraApp.Shutdown();
-            AuroraApp.Dispose();
-            await auroraShutdownTask;
-        }
+        var auroraShutdownTask = AuroraApp!.Shutdown();
+        AuroraApp.Dispose();
+        await auroraShutdownTask;
         (Global.logger as Logger)?.Dispose();
         forceExitTimer.GetApartmentState(); //statement just to keep referenced
 

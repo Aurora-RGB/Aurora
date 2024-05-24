@@ -289,7 +289,7 @@ public partial class Control_ProfilesStack
         ico.Dispose();
 
         lightingStateManager.RegisterEvent(genAppPm);
-        ConfigManager.Save(Global.Configuration);
+        await ConfigManager.SaveAsync(Global.Configuration);
         await GenerateProfileStack(filename);
     }
 
