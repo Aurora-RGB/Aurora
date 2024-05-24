@@ -270,6 +270,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         var now = Time.GetMillisecondsSinceEpoch();
         if (now - _lastRender <= TimeSpan.FromSeconds(20).Milliseconds || _deviceProxy == null) return;
         
+        Global.logger.Information("Audio Layer not being used, disposing device");
         // 20 sec passed since last render, dispose proxy
         var deviceProxy = _deviceProxy;
         _deviceProxy = null;
