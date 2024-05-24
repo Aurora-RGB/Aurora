@@ -10,7 +10,7 @@ namespace AuroraRgb.Utils;
 /// </summary>
 public static partial class ServiceHelper
 {
-    [LibraryImport(Advapi32Dll, SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport(Advapi32Dll, EntryPoint = "ChangeServiceConfigW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool ChangeServiceConfig(
         IntPtr hService,
@@ -25,12 +25,12 @@ public static partial class ServiceHelper
         string? lpPassword,
         string? lpDisplayName);
 
-    [LibraryImport(Advapi32Dll, SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    [LibraryImport(Advapi32Dll, EntryPoint = "OpenServiceW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     private static partial IntPtr OpenService(IntPtr hScManager, string lpServiceName, uint dwDesiredAccess);
 
     [LibraryImport(Advapi32Dll, EntryPoint = "OpenSCManagerW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
     private static partial IntPtr OpenScManager(
-        string machineName, string databaseName, uint dwAccess);
+        string? machineName, string? databaseName, uint dwAccess);
 
     [LibraryImport(Advapi32Dll, EntryPoint = "CloseServiceHandle")]
     private static partial void CloseServiceHandle(IntPtr hScObject);
@@ -72,7 +72,7 @@ public static partial class ServiceHelper
             null,
             null);
 
-        if (result == false)
+        if (!result)
         {
             var nError = Marshal.GetLastWin32Error();
             var win32Exception = new Win32Exception(nError);
