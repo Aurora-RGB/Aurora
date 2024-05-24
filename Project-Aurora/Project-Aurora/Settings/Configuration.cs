@@ -18,7 +18,11 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
 {
     public static readonly string ConfigFile = Path.Combine(Global.AppDataDirectory, "Config.json");
 
+    [JsonIgnore]
     public string ConfigPath => ConfigFile;
+
+    [JsonIgnore]
+    public JsonSerializerLibrary JsonSerializerLibrary => JsonSerializerLibrary.Newtonsoft;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

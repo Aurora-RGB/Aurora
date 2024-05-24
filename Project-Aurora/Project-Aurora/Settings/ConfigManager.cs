@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.Razer;
@@ -15,6 +16,7 @@ namespace AuroraRgb.Settings;
 public static class ConfigManager
 {
     private static readonly Dictionary<string, long> LastSaveTimes = new();
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new() {WriteIndented = true};
     private const long SaveInterval = 300L;
 
     public static async Task<Configuration> Load()
@@ -153,10 +155,14 @@ public static class ConfigManager
 
         LastSaveTimes[path] = currentTime;
 
-        var content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
+        var content = configuration.JsonSerializerLibrary switch
         {
-            TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
-        });
+            JsonSerializerLibrary.Newtonsoft => JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
+            }),
+            JsonSerializerLibrary.SystemText => System.Text.Json.JsonSerializer.Serialize(configuration, JsonSerializerOptions),
+        };
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         File.WriteAllText(path, content, Encoding.UTF8);
@@ -171,10 +177,14 @@ public static class ConfigManager
 
         LastSaveTimes[path] = currentTime;
 
-        var content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
+        var content = configuration.JsonSerializerLibrary switch
         {
-            TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
-        });
+            JsonSerializerLibrary.Newtonsoft => JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
+            }),
+            JsonSerializerLibrary.SystemText => System.Text.Json.JsonSerializer.Serialize(configuration, JsonSerializerOptions),
+        };
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         await File.WriteAllTextAsync(path, content, Encoding.UTF8);
