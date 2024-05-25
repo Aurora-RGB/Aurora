@@ -312,15 +312,14 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         if (_previousFreqResults == null || _previousFreqResults.Length < freqs.Length)
             _previousFreqResults = new float[freqs.Length];
 
-        //Maintain local copies of fft, to prevent data overwrite
-        var localFft = new List<Complex>(_ffts).ToArray();
-        var localFftPrevious = new List<Complex>(_fftsPrev).ToArray();
+        var localFft = _ffts;
+        var localFftPrevious = _fftsPrev;
 
         var bgEnabled = false;
         switch (Properties.BackgroundMode)
         {
             case EqualizerBackgroundMode.EnabledOnSound:
-                if (localFft.Any(bin => bin.X > 0.0005 || bin.X < -0.0005))
+                if (Array.Exists(localFft, bin => bin.X > 0.0005 || bin.X < -0.0005))
                 {
                     bgEnabled = true;
                 }
