@@ -21,11 +21,14 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
     private static readonly CancellationTokenSource ThreadCancelSource = new();
     private static readonly Thread NAudioThread = new(() =>
     {
+        if (ThreadCancelSource.IsCancellationRequested)
+            return;
+        var cancellationToken = ThreadCancelSource.Token;
         while (!ThreadCancelSource.IsCancellationRequested)
         {
             try
             {
-                ThreadTasks.Take(ThreadCancelSource.Token).Invoke();
+                ThreadTasks.Take(cancellationToken).Invoke();
             }
             catch (OperationCanceledException)
             {

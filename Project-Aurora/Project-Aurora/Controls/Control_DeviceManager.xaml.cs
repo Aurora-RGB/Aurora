@@ -67,6 +67,7 @@ public partial class Control_DeviceManager
     private async Task UpdateControls(DeviceConfig deviceConfig, IList<DeviceContainer> deviceContainers)
     {
         var cancelSource = new CancellationTokenSource();
+        var cancellationToken = cancelSource.Token;
         await _updateCancelTokenSource.CancelAsync();
         
         var deviceManager = await _deviceManager;
@@ -84,7 +85,7 @@ public partial class Control_DeviceManager
 
             LstDevices.Children.Clear();
             NoDevManTextBlock.Visibility = isDeviceManagerUp ? Visibility.Collapsed : Visibility.Visible;
-            PopulateDevices(deviceConfig, deviceContainers, cancelSource.Token);
+            PopulateDevices(deviceConfig, deviceContainers, cancellationToken);
         }, DispatcherPriority.Loaded);
     }
 

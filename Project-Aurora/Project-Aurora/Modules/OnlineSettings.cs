@@ -183,7 +183,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
 
     async Task WaitGithubAccess(TimeSpan timeout)
     {
-        var cancelSource = new CancellationTokenSource();
+        using var cancelSource = new CancellationTokenSource();
 
         var resolveTask = WaitUntilResolve("github.com", cancelSource.Token);
         var delayTask = Task.Delay(timeout);
@@ -195,7 +195,6 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
             await cancelSource.CancelAsync();
             throw new WebException("Failed to get github access");
         }
-        cancelSource.Dispose();
     }
 
     private async Task WaitUntilResolve(string domain, CancellationToken cancellationToken)

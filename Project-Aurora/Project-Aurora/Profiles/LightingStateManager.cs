@@ -73,6 +73,9 @@ public sealed class LightingStateManager : IDisposable
         if (Initialized)
             return;
 
+        if (_initializeCancelSource.IsCancellationRequested)
+            return;
+        var cancellationToken = _initializeCancelSource.Token;
         var defaultApps = EnumerateDefaultApps();
         var userApps = EnumerateUserApps();
 
@@ -93,18 +96,18 @@ public sealed class LightingStateManager : IDisposable
         foreach (var (type, meta) in layerTypes)
             LayerHandlers.Add(type, new LayerHandlerMeta(type, meta));
 
-        await DesktopProfile.Initialize(_initializeCancelSource.Token);
+        await DesktopProfile.Initialize(cancellationToken);
         LoadSettings();
         await LoadPlugins();
 
         foreach (var profile in Events)
         {
             // don't await on purpose, need Aurora open fast.
-            var initTask = Task.Delay(200).ContinueWith(_ =>
+            var initTask = Task.Delay(200, cancellationToken).ContinueWith(_ =>
             {
-                profile.Value.Initialize(_initializeCancelSource.Token);
+                profile.Value.Initialize(cancellationToken);
                 EventAdded?.Invoke(this, EventArgs.Empty);
-            });
+            }, cancellationToken);
             _initTasks.Add(initTask);
         }
 
