@@ -47,7 +47,7 @@ namespace AuroraDeviceManager.Devices.SteelSeries
                     }
                     catch (Exception ex)
                     {
-                        Global.Logger.Error("SteelSeries GameSense SDK could not be initialized:", ex);
+                        Global.Logger.Error(ex, "SteelSeries GameSense SDK could not be initialized");
 
                         IsInitialized = false;
                         return Task.FromResult(false);
@@ -73,7 +73,7 @@ namespace AuroraDeviceManager.Devices.SteelSeries
                 }
                 catch (Exception ex)
                 {
-                    Global.Logger.Error("There was an error shutting down SteelSeries GameSense SDK:", ex);
+                    Global.Logger.Error(ex, "There was an error shutting down SteelSeries GameSense SDK");
                     IsInitialized = false;
                 }
 
@@ -189,7 +189,7 @@ namespace AuroraDeviceManager.Devices.SteelSeries
             }
             catch (Exception ex)
             {
-                Global.Logger.Error("SteelSeries GameSense SDK, error when updating device:", ex);
+                Global.Logger.Error(ex, "SteelSeries GameSense SDK, error when updating device");
                 return Task.FromResult(false);
             }
         }
@@ -239,15 +239,6 @@ namespace AuroraDeviceManager.Devices.SteelSeries
                 {
                     gameSenseSDK.setMouseScrollWheelColor(color.R, color.G, color.B, payload);
                 }
-                //else if (zone == DeviceKeys.Peripheral_FrontLight)
-                //{
-                //NYI
-                //Global.logger.Error("SteelSeries GameSense SDK: Unknown device zone Peripheral_FrontLight: " + zone);
-                //}
-                /*else if (zone == DeviceKeys.Peripheral_Earcups || zone == DeviceKeys.Peripheral_Headset)
-                {
-                    GameSenseSDK.setHeadsetColor(color.R, color.G, color.B);
-                }*/
 
                 peripheral_updated = true;
             }
