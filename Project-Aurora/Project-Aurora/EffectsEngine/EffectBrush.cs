@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -13,7 +14,7 @@ using Point = System.Windows.Point;
 
 namespace AuroraRgb.EffectsEngine;
 
-public class EffectBrush
+public sealed class EffectBrush : IDisposable
 {
     public enum BrushType
     {
@@ -38,7 +39,7 @@ public class EffectBrush
 
     [JsonProperty("color_gradients")]
     [JsonConverter(typeof(SortedDictionaryAdapter))]
-    public IReadOnlyDictionary<double, Color> ColorGradients => _colorGradients;
+    public IReadOnlyDictionary<double, Color> ColorGradients { get; init; } = new SortedDictionary<double, Color>();
 
     [JsonProperty("start")]
     public PointF Start { get; set; }
@@ -51,7 +52,6 @@ public class EffectBrush
 
     private Brush? _drawingBrush;
     private System.Windows.Media.Brush? _mediaBrush;
-    private SortedDictionary<double, Color> _colorGradients = new();
 
     [JsonConstructor]
     public EffectBrush(BrushType type, BrushWrap wrap, SortedDictionary<double, Color> colorGradients,
@@ -71,7 +71,7 @@ public class EffectBrush
         {
             colorGradients[1] = Color.Transparent;
         }
-        _colorGradients = colorGradients;
+        ColorGradients = colorGradients;
         Start = start;
         End = end;
         Center = center;
@@ -83,8 +83,11 @@ public class EffectBrush
     {
         Type = BrushType.Solid;
 
-        _colorGradients.Add(0.0f, Color.Red);
-        _colorGradients.Add(1.0f, Color.Blue);
+        ColorGradients = new SortedDictionary<double, Color>
+        {
+            {0, Color.Red},
+            {1, Color.Blue},
+        };
 
         Start = new PointF(0, 0);
         End = new PointF(1, 0);
@@ -96,8 +99,11 @@ public class EffectBrush
         Type = brushType;
         Wrap = wrap;
 
-        _colorGradients.Add(0.0f, Color.Red);
-        _colorGradients.Add(1.0f, Color.Blue);
+        ColorGradients = new SortedDictionary<double, Color>
+        {
+            {0, Color.Red},
+            {1, Color.Blue},
+        };
 
         Start = new PointF(0, 0);
         End = new PointF(1, 0);
@@ -108,7 +114,7 @@ public class EffectBrush
     {
         Type = otherBrush.Type;
         Wrap = otherBrush.Wrap;
-        _colorGradients = new SortedDictionary<double, Color>(otherBrush._colorGradients);
+        ColorGradients = otherBrush.ColorGradients.ToImmutableSortedDictionary();
         Start = otherBrush.Start;
         End = otherBrush.End;
         Center = otherBrush.Center;
@@ -119,8 +125,7 @@ public class EffectBrush
         Type = brushType;
         Wrap = wrap;
 
-        foreach(var color in spectrum.GetSpectrumColors())
-            _colorGradients.Add(color.Key, color.Value);
+        ColorGradients = spectrum.GetSpectrumColors().ToImmutableSortedDictionary();
 
         Start = new PointF(0, 0);
         End = new PointF(1, 0);
@@ -129,260 +134,180 @@ public class EffectBrush
 
     public EffectBrush(Brush brush)
     {
-        if (brush is SolidBrush solidBrush)
+        switch (brush)
         {
-            Type = BrushType.Solid;
+            case SolidBrush:
+                Type = BrushType.Solid;
 
-            _colorGradients.Add(0.0f, solidBrush.Color);
-            _colorGradients.Add(1.0f, solidBrush.Color);
-
-            Wrap = BrushWrap.Repeat;
-        }
-        else if (brush is LinearGradientBrush lgb)
-        {
-            Type = BrushType.Linear;
-
-            Start = lgb.Rectangle.Location;
-            End = new PointF(lgb.Rectangle.Width, lgb.Rectangle.Height);
-            Center = new PointF(0.0f, 0.0f);
-
-            switch (lgb.WrapMode)
-            {
-                case WrapMode.Clamp:
-                    Wrap = BrushWrap.None;
-                    break;
-                case WrapMode.Tile:
-                    Wrap = BrushWrap.Repeat;
-                    break;
-                case WrapMode.TileFlipXY:
-                    Wrap = BrushWrap.Reflect;
-                    break;
-            }
-
-            try
-            {
-                if (lgb.InterpolationColors != null && lgb.InterpolationColors.Colors.Length == lgb.InterpolationColors.Positions.Length)
+                ColorGradients = new SortedDictionary<double, Color>
                 {
-                    for (var x = 0; x < lgb.InterpolationColors.Colors.Length; x++)
+                    {0, Color.Red},
+                    {1, Color.Blue},
+                };
+
+                Wrap = BrushWrap.Repeat;
+                break;
+            case LinearGradientBrush lgb:
+                Type = BrushType.Linear;
+
+                Start = lgb.Rectangle.Location;
+                End = new PointF(lgb.Rectangle.Width, lgb.Rectangle.Height);
+                Center = new PointF(0.0f, 0.0f);
+
+                Wrap = lgb.WrapMode switch
+                {
+                    WrapMode.Clamp => BrushWrap.None,
+                    WrapMode.Tile => BrushWrap.Repeat,
+                    WrapMode.TileFlipXY => BrushWrap.Reflect,
+                    _ => Wrap
+                };
+
+                try
+                {
+                    if (lgb.InterpolationColors != null && lgb.InterpolationColors.Colors.Length == lgb.InterpolationColors.Positions.Length)
                     {
-                        if (!ColorGradients.ContainsKey(lgb.InterpolationColors.Positions[x]) && lgb.InterpolationColors.Positions[x] >= 0.0f && lgb.InterpolationColors.Positions[x] <= 1.0f)
-                            _colorGradients.Add(
-                                lgb.InterpolationColors.Positions[x],
-                                lgb.InterpolationColors.Colors[x]
-                            );
+                        ColorGradients = Enumerable.Range(0, lgb.InterpolationColors.Colors.Length)
+                            .Where(i => lgb.InterpolationColors.Positions[i] >= 0.0f && lgb.InterpolationColors.Positions[i] <= 1.0f)
+                            .OrderBy(i => lgb.InterpolationColors.Positions[i])
+                            .ToDictionary(i => (double)lgb.InterpolationColors.Positions[i], i => lgb.InterpolationColors.Colors[i]);
                     }
                 }
-            }
-            catch (Exception exc)
-            {
-                _colorGradients.Clear();
-
-                for (var x = 0; x < lgb.LinearColors.Length; x++)
+                catch (Exception)
                 {
-                    var pos = x / (float)(lgb.LinearColors.Length - 1);
-
-                    if (!ColorGradients.ContainsKey(pos))
-                        _colorGradients.Add(
-                            pos,
-                            lgb.LinearColors[x]
-                        );
+                    ColorGradients = Enumerable.Range(0, lgb.LinearColors.Length)
+                        .ToDictionary(i => i / (double)(lgb.LinearColors.Length - 1), i => lgb.LinearColors[i]);
                 }
-            }
-        }
-        else if (brush is PathGradientBrush pgb)
-        {
-            Type = BrushType.Radial;
 
-            Start = pgb.Rectangle.Location;
-            End = new PointF(pgb.Rectangle.Width, pgb.Rectangle.Height);
-            Center = new PointF(
-                pgb.CenterPoint.X,
-                pgb.CenterPoint.Y
-            );
+                break;
+            case PathGradientBrush pgb:
+                Type = BrushType.Radial;
 
-            switch (pgb.WrapMode)
-            {
-                case WrapMode.Clamp:
-                    Wrap = BrushWrap.None;
-                    break;
-                case WrapMode.Tile:
-                    Wrap = BrushWrap.Repeat;
-                    break;
-                case WrapMode.TileFlipXY:
-                    Wrap = BrushWrap.Reflect;
-                    break;
-            }
+                Start = pgb.Rectangle.Location;
+                End = new PointF(pgb.Rectangle.Width, pgb.Rectangle.Height);
+                Center = new PointF(
+                    pgb.CenterPoint.X,
+                    pgb.CenterPoint.Y
+                );
 
-            try
-            {
-                if (pgb.InterpolationColors != null && pgb.InterpolationColors.Colors.Length == pgb.InterpolationColors.Positions.Length)
+                Wrap = pgb.WrapMode switch
                 {
-                    for (var x = 0; x < pgb.InterpolationColors.Colors.Length; x++)
+                    WrapMode.Clamp => BrushWrap.None,
+                    WrapMode.Tile => BrushWrap.Repeat,
+                    WrapMode.TileFlipXY => BrushWrap.Reflect,
+                    _ => Wrap
+                };
+
+                try
+                {
+                    if (pgb.InterpolationColors != null && pgb.InterpolationColors.Colors.Length == pgb.InterpolationColors.Positions.Length)
                     {
-                        if (!ColorGradients.ContainsKey(pgb.InterpolationColors.Positions[x]) && pgb.InterpolationColors.Positions[x] >= 0.0f && pgb.InterpolationColors.Positions[x] <= 1.0f)
-                            _colorGradients.Add(
-                                pgb.InterpolationColors.Positions[x],
-                                pgb.InterpolationColors.Colors[x]
-                            );
+                        ColorGradients = Enumerable.Range(0, pgb.InterpolationColors.Colors.Length)
+                            .Where(i => pgb.InterpolationColors.Positions[i] >= 0.0f && pgb.InterpolationColors.Positions[i] <= 1.0f)
+                            .OrderBy(i => pgb.InterpolationColors.Positions[i])
+                            .ToDictionary(i => (double)pgb.InterpolationColors.Positions[i], i => pgb.InterpolationColors.Colors[i]);
                     }
                 }
-            }
-            catch (Exception exc)
-            {
-                _colorGradients.Clear();
-
-                for (var x = 0; x < pgb.SurroundColors.Length; x++)
+                catch (Exception)
                 {
-                    var pos = x / (float)(pgb.SurroundColors.Length - 1);
-
-                    if (!ColorGradients.ContainsKey(pos))
-                        _colorGradients.Add(
-                            pos,
-                            pgb.SurroundColors[x]
-                        );
-                }
-            }
-        }
-
-        if(ColorGradients.Count > 0)
-        {
-            var firstFound = false;
-            var firstColor = new Color();
-            var lastColor = new Color();
-
-            foreach(var kvp in ColorGradients)
-            {
-                if(!firstFound)
-                {
-                    firstColor = kvp.Value;
-                    firstFound = true;
+                    ColorGradients = Enumerable.Range(0, pgb.SurroundColors.Length)
+                        .ToDictionary(i => i / (double)(pgb.SurroundColors.Length - 1), i => pgb.SurroundColors[i]);
                 }
 
-                lastColor = kvp.Value;
-            }
-
-            if (!ColorGradients.ContainsKey(0.0f))
-                _colorGradients.Add(0.0f, firstColor);
-
-            if (!ColorGradients.ContainsKey(1.0f))
-                _colorGradients.Add(1.0f, lastColor);
+                break;
         }
-        else
+
+        if (ColorGradients.Count == 0)
         {
-            if (!ColorGradients.ContainsKey(0.0f))
-                _colorGradients.Add(0.0f, Color.Transparent);
-
-            if (!ColorGradients.ContainsKey(1.0f))
-                _colorGradients.Add(1.0f, Color.Transparent);
+            ColorGradients = new SortedDictionary<double, Color>
+            {
+                { 0, Color.Transparent },
+                { 1, Color.Transparent },
+            };
+            return;
         }
+
+        if (!ColorGradients.ContainsKey(0.0f))
+            ((Dictionary<double, Color>)ColorGradients).Add(0.0f, ColorGradients.FirstOrDefault().Value);
+
+        if (!ColorGradients.ContainsKey(1.0f))
+            ((Dictionary<double, Color>)ColorGradients).Add(1.0f, ColorGradients.LastOrDefault().Value);
     }
 
     public EffectBrush(System.Windows.Media.Brush brush)
     {
-        if (brush is SolidColorBrush colorBrush)
+        switch (brush)
         {
-            Type = BrushType.Solid;
+            case SolidColorBrush colorBrush:
+                Type = BrushType.Solid;
 
-            Wrap = BrushWrap.Repeat;
+                Wrap = BrushWrap.Repeat;
 
-            _colorGradients.Add(0.0f, ColorUtils.MediaColorToDrawingColor(colorBrush.Color));
-            _colorGradients.Add(1.0f, ColorUtils.MediaColorToDrawingColor(colorBrush.Color));
-        }
-        else if (brush is System.Windows.Media.LinearGradientBrush lgb)
-        {
-            Type = BrushType.Linear;
-
-            Start = new PointF((float)lgb.StartPoint.X, (float)lgb.StartPoint.Y);
-            End = new PointF((float)lgb.EndPoint.X, (float)lgb.EndPoint.Y);
-            Center = new PointF(0.0f, 0.0f);
-
-            switch (lgb.SpreadMethod)
-            {
-                case GradientSpreadMethod.Pad:
-                    Wrap = BrushWrap.None;
-                    break;
-                case GradientSpreadMethod.Repeat:
-                    Wrap = BrushWrap.Repeat;
-                    break;
-                case GradientSpreadMethod.Reflect:
-                    Wrap = BrushWrap.Reflect;
-                    break;
-            }
-
-            foreach (var grad in lgb.GradientStops)
-            {
-                if (!ColorGradients.ContainsKey((float)grad.Offset) && (float)grad.Offset >= 0.0f && (float)grad.Offset <= 1.0f)
-                    _colorGradients.Add(
-                        (float)grad.Offset,
-                        ColorUtils.MediaColorToDrawingColor(grad.Color)
-                    );
-            }
-        }
-        else if (brush is RadialGradientBrush rgb)
-        {
-            Type = BrushType.Radial;
-
-            Start = new PointF(0, 0);
-            End = new PointF((float)rgb.RadiusX * 2.0f, (float)rgb.RadiusY * 2.0f);
-            Center = new PointF(
-                (float)rgb.Center.X,
-                (float)rgb.Center.Y
-            );
-
-            switch (rgb.SpreadMethod)
-            {
-                case GradientSpreadMethod.Pad:
-                    Wrap = BrushWrap.None;
-                    break;
-                case GradientSpreadMethod.Repeat:
-                    Wrap = BrushWrap.Repeat;
-                    break;
-                case GradientSpreadMethod.Reflect:
-                    Wrap = BrushWrap.Reflect;
-                    break;
-            }
-
-            foreach (var grad in rgb.GradientStops)
-            {
-                if (!ColorGradients.ContainsKey((float)grad.Offset) && (float)grad.Offset >= 0.0f && (float)grad.Offset <= 1.0f)
-                    _colorGradients.Add(
-                        (float)grad.Offset,
-                        ColorUtils.MediaColorToDrawingColor(grad.Color)
-                    );
-            }
-        }
-
-        if (ColorGradients.Count > 0)
-        {
-            var firstFound = false;
-            var firstColor = new Color();
-            var lastColor = new Color();
-
-            foreach (var kvp in ColorGradients)
-            {
-                if (!firstFound)
+                ColorGradients = new SortedDictionary<double, Color>
                 {
-                    firstColor = kvp.Value;
-                    firstFound = true;
-                }
+                    {0, ColorUtils.MediaColorToDrawingColor(colorBrush.Color)},
+                    {1, ColorUtils.MediaColorToDrawingColor(colorBrush.Color)},
+                };
+                break;
+            case System.Windows.Media.LinearGradientBrush lgb:
+                Type = BrushType.Linear;
 
-                lastColor = kvp.Value;
-            }
+                Start = new PointF((float)lgb.StartPoint.X, (float)lgb.StartPoint.Y);
+                End = new PointF((float)lgb.EndPoint.X, (float)lgb.EndPoint.Y);
+                Center = new PointF(0.0f, 0.0f);
 
-            if (!ColorGradients.ContainsKey(0.0f))
-                _colorGradients.Add(0.0f, firstColor);
+                Wrap = lgb.SpreadMethod switch
+                {
+                    GradientSpreadMethod.Pad => BrushWrap.None,
+                    GradientSpreadMethod.Repeat => BrushWrap.Repeat,
+                    GradientSpreadMethod.Reflect => BrushWrap.Reflect,
+                    _ => Wrap
+                };
 
-            if (!ColorGradients.ContainsKey(1.0f))
-                _colorGradients.Add(1.0f, lastColor);
+                ColorGradients = lgb.GradientStops
+                    .Where(stop => (float)stop.Offset >= 0.0f && (float)stop.Offset <= 1.0f)
+                    .OrderBy(e => e.Offset)
+                    .ToDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
+                break;
+            case RadialGradientBrush rgb:
+                Type = BrushType.Radial;
+
+                Start = new PointF(0, 0);
+                End = new PointF((float)rgb.RadiusX * 2.0f, (float)rgb.RadiusY * 2.0f);
+                Center = new PointF(
+                    (float)rgb.Center.X,
+                    (float)rgb.Center.Y
+                );
+
+                Wrap = rgb.SpreadMethod switch
+                {
+                    GradientSpreadMethod.Pad => BrushWrap.None,
+                    GradientSpreadMethod.Repeat => BrushWrap.Repeat,
+                    GradientSpreadMethod.Reflect => BrushWrap.Reflect,
+                    _ => Wrap
+                };
+
+                ColorGradients = rgb.GradientStops
+                    .Where(stop => (float)stop.Offset >= 0.0f && (float)stop.Offset <= 1.0f)
+                    .OrderBy(e => e.Offset)
+                    .ToDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
+                break;
         }
-        else
+
+        if (ColorGradients.Count == 0)
         {
-            if (!ColorGradients.ContainsKey(0.0f))
-                _colorGradients.Add(0.0f, Color.Transparent);
-
-            if (!ColorGradients.ContainsKey(1.0f))
-                _colorGradients.Add(1.0f, Color.Transparent);
+            ColorGradients = new SortedDictionary<double, Color>
+            {
+                { 0, Color.Transparent },
+                { 1, Color.Transparent },
+            };
+            return;
         }
+
+        if (!ColorGradients.ContainsKey(0.0f))
+            ((Dictionary<double, Color>)ColorGradients).Add(0.0f, ColorGradients.FirstOrDefault().Value);
+
+        if (!ColorGradients.ContainsKey(1.0f))
+            ((Dictionary<double, Color>)ColorGradients).Add(1.0f, ColorGradients.LastOrDefault().Value);
     }
 
     public Brush GetDrawingBrush()
@@ -422,15 +347,12 @@ public class EffectBrush
         );
         brush.InterpolationColors = colorBlend;
 
-        switch (Wrap)
+        brush.WrapMode = Wrap switch
         {
-            case BrushWrap.Repeat:
-                brush.WrapMode = WrapMode.Tile;
-                break;
-            case BrushWrap.Reflect:
-                brush.WrapMode = WrapMode.TileFlipXY;
-                break;
-        }
+            BrushWrap.Repeat => WrapMode.Tile,
+            BrushWrap.Reflect => WrapMode.TileFlipXY,
+            _ => brush.WrapMode
+        };
 
         return brush;
     }
@@ -450,15 +372,12 @@ public class EffectBrush
             gPath
         );
 
-        switch (Wrap)
+        brush.WrapMode = Wrap switch
         {
-            case BrushWrap.Repeat:
-                brush.WrapMode = WrapMode.Tile;
-                break;
-            case BrushWrap.Reflect:
-                brush.WrapMode = WrapMode.TileFlipXY;
-                break;
-        }
+            BrushWrap.Repeat => WrapMode.Tile,
+            BrushWrap.Reflect => WrapMode.TileFlipXY,
+            _ => brush.WrapMode
+        };
 
         var brushColors = new List<Color>();
         var brushPositions = new List<float>();
@@ -542,10 +461,12 @@ public class EffectBrush
                     );
                 }
 
-                var brush = new RadialGradientBrush(collection);
-                brush.Center = new Point(Center.X, Center.Y);
-                brush.RadiusX = End.X / 2.0;
-                brush.RadiusY = End.Y / 2.0;
+                var brush = new RadialGradientBrush(collection)
+                {
+                    Center = new Point(Center.X, Center.Y),
+                    RadiusX = End.X / 2.0,
+                    RadiusY = End.Y / 2.0
+                };
 
                 brush.SpreadMethod = Wrap switch
                 {
@@ -623,12 +544,6 @@ public class EffectBrush
         return returnBrush;
     }
 
-    public EffectBrush SetColorGradients(SortedDictionary<double, Color> gradients)
-    {
-        _colorGradients = gradients;
-        return this;
-    }
-
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
@@ -663,5 +578,10 @@ public class EffectBrush
             hash = hash * 23 + Center.GetHashCode();
             return hash;
         }
+    }
+
+    public void Dispose()
+    {
+        _drawingBrush?.Dispose();
     }
 }

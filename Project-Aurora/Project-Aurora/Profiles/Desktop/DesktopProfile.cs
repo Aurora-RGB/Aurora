@@ -7,8 +7,6 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
-using AuroraRgb.Settings.Overrides.Logic.Number;
 using Common.Devices;
 using Common.Utils;
 
@@ -48,14 +46,17 @@ public class DesktopProfile : ApplicationProfile
                     DeviceKeys.VOLUME_MUTE, DeviceKeys.VOLUME_UP, DeviceKeys.VOLUME_DOWN
                 }),
                 PercentType = PercentEffectType.AllAtOnce,
-                Gradient = new EffectBrush(EffectBrush.BrushType.Linear).SetColorGradients(new SortedDictionary<double, Color>
+                Gradient = new EffectBrush(EffectBrush.BrushType.Linear)
                 {
-                    { 0f, Color.Red },
-                    { 0.18f, Color.FromArgb(255, 251, 0) },
-                    { 0.4f, Color.Lime },
-                    { 0.8f, Color.FromArgb(138, 255, 200) },
-                    { 1f, Color.FromArgb(91, 0, 255) }
-                }),
+                    ColorGradients = new SortedDictionary<double, Color>
+                    {
+                        { 0f, Color.Red },
+                        { 0.18f, Color.FromArgb(255, 251, 0) },
+                        { 0.4f, Color.Lime },
+                        { 0.8f, Color.FromArgb(138, 255, 200) },
+                        { 1f, Color.FromArgb(91, 0, 255) }
+                    },
+                },
                 VariablePath = new VariablePath("LocalPCInfo/SystemVolume"),
                 MaxVariablePath = new VariablePath("1")
             },
@@ -380,21 +381,21 @@ public class DesktopProfile : ApplicationProfile
                             Start = new PointF(0, -0.5f),
                             Center = new PointF(0, 0),
                             End = new PointF(1, 1),
-                        }
-                        .SetColorGradients(new SortedDictionary<double, Color>
-                        {
-                            {0, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.06593407690525055, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.1538461595773697, CommonColorUtils.FastColor(153, 59, 237) },
-                            {0.24337075650691986, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.4263019561767578, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.5358933806419373, CommonColorUtils.FastColor(151, 183, 63) },
-                            {0.6483517289161682, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.7614668011665344, CommonColorUtils.FastColor(0, 24, 24, 51) },
-                            {0.8626373410224915, CommonColorUtils.FastColor(129, 255, 239, 48) },
-                            {0.9395604133605957, CommonColorUtils.FastColor(0, 24, 24, 51) },
-                            {1, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                        }),
+                            ColorGradients = new SortedDictionary<double, Color>
+                            {
+                                {0, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.06593407690525055, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.1538461595773697, CommonColorUtils.FastColor(153, 59, 237) },
+                                {0.24337075650691986, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.4263019561767578, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.5358933806419373, CommonColorUtils.FastColor(151, 183, 63) },
+                                {0.6483517289161682, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.7614668011665344, CommonColorUtils.FastColor(0, 24, 24, 51) },
+                                {0.8626373410224915, CommonColorUtils.FastColor(129, 255, 239, 48) },
+                                {0.9395604133605957, CommonColorUtils.FastColor(0, 24, 24, 51) },
+                                {1, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                            },
+                        },
                     },
                     _LayerOpacity = 0.5f,
                 }
@@ -420,21 +421,21 @@ public class DesktopProfile : ApplicationProfile
                             Start = new PointF(0, -0.5f),
                             Center = new PointF(0, 0),
                             End = new PointF(1, 1),
-                        }
-                        .SetColorGradients(new SortedDictionary<double, Color>
-                        {
-                            {0, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.03296704590320587, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.1538461595773697, CommonColorUtils.FastColor(153, 58, 249, 159) },
-                            {0.2983158230781555, CommonColorUtils.FastColor(10, 0, 0, 0) },
-                            {0.39333492517471313, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                            {0.5358933806419373, CommonColorUtils.FastColor(151, 87, 63) },
-                            {0.6868132948875427, CommonColorUtils.FastColor(4, 0, 0, 0) },
-                            {0.7230052351951599, CommonColorUtils.FastColor(0, 24, 24, 51) },
-                            {0.8626373410224915, CommonColorUtils.FastColor(129, 255, 135, 48) },
-                            {0.9725274443626404, CommonColorUtils.FastColor(0, 24, 24, 51) },
-                            {1, CommonColorUtils.FastColor(0, 0, 0, 0) },
-                        }),
+                            ColorGradients = new SortedDictionary<double, Color>
+                            {
+                                {0, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.03296704590320587, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.1538461595773697, CommonColorUtils.FastColor(153, 58, 249, 159) },
+                                {0.2983158230781555, CommonColorUtils.FastColor(10, 0, 0, 0) },
+                                {0.39333492517471313, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                                {0.5358933806419373, CommonColorUtils.FastColor(151, 87, 63) },
+                                {0.6868132948875427, CommonColorUtils.FastColor(4, 0, 0, 0) },
+                                {0.7230052351951599, CommonColorUtils.FastColor(0, 24, 24, 51) },
+                                {0.8626373410224915, CommonColorUtils.FastColor(129, 255, 135, 48) },
+                                {0.9725274443626404, CommonColorUtils.FastColor(0, 24, 24, 51) },
+                                {1, CommonColorUtils.FastColor(0, 0, 0, 0) },
+                            },
+                        },
                     },
                     _LayerOpacity = 0.5f,
                 }

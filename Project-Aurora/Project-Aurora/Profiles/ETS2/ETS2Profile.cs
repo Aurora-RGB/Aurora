@@ -6,7 +6,6 @@ using AuroraRgb.Profiles.ETS2.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
 using Common.Devices;
 
 namespace AuroraRgb.Profiles.ETS2;
@@ -96,14 +95,17 @@ public class ETS2Profile : ApplicationProfile {
             {
                 Properties = new PercentGradientLayerHandlerProperties
                 {
-                    Gradient = new EffectBrush().SetColorGradients(new SortedDictionary<double, Color>
+                    Gradient = new EffectBrush
                     {
-                        { 0, Color.FromArgb(65, 255, 0) },
-                        { 0.65f, Color.FromArgb(67, 255, 0) },
-                        { 0.75f, Color.FromArgb(0, 100, 255) },
-                        { 0.85f, Color.FromArgb(255, 0, 0) },
-                        { 1, Color.FromArgb(255, 0, 0) },
-                    }),
+                        ColorGradients = new SortedDictionary<double, Color>
+                        {
+                            { 0, Color.FromArgb(65, 255, 0) },
+                            { 0.65f, Color.FromArgb(67, 255, 0) },
+                            { 0.75f, Color.FromArgb(0, 100, 255) },
+                            { 0.85f, Color.FromArgb(255, 0, 0) },
+                            { 1, Color.FromArgb(255, 0, 0) },
+                        },
+                    },
                     _Sequence = new KeySequence(new[]
                     {
                         DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR, DeviceKeys.FIVE,
@@ -245,15 +247,17 @@ public class ETS2Profile : ApplicationProfile {
             {
                 Properties = new PercentGradientLayerHandlerProperties
                 {
-                    Gradient = new EffectBrush().SetColorGradients(
-                        new SortedDictionary<double, Color>
+                    Gradient = new EffectBrush
+                    {
+                        ColorGradients = new SortedDictionary<double, Color>
                         {
                             { 0f, Color.FromArgb(255, 0, 0) },
                             { 0.25f, Color.FromArgb(255, 0, 0) },
                             { 0.375f, Color.FromArgb(255, 255, 0) },
                             { 0.5f, Color.FromArgb(0, 255, 0) },
                             { 1f, Color.FromArgb(0, 255, 0) }
-                        }),
+                        },
+                    },
                     _Sequence = new KeySequence(new[]
                     {
                         DeviceKeys.NUM_ONE, DeviceKeys.NUM_FOUR, DeviceKeys.NUM_SEVEN, DeviceKeys.NUM_LOCK
@@ -266,15 +270,17 @@ public class ETS2Profile : ApplicationProfile {
             {
                 Properties = new PercentGradientLayerHandlerProperties
                 {
-                    Gradient = new EffectBrush().SetColorGradients(
-                        new SortedDictionary<double, Color>
+                    Gradient = new EffectBrush
+                    {
+                        ColorGradients = new SortedDictionary<double, Color>
                         {
                             { 0f, Color.FromArgb(255, 0, 0) },
                             { 0.25f, Color.FromArgb(255, 0, 0) },
                             { 0.375f, Color.FromArgb(255, 255, 0) },
                             { 0.5f, Color.FromArgb(0, 255, 0) },
                             { 1f, Color.FromArgb(0, 255, 0) }
-                        }),
+                        },
+                    },
                     _Sequence = new KeySequence(new[]
                     {
                         DeviceKeys.NUM_THREE, DeviceKeys.NUM_SIX, DeviceKeys.NUM_NINE, DeviceKeys.NUM_ASTERISK

@@ -8,7 +8,7 @@ namespace AuroraRgb.EffectsEngine.Animations;
 
 public class AnimationGradientCircle : AnimationCircle
 {
-    public EffectBrush GradientBrush { get; }
+    public EffectBrush GradientBrush { get; private set; }
 
     [JsonConstructor]
     public AnimationGradientCircle(EffectBrush gradientBrush)
@@ -67,7 +67,11 @@ public class AnimationGradientCircle : AnimationCircle
             newColorGradients.Add(cutOffPoint - 0.0001f, Color.Transparent);
             newColorGradients.Add(0.0f, Color.Transparent);
 
-            GradientBrush.SetColorGradients(newColorGradients);
+            //TODO this is very inefficient
+            GradientBrush = new EffectBrush
+            {
+                ColorGradients = newColorGradients,
+            };
         }
         else if (cutOffPoint > 1.0f)
         {

@@ -188,7 +188,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
 }
 
 [LayerHandlerMeta(Name = "Audio Visualizer", IsDefault = true)]
-public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerProperties>
+public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerProperties>
 {
     public event NewLayerRendered? NewLayerRender = delegate { };
 
@@ -245,6 +245,9 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
     private float[]? _previousFreqResults;
     private int _freq = 48000;
     private readonly SolidBrush _backgroundBrush = new(Color.Transparent);
+    private readonly SolidBrush _solidBrush = new(Color.Transparent);
+    private readonly SolidBrush _primaryBrush = new(Color.Transparent);
+    private readonly SolidBrush _secondaryBrush = new(Color.Transparent);
 
     private long _lastRender = Time.GetMillisecondsSinceEpoch();
     private Timer? _aliveTimer;
@@ -365,7 +368,6 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = -Math.Max(Math.Min(fftVal / scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
                         g.DrawLine(new Pen(brush), x, halfHeight, x, halfHeight + yOff);
-                        brush.Dispose();
                     }
                     break;
                 case EqualizerType.WaveformBottom:
@@ -375,9 +377,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         g.DrawLine(new Pen(brush), x, SourceRect.Height, x,
-                            SourceRect.Height - Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f,
-                                SourceRect.Height));
-                        brush.Dispose();
+                            SourceRect.Height - Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f, SourceRect.Height));
                     }
                     break;
                 case EqualizerType.PowerBars:
@@ -431,7 +431,6 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                         g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         g.SmoothingMode = SmoothingMode.AntiAlias;
                         g.FillRectangle(brush, x, y - height, barWidth, height);
-                        brush.Dispose();
                     }
                     break;
                 default:
@@ -476,9 +475,10 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         switch (Properties.ViewType)
         {
             case EqualizerPresentationType.AlternatingColor:
-                return value >= 0 ? new SolidBrush(Properties.PrimaryColor) : new SolidBrush(Properties.SecondaryColor);
+                return value >= 0 ? _primaryBrush : _secondaryBrush;
             case EqualizerPresentationType.GradientNotched:
-                return new SolidBrush(Properties.Gradient.GetColorSpectrum().GetColorAt(position, maxPosition));
+                _solidBrush.Color = Properties.Gradient.GetColorSpectrum().GetColorAt(position, maxPosition);
+                return _solidBrush;
             case EqualizerPresentationType.GradientHorizontal:
             {
                 var eBrush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
@@ -489,7 +489,8 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
                 return eBrush.GetDrawingBrush();
             }
             case EqualizerPresentationType.GradientColorShift:
-                return new SolidBrush(Properties.Gradient.GetColorSpectrum().GetColorAt(Time.GetMilliSeconds(), 1000));
+                _solidBrush.Color = Properties.Gradient.GetColorSpectrum().GetColorAt(Time.GetMilliSeconds(), 1000);
+                return _solidBrush;
             case EqualizerPresentationType.GradientVertical:
             {
                 var eBrush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
@@ -501,7 +502,7 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
             }
             case EqualizerPresentationType.SolidColor:
             default:
-                return new SolidBrush(Properties.PrimaryColor);
+                return _primaryBrush;
         }
     }
 
@@ -510,6 +511,8 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         base.PropertiesChanged(sender, args);
 
         _backgroundBrush.Color = Properties.DimColor;
+        _primaryBrush.Color = Properties.PrimaryColor;
+        _secondaryBrush.Color = Properties.SecondaryColor;
     }
 
     public override void Dispose()
@@ -522,6 +525,11 @@ public class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPropertie
         _deviceProxy.DeviceChanged -= DeviceChanged; 
         _deviceProxy.Dispose();
         _deviceProxy = null;
+
+        _backgroundBrush.Dispose();
+        _solidBrush.Dispose();
+        _primaryBrush.Dispose();
+        _secondaryBrush.Dispose();
     }
 }
 

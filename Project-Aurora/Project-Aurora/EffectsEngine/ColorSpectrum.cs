@@ -39,7 +39,7 @@ namespace AuroraRgb.EffectsEngine
 			Color.FromArgb(255, 0, 0)
 			);
 
-		private readonly Dictionary<double, Color> colors = new();
+		private readonly Dictionary<double, Color> colors = new(2);
 		private float shift = 0.0f;
 
 		/// <summary>
@@ -271,7 +271,7 @@ namespace AuroraRgb.EffectsEngine
 		/// <returns>Dictionary with position within the spectrum and color</returns>
 		public Dictionary<double, Color> GetSpectrumColors()
 		{
-			return new Dictionary<double, Color>(colors);
+			return colors;
 		}
 
 		/// <summary>

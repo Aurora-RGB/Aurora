@@ -6,7 +6,6 @@ using AuroraRgb.Profiles.Desktop;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
 using DK = Common.Devices.DeviceKeys;
 
 namespace MemoryAccessProfiles.Profiles.CloneHero;
@@ -63,14 +62,15 @@ public class CloneHeroProfile : ApplicationProfile
                                 {
                                     X = 0,
                                     Y = 0
-                                }
-                            }.SetColorGradients(new SortedDictionary<double, Color>
-                            {
-                                { 0, Color.FromArgb(9, 43, 83) },
-                                { 0.298960835f, Color.FromArgb(187, 18, 194) },
-                                { 0.685535133f, Color.FromArgb(17, 185, 217) },
-                                { 1, Color.FromArgb(9, 43, 83) }
-                            }),
+                                },
+                                ColorGradients = new SortedDictionary<double, Color>
+                                {
+                                    { 0, Color.FromArgb(9, 43, 83) },
+                                    { 0.298960835f, Color.FromArgb(187, 18, 194) },
+                                    { 0.685535133f, Color.FromArgb(17, 185, 217) },
+                                    { 1, Color.FromArgb(9, 43, 83) }
+                                },
+                            }
                         },
                         _SecondaryColor = Color.FromArgb(76, 143, 247),
                         _PrimaryColor = Color.FromArgb(156, 65, 212),
