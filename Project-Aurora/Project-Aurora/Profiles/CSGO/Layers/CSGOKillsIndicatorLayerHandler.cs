@@ -39,7 +39,7 @@ public class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Co
 
 }
 
-public class CSGOKillIndicatorLayerHandler : LayerHandler<CSGOKillIndicatorLayerHandlerProperties>
+public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLayerHandlerProperties>("CSGO - Kills Indicator")
 {
     private enum RoundKillType
     {
@@ -63,10 +63,6 @@ public class CSGOKillIndicatorLayerHandler : LayerHandler<CSGOKillIndicatorLayer
     };
     private int _lastCountedKill;
 
-    public CSGOKillIndicatorLayerHandler(): base("CSGO - Kills Indicator")
-    {
-    }
-
     protected override UserControl CreateControl()
     {
         return new Control_CSGOKillIndicatorLayer(this);
@@ -76,12 +72,14 @@ public class CSGOKillIndicatorLayerHandler : LayerHandler<CSGOKillIndicatorLayer
     {
         if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
 
+        if (!csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID)) return EffectLayer;
+        if (csgostate.Round.Phase == RoundPhase.FreezeTime) return EffectLayer;
+
         if (_lastCountedKill != csgostate.Player.State.RoundKills)
         {
             CalculateKills(csgostate);
         }
-
-        if (!csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID)) return EffectLayer;
+        
         for (var pos = 0; pos < Properties.Sequence.Keys.Count; pos++)
         {
             if (pos < roundKills.Count)

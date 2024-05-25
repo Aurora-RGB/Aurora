@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
+using Xceed.Wpf.Toolkit;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
@@ -10,30 +11,28 @@ namespace AuroraRgb.Profiles.CSGO.Layers;
 /// </summary>
 public partial class Control_CSGOKillIndicatorLayer
 {
-    private bool settingsset;
+    private bool _settingsSet;
 
     public Control_CSGOKillIndicatorLayer()
     {
         InitializeComponent();
     }
 
-    public Control_CSGOKillIndicatorLayer(CSGOKillIndicatorLayerHandler datacontext)
+    public Control_CSGOKillIndicatorLayer(CSGOKillIndicatorLayerHandler dataContext)
     {
         InitializeComponent();
 
-        DataContext = datacontext;
+        DataContext = dataContext;
     }
 
-    public void SetSettings()
+    private void SetSettings()
     {
-        if (DataContext is CSGOKillIndicatorLayerHandler && !settingsset)
-        {
-            ColorPicker_RegularKill.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOKillIndicatorLayerHandler).Properties._RegularKillColor ?? System.Drawing.Color.Empty);
-            ColorPicker_HeadshotKill.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOKillIndicatorLayerHandler).Properties._HeadshotKillColor ?? System.Drawing.Color.Empty);
-            KeySequence_keys.Sequence = (DataContext as CSGOKillIndicatorLayerHandler).Properties._Sequence;
+        if (DataContext is not CSGOKillIndicatorLayerHandler || _settingsSet) return;
+        ColorPicker_RegularKill.SelectedColor = ColorUtils.DrawingColorToMediaColor(((CSGOKillIndicatorLayerHandler)DataContext).Properties._RegularKillColor ?? System.Drawing.Color.Empty);
+        ColorPicker_HeadshotKill.SelectedColor = ColorUtils.DrawingColorToMediaColor(((CSGOKillIndicatorLayerHandler)DataContext).Properties._HeadshotKillColor ?? System.Drawing.Color.Empty);
+        KeySequence_keys.Sequence = ((CSGOKillIndicatorLayerHandler)DataContext).Properties._Sequence;
 
-            settingsset = true;
-        }
+        _settingsSet = true;
     }
 
     private void UserControl_Loaded(object? sender, RoutedEventArgs e)
@@ -45,21 +44,21 @@ public partial class Control_CSGOKillIndicatorLayer
 
     private void ColorPicker_RegularKill_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOKillIndicatorLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOKillIndicatorLayerHandler).Properties._RegularKillColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGOKillIndicatorLayerHandler csgoHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
+            csgoHandler.Properties._RegularKillColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void ColorPicker_HeadshotKill_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOKillIndicatorLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOKillIndicatorLayerHandler).Properties._HeadshotKillColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGOKillIndicatorLayerHandler csgoHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
+            csgoHandler.Properties._HeadshotKillColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void KeySequence_keys_SequenceUpdated(object? sender, RoutedPropertyChangedEventArgs<KeySequence> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOKillIndicatorLayerHandler)
+        if (IsLoaded && _settingsSet && DataContext is CSGOKillIndicatorLayerHandler csgoHandler)
         {
-            (DataContext as CSGOKillIndicatorLayerHandler).Properties._Sequence = e.NewValue;
+            csgoHandler.Properties._Sequence = e.NewValue;
         }
     }
 }

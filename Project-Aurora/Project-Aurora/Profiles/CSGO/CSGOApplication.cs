@@ -18,9 +18,9 @@ public class CSGO : Application
             IconURI = "Resources/cs2.png"
         })
     {
+        AllowLayer<CSGOKillIndicatorLayerHandler>();
         AllowLayer<CSGOBackgroundLayerHandler>();
         AllowLayer<CSGOBombLayerHandler>();
-        AllowLayer<CSGOKillIndicatorLayerHandler>();
         AllowLayer<CSGOBurningLayerHandler>();
         AllowLayer<CSGOTypingIndicatorLayerHandler>();
         AllowLayer<CSGOWinningTeamLayerHandler>();
