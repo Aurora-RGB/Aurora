@@ -28,6 +28,8 @@ public class LocalPcInformation : Node
     private static NETInfo? _netInfo;
     public NETInfo NET => _netInfo ??= new NETInfo();
 
+    public readonly Controllers Controllers = new();
+
     #region Cursor Position
 
     private static CursorPositionNode? _cursorPosition;

@@ -308,6 +308,12 @@
           "System.Dynamic.Runtime": "4.3.0"
         }
       },
+      "Vortice.XInput": {
+        "type": "Direct",
+        "requested": "[3.5.0, )",
+        "resolved": "3.5.0",
+        "contentHash": "Nm40UYQypzyFlSbPBeH40hQ2lyDDgiNFAFqNp8/3/W0AyZe3BU5Jtw3asryTfL8GS9UIbYAIv2sSqHFbhBygcw=="
+      },
       "WPFToolkits": {
         "type": "Direct",
         "requested": "[3.5.50211.1, )",
