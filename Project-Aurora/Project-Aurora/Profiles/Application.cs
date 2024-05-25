@@ -214,19 +214,15 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         if (profile.Equals(Profile))
             SwitchToProfile(Profiles[Math.Min(profileIndex, Profiles.Count - 1)]);
 
-        if (File.Exists(profile.ProfileFilepath))
+        if (!File.Exists(profile.ProfileFilepath)) return;
+        try
         {
-            try
-            {
-                File.Delete(profile.ProfileFilepath);
-            }
-            catch (Exception exc)
-            {
-                Global.logger.Error(exc, "Could not delete profile with path \"{ProfileFilepath}\"", profile.ProfileFilepath);
-            }
+            File.Delete(profile.ProfileFilepath);
         }
-
-        SaveProfiles();
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Could not delete profile with path \"{ProfileFilepath}\"", profile.ProfileFilepath);
+        }
     }
 
     private string GetValidFilename(string filename)
@@ -599,20 +595,26 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     {
         var profileDir = Path.GetDirectoryName(profilePath);
         var profileFileName = Path.GetFileName(profilePath);
+        // find auto-backup save files also ending with .json.bkX
         var saveProfileFile = Directory.EnumerateFiles(profileDir, profileFileName + "*")
+            .Where(path => path.EndsWith(".json") || path.Contains(".json.bk"))
             .Where(path => !path.EndsWith(".corrupted"))
-            .OrderBy(File.GetLastWriteTime)
+            .Order()
             .Last();
         var profileSettings = await LoadProfile(saveProfileFile);
+        
+        // means save with .bkX extension is found. Load that file
         if (profilePath != saveProfileFile)
         {
             File.Delete(profilePath);
             File.Move(saveProfileFile, profilePath);
-            foreach (var extraFailedSaves in Directory.EnumerateFiles(profileDir, profileFileName + "*")
-                         .Where(path => !path.EndsWith(".corrupted")))
-            {
-                File.Delete(extraFailedSaves);
-            }
+        }
+
+        // find extra auto-backup save files ending with .bkX and delete them
+        foreach (var extraFailedSaves in Directory.EnumerateFiles(profileDir, profileFileName + ".json.bk*")
+                     .Where(path => !path.EndsWith(".corrupted")))
+        {
+            File.Delete(extraFailedSaves);
         }
 
         if (profileSettings == null) return;

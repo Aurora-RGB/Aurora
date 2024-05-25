@@ -91,9 +91,12 @@ public abstract class ApplicationProfile : INotifyPropertyChanged, IDisposable
             Directory.CreateDirectory(Path.GetDirectoryName(_savePath!));
             if (File.Exists(_savePath!))
             {
-                var backupFile = _savePath! + ".backup" + _backupFileNumber++;
+                var backupFile = _savePath! + ".bk" + _backupFileNumber++;
+                // move current save to preserve it
                 File.Move(_savePath!, backupFile);
+                // write new save to supposed location
                 await File.WriteAllTextAsync(_savePath!, content, Encoding.UTF8);
+                // write successful, delete backup
                 File.Delete(backupFile);
             }
             else
