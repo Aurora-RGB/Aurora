@@ -240,7 +240,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private readonly SampleAggregator _sampleAggregator = new(FftLength);
     private Complex[] _ffts;
-    private Complex[] _fftsPrev;
 
     private float[]? _previousFreqResults;
     private int _freq = 48000;
@@ -256,7 +255,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
         _ffts = new Complex[FftLength];
-        _fftsPrev = new Complex[FftLength];
 
         _sampleAggregator.FftCalculated += FftCalculated;
         _sampleAggregator.PerformFft = true;
@@ -316,7 +314,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
             _previousFreqResults = new float[freqs.Length];
 
         var localFft = _ffts;
-        var localFftPrevious = _fftsPrev;
 
         var bgEnabled = false;
         switch (Properties.BackgroundMode)
@@ -397,12 +394,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
                         for (var j = startF; j <= endF; j++)
                         {
-                            var currFft =
-                                (float)Math.Sqrt(localFft[j].X * localFft[j].X + localFft[j].Y * localFft[j].Y);
-                            var prevFft = (float)Math.Sqrt(localFftPrevious[j].X * localFftPrevious[j].X +
-                                                           localFftPrevious[j].Y * localFftPrevious[j].Y);
-
-                            var value = currFft - prevFft;
+                            var value = (float)Math.Sqrt(localFft[j].X * localFft[j].X + localFft[j].Y * localFft[j].Y);
                             var fluxCalc = (value + Math.Abs(value)) / 2;
                             if (flux < fluxCalc)
                                 flux = fluxCalc;
@@ -461,7 +453,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private void FftCalculated(object? sender, FftEventArgs e)
     {
-        _fftsPrev = _ffts;
         _ffts = e.Result;
     }
 
