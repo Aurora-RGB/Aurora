@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net6.0</TargetFramework>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<IsWebBootstrapper>false</IsWebBootstrapper>
+		<DebugType>portable</DebugType>
+		
+		<PublishUrl>publish\</PublishUrl>
+		<Install>true</Install>
+		<InstallFrom>Disk</InstallFrom>
+		<UpdateEnabled>false</UpdateEnabled>
+		<UpdateMode>Foreground</UpdateMode>
+		<UpdateInterval>7</UpdateInterval>
+		<UpdateIntervalUnits>Days</UpdateIntervalUnits>
+		<UpdatePeriodically>false</UpdatePeriodically>
+		<UpdateRequired>false</UpdateRequired>
+		<MapFileExtensions>true</MapFileExtensions>
+		<ApplicationRevision>0</ApplicationRevision>
+		<ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+		<UseApplicationTrust>false</UseApplicationTrust>
+		<BootstrapperEnabled>true</BootstrapperEnabled>
+		
+		<AssemblyTitle>TestSBAurora</AssemblyTitle>
+		<Product>TestSBAurora</Product>
+		<Copyright>Copyright ©  2018</Copyright>
+		
+		<OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
+		<CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+		<AnalysisLevel>6.0-all</AnalysisLevel>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\SBAuroraReactive\SBAuroraReactive.vcxproj" />
+	</ItemGroup>
+</Project>
