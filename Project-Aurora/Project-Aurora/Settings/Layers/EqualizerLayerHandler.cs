@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
-using System.Threading;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
@@ -192,42 +191,22 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 {
     public event NewLayerRendered? NewLayerRender = delegate { };
 
-    private AudioDeviceProxy? _deviceProxy;
     private int _channels;
     private int _bitsPerSample;
     private int _bufferIncrement;
     private bool _disposed;
-    private AudioDeviceProxy DeviceProxy {  
-        get {
-            var deviceProxyFlow = Properties.DeviceFlow switch
-            {
-                DeviceFlow.Input => DataFlow.Capture,
-                DeviceFlow.Output => DataFlow.Render,
-            };
-            if (_deviceProxy != null)
-            {
-                _deviceProxy.Flow = deviceProxyFlow;
-                _deviceProxy.DeviceId = Properties.DeviceId;
-                return _deviceProxy;
-            }
 
-            _deviceProxy = new AudioDeviceProxy(deviceProxyFlow);
-            DeviceChanged(this, EventArgs.Empty);
-            _deviceProxy.DeviceChanged += DeviceChanged;
-            _deviceProxy.WaveInDataAvailable += OnDataAvailable;
-            _deviceProxy.DeviceId = Properties.DeviceId;
-            return _deviceProxy;
-        }
-    }
+    private readonly Temporary<AudioDeviceProxy> _deviceProxy;
 
     private void DeviceChanged(object? sender, EventArgs e)
     {
-        if (_deviceProxy?.Device == null || _deviceProxy.WaveIn == null)
+        var deviceProxyValue = _deviceProxy.Value;
+        if (deviceProxyValue.Device == null || deviceProxyValue.WaveIn == null)
             return;
-        _freq = _deviceProxy.Device.AudioClient.MixFormat.SampleRate;
-        _channels = _deviceProxy.WaveIn.WaveFormat.Channels;
-        _bitsPerSample = _deviceProxy.WaveIn.WaveFormat.BitsPerSample;
-        _bufferIncrement = _deviceProxy.WaveIn.WaveFormat.BlockAlign;
+        _freq = deviceProxyValue.Device.AudioClient.MixFormat.SampleRate;
+        _channels = deviceProxyValue.WaveIn.WaveFormat.Channels;
+        _bitsPerSample = deviceProxyValue.WaveIn.WaveFormat.BitsPerSample;
+        _bufferIncrement = deviceProxyValue.WaveIn.WaveFormat.BlockAlign;
     }
 
     private readonly List<float> _fluxArray = [];
@@ -248,10 +227,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     private readonly SolidBrush _primaryBrush = new(Color.Transparent);
     private readonly SolidBrush _secondaryBrush = new(Color.Transparent);
 
-    private long _lastRender = Time.GetMillisecondsSinceEpoch();
-    private Timer? _aliveTimer;
-    private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
-
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
         _ffts = new Complex[FftLength];
@@ -259,27 +234,23 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         _sampleAggregator.FftCalculated += FftCalculated;
         _sampleAggregator.PerformFft = true;
         
-        StartAliveTimer();
-    }
-
-    private void StartAliveTimer()
-    {
-        _aliveTimer = new Timer(AliveTimerCallback, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
-    }
-
-    private void AliveTimerCallback(object? state)
-    {
-        var now = Time.GetMillisecondsSinceEpoch();
-        if (now - _lastRender <= _inactiveTimeMilliseconds || _deviceProxy == null) return;
-        
-        Global.logger.Information("Audio Layer not being used, disposing device");
-        // 20 sec passed since last render, dispose proxy
-        var deviceProxy = _deviceProxy;
-        _deviceProxy = null;
-        deviceProxy.Dispose();
-
-        _aliveTimer?.Dispose();
-        _aliveTimer = null;
+        _deviceProxy = new Temporary<AudioDeviceProxy>(() =>
+        {
+            var deviceProxyFlow = Properties.DeviceFlow switch
+            {
+                DeviceFlow.Input => DataFlow.Capture,
+                DeviceFlow.Output => DataFlow.Render,
+            };
+            var deviceProxy = new AudioDeviceProxy(deviceProxyFlow);
+            deviceProxy.DeviceChanged += DeviceChanged;
+            deviceProxy.WaveInDataAvailable += OnDataAvailable;
+            deviceProxy.DeviceId = Properties.DeviceId;
+            return deviceProxy;
+        });
+        _deviceProxy.ValueCreated += (_, _) =>
+        {
+            DeviceChanged(this, EventArgs.Empty);
+        };
     }
 
     protected override UserControl CreateControl()
@@ -290,17 +261,20 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     {
         if (_disposed) return EffectLayer.EmptyLayer;
 
-        if (DeviceProxy.Device == null)
+        var deviceProxy = _deviceProxy.Value;
+        var deviceProxyFlow = Properties.DeviceFlow switch
+        {
+            DeviceFlow.Input => DataFlow.Capture,
+            DeviceFlow.Output => DataFlow.Render,
+        };
+        deviceProxy.Flow = deviceProxyFlow;
+        deviceProxy.DeviceId = Properties.DeviceId;
+
+        if (deviceProxy.Device == null)
             return EffectLayer.EmptyLayer;
 
-        _lastRender = Time.GetMillisecondsSinceEpoch();
-        if (_aliveTimer == null)
-        {
-            StartAliveTimer();
-        }
-
         // The system sound as a value between 0.0 and 1.0
-        var systemSoundNormalized = DeviceProxy.Device?.AudioMeterInformation?.MasterPeakValue ?? 1f;
+        var systemSoundNormalized = deviceProxy.Device?.AudioMeterInformation?.MasterPeakValue ?? 1f;
 
         // Scale the Maximum amplitude with the system sound if enabled, so that at 100% volume the max_amp is unchanged.
         // Replaces all Properties.MaxAmplitude calls with the scaled value
@@ -511,11 +485,11 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         base.Dispose();
 
         _disposed = true;
-        if (_deviceProxy == null) return;
-        _deviceProxy.WaveInDataAvailable -= OnDataAvailable;
-        _deviceProxy.DeviceChanged -= DeviceChanged; 
-        _deviceProxy.Dispose();
-        _deviceProxy = null;
+        if (!_deviceProxy.HasValue) return;
+        var deviceProxy = _deviceProxy.Value;
+        deviceProxy.WaveInDataAvailable -= OnDataAvailable;
+        deviceProxy.DeviceChanged -= DeviceChanged; 
+        deviceProxy.Dispose();
 
         _backgroundBrush.Dispose();
         _solidBrush.Dispose();

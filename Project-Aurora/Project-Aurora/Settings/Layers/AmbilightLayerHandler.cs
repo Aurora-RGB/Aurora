@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
@@ -73,9 +72,7 @@ public enum AmbilightFpsChoice
 
 public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<AmbilightLayerHandlerProperties>
 {
-    [JsonIgnore]
     private AmbilightType? _ambilightType;
-
     [JsonProperty("_AmbilightType")]
     public AmbilightType AmbilightType
     {
@@ -83,9 +80,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _ambilightType, value);
     }
 
-    [JsonIgnore]
     private AmbilightCaptureType? _ambilightCaptureType;
-
     [JsonProperty("_AmbilightCaptureType")]
     public AmbilightCaptureType AmbilightCaptureType
     {
@@ -93,9 +88,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _ambilightCaptureType, value);
     }
 
-    [JsonIgnore]
     private int? _ambilightOutputId;
-
     [JsonProperty("_AmbilightOutputId")]
     public int AmbilightOutputId
     {
@@ -103,9 +96,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => _ambilightOutputId = value;
     }
 
-    [JsonIgnore]
     private AmbilightFpsChoice? _ambiLightUpdatesPerSecond;
-
     [JsonProperty("_AmbiLightUpdatesPerSecond")]
     public AmbilightFpsChoice AmbiLightUpdatesPerSecond
     {
@@ -113,9 +104,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _ambiLightUpdatesPerSecond, value);
     }
 
-    [JsonIgnore]
     private string? _specificProcess;
-        
     [JsonProperty("_SpecificProcess")]
     public string SpecificProcess
     {
@@ -123,9 +112,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _specificProcess, value);
     }
 
-    [JsonIgnore]
     private Rectangle? _coordinates;
-
     [JsonProperty("_Coordinates")]
     [LogicOverridable("Coordinates")] 
     public Rectangle Coordinates
@@ -134,9 +121,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _coordinates, value);
     }
 
-    [JsonIgnore]
     private bool? _brightenImage;
-
     [JsonProperty("_BrightenImage")]
     public bool BrightenImage
     {
@@ -144,9 +129,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _brightenImage, value);
     }
 
-    [JsonIgnore]
     private float? _brightnessChange;
-
     [JsonProperty("_BrightnessChange")]
     public float BrightnessChange
     {
@@ -154,9 +137,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _brightnessChange, value);
     }
 
-    [JsonIgnore]
     private bool? _saturateImage;
-
     [JsonProperty("_SaturateImage")]
     public bool SaturateImage
     {
@@ -164,9 +145,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _saturateImage, value);
     }
 
-    [JsonIgnore]
     private float? _saturationChange;
-
     [JsonProperty("_SaturationChange")]
     public float SaturationChange
     {
@@ -174,8 +153,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _saturationChange, value);
     }
 
-    [JsonIgnore] private bool? _flipVertically;
-
+    private bool? _flipVertically;
     [JsonProperty("_FlipVertically")]
     public bool FlipVertically
     {
@@ -183,9 +161,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _flipVertically, value);
     }
 
-    [JsonIgnore]
     private bool? _experimentalMode;
-
     [JsonProperty("_ExperimentalMode")]
     public bool ExperimentalMode
     {
@@ -193,8 +169,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _experimentalMode, value);
     }
 
-    [JsonIgnore] private bool? _hueShiftImage;
-
+    private bool? _hueShiftImage;
     [JsonProperty("_HueShiftImage")]
     public bool HueShiftImage
     {
@@ -202,7 +177,6 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
         set => SetFieldAndRaisePropertyChanged(out _hueShiftImage, value);
     }
 
-    [JsonIgnore]
     private float? _hueShiftAngle;
     [JsonProperty("_HueShiftAngle")]
     public float HueShiftAngle
@@ -241,9 +215,9 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
 [LogicOverrideIgnoreProperty("_SecondaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [DoNotNotify]
-public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
+public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
 {
-    private IScreenCapture? _screenCapture;
+    private Temporary<IScreenCapture> _screenCapture;
 
     private readonly SmartThreadPool _captureWorker;
     private readonly WorkItemCallback _screenshotWork;
@@ -260,7 +234,7 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
     private readonly Stopwatch _captureStopwatch = new();
     private DateTime _lastProcessDetectTry = DateTime.UtcNow;
 
-    public IEnumerable<string> Displays => _screenCapture?.GetDisplays() ?? ImmutableList<string>.Empty;
+    public IEnumerable<string> Displays => _screenCapture.Value.GetDisplays();
 
     public AmbilightLayerHandler() : base("Ambilight Layer")
     {
@@ -276,21 +250,16 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
             Name = "Ambilight Screenshot"
         };
         _screenshotWork = TakeScreenshot;
-    }
 
-    protected override async Task Initialize()
-    {
-        await base.Initialize();
-        if (_screenCapture != null)
+        _screenCapture = new Temporary<IScreenCapture>(() =>
         {
-            _screenCapture.ScreenshotTaken -= ScreenshotAction;
-            _screenCapture.Dispose();
-        }
-        _screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
-        _screenCapture.ScreenshotTaken += ScreenshotAction;
+            IScreenCapture screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
+            screenCapture.ScreenshotTaken += ScreenshotAction;
+            return screenCapture;
+        });
     }
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (Properties.Sequence.GetAffectedRegion().IsEmpty)
             return EffectLayer.EmptyLayer;
@@ -386,7 +355,7 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
             _cropRegion = newCropRegion;
         }
         
-        _screenCapture?.Capture(_cropRegion, _screenBitmap);
+        _screenCapture.Value.Capture(_cropRegion, _screenBitmap);
         WaitTimer(_captureStopwatch.Elapsed);
         _captureStopwatch.Restart();
     }
@@ -448,8 +417,6 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
     protected override async void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.PropertiesChanged(sender, args);
-            
-        await Initialize();
 
         var mtx = BitmapUtils.GetEmptyColorMatrix();
         if (Properties.BrightenImage)
@@ -480,6 +447,14 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
             default:
                 break;
         }
+        
+        await _screenCapture.DisposeAsync();
+        _screenCapture = new Temporary<IScreenCapture>(() =>
+        {
+            IScreenCapture screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
+            screenCapture.ScreenshotTaken += ScreenshotAction;
+            return screenCapture;
+        });
 
         _invalidated = true;
     }
@@ -606,7 +581,8 @@ public class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPropertie
 
     public override void Dispose()
     {
-        if (_screenCapture != null) _screenCapture.ScreenshotTaken -= ScreenshotAction;
+        if (!_screenCapture.HasValue) _screenCapture.Value.ScreenshotTaken -= ScreenshotAction;
+        _screenCapture.Dispose();
 
         base.Dispose();
     }

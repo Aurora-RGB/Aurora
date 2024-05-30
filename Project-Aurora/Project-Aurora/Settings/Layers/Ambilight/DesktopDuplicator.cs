@@ -4,6 +4,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows;
+using AuroraRgb.Utils;
 using Common.Utils;
 using SharpDX;
 using SharpDX.Direct3D;
@@ -20,7 +21,7 @@ public sealed class DesktopDuplicator : IDisposable
 
     private readonly Device _device;
     private readonly Texture2D _desktopImageTexture;
-    private readonly Lazy<OutputDuplication> _deskDupl;
+    private readonly Temporary<OutputDuplication> _deskDupl;
     private readonly Output5 _output;
 
     public DesktopDuplicator(Output5 output)
@@ -57,7 +58,7 @@ public sealed class DesktopDuplicator : IDisposable
             Usage = ResourceUsage.Staging,
         };
 
-        _deskDupl = new Lazy<OutputDuplication>( () =>
+        _deskDupl = new Temporary<OutputDuplication>( () =>
         {
             try
             {
@@ -175,7 +176,7 @@ public sealed class DesktopDuplicator : IDisposable
         IsDisposed = true;
 
         _output.Dispose();
-        if (_deskDupl.IsValueCreated)
+        if (_deskDupl.HasValue)
         {
             var outputDuplication = _deskDupl.Value;
             if (!outputDuplication.IsDisposed)

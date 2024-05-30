@@ -39,5 +39,7 @@ internal sealed class GdiScreenCapture : IScreenCapture
     public void Dispose()
     {
         _graphics.Dispose();
+        _bitmap?.Dispose();
+        _bitmap = null;
     }
 }
