@@ -34,7 +34,7 @@ public class Items_Dota2 : Node
     [Range(0, 5)]
     public Item[] StashItems => _stash.ToArray();
 
-    internal Items_Dota2(string json_data) : base(json_data)
+    internal Items_Dota2(string jsonData) : base(jsonData)
     {
         var slots = _ParsedData.Properties().Select(p => p.Name).ToList();
             

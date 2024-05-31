@@ -114,10 +114,7 @@ internal static class MemorySharedEventThread
                         {
                             break;
                         }
-                        Task.Run(() =>
-                        {
-                            _actions[i].Invoke();
-                        });
+                        Task.Run(_actions[i]);
                         break;
                 }
             }

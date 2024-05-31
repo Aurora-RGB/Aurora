@@ -353,7 +353,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
 
         public override EffectLayer Render(IGameState state)
         {
-            if (state is not GameState_Dota2 dota2State) return EffectLayer;
+            if (state is not GameStateDota2 dota2State) return EffectLayer;
 
             if (dota2State.Map.GameState == DOTA_GameState.DOTA_GAMERULES_STATE_PRE_GAME ||
                 dota2State.Map.GameState == DOTA_GameState.DOTA_GAMERULES_STATE_GAME_IN_PROGRESS)

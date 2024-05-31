@@ -3,65 +3,64 @@ using System.Collections.Generic;
 using System.Linq;
 using AuroraRgb.Nodes;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes
+namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
+
+/// <summary>
+/// Class representing hero abilities
+/// </summary>
+public class AbilitiesDota2 : Node, IEnumerable<Ability>
 {
+    private List<Ability> _abilities = [];
+
     /// <summary>
-    /// Class representing hero abilities
+    /// The attributes a hero has to spend on abilities
     /// </summary>
-    public class Abilities_Dota2 : Node, IEnumerable<Ability>
+    public Attributes Attributes { get; }
+
+    private string _json;
+
+    /// <summary>
+    /// The number of abilities
+    /// </summary>
+    public int Count => _abilities.Count;
+
+    internal AbilitiesDota2(string jsonData) : base(jsonData)
     {
-        private List<Ability> abilities = new();
+        _json = jsonData;
 
-        /// <summary>
-        /// The attributes a hero has to spend on abilities
-        /// </summary>
-        public Attributes Attributes;
-
-        private string json;
-
-        /// <summary>
-        /// The number of abilities
-        /// </summary>
-        public int Count => abilities.Count;
-
-        internal Abilities_Dota2(string jsonData) : base(jsonData)
+        var abilities = _ParsedData.Properties().Select(p => p.Name).ToList();
+        foreach (var abilitySlot in abilities)
         {
-            json = jsonData;
-
-            List<string> abilities = _ParsedData.Properties().Select(p => p.Name).ToList();
-            foreach (string ability_slot in abilities)
-            {
-                if (ability_slot.Equals("attributes"))
-                    Attributes = new Attributes(_ParsedData[ability_slot].ToString());
-                else
-                    this.abilities.Add(new Ability(_ParsedData[ability_slot].ToString()));
-            }
+            if (abilitySlot.Equals("attributes"))
+                Attributes = new Attributes(_ParsedData[abilitySlot].ToString());
+            else
+                _abilities.Add(new Ability(_ParsedData[abilitySlot].ToString()));
         }
+    }
 
-        /// <summary>
-        /// Gets the ability at a specified index
-        /// </summary>
-        /// <param name="index">The index</param>
-        /// <returns></returns>
-        public Ability this[int index]
+    /// <summary>
+    /// Gets the ability at a specified index
+    /// </summary>
+    /// <param name="index">The index</param>
+    /// <returns></returns>
+    public Ability this[int index]
+    {
+        get
         {
-            get
-            {
-                if (index > abilities.Count - 1)
-                    return new Ability("");
+            if (index > _abilities.Count - 1)
+                return new Ability("");
 
-                return abilities[index];
-            }
+            return _abilities[index];
         }
+    }
 
-        public IEnumerator<Ability> GetEnumerator()
-        {
-            return abilities.GetEnumerator();
-        }
+    public IEnumerator<Ability> GetEnumerator()
+    {
+        return _abilities.GetEnumerator();
+    }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return abilities.GetEnumerator();
-        }
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return _abilities.GetEnumerator();
     }
 }

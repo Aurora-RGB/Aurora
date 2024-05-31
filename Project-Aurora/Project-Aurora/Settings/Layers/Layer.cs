@@ -93,7 +93,6 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Layer render error");
             if (++_renderErrors == 3)
             {
                 Error = true;
@@ -101,7 +100,9 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
                 var controlInterface = appAuroraApp.ControlInterface;
                 
                 controlInterface.ShowErrorNotification($"Layer \'{Name}\" fails to render. Check logs for details");
+                return EffectLayer.EmptyLayer;
             }
+            Global.logger.Error(e, "Layer render error");
         }
 
         return EffectLayer.EmptyLayer;

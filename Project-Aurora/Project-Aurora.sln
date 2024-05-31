@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExeMover", "ExeMover\ExeMov
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeviceManagerSourceGenerator", "DeviceManagerSourceGenerator\DeviceManagerSourceGenerator\DeviceManagerSourceGenerator.csproj", "{749B26B4-BFF1-47E9-A639-4A458E367C1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuroraSourceGenerator", "AuroraSourceGenerator\AuroraSourceGenerator\AuroraSourceGenerator.csproj", "{B695C41A-4809-489A-802C-ACBEA4C77614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -77,6 +79,10 @@ Global
 		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Debug|x64.Build.0 = Debug|Any CPU
 		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Release|x64.ActiveCfg = Release|Any CPU
 		{749B26B4-BFF1-47E9-A639-4A458E367C1D}.Release|x64.Build.0 = Release|Any CPU
+		{B695C41A-4809-489A-802C-ACBEA4C77614}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B695C41A-4809-489A-802C-ACBEA4C77614}.Debug|x64.Build.0 = Debug|Any CPU
+		{B695C41A-4809-489A-802C-ACBEA4C77614}.Release|x64.ActiveCfg = Release|Any CPU
+		{B695C41A-4809-489A-802C-ACBEA4C77614}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

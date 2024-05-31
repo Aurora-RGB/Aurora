@@ -1,16 +1,16 @@
-﻿namespace AuroraRgb.Profiles.Discord.GSI.Nodes {
-    public enum DiscordVoiceType
-    {
-        Undefined = -1,
-        Call = 1,
-        VoiceChannel = 2,
-    }
+﻿namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
 
-    public class VoiceNode : AutoJsonNode<VoiceNode> {
-        public long Id = 0;
-        public string Name;
-        public DiscordVoiceType Type;
+public enum DiscordVoiceType
+{
+    Undefined = -1,
+    Call = 1,
+    VoiceChannel = 2,
+}
 
-        internal VoiceNode(string json) : base(json) { }
-    }
+public class VoiceNode : AutoJsonNode<VoiceNode> {
+    public long Id  { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public DiscordVoiceType Type { get; set; }
+
+    internal VoiceNode(string json) : base(json) { }
 }

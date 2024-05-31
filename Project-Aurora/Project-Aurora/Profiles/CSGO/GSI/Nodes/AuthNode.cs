@@ -1,22 +1,21 @@
 ﻿using AuroraRgb.Nodes;
 
-namespace AuroraRgb.Profiles.CSGO.GSI.Nodes
+namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
+
+/// <summary>
+/// A class representing the authentication information for GSI
+/// </summary>
+public class AuthNode : Node
 {
     /// <summary>
-    /// A class representing the authentication information for GSI
+    /// The auth token sent by GSI
     /// </summary>
-    public class AuthNode : Node
+    public string Token { get; }
+
+    internal AuthNode(string json)
+        : base(json)
     {
-        /// <summary>
-        /// The auth token sent by GSI
-        /// </summary>
-        public string Token;
-
-        internal AuthNode(string JSON)
-            : base(JSON)
-        {
-            Token = GetString("token");
-        }
-
+        Token = GetString("token");
     }
+
 }

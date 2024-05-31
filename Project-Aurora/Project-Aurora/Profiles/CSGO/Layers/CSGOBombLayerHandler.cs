@@ -80,7 +80,7 @@ public class CSGOBombLayerHandler() : LayerHandler<CSGOBombLayerHandlerPropertie
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         if (csgostate.Round.Bomb != BombState.Planted)
         {

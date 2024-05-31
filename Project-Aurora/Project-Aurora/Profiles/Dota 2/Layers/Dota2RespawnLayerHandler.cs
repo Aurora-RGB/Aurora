@@ -65,7 +65,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
         private bool _empty;
         public override EffectLayer Render(IGameState state)
         {
-            if (state is not GameState_Dota2 dota2State) return EffectLayer.EmptyLayer;
+            if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
 
             if (dota2State.Player.Team is PlayerTeam.Undefined or PlayerTeam.None ||
                 dota2State.Hero.IsAlive) return EffectLayer.EmptyLayer;

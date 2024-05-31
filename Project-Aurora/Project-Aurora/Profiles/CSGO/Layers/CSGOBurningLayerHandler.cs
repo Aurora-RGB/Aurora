@@ -51,7 +51,7 @@ public class CSGOBurningLayerHandler : LayerHandler<CSGOBurningLayerHandlerPrope
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         //Update Burning
 

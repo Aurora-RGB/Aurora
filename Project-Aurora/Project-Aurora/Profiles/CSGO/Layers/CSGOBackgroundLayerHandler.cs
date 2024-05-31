@@ -78,7 +78,7 @@ public class CSGOBackgroundLayerHandler : LayerHandler<CSGOBackgroundLayerHandle
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         var inGame = csgostate.Previously.Player.State.Health is > -1 and < 100
                      || (csgostate.Round.WinTeam == RoundWinTeam.Undefined && csgostate.Previously.Round.WinTeam != RoundWinTeam.Undefined);

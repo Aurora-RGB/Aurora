@@ -1,136 +1,64 @@
 ﻿using AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI
+namespace AuroraRgb.Profiles.Dota_2.GSI;
+
+/// <summary>
+/// A class representing various information retaining to Game State Integration of Dota 2
+/// </summary>
+public partial class GameStateDota2 : GameState
 {
+    private Auth_Dota2? _auth;
+    private Provider_Dota2? _provider;
+    private Map_Dota2? _map;
+    private PlayerDota2? _player;
+    private HeroDota2? _hero;
+    private AbilitiesDota2? _abilities;
+    private Items_Dota2? _items;
+    private GameStateDota2? _previously;
+    private GameStateDota2? _added;
+
+    public GameStateDota2()
+    { }
+    public GameStateDota2(string jsonData) : base(jsonData) { }
+
     /// <summary>
-    /// A class representing various information retaining to Game State Integration of Dota 2
+    /// Information about GSI authentication
     /// </summary>
-    public class GameState_Dota2 : GameState
-    {
-        private Auth_Dota2 auth;
-        private Provider_Dota2 provider;
-        private Map_Dota2 map;
-        private Player_Dota2 player;
-        private Hero_Dota2 hero;
-        private Abilities_Dota2 abilities;
-        private Items_Dota2 items;
-        private GameState_Dota2 previously;
-        private GameState_Dota2 added;
+    public Auth_Dota2 Auth => _auth ??= new Auth_Dota2(GetNode("auth"));
 
-        public GameState_Dota2() : base() { }
-        public GameState_Dota2(string json_data) : base(json_data) { }
+    /// <summary>
+    /// Information about the provider of this GameState
+    /// </summary>
+    public Provider_Dota2 Provider => _provider ??= new Provider_Dota2(GetNode("provider"));
 
-        /// <summary>
-        /// Information about GSI authentication
-        /// </summary>
-        public Auth_Dota2 Auth
-        {
-            get
-            {
-                if (auth == null)
-                    auth = new Auth_Dota2(GetNode("auth"));
+    /// <summary>
+    /// Information about the current map
+    /// </summary>
+    public Map_Dota2 Map => _map ??= new Map_Dota2(GetNode("map"));
 
-                return auth;
-            }
-        }
+    /// <summary>
+    /// Information about the local player
+    /// </summary>
+    public PlayerDota2 Player => _player ??= new PlayerDota2(GetNode("player"));
 
-        /// <summary>
-        /// Information about the provider of this GameState
-        /// </summary>
-        public Provider_Dota2 Provider
-        {
-            get
-            {
-                if (provider == null)
-                    provider = new Provider_Dota2(GetNode("provider"));
+    /// <summary>
+    /// Information about the local player's hero
+    /// </summary>
+    public HeroDota2 Hero => _hero ??= new HeroDota2(GetNode("hero"));
 
-                return provider;
-            }
-        }
+    /// <summary>
+    /// Information about the local player's hero abilities
+    /// </summary>
+    [Range(0, 5)]
+    public AbilitiesDota2 Abilities => _abilities ??= new AbilitiesDota2(GetNode("abilities"));
 
-        /// <summary>
-        /// Information about the current map
-        /// </summary>
-        public Map_Dota2 Map
-        {
-            get
-            {
-                if (map == null)
-                    map = new Map_Dota2(GetNode("map"));
+    /// <summary>
+    /// Information about the local player's hero items
+    /// </summary>
+    public Items_Dota2 Items => _items ??= new Items_Dota2(GetNode("items"));
 
-                return map;
-            }
-        }
-
-        /// <summary>
-        /// Information about the local player
-        /// </summary>
-        public Player_Dota2 Player
-        {
-            get
-            {
-                if (player == null)
-                    player = new Player_Dota2(GetNode("player"));
-
-                return player;
-            }
-        }
-
-        /// <summary>
-        /// Information about the local player's hero
-        /// </summary>
-        public Hero_Dota2 Hero
-        {
-            get
-            {
-                if (hero == null)
-                    hero = new Hero_Dota2(GetNode("hero"));
-
-                return hero;
-            }
-        }
-
-        /// <summary>
-        /// Information about the local player's hero abilities
-        /// </summary>
-        [Range(0, 5)]
-        public Abilities_Dota2 Abilities
-        {
-            get
-            {
-                if (abilities == null)
-                    abilities = new Abilities_Dota2(GetNode("abilities"));
-
-                return abilities;
-            }
-        }
-
-        /// <summary>
-        /// Information about the local player's hero items
-        /// </summary>
-        public Items_Dota2 Items
-        {
-            get
-            {
-                if (items == null)
-                    items = new Items_Dota2(GetNode("items"));
-
-                return items;
-            }
-        }
-
-        /// <summary>
-        /// A previous GameState
-        /// </summary>
-        public GameState_Dota2 Previously
-        {
-            get
-            {
-                if (previously == null)
-                    previously = new GameState_Dota2(GetNode("previously"));
-
-                return previously;
-            }
-        }
-    }
+    /// <summary>
+    /// A previous GameState
+    /// </summary>
+    public GameStateDota2 Previously => _previously ??= new GameStateDota2(GetNode("previously"));
 }

@@ -70,7 +70,7 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         if (!csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID)) return EffectLayer;
         if (csgostate.Round.Phase == RoundPhase.FreezeTime) return EffectLayer;
@@ -102,7 +102,7 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
         return EffectLayer;
     }
 
-    private void CalculateKills(GameState_CSGO csgostate)
+    private void CalculateKills(GameStateCsgo csgostate)
     {
         var roundClearPhase = csgostate.Round.WinTeam == RoundWinTeam.Undefined &&
                               csgostate.Previously.Round.WinTeam != RoundWinTeam.Undefined;

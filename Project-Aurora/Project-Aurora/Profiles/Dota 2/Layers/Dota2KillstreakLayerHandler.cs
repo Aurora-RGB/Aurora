@@ -116,7 +116,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
                 _isPlayingKillStreakAnimation = false;
             }
 
-            if (state is not GameState_Dota2 dota2State) return EffectLayer.EmptyLayer;
+            if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
             if(_currentKillCount < dota2State.Player.Kills)
             {    //player got a kill
                 _isPlayingKillStreakAnimation = true;

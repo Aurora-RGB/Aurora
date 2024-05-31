@@ -55,7 +55,7 @@ public class CSGODeathLayerHandler : LayerHandler<CSGODeathLayerHandlerPropertie
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_CSGO gameState) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo gameState) return EffectLayer.EmptyLayer;
         var deathColor = Properties.DeathColor;
 
         // Confirm if CS:GO Player is correct

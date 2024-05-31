@@ -11,12 +11,12 @@ public enum DiscordStatus
 
 public class UserNode : AutoJsonNode<UserNode> {
     public long Id = 0;
-    [AutoJsonIgnore] public DiscordStatus Status;
-    [AutoJsonPropertyName("self_mute")] public bool SelfMute;
-    [AutoJsonPropertyName("self_deafen")] public bool SelfDeafen;
-    public bool Mentions;
-    [AutoJsonPropertyName("unread_messages")] public bool UnreadMessages;
-    [AutoJsonPropertyName("being_called")] public bool BeingCalled;
+    [AutoJsonIgnore] public DiscordStatus Status { get; set; }
+    [AutoJsonPropertyName("self_mute")] public bool SelfMute { get; set; }
+    [AutoJsonPropertyName("self_deafen")] public bool SelfDeafen { get; set; }
+    public bool Mentions { get; set; }
+    [AutoJsonPropertyName("unread_messages")] public bool UnreadMessages { get; set; }
+    [AutoJsonPropertyName("being_called")] public bool BeingCalled { get; set; }
 
     internal UserNode(string json) : base(json) {
         Status = GetStatus(GetString("status"));

@@ -62,8 +62,9 @@ public sealed class LightingStateManager : IDisposable
 
         _activeProcessMonitor = activeProcessMonitor;
         _runningProcessMonitor = runningProcessMonitor;
+        Predicate<string> processRunning = ProcessRunning;
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
-                                         Array.Exists(evt.Config.ProcessNames, ProcessRunning);
+                                         Array.Exists(evt.Config.ProcessNames, processRunning);
 
         bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
     }

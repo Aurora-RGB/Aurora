@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Globalization;
+using AuroraRgb.Profiles;
 using FastMember;
 
 namespace AuroraRgb.Utils;
@@ -11,6 +12,12 @@ public static class FastMemberExtensions {
     /// Takes a path to a property (e.g. "Property/NestedProperty") and attempts to resolve it into a value within the context of this object.
     /// </summary>
     public static object? ResolvePropertyPath(this object target, string path) {
+        if (target is IGameState gameState && gameState.PropertyMap.TryGetValue(path, out var producer))
+        {
+            var generatedAccess = producer.Invoke(target);
+            return generatedAccess;
+        }
+
         var pathParts = path.Split('/');
         var curObj = target;
         try {
@@ -21,7 +28,7 @@ public static class FastMemberExtensions {
 
                 // Otherwise if this is any other object, use FastMember to access the relevant property/field.
                 else
-                    curObj = ObjectAccessor.Create(curObj)[part];
+                    curObj = curObj is IGameState gs ? gs.LazyObjectAccessor.Value[part] : ObjectAccessor.Create(curObj)[part];
             }
 
             return curObj; // If we got here, there is a valid object at this path, return it.

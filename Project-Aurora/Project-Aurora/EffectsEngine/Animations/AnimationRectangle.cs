@@ -39,6 +39,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
             if (_invalidated)
             {
+                _pen?.Dispose();
                 _pen = new Pen(_color);
                 _pen.Width = _width;
                 _pen.Alignment = PenAlignment.Inset;

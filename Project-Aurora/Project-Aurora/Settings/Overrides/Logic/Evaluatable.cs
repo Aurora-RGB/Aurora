@@ -85,6 +85,9 @@ public static class EvaluatableDefaults {
     private static readonly Dictionary<Type, Type> DefaultsMap = new()
     {
         [typeof(bool)] = typeof(BooleanConstant),
+        [typeof(int)] = typeof(NumberConstant),
+        [typeof(long)] = typeof(NumberConstant),
+        [typeof(float)] = typeof(NumberConstant),
         [typeof(double)] = typeof(NumberConstant),
         [typeof(string)] = typeof(StringConstant)
     };

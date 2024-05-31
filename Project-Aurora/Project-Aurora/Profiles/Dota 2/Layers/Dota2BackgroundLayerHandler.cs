@@ -71,7 +71,7 @@ public class Dota2BackgroundLayerHandler : LayerHandler<Dota2BackgroundLayerHand
     private SolidBrush _currentColor = new(Color.Empty);
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_Dota2 dota2State) return EffectLayer.EmptyLayer;
+        if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
 
         if (dota2State.Previously.Hero.HealthPercent == 0 && dota2State.Hero.HealthPercent == 100 && !dota2State.Previously.Hero.IsAlive && dota2State.Hero.IsAlive)
         {

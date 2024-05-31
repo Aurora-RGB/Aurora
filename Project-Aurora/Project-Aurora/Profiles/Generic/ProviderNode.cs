@@ -1,10 +1,9 @@
-﻿namespace AuroraRgb.Profiles.Generic {
-    
-    public class ProviderNode : AutoJsonNode<ProviderNode> {
+﻿namespace AuroraRgb.Profiles.Generic;
 
-        public string Name;
-        public int AppID;
+public class ProviderNode : AutoJsonNode<ProviderNode> {
 
-        internal ProviderNode(string json) : base(json) { }
-    }
+    public string Name { get; set; } = string.Empty;
+    public int AppID { get; set; }
+
+    internal ProviderNode(string json) : base(json) { }
 }

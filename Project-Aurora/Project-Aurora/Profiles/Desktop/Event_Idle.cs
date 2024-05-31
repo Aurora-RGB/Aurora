@@ -129,78 +129,51 @@ internal class DimEffect : AwayEffect
     }
 }
 
-internal class ColorBreathingEffect : AwayEffect
+internal class ColorBreathingEffect(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
-    public ColorBreathingEffect(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
-
     public override void Update(EffectLayer layer)
     {
         layer.Fill(IdEffectSecondaryColorBrush);
         var sine = (float) Math.Pow(
-            Math.Sin((double) (_eventIdle.CurrentTime % 10000L / 10000.0f) * 2 * Math.PI *
+            Math.Sin((double) (eventIdle.CurrentTime % 10000L / 10000.0f) * 2 * Math.PI *
                      IdleSpeed), 2);
         layer.FillOver(Color.FromArgb((byte) (sine * 255), IdleEffectPrimaryColor));
     }
 }
 
-internal class RainbowShiftHorizontal : AwayEffect
+internal class RainbowShiftHorizontal(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
-    public RainbowShiftHorizontal(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
-
     public override void Update(EffectLayer layer)
     {
-        layer.DrawGradient(LayerEffects.RainbowShift_Horizontal, _eventIdle.EffectCfg);
+        layer.DrawGradient(LayerEffects.RainbowShift_Horizontal, eventIdle.EffectCfg);
     }
 }
 
-internal class RainbowShiftVertical : AwayEffect
+internal class RainbowShiftVertical(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
-    public RainbowShiftVertical(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
-
     public override void Update(EffectLayer layer)
     {
-        layer.DrawGradient(LayerEffects.RainbowShift_Vertical, _eventIdle.EffectCfg);
+        layer.DrawGradient(LayerEffects.RainbowShift_Vertical, eventIdle.EffectCfg);
     }
 }
 
-internal class StarFall : AwayEffect
+internal class StarFall(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
     private long _nextStarSet;
 
-    private Dictionary<DeviceKeys, float> _stars = new();
-
-    public StarFall(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
+    private readonly Dictionary<DeviceKeys, float> _stars = new();
 
     public override void Update(EffectLayer layer)
     {
-        if (_nextStarSet < _eventIdle.CurrentTime)
+        if (_nextStarSet < eventIdle.CurrentTime)
         {
             for (var x = 0; x < IdleAmount; x++)
             {
-                var star = _eventIdle.AllKeys[_eventIdle.Randomizer.Next(_eventIdle.AllKeys.Length)];
+                var star = eventIdle.AllKeys[eventIdle.Randomizer.Next(eventIdle.AllKeys.Length)];
                 _stars[star] = 1.0f;
             }
 
-            _nextStarSet = _eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
+            _nextStarSet = eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
         }
 
         layer.Fill(IdEffectSecondaryColorBrush);
@@ -210,37 +183,32 @@ internal class StarFall : AwayEffect
         {
             layer.Set(star,
                 ColorUtils.BlendColors(Color.Black, IdleEffectPrimaryColor, _stars[star]));
-            _stars[star] -= _eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
+            _stars[star] -= eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
         }
     }
 }
 
-internal class RainFall : AwayEffect
+internal class RainFall(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
     private readonly Dictionary<DeviceKeys, float> _raindrops = new();
     private long _nextStarSet;
 
     private readonly ColorSpectrum _dropSpec = new(Global.Configuration.IdleEffectPrimaryColor,
         Color.FromArgb(0, Global.Configuration.IdleEffectPrimaryColor));
 
-    public RainFall(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
+    private readonly Pen _pen = new(Color.Transparent, 2);
 
     public override void Update(EffectLayer layer)
     {
-        if (_nextStarSet < _eventIdle.CurrentTime)
+        if (_nextStarSet < eventIdle.CurrentTime)
         {
             for (var x = 0; x < IdleAmount; x++)
             {
-                var star = _eventIdle.AllKeys[_eventIdle.Randomizer.Next(_eventIdle.AllKeys.Length)];
+                var star = eventIdle.AllKeys[eventIdle.Randomizer.Next(eventIdle.AllKeys.Length)];
                 _raindrops[star] = 1.0f;
             }
 
-            _nextStarSet = _eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
+            _nextStarSet = eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
         }
 
         layer.Fill(IdEffectSecondaryColorBrush);
@@ -255,13 +223,14 @@ internal class RainFall : AwayEffect
             var transitionValue = 1.0f - _raindrops[raindrop];
             var radius = transitionValue * Effects.Canvas.BiggestSize;
 
-            g.DrawEllipse(new Pen(_dropSpec.GetColorAt(transitionValue), 2),
+            _pen.Color = _dropSpec.GetColorAt(transitionValue);
+            g.DrawEllipse(_pen,
                 pt.X - radius,
                 pt.Y - radius,
                 2 * radius,
                 2 * radius);
 
-            _raindrops[raindrop] -= _eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
+            _raindrops[raindrop] -= eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
         }
     }
 }
@@ -274,29 +243,22 @@ internal class Blackout : AwayEffect
     }
 }
 
-public class Matrix : AwayEffect
+public class Matrix(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
     private readonly AnimationMix _matrixLines = new AnimationMix().SetAutoRemove(true); //This will be an infinite Mix
     private long _nextStarSet;
 
-    public Matrix(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
-
     public override void Update(EffectLayer layer)
     {
-        if (_nextStarSet < _eventIdle.CurrentTime)
+        if (_nextStarSet < eventIdle.CurrentTime)
         {
             var darkerPrimary = ColorUtils.MultiplyColorByScalar(IdleEffectPrimaryColor, 0.50);
 
             for (var x = 0; x < IdleAmount; x++)
             {
-                var widthStart = _eventIdle.Randomizer.Next(Effects.Canvas.Width);
-                var delay = _eventIdle.Randomizer.Next(550) / 100.0f;
-                var randomId = _eventIdle.Randomizer.Next(125536789);
+                var widthStart = eventIdle.Randomizer.Next(Effects.Canvas.Width);
+                var delay = eventIdle.Randomizer.Next(550) / 100.0f;
+                var randomId = eventIdle.Randomizer.Next(125536789);
 
                 //Create animation
                 var matrixLine =
@@ -309,7 +271,7 @@ public class Matrix : AwayEffect
                             0.5f * 1.0f / (0.05f * IdleSpeed),
                             new AnimationLine(widthStart, Effects.Canvas.Height, widthStart, Effects.Canvas.Height + 3,
                                 IdleEffectPrimaryColor, 3)).SetShift(
-                            _eventIdle.CurrentTime % 1000000L / 1000.0f + delay
+                            eventIdle.CurrentTime % 1000000L / 1000.0f + delay
                         );
 
                 var matrixLineTrail =
@@ -323,50 +285,43 @@ public class Matrix : AwayEffect
                         new AnimationLine(widthStart, Effects.Canvas.Height, widthStart, Effects.Canvas.Height,
                             darkerPrimary,
                             3)).SetShift(
-                        _eventIdle.CurrentTime % 1000000L / 1000.0f + delay
+                        eventIdle.CurrentTime % 1000000L / 1000.0f + delay
                     );
 
                 _matrixLines.AddTrack(matrixLine);
                 _matrixLines.AddTrack(matrixLineTrail);
             }
 
-            _nextStarSet = _eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
+            _nextStarSet = eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
         }
 
         layer.Fill(IdEffectSecondaryColorBrush);
 
         using var g = layer.GetGraphics();
-        _matrixLines.Draw(g, _eventIdle.CurrentTime % 1000000L / 1000.0f);
+        _matrixLines.Draw(g, eventIdle.CurrentTime % 1000000L / 1000.0f);
     }
 }
 
-internal class RainFallSmooth : AwayEffect
+internal class RainFallSmooth(EventIdle eventIdle) : AwayEffect
 {
-    private readonly EventIdle _eventIdle;
-
     private readonly ColorSpectrum _dropSpec = new(Global.Configuration.IdleEffectPrimaryColor,
         Color.FromArgb(0, Global.Configuration.IdleEffectPrimaryColor));
 
+    private readonly Dictionary<DeviceKeys, float> _raindrops = new();
+
     private long _nextStarSet;
-
-    public RainFallSmooth(EventIdle eventIdle)
-    {
-        _eventIdle = eventIdle;
-    }
-
-    private Dictionary<DeviceKeys, float> _raindrops = new();
 
     public override void Update(EffectLayer layer)
     {
-        if (_nextStarSet < _eventIdle.CurrentTime)
+        if (_nextStarSet < eventIdle.CurrentTime)
         {
             for (var x = 0; x < IdleAmount; x++)
             {
-                var star = _eventIdle.AllKeys[_eventIdle.Randomizer.Next(_eventIdle.AllKeys.Length)];
+                var star = eventIdle.AllKeys[eventIdle.Randomizer.Next(eventIdle.AllKeys.Length)];
                 _raindrops[star] = 1.0f;
             }
 
-            _nextStarSet = _eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
+            _nextStarSet = eventIdle.CurrentTime + (long) (1000L * IdleFrequency);
         }
 
         layer.FillOver(IdEffectSecondaryColorBrush);
@@ -376,13 +331,13 @@ internal class RainFallSmooth : AwayEffect
             var pt = Effects.Canvas.GetRectangle(d).Center;
             var transitionValue = 1.0f - _raindrops[d];
             var radius = transitionValue * Effects.Canvas.BiggestSize;
-            _raindrops[d] -= _eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
+            _raindrops[d] -= eventIdle.GetDeltaTime() * 0.05f * IdleSpeed;
             return new Tuple<DeviceKeys, PointF, float, float>(d, pt, transitionValue, radius);
         }).Where(d => d.Item3 <= 1.5).ToArray();
 
         const float circleHalfThickness = 1f;
 
-        foreach (var key in _eventIdle.AllKeys)
+        foreach (var key in eventIdle.AllKeys)
         {
             var keyInfo = Effects.Canvas.GetRectangle(key);
 

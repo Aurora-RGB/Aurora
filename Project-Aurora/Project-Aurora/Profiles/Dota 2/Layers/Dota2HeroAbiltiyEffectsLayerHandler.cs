@@ -114,7 +114,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
 
         private readonly Random _randomizer = new();
 
-        private static Abilities_Dota2 _abilities;
+        private static AbilitiesDota2 _abilities;
 
         public Dota2HeroAbilityEffectsLayerHandler(): base("Dota 2 - Ability Effects")
         {
@@ -137,7 +137,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
             _previousTime = _currentTime;
             _currentTime = Time.GetMillisecondsSinceEpoch();
 
-            if (state is not GameState_Dota2 dota2State) return EffectLayer.EmptyLayer;
+            if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
 
             //Preparations
             if (_abilities != null && dota2State.Abilities.Count == _abilities.Count)

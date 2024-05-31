@@ -14,7 +14,7 @@ public class CSGO : Application
             SettingsType = typeof(FirstTimeApplicationSettings),
             ProfileType = typeof(CSGOProfile),
             OverviewControlType = typeof(Control_CSGO),
-            GameStateType = typeof(GSI.GameState_CSGO),
+            GameStateType = typeof(GSI.GameStateCsgo),
             IconURI = "Resources/cs2.png"
         })
     {

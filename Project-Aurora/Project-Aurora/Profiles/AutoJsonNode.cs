@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -25,23 +26,29 @@ public class AutoJsonNode<TSelf> : Node where TSelf : AutoJsonNode<TSelf> {
     // Compiled action to be run during the contructor that will populate relevant fields
     private static readonly Lazy<Action<TSelf>> CtorAction = new(() => {
         var fields = typeof(TSelf).GetFields(bf | BindingFlags.FlattenHierarchy);
+        var properties = typeof(TSelf).GetProperties();
         var body = new List<Expression>(fields.Length);
         var selfParam = Parameter(typeof(TSelf));
 
+        var attributes = fields.Select(f => ((MemberInfo)f, f.FieldType)).Concat(properties.Select(p => ((MemberInfo)p, p.PropertyType)));
         // Find all the fields
-        foreach (var field in fields.Where(f => f.GetCustomAttribute<AutoJsonIgnoreAttribute>() == null)) {
-            if (TryGetMethodForType(field.FieldType, out var getter))
+        foreach (var (field, type) in attributes.Where(f => f.Item1.GetCustomAttribute<AutoJsonIgnoreAttribute>() == null)) {
+            if (TryGetMethodForType(type, out var getter))
                 // If a relevant Getter method exists for this field, add an assignment to the ctor body for this (e.g. adding `this.SomeField = GetString("SomeField");` )
                 body.Add(
                     Assign(
-                        Field(selfParam, field),
+                        field switch
+                        {
+                            FieldInfo f => Field(selfParam, f),
+                            PropertyInfo p => Property(selfParam, p)
+                        },
                         Call(selfParam, getter, Constant(field.GetCustomAttribute<AutoJsonPropertyNameAttribute>()?.Path ?? field.Name))
                     )
                 );
             else
                 Global.logger.Warning(
                     "Could not find an AutoNode getter method for field \'{FieldName}\' of type \'{FieldTypeName}\'. It will not be automatically populated",
-                    field.Name, field.FieldType.Name);
+                    field.Name, type.Name);
         }
 
         // Compile and return the action
@@ -68,7 +75,7 @@ public class AutoJsonNode<TSelf> : Node where TSelf : AutoJsonNode<TSelf> {
     /// GetMethodForType(typeof(string)); // returns 'GetString'<br/>
     /// GetMethodForType(typeof(SomeEnum)); // returns the closed generic variant of 'GetEnum&lt;T&gt;' bound to the given enum.
     /// </code></summary>
-    private static bool TryGetMethodForType(Type type, out MethodInfo method) {
+    private static bool TryGetMethodForType(Type type, [MaybeNullWhen(false)]out MethodInfo method) {
         if (type.IsEnum)
             method = EnumMethod.MakeGenericMethod(type);
         else if (type.IsArray)
@@ -86,17 +93,15 @@ public class AutoJsonNode<TSelf> : Node where TSelf : AutoJsonNode<TSelf> {
 /// <summary>
 /// Attribute to mark a field to indicate that the <see cref="AutoJsonNode{TSelf}"/> should use a different path when accessing the JSON.
 /// </summary>
-[AttributeUsage(AttributeTargets.Field)]
-public class AutoJsonPropertyNameAttribute : Attribute {
-    public string Path { get; set; }
-    public AutoJsonPropertyNameAttribute(string path) {
-        Path = path ?? throw new ArgumentNullException(nameof(path));
-    }
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+public class AutoJsonPropertyNameAttribute(string path) : Attribute
+{
+    public string Path { get; set; } = path ?? throw new ArgumentNullException(nameof(path));
 }
 
 /// <summary>
 /// Attribute to mark a field to indicate that the <see cref="AutoJsonNode{TSelf}"/> should ignore this field when populating the class members.
 /// </summary>
-[AttributeUsage(AttributeTargets.Field)]
-public class AutoJsonIgnoreAttribute : Attribute { }
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+public class AutoJsonIgnoreAttribute : Attribute;
 #endregion

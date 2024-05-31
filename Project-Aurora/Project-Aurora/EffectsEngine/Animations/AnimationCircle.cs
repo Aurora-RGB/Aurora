@@ -81,6 +81,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
             if (_invalidated)
             {
+                _pen?.Dispose();
                 _pen = new Pen(_color);
                 _pen.Width = _width * (12 / (int)Global.Configuration.BitmapAccuracy);
                 _pen.Alignment = PenAlignment.Center;

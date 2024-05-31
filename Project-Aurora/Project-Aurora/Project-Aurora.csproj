@@ -52,7 +52,7 @@
 
     <ItemGroup>
         <PackageReference Include="Colore" Version="6.0.0"/>
-        <PackageReference Include="Debounce.Core" Version="1.0.0" />
+        <PackageReference Include="Debounce.Core" Version="1.0.0"/>
         <PackageReference Include="Dubya.WindowsMediaController" Version="2.5.0"/>
         <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1"/>
         <PackageReference Include="FastMember" Version="1.5.0"/>
@@ -60,7 +60,7 @@
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
         <PackageReference Include="JsonSubTypes" Version="2.0.1"/>
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2"/>
-        <PackageReference Include="MdXaml" Version="1.27.0" />
+        <PackageReference Include="MdXaml" Version="1.27.0"/>
         <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3"/>
         <PackageReference Include="NAudio.Core" Version="2.2.1"/>
         <PackageReference Include="NAudio.Wasapi" Version="22.0.0"/>
@@ -85,7 +85,7 @@
         <PackageReference Include="System.Threading.AccessControl" Version="8.0.0"/>
         <PackageReference Include="TaskScheduler" Version="2.10.1"/>
         <PackageReference Include="VdfConverter" Version="1.0.3"/>
-        <PackageReference Include="Vortice.XInput" Version="3.5.0" />
+        <PackageReference Include="Vortice.XInput" Version="3.5.0"/>
         <PackageReference Include="WPFToolkits" Version="3.5.50211.1"/>
         <PackageReference Include="SharpZipLib" Version="1.4.2"/>
         <PackageReference Include="CoordinateSharp" Version="2.20.1.1"/>
@@ -107,6 +107,9 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\AuroraSourceGenerator\AuroraSourceGenerator\AuroraSourceGenerator.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\AuroraCommon\AuroraCommon.csproj"/>
         <ProjectReference Include="..\ColorBox\ColorBox.csproj"/>
         <ProjectReference Include="..\AuroraCommon\AuroraCommon.csproj">

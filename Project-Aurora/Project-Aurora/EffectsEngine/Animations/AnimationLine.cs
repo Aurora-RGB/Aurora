@@ -120,6 +120,7 @@ namespace AuroraRgb.EffectsEngine.Animations
 
             if (_invalidated)
             {
+                _pen?.Dispose();
                 _pen = new Pen(new LinearGradientBrush(_start_point, _end_point, _color, _end_color));
                 _pen.Width = _width * (12f / (int)Global.Configuration.BitmapAccuracy);
                 _pen.Alignment = PenAlignment.Center;

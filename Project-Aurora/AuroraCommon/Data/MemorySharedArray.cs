@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.IO.MemoryMappedFiles;
 using System.Runtime.InteropServices;
+using Common.Utils;
 
 namespace Common.Data;
 
@@ -121,7 +122,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
         foreach (var pair in dictionary)
         {
             // Count + E
-            var offset = Convert.ToInt64(pair.Key) * ElementSize;
+            var offset = CastTo<int>.From(pair.Key) * ElementSize;
             if (offset < 0)
             {
                 continue;

@@ -14,7 +14,7 @@ public class Dota2 : Application
             SettingsType = typeof(FirstTimeApplicationSettings),
             ProfileType = typeof(Dota2Profile),
             OverviewControlType = typeof(Control_Dota2),
-            GameStateType = typeof(GSI.GameState_Dota2),
+            GameStateType = typeof(GSI.GameStateDota2),
             IconURI = "Resources/dota2_64x64.png"
         })
     {

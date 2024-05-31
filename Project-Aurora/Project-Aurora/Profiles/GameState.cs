@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.Json.Serialization.Metadata;
 using AuroraRgb.Nodes;
 using AuroraRgb.Utils;
+using FastMember;
 using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
@@ -30,9 +32,13 @@ public interface IGameState {
 
     /// <summary>Attempts to resolve the given path into a numeric value. Returns default on failure.</summary>
     TEnum GetEnum<TEnum>(VariablePath path) where TEnum : Enum;
+
+    IReadOnlyDictionary<string, Func<object, object?>> PropertyMap { get; }
+    
+    Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 }
 
-public class GameState : IGameState
+public abstract class GameState : IGameState
 {
     private static LocalPcInformation? _localPcInfo;
 
@@ -44,6 +50,10 @@ public class GameState : IGameState
 
     [PublicAPI] // game profiles can still access this
     public LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
+    
+    public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
+
+    public virtual IReadOnlyDictionary<string, Func<object, object?>> PropertyMap => ImmutableDictionary<string, Func<object, object?>>.Empty;
 
     /// <summary>
     /// Creates a default GameState instance.
@@ -52,6 +62,7 @@ public class GameState : IGameState
     {
         Json = "{}";
         _ParsedData = new JObject();
+        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
     }
 
     /// <summary>
@@ -65,6 +76,7 @@ public class GameState : IGameState
 
         Json = jsonData;
         _ParsedData = JObject.Parse(jsonData);
+        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
     }
 
     /// <summary>
@@ -77,7 +89,7 @@ public class GameState : IGameState
     /// Use this method to more-easily lazily return the child node of the given name that exists on this AutoNode.
     /// </summary>
     protected TNode NodeFor<TNode>(string name) where TNode : Node
-        => (TNode)(_childNodes.TryGetValue(name, out var n) ? n : (_childNodes[name] = Instantiator<TNode, string>.Create(_ParsedData[name]?.ToString() ?? "")));
+        => (TNode)(_childNodes.TryGetValue(name, out var n) ? n : _childNodes[name] = Instantiator<TNode, string>.Create(_ParsedData[name]?.ToString() ?? ""));
 
     #region GameState path resolution
     /// <summary>
@@ -124,6 +136,14 @@ public class JsonGameState : IGameState
     private static readonly Dictionary<string, Func<object, double>> NumberGetters = new();
     private static readonly Dictionary<string, Func<object, bool>> BoolGetters = new();
     private static readonly Dictionary<string, Func<object, Enum>> EnumGetters = new();
+
+    public IReadOnlyDictionary<string, Func<object, object?>> PropertyMap { get; } = new Dictionary<string, Func<object, object?>>();
+    public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
+
+    public JsonGameState()
+    {
+        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
+    }
 
     protected static void PrepProps(IEnumerable<JsonPropertyInfo> jsonPropertyInfos, Func<object, object?>? parentGetter = null, string root = "")
     {
@@ -210,7 +230,7 @@ public class JsonGameState : IGameState
 /// <summary>
 /// An empty gamestate with no child nodes.
 /// </summary>
-public class EmptyGameState : GameState
+public partial class EmptyGameState : GameState
 {
     public EmptyGameState() { }
     public EmptyGameState(string json) : base(json) { }

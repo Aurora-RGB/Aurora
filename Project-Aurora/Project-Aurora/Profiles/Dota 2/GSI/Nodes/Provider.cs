@@ -1,38 +1,37 @@
 ﻿using AuroraRgb.Nodes;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes
+namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
+
+/// <summary>
+/// Information about the provider of this GameState
+/// </summary>
+public class Provider_Dota2 : Node
 {
     /// <summary>
-    /// Information about the provider of this GameState
+    /// Game name
     /// </summary>
-    public class Provider_Dota2 : Node
+    public string Name { get; }
+
+    /// <summary>
+    /// Game's Steam AppID
+    /// </summary>
+    public int AppID { get; }
+
+    /// <summary>
+    /// Game's version
+    /// </summary>
+    public int Version { get; }
+
+    /// <summary>
+    /// Current timestamp
+    /// </summary>
+    public string TimeStamp { get; }
+
+    internal Provider_Dota2(string jsonData) : base(jsonData)
     {
-        /// <summary>
-        /// Game name
-        /// </summary>
-        public string Name;
-
-        /// <summary>
-        /// Game's Steam AppID
-        /// </summary>
-        public int AppID;
-
-        /// <summary>
-        /// Game's version
-        /// </summary>
-        public int Version;
-
-        /// <summary>
-        /// Current timestamp
-        /// </summary>
-        public string TimeStamp;
-
-        internal Provider_Dota2(string json_data) : base(json_data)
-        {
-            Name = GetString("name");
-            AppID = GetInt("appid");
-            Version = GetInt("version");
-            TimeStamp = GetString("timestamp");
-        }
+        Name = GetString("name");
+        AppID = GetInt("appid");
+        Version = GetInt("version");
+        TimeStamp = GetString("timestamp");
     }
 }

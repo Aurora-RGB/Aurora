@@ -1,124 +1,123 @@
 ﻿using AuroraRgb.Nodes;
 
-namespace AuroraRgb.Profiles.CSGO.GSI.Nodes
+namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
+
+/// <summary>
+/// Class representing information about the map
+/// </summary>
+public class MapNode : Node
 {
     /// <summary>
-    /// Class representing information about the map
+    /// Current gamemode
     /// </summary>
-    public class MapNode : Node
-    {
-        /// <summary>
-        /// Current gamemode
-        /// </summary>
-        public MapMode Mode;
-
-        /// <summary>
-        /// Name of the current map
-        /// </summary>
-        public string Name;
-
-        /// <summary>
-        /// Current phase of the map
-        /// </summary>
-        public MapPhase Phase;
-
-        /// <summary>
-        /// Current round
-        /// </summary>
-        public int Round;
-
-        /// <summary>
-        /// Counter-Terrorist team information
-        /// </summary>
-        public MapTeamNode TeamCT;
-
-        /// <summary>
-        /// Terrorist team information
-        /// </summary>
-        public MapTeamNode TeamT;
-
-        internal MapNode(string JSON)
-            : base(JSON)
-        {
-            Mode = GetEnum<MapMode>("mode");
-            Name = GetString("name");
-            Phase = GetEnum<MapPhase>("phase");
-            Round = GetInt("round");
-            TeamCT = new MapTeamNode(_ParsedData["team_ct"]?.ToString() ?? "");
-            TeamT = new MapTeamNode(_ParsedData["team_t"]?.ToString() ?? "");
-        }
-    }
+    public MapMode Mode { get; }
 
     /// <summary>
-    /// Enum list for each phase of the map
+    /// Name of the current map
     /// </summary>
-    public enum MapPhase
+    public string Name { get; }
+
+    /// <summary>
+    /// Current phase of the map
+    /// </summary>
+    public MapPhase Phase { get; }
+
+    /// <summary>
+    /// Current round
+    /// </summary>
+    public int Round { get; }
+
+    /// <summary>
+    /// Counter-Terrorist team information
+    /// </summary>
+    public MapTeamNode TeamCT { get; }
+
+    /// <summary>
+    /// Terrorist team information
+    /// </summary>
+    public MapTeamNode TeamT { get; }
+
+    internal MapNode(string json)
+        : base(json)
     {
-        /// <summary>
-        /// Undefined phase
-        /// </summary>
-        Undefined,
-
-        /// <summary>
-        /// Warmup phase
-        /// </summary>
-        Warmup,
-
-        /// <summary>
-        /// Live match phase
-        /// </summary>
-        Live,
-
-        /// <summary>
-        /// Intermission phase
-        /// </summary>
-        Intermission,
-
-        /// <summary>
-        /// Match Over phase
-        /// </summary>
-        GameOver
+        Mode = GetEnum<MapMode>("mode");
+        Name = GetString("name");
+        Phase = GetEnum<MapPhase>("phase");
+        Round = GetInt("round");
+        TeamCT = new MapTeamNode(_ParsedData["team_ct"]?.ToString() ?? "");
+        TeamT = new MapTeamNode(_ParsedData["team_t"]?.ToString() ?? "");
     }
+}
 
-    public enum MapMode
-    {
-        /// <summary>
-        /// Undefined gamemode
-        /// </summary>
-        Undefined,
+/// <summary>
+/// Enum list for each phase of the map
+/// </summary>
+public enum MapPhase
+{
+    /// <summary>
+    /// Undefined phase
+    /// </summary>
+    Undefined,
 
-        /// <summary>
-        /// Casual gamemode
-        /// </summary>
-        Casual,
+    /// <summary>
+    /// Warmup phase
+    /// </summary>
+    Warmup,
 
-        /// <summary>
-        /// Competitive gamemode
-        /// </summary>
-        Competitive,
+    /// <summary>
+    /// Live match phase
+    /// </summary>
+    Live,
 
-        /// <summary>
-        /// Deathmatch gamemode
-        /// </summary>
-        DeathMatch,
-        /// <summary>
-        /// Gun Game
-        /// </summary>
-        GunGameProgressive,
+    /// <summary>
+    /// Intermission phase
+    /// </summary>
+    Intermission,
 
-        /// <summary>
-        /// Arms Race/Demolition gamemode
-        /// </summary>
-        GunGameTRBomb,
+    /// <summary>
+    /// Match Over phase
+    /// </summary>
+    GameOver
+}
 
-        /// <summary>
-        /// Cooperational mission gamemode
-        /// </summary>
-        CoopMission,
+public enum MapMode
+{
+    /// <summary>
+    /// Undefined gamemode
+    /// </summary>
+    Undefined,
 
-        /// <summary>
-        /// Custom gamemode
-        /// </summary>
-        Custom
-    }
+    /// <summary>
+    /// Casual gamemode
+    /// </summary>
+    Casual,
+
+    /// <summary>
+    /// Competitive gamemode
+    /// </summary>
+    Competitive,
+
+    /// <summary>
+    /// Deathmatch gamemode
+    /// </summary>
+    DeathMatch,
+    /// <summary>
+    /// Gun Game
+    /// </summary>
+    GunGameProgressive,
+
+    /// <summary>
+    /// Arms Race/Demolition gamemode
+    /// </summary>
+    GunGameTRBomb,
+
+    /// <summary>
+    /// Cooperational mission gamemode
+    /// </summary>
+    CoopMission,
+
+    /// <summary>
+    /// Custom gamemode
+    /// </summary>
+    Custom
 }

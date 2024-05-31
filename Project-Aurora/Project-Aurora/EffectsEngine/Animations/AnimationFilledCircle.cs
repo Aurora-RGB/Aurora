@@ -28,6 +28,7 @@ public class AnimationFilledCircle : AnimationCircle
         {
             _brush?.Dispose();
             _brush = new SolidBrush(_color);
+            _pen?.Dispose();
             _pen = new Pen(_color);
             _pen.Width = _width * (12 / (int)Global.Configuration.BitmapAccuracy);
             _pen.Alignment = PenAlignment.Center;

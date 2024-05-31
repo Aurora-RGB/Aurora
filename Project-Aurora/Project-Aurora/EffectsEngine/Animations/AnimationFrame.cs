@@ -64,7 +64,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         internal int _width;
         [Newtonsoft.Json.JsonProperty]
         internal float _duration;
-        internal Pen _pen = null;
+        internal Pen? _pen = null;
         internal Brush _brush;
         internal bool _invalidated = true;
         [Newtonsoft.Json.JsonProperty]

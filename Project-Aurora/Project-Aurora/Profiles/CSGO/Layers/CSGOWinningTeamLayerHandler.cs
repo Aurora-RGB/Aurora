@@ -49,7 +49,7 @@ public class CSGOWinningTeamLayerHandler : LayerHandler<CSGOWinningTeamLayerHand
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_CSGO csgostate) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         // Block animations after end of round
         if (csgostate.Map.Phase == MapPhase.Undefined || csgostate.Round.Phase != RoundPhase.Over)
