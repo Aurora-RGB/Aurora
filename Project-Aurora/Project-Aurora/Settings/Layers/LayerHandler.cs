@@ -373,7 +373,7 @@ namespace AuroraRgb.Settings.Layers
             var returnLayer = _postfxLayer.Value;
             returnLayer.Clear();
 
-            using (var g = returnLayer.GetGraphics())
+            var g = returnLayer.GetGraphics();
             {
                 g.CompositingMode = CompositingMode.SourceOver;
                 g.CompositingQuality = CompositingQuality.HighSpeed;

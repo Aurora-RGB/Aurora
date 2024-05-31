@@ -576,37 +576,35 @@ internal class GradientCascade
 
 	public void Draw(FreeFormObject freeform, EffectLayer effectLayer)
 	{
-		using (Graphics g = effectLayer.GetGraphics())
+		var g = effectLayer.GetGraphics();
+		var xPos = (float)Math.Round((freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
+		var yPos = (float)Math.Round((freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight);
+		var width = freeform.Width * Effects.Canvas.EditorToCanvasWidth;
+		var height = freeform.Height * Effects.Canvas.EditorToCanvasHeight;
+
+		if (width < 3) width = 3;
+		if (height < 3) height = 3;
+
+		var rotatePoint = new PointF(xPos + (width / 2.0f), yPos + (height / 2.0f));
+		var myMatrix = new Matrix();
+		myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
+		g.Transform = myMatrix;
+
+		foreach (var gradient in gradients)
 		{
-			float x_pos = (float)Math.Round((freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
-			float y_pos = (float)Math.Round((freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight);
-			float width = (float)(freeform.Width * Effects.Canvas.EditorToCanvasWidth);
-			float height = (float)(freeform.Height * Effects.Canvas.EditorToCanvasHeight);
+			var xPosGr = xPos + width * gradient.Item3.X;
+			var widthGr = width * (gradient.Item3.Y - gradient.Item3.X);
 
-			if (width < 3) width = 3;
-			if (height < 3) height = 3;
-
-			var rotatePoint = new PointF(x_pos + (width / 2.0f), y_pos + (height / 2.0f));
-			var myMatrix = new Matrix();
-			myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
-			g.Transform = myMatrix;
-
-			foreach (var gradient in gradients)
+			var rect = new RectangleF(xPosGr, yPos, widthGr, height);
+			rect.Intersect(new RectangleF(xPos, yPos, width, height));
+			if (!rect.IsEmpty)
 			{
-				var x_pos_gr = x_pos + width * gradient.Item3.X;
-				var width_gr = width * (gradient.Item3.Y - gradient.Item3.X);
+				var brush = gradient.Item1.ToLinearGradient(
+					widthGr / (gradient.Item2.Y - gradient.Item2.X), 0,
+					xPosGr - (widthGr * gradient.Item2.X / (gradient.Item2.Y - gradient.Item2.X)));
 
-				var rect = new RectangleF(x_pos_gr, y_pos, width_gr, height);
-				rect.Intersect(new RectangleF(x_pos, y_pos, width, height));
-				if (!rect.IsEmpty)
-				{
-					LinearGradientBrush brush = gradient.Item1.ToLinearGradient(
-						width_gr / (gradient.Item2.Y - gradient.Item2.X), 0,
-						x_pos_gr - (width_gr * gradient.Item2.X / (gradient.Item2.Y - gradient.Item2.X)), 0);
-
-					brush.WrapMode = WrapMode.TileFlipX;
-					g.FillRectangle(brush, rect);
-				}
+				brush.WrapMode = WrapMode.TileFlipX;
+				g.FillRectangle(brush, rect);
 			}
 		}
 	}

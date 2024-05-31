@@ -49,7 +49,7 @@ public class MinecraftBurnLayerHandler : LayerHandler<LayerHandlerProperties> {
         for (var i = 0; i < 3; i++)
             CreateFireParticle();
 
-        using var graphics = EffectLayer.GetGraphics();
+        var graphics = EffectLayer.GetGraphics();
         // Render all particles
         foreach (var particle in particles) {
             particle.mix.Draw(graphics, particle.time);

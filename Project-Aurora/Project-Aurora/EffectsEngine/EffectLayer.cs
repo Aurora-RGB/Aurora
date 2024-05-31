@@ -30,6 +30,7 @@ namespace AuroraRgb.EffectsEngine
 
         private readonly string _name;
         private Bitmap _colormap;
+        private Graphics _graphics;
         private float _opacity = 1;
 
         private TextureBrush? _textureBrush;
@@ -75,10 +76,12 @@ namespace AuroraRgb.EffectsEngine
         {
             _name = name;
             _colormap = new Bitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+            _graphics = Graphics.FromImage(_colormap);
             _textureBrush = new TextureBrush(_colormap);
             Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
 
             FillOver(color);
+            _graphics = Graphics.FromImage(_colormap);
         }
 
         public EffectLayer(string name, bool persistent) : this(name)
@@ -234,7 +237,6 @@ namespace AuroraRgb.EffectsEngine
             _colormap?.Dispose();
             _textureBrush?.Dispose();
             _textureBrush = null;
-            _transformedDrawExcludeMap?.Dispose();
             _solidBrush.Dispose();
         }
 
@@ -283,7 +285,7 @@ namespace AuroraRgb.EffectsEngine
         /// <param name="brush">Brush to be used during bitmap fill</param>
         public void Fill(Brush brush)
         {
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             g.CompositingMode = CompositingMode.SourceCopy;
             g.FillRectangle(brush, Dimension);
             Invalidate();
@@ -296,7 +298,7 @@ namespace AuroraRgb.EffectsEngine
         /// <returns>Itself</returns>
         public void FillOver(Color color)
         {
-            using (var g = Graphics.FromImage(_colormap))
+            var g = _graphics;
             {
                 g.CompositingMode = CompositingMode.SourceOver;
                 g.SmoothingMode = SmoothingMode.None;
@@ -314,7 +316,7 @@ namespace AuroraRgb.EffectsEngine
         /// <returns>Itself</returns>
         public void FillOver(Brush brush)
         {
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             g.CompositingMode = CompositingMode.SourceOver;
             g.SmoothingMode = SmoothingMode.None;
             g.FillRectangle(brush, Dimension);
@@ -323,8 +325,12 @@ namespace AuroraRgb.EffectsEngine
         
         public void Clear()
         {
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
+            g.ResetClip();
+            g.ResetTransform();
             g.CompositingMode = CompositingMode.SourceCopy;
+            g.SmoothingMode = SmoothingMode.None;
+            g.InterpolationMode = InterpolationMode.NearestNeighbor;
             g.FillRectangle(ClearingBrush, Dimension);
             _lastColor = Color.Empty;
             Invalidate();
@@ -418,7 +424,7 @@ namespace AuroraRgb.EffectsEngine
                     _lastColor = solidBrush.Color;
                 }
 
-                using var g = Graphics.FromImage(_colormap);
+                var g = _graphics;
                 var xPos = (float)Math.Round((sequence.Freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
                 var yPos = (float)Math.Round((sequence.Freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight);
                 var width = (float)Math.Round(sequence.Freeform.Width * Effects.Canvas.EditorToCanvasWidth);
@@ -444,8 +450,6 @@ namespace AuroraRgb.EffectsEngine
         {
             _ksChanged = true;
         }
-
-        private Bitmap _transformedDrawExcludeMap;
 
         /// <summary>
         /// Allows drawing some arbitrary content to the sequence bounds, including translation, scaling and rotation.<para/>
@@ -480,9 +484,8 @@ namespace AuroraRgb.EffectsEngine
             var boundsRaw = sequence.GetAffectedRegion();
             var bounds = new RectangleF((int)Math.Round(boundsRaw.X), (int)Math.Round(boundsRaw.Y), (int)boundsRaw.Width, (int)boundsRaw.Height);
 
-            using (var gfx = Graphics.FromImage(_colormap))
+            var gfx = _graphics;
             {
-
                 // First, calculate the scaling required to transform the sourceRect's size into the bounds' size
                 float sx = bounds.Width / sourceRegion.Width, sy = bounds.Height / sourceRegion.Height;
 
@@ -616,7 +619,7 @@ namespace AuroraRgb.EffectsEngine
 
             try
             {
-                using var g = Graphics.FromImage(_colormap);
+                var g = _graphics;
                 g.CompositingMode = CompositingMode.SourceCopy;
                 g.FillRectangle(brush, keyRectangle.Rectangle);
             }catch { /* ignore */}
@@ -642,10 +645,10 @@ namespace AuroraRgb.EffectsEngine
             return keyColor;
         }
 
-        public Graphics GetGraphics()   //TODO deprecate
+        public Graphics GetGraphics()
         {
             Invalidate();
-            return Graphics.FromImage(_colormap);
+            return _graphics;
         }
 
         public Bitmap GetBitmap()
@@ -675,8 +678,8 @@ namespace AuroraRgb.EffectsEngine
             {
                 return lhs;
             }
-            
-            using (var g = lhs.GetGraphics())
+
+            var g = lhs.GetGraphics();
             {
                 g.CompositingMode = CompositingMode.SourceOver;
                 g.CompositingQuality = CompositingQuality.HighSpeed;
@@ -932,7 +935,7 @@ namespace AuroraRgb.EffectsEngine
             if (width < 3) width = 3;
             if (height < 3) height = 3;
             
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             if (percentEffectType == PercentEffectType.AllAtOnce)
             {
                 var rect = new RectangleF(xPos, yPos, width, height);
@@ -976,8 +979,12 @@ namespace AuroraRgb.EffectsEngine
         }
         private void InvalidateColorMap(object? sender, EventArgs args)
         {
-            _colormap?.Dispose();
+            var oldBitmap = _colormap;
             _colormap = new Bitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+            oldBitmap?.Dispose();
+            var oldGraphs = _graphics;
+            _graphics = Graphics.FromImage(_colormap);
+            oldGraphs.Dispose();
             _ksChanged = true;
             Dimension.Height = Effects.Canvas.Height;
             Dimension.Width = Effects.Canvas.Width;
@@ -1021,7 +1028,7 @@ namespace AuroraRgb.EffectsEngine
             if (width < 2) width = 2;
             if (height < 2) height = 2;
 
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             if (percentEffectType == PercentEffectType.AllAtOnce)
             {
                 var rect = new RectangleF(xPos, yPos, width, height);
@@ -1116,7 +1123,7 @@ namespace AuroraRgb.EffectsEngine
                     break;
             }
 
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             g.SetClip(gp);
             g.Clear(Color.Transparent);
         }
@@ -1127,7 +1134,7 @@ namespace AuroraRgb.EffectsEngine
         public void OnlyInclude(KeySequence sequence)
         {
             var exclusionPath = GetExclusionPath(sequence);
-            using var g = Graphics.FromImage(_colormap);
+            var g = _graphics;
             g.SetClip(exclusionPath);
             g.Clear(Color.Transparent);
             Invalidate();

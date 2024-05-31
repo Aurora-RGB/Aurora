@@ -173,7 +173,7 @@ public class Effects(Task<DeviceManager> deviceManager)
         var renderCanvas = Canvas; // save locally in case it changes between ref calls
         if (_forcedFrame != null)
         {
-            using var g = Background.GetGraphics();
+            var g = Background.GetGraphics();
             g.Clear(Color.Black);
             g.DrawImage(_forcedFrame, 0, 0, renderCanvas.Width, renderCanvas.Height);
         }

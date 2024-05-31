@@ -215,7 +215,7 @@ internal class RainFall(EventIdle eventIdle) : AwayEffect
 
         var raindropsKeys = _raindrops.Keys.ToArray();
 
-        using var g = layer.GetGraphics();
+        var g = layer.GetGraphics();
         foreach (var raindrop in raindropsKeys)
         {
             var pt = Effects.Canvas.GetRectangle(raindrop).Center;
@@ -297,7 +297,7 @@ public class Matrix(EventIdle eventIdle) : AwayEffect
 
         layer.Fill(IdEffectSecondaryColorBrush);
 
-        using var g = layer.GetGraphics();
+        var g = layer.GetGraphics();
         _matrixLines.Draw(g, eventIdle.CurrentTime % 1000000L / 1000.0f);
     }
 }

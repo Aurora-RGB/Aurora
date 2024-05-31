@@ -75,7 +75,7 @@ public class MinecraftRainLayerHandler : LayerHandler<MinecraftRainLayerHandlerP
         }
 
         // Render all droplets
-        using var graphics = EffectLayer.GetGraphics();
+        var graphics = EffectLayer.GetGraphics();
         foreach (var droplet in raindrops) {
             droplet.mix.Draw(graphics, droplet.time);
             droplet.time += .1f;

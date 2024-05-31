@@ -529,7 +529,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
             }
 
             EffectLayer.Clear();
-            using var graphics = EffectLayer.GetGraphics();
+            var graphics = EffectLayer.GetGraphics();
             switch (_currentAbilityEffect)
             {
                 case Dota2AbilityEffects.RazorPlasmaField:

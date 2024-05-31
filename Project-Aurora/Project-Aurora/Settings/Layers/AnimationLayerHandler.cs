@@ -185,7 +185,7 @@ namespace AuroraRgb.Settings.Layers
                 }
 
                 // Draw the animation to a temporary canvas
-                using Graphics g = EffectLayer.GetGraphics();
+                var g = EffectLayer.GetGraphics();
                 Properties.AnimationMix.Draw(g, anim.currentTime, offset);
             });
 

@@ -120,7 +120,7 @@ namespace AuroraRgb.Profiles.RocketLeague.Layers
 
                     goal_explosion_mix = new AnimationMix(tracks);
 
-                    using (var graphics = layer.GetGraphics())
+                    var graphics = layer.GetGraphics();
                     {
                         goal_explosion_mix.Draw(graphics, goalEffect_keyframe);
                     }

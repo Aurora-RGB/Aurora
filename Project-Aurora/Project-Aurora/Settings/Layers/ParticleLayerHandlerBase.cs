@@ -72,7 +72,7 @@ namespace AuroraRgb.Settings.Layers {
             _stopwatch.Restart();
 
             // Update and render all particles
-            using (var gfx = EffectLayer.GetGraphics()) {
+            var gfx = EffectLayer.GetGraphics(); {
                 EffectLayer.Clear();
                 foreach (var particle in _particles) {
                     particle.Update(dt, Properties);
