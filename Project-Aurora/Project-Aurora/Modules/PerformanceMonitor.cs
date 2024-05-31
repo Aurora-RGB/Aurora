@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Amib.Threading;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Modules.Razer;
+using ByteSizeLib;
 
 namespace AuroraRgb.Modules;
 
@@ -36,6 +37,8 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
     protected override Task Initialize()
     {
         Task.Run(BackgroundInitialize);
+
+        GC.AddMemoryPressure((long)ByteSize.FromMegaBytes(666).Bytes);
         
         return Task.CompletedTask;
     }

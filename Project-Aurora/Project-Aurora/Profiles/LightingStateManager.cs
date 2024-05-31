@@ -347,6 +347,8 @@ public sealed class LightingStateManager : IDisposable
         _updateLock.WaitOne();
         _locked = true;
 
+        GC.WaitForPendingFinalizers();
+
         if (Global.isDebug)
             Update();
         else

@@ -51,6 +51,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="ByteSize" Version="2.1.2" />
         <PackageReference Include="Colore" Version="6.0.0"/>
         <PackageReference Include="Debounce.Core" Version="1.0.0"/>
         <PackageReference Include="Dubya.WindowsMediaController" Version="2.5.0"/>
