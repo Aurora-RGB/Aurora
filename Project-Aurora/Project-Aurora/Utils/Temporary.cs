@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,12 +8,17 @@ namespace AuroraRgb.Utils;
 public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposable
     where T : class
 {
+    private static readonly List<Temporary<T>> Instances = [];
+    // ReSharper disable once StaticMemberInGenericType
+    private static Timer? _aliveTimer;
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly ReaderWriterLockSlim TimerLock = new();
+
     public event EventHandler? ValueCreated;
 
     private T? _value;
 
     private long _lastAccess = Time.GetMillisecondsSinceEpoch();
-    private Timer? _aliveTimer;
     private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
     private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
 
@@ -22,7 +28,6 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
         {
             _lock.EnterUpgradeableReadLock();
             _lastAccess = Time.GetMillisecondsSinceEpoch();
-            _aliveTimer ??= StartAliveTimer();
 
             if (_value != null)
             {
@@ -35,37 +40,64 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
             ValueCreated?.Invoke(this, EventArgs.Empty);
             _lock.ExitWriteLock();
             _lock.ExitUpgradeableReadLock();
+            AddInstance(this);
             return _value;
         }
     }
 
     public bool HasValue => _value != null;
 
-    private Timer StartAliveTimer()
+    private static void AddInstance(Temporary<T> temporary)
+    {
+        TimerLock.EnterWriteLock();
+        Instances.Add(temporary);
+        _aliveTimer ??= StartAliveTimer();
+        TimerLock.ExitWriteLock();
+    }
+
+    private static Timer StartAliveTimer()
     {
         return new Timer(AliveTimerCallback, null, TimeSpan.FromSeconds(20), TimeSpan.FromSeconds(20));
     }
 
-    private void AliveTimerCallback(object? state)
+    private static void AliveTimerCallback(object? state)
+    {
+        TimerLock.EnterReadLock();
+
+        Instances.RemoveAll(CheckInstance);
+        if (Instances.Count != 0)
+        {
+            TimerLock.ExitReadLock();
+            return;
+        }
+
+        _aliveTimer?.Dispose();
+        _aliveTimer = null;
+
+        TimerLock.ExitReadLock();
+    }
+
+    private static bool CheckInstance(Temporary<T> temporary)
     {
         var now = Time.GetMillisecondsSinceEpoch();
-        if (now - _lastAccess <= _inactiveTimeMilliseconds || _value == null) return;
+        if (now - temporary._lastAccess <= temporary._inactiveTimeMilliseconds || temporary._value == null) return false;
 
         // 20 sec passed since last render, dispose proxy
-        var temporaryValue = _value;
-        _value = null;
+        var temporaryValue = temporary._value;
+        temporary._value = null;
         if (temporaryValue is IDisposable disposable)
         {
             disposable.Dispose();
         }
 
-        _aliveTimer?.Dispose();
-        _aliveTimer = null;
+        return true;
     }
 
     public void Dispose()
     {
-        _aliveTimer?.Dispose();
+        _lock.EnterWriteLock();
+        Instances.Remove(this);
+        _lock.ExitWriteLock();
 
         if (_value is IDisposable disposable)
         {
@@ -76,6 +108,10 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
 
     public async ValueTask DisposeAsync()
     {
+        _lock.EnterWriteLock();
+        Instances.Remove(this);
+        _lock.ExitWriteLock();
+
         if (_aliveTimer != null) await _aliveTimer.DisposeAsync();
         if (_value is IDisposable disposable)
         {
