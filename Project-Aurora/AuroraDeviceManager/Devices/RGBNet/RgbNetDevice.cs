@@ -69,10 +69,8 @@ public abstract class RgbNetDevice : DefaultDevice
                 timeWatch.Start();
 
                 Provider.Initialize(RGBDeviceType.All, true);
-                
-                
 
-                if (DeviceList.Count == 0)
+                if (!HotplugEnabled() && DeviceList.Count == 0)
                 {
                     await Task.Delay(1500, cancellationToken);
                     const string message = "No device detected yet!";
