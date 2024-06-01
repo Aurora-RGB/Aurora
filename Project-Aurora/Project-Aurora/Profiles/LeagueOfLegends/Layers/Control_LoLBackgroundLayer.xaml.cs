@@ -5,57 +5,56 @@ using AuroraRgb.Profiles.LeagueOfLegends.GSI.Nodes;
 using AuroraRgb.Utils;
 using Xceed.Wpf.Toolkit;
 
-namespace AuroraRgb.Profiles.LeagueOfLegends.Layers
+namespace AuroraRgb.Profiles.LeagueOfLegends.Layers;
+
+/// <summary>
+/// Interaction logic for UserControl1.xaml
+/// </summary>
+public partial class LoLBackgroundLayer
 {
-    /// <summary>
-    /// Interaction logic for UserControl1.xaml
-    /// </summary>
-    public partial class LoLBackgroundLayer : UserControl
+    private LoLBackgroundLayerHandler Context => (LoLBackgroundLayerHandler)DataContext;
+
+    private Champion _selectedChampion;
+
+    public LoLBackgroundLayer()
     {
-        protected LoLBackgroundLayerHandler Context => DataContext as LoLBackgroundLayerHandler;
+        InitializeComponent();
+    }
 
-        private Champion selectedChampion;
+    public LoLBackgroundLayer(LoLBackgroundLayerHandler context)
+    {
+        InitializeComponent();
 
-        public LoLBackgroundLayer()
-        {
-            InitializeComponent();
-        }
+        DataContext = context;
+    }
 
-        public LoLBackgroundLayer(LoLBackgroundLayerHandler context)
-        {
-            InitializeComponent();
+    private void UserControl_Loaded(object? sender, RoutedEventArgs e)
+    {
+        SetSettings();
 
-            this.DataContext = context;
-        }
+        Loaded -= UserControl_Loaded;
+    }
 
-        private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-        {
-            SetSettings();
+    private void SetSettings()
+    {
+        championPicker.SelectedItem = Champion.None;
+    }
 
-            this.Loaded -= UserControl_Loaded;
-        }
+    private void championPicker_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox comboBox)
+            return;
 
-        private void SetSettings()
-        {
-            this.championPicker.SelectedItem = Champion.None;
-        }
+        _selectedChampion = (Champion)comboBox.SelectedItem;
 
-        private void championPicker_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-        {
-            if (!(sender is ComboBox))
-                return;
+        colorPicker.SelectedColor = Context.Properties.ChampionColors[_selectedChampion].ToMediaColor();
+    }
 
-            selectedChampion = (Champion)((sender as ComboBox).SelectedItem);
+    private void colorPicker_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (sender is not ColorPicker picker)
+            return;
 
-            colorPicker.SelectedColor = Context.Properties.ChampionColors[selectedChampion].ToMediaColor();
-        }
-
-        private void colorPicker_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (!(sender is ColorPicker))
-                return;
-
-            Context.Properties.ChampionColors[selectedChampion] = ((sender as ColorPicker).SelectedColor ?? Color.FromArgb(0,0,0,0)).ToDrawingColor();
-        }
+        Context.Properties.ChampionColors[_selectedChampion] = (picker.SelectedColor ?? Color.FromArgb(0,0,0,0)).ToDrawingColor();
     }
 }

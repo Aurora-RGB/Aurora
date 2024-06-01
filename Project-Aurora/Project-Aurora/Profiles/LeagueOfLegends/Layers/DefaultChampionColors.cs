@@ -93,6 +93,7 @@ namespace AuroraRgb.Profiles.LeagueOfLegends.Layers
             [Champion.MasterYi] = Color.FromArgb(212, 209, 28),
             [Champion.MissFortune] = Color.FromArgb(217, 57, 17),
             [Champion.MonkeyKing] = Color.FromArgb(231, 62, 33),
+            [Champion.Wukong] = Color.FromArgb(231, 62, 33),
             [Champion.Mordekaiser] = Color.FromArgb(44, 164, 124),
             [Champion.Morgana] = Color.FromArgb(190, 50, 186),
             [Champion.Nami] = Color.FromArgb(36, 188, 232),

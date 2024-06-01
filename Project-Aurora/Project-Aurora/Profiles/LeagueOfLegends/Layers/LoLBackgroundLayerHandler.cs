@@ -2,70 +2,72 @@
 using System.Drawing;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
+using AuroraRgb.Profiles.LeagueOfLegends.GSI;
 using AuroraRgb.Profiles.LeagueOfLegends.GSI.Nodes;
 using AuroraRgb.Settings.Layers;
 using Newtonsoft.Json;
 
-namespace AuroraRgb.Profiles.LeagueOfLegends.Layers
+namespace AuroraRgb.Profiles.LeagueOfLegends.Layers;
+
+public class LoLBackgroundLayerHandlerProperties : LayerHandlerProperties<LoLBackgroundLayerHandlerProperties>
 {
-    public class LoLBackgroundLayerHandlerProperties : LayerHandlerProperties<LoLBackgroundLayerHandlerProperties>
+    private Dictionary<Champion, Color>? _championColors;
+
+    [JsonProperty("_ChampionColors")]
+    public Dictionary<Champion, Color> ChampionColors
     {
-        [JsonIgnore]
-        public Dictionary<Champion, Color> ChampionColors => Logic?._ChampionColors ?? _ChampionColors ?? new Dictionary<Champion, Color>();
-        public Dictionary<Champion, Color> _ChampionColors { get; set; }
-
-        public LoLBackgroundLayerHandlerProperties() : base() { }
-
-        public LoLBackgroundLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
-        public override void Default()
-        {
-            base.Default();
-
-            _ChampionColors = new Dictionary<Champion, Color>(DefaultChampionColors.Colors);
-        }
+        get => Logic?._championColors ?? _championColors ?? new Dictionary<Champion, Color>();
+        set => _championColors = value;
     }
 
-    [LayerHandlerMeta(Name = "League of Legends Background")]
-    public class LoLBackgroundLayerHandler : LayerHandler<LoLBackgroundLayerHandlerProperties>
+    public LoLBackgroundLayerHandlerProperties()
+    { }
+
+    public LoLBackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
+
+    public override void Default()
     {
-        private Champion lastChampion = Champion.None;
-        private Color lastColor = Color.Transparent;
-        private int lastWidth;
-        private int lastHeight;
+        base.Default();
 
-        public LoLBackgroundLayerHandler(): base("Lol Background Layer")
+        ChampionColors = new Dictionary<Champion, Color>(DefaultChampionColors.Colors);
+    }
+}
+
+[LayerHandlerMeta(Name = "League of Legends Background")]
+public class LoLBackgroundLayerHandler() : LayerHandler<LoLBackgroundLayerHandlerProperties>("Lol Background Layer")
+{
+    private Champion _lastChampion = Champion.None;
+    private Color _lastColor = Color.Transparent;
+    private int _lastWidth;
+    private int _lastHeight;
+
+    public override EffectLayer Render(IGameState gamestate)
+    {
+        var currentChampion = (gamestate as GameState_LoL)?.Player.Champion ?? Champion.None;
+        if (!Properties.ChampionColors.ContainsKey(currentChampion) && DefaultChampionColors.Colors.TryGetValue(currentChampion, out var defaultColor))
+            Properties.ChampionColors.Add(currentChampion, defaultColor);
+
+        var currentColor = Properties.ChampionColors.GetValueOrDefault(currentChampion, Color.Transparent);
+
+        //if the player changes champion
+        //or if the color is adjusted in the UI
+        //or if the canvas size changes due to the layout being changed
+        if (currentChampion != _lastChampion || currentColor != _lastColor || 
+            _lastWidth != Effects.Canvas.Width || _lastHeight != Effects.Canvas.Height)
         {
+            _lastChampion = currentChampion;
+            _lastColor = currentColor;
+            _lastHeight = Effects.Canvas.Height;
+            _lastWidth = Effects.Canvas.Width;
+            EffectLayer.FillOver(_lastColor);
+            //then we fill the layer again
         }
+        //otherwise, we can just return the same layer as it's mostly static
+        return EffectLayer;
+    }
 
-        public override EffectLayer Render(IGameState gamestate)
-        {
-            var currentChampion = (gamestate as GSI.GameState_LoL)?.Player.Champion ?? Champion.None;
-            if (!Properties.ChampionColors.ContainsKey(currentChampion))
-                Properties.ChampionColors.Add(currentChampion, DefaultChampionColors.Colors[currentChampion]);
-
-            var currentColor = Properties.ChampionColors[currentChampion];
-
-            //if the player changes champion
-            //or if the color is adjusted in the UI
-            //or if the canvas size changes due to the layout being changed
-            if (currentChampion != lastChampion || currentColor != lastColor || 
-              lastWidth != Effects.Canvas.Width || lastHeight != Effects.Canvas.Height)
-            {
-                lastChampion = currentChampion;
-                lastColor = currentColor;
-                lastHeight = Effects.Canvas.Height;
-                lastWidth = Effects.Canvas.Width;
-                EffectLayer.FillOver(lastColor);
-                //then we fill the layer again
-            }
-            //otherwise, we can just return the same layer as it's mostly static
-            return EffectLayer;
-        }
-
-        protected override UserControl CreateControl()
-        {
-            return new LoLBackgroundLayer(this);
-        }
+    protected override UserControl CreateControl()
+    {
+        return new LoLBackgroundLayer(this);
     }
 }
