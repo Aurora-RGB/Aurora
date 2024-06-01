@@ -20,8 +20,8 @@ public interface ILayerHandler: IDisposable
     KeySequence ExclusionMask { get; }
     KeySequence _ExclusionMask { get; set; }
 
-    float Opacity { get; }
-    float? _Opacity { get; set; }
+    double Opacity { get; }
+    double? _Opacity { get; set; }
 
     EffectLayer Render(IGameState gameState);
 

@@ -60,8 +60,8 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
 
     // Renamed to "Layer Opacity" so that if the layer properties needs an opacity for whatever reason, it's
     // less likely to have a name collision.
-    [LogicOverridable("Opacity")] public float? _LayerOpacity { get; set; }
-    [JsonIgnore] public float LayerOpacity => Logic?._LayerOpacity ?? _LayerOpacity ?? 1f;
+    [LogicOverridable("Opacity")] public double? _LayerOpacity { get; set; }
+    [JsonIgnore] public double LayerOpacity => Logic?._LayerOpacity ?? _LayerOpacity ?? 1f;
 
     [LogicOverridable("Excluded Keys")] public KeySequence _Exclusion { get; set; }
     [JsonIgnore] public KeySequence Exclusion => Logic?._Exclusion ?? _Exclusion ?? new KeySequence();

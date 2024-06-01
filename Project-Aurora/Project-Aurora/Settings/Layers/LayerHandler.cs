@@ -66,8 +66,8 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         set => Properties._Exclusion = value;
     }
 
-    public float Opacity => Properties.LayerOpacity;
-    public float? _Opacity {
+    public double Opacity => Properties.LayerOpacity;
+    public double? _Opacity {
         get => Properties._LayerOpacity;
         set => Properties._LayerOpacity = value;
     }
