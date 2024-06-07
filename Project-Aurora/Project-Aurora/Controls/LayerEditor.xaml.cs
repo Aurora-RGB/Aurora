@@ -61,8 +61,8 @@ public partial class LayerEditor
         transformControl.SizeChanged += NewcontrolSizeChanged;
 
         transformControl.SetValue(Selector.IsSelectedProperty, true);
-        transformControl.SetValue(Canvas.TopProperty, (double)(freeForm.Y + Effects.Canvas.GridBaselineY));
-        transformControl.SetValue(Canvas.LeftProperty, (double)(freeForm.X + Effects.Canvas.GridBaselineX));
+        transformControl.SetValue(Canvas.TopProperty, (double)(freeForm.Y + Effects.Canvas.CanvasGridProperties.GridBaselineY));
+        transformControl.SetValue(Canvas.LeftProperty, (double)(freeForm.X + Effects.Canvas.CanvasGridProperties.GridBaselineX));
         transformControl.SetValue(RenderTransformProperty, transform);
 
         var descriptor = DependencyPropertyDescriptor.FromProperty(

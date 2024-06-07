@@ -113,7 +113,7 @@ public class Effects(Task<DeviceManager> deviceManager)
         new Dictionary<DeviceKeys, BitmapRectangle>
         {
             { DeviceKeys.SPACE , new BitmapRectangle(0, 0, 8, 8)}
-        }, 0, 0, 8, 8
+        }
     );
     public static EffectCanvas Canvas
     {

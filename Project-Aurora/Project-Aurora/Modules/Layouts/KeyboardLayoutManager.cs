@@ -333,10 +333,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         Effects.Canvas = new EffectCanvas(
             PixelToByte(virtualKeyboardGroup.Region.Width),
             PixelToByte(virtualKeyboardGroup.Region.Height),
-            bitmapMap,
-            0, 0,
-            PixelToByte(virtualKeyboardGroup.Region.Width),
-            PixelToByte(virtualKeyboardGroup.Region.Height)
+            bitmapMap
         )
         {
             WidthCenter = keyboardWidth / 2,
@@ -354,6 +351,7 @@ public sealed class KeyboardLayoutManager : IDisposable
             cancellationToken);
 
         var keyboardControl = await kcg.Generate();
+        Effects.Canvas.CanvasGridProperties = new CanvasGridProperties((float)kcg.BaselineX, (float)kcg.BaselineY, (float)virtualKb.Width, (float)virtualKb.Height);
         return keyboardControl;
     }
 

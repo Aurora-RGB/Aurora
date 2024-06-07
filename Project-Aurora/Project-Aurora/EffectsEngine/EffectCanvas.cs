@@ -5,14 +5,23 @@ using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
 
-public sealed class EffectCanvas(
-    int width,
-    int height,
-    Dictionary<DeviceKeys, BitmapRectangle> bitmapMap,
+public sealed class CanvasGridProperties(
     float gridBaselineX,
     float gridBaselineY,
     float gridWidth,
     float gridHeight)
+{
+    //TODO those 4 vars are about Control. Remove htem from here
+    public float GridBaselineX { get; } = gridBaselineX;
+    public float GridBaselineY { get; } = gridBaselineY;
+    public float GridWidth { get; } = gridWidth;
+    public float GridHeight { get; } = gridHeight;
+}
+
+public sealed class EffectCanvas(
+    int width,
+    int height,
+    Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
     : IEqualityComparer<EffectCanvas>, IEquatable<EffectCanvas>
 {
     public int Width { get; } = width;
@@ -20,23 +29,23 @@ public sealed class EffectCanvas(
     public int BiggestSize { get; } = Math.Max(width, height);
 
     //TODO those 4 vars are about Control. Remove htem from here
-    public float GridBaselineX { get; } = gridBaselineX;
-    public float GridBaselineY { get; } = gridBaselineY;
-    private float GridWidth { get; } = gridWidth;
-    private float GridHeight { get; } = gridHeight;
+    public float GridBaselineX => CanvasGridProperties.GridBaselineX;
+    public float GridBaselineY => CanvasGridProperties.GridBaselineY;
 
     public Dictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; } = bitmapMap;
 
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
 
-    public float EditorToCanvasWidth => Width / GridWidth;
-    public float EditorToCanvasHeight => Height / GridHeight;
+    public CanvasGridProperties CanvasGridProperties { get; set; } = new(0, 0, width, height);
+
+    public float EditorToCanvasWidth => Width / CanvasGridProperties.GridWidth;
+    public float EditorToCanvasHeight => Height / CanvasGridProperties.GridHeight;
 
     /// <summary>
     /// Creates a new FreeFormObject that perfectly occupies the entire canvas.
     /// </summary>
-    public FreeFormObject WholeFreeForm => new(-GridBaselineX, -GridBaselineY, GridWidth, GridHeight);
+    public FreeFormObject WholeFreeForm => new(-CanvasGridProperties.GridBaselineX, -CanvasGridProperties.GridBaselineY, CanvasGridProperties.GridWidth, CanvasGridProperties.GridHeight);
 
     public BitmapRectangle GetRectangle(DeviceKeys key)
     {
