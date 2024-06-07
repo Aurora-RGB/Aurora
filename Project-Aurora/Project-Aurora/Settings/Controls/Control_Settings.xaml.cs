@@ -11,6 +11,7 @@ using AuroraRgb.Devices.RGBNet.Config;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.HardwareMonitor;
+using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Modules.Razer;
 using Button = System.Windows.Controls.Button;
 using MessageBox = System.Windows.MessageBox;
@@ -24,7 +25,8 @@ public partial class Control_Settings
 {
     private readonly Task<AuroraHttpListener?> _httpListener;
 
-    public Control_Settings(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager, Task<AuroraHttpListener?> httpListener, Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
+    public Control_Settings(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager, Task<AuroraHttpListener?> httpListener,
+        Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener, Task<KeyboardLayoutManager> layoutManager)
     {
         _httpListener = httpListener;
         InitializeComponent();
@@ -38,7 +40,7 @@ public partial class Control_Settings
         LnkRepository.NavigateUri = new Uri($"https://github.com/{o}/{r}");
         LnkContributors.NavigateUri = new Uri($"https://github.com/{o}/{r}#contributors-");
 
-        var devicesAndWrappers = new Control_SettingsDevicesAndWrappers(rzSdkManager, deviceManager);
+        var devicesAndWrappers = new Control_SettingsDevicesAndWrappers(rzSdkManager, deviceManager, layoutManager);
         var controlDeviceManager = new Control_DeviceManager(deviceManager, ipcListener);
         var deviceMapping = new DeviceMapping(deviceManager, ipcListener);
         var plugins = new Control_PluginManager(pluginManager);

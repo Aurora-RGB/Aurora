@@ -49,6 +49,11 @@
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
                                Text="Bitmap Accuracy/Ratio: " VerticalAlignment="Top"
                                ToolTip="Determines how accurate the Freestyle key sequence option will map to the keys it is drawn over. Better accuracy comes at the cost of CPU/RAM usage, will likely only be a problem at Best" />
+                    <Button HorizontalAlignment="Right" Margin="0,1,0,1" Height="22"
+                            VerticalAlignment="Top"
+                            Content="↻"
+                            Click="LayoutsRefreshButton_OnClick"
+                            ToolTip="Reload layouts" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                     <ComboBox SelectedValue="{Binding KeyboardLocalization}"

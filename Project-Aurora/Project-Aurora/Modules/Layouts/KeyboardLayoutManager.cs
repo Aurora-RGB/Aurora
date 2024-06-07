@@ -97,7 +97,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         }
     }
 
-    private async Task LoadBrandDefault()
+    internal async Task LoadBrandDefault()
     {
         var cancellationTokenSource = _cancellationTokenSource;
         await cancellationTokenSource.CancelAsync();

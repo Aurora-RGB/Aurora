@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using AuroraRgb.Devices;
 using AuroraRgb.Modules;
+using AuroraRgb.Modules.Layouts;
 using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Modules.Razer;
 using RazerSdkReader;
@@ -20,16 +21,17 @@ public partial class Control_SettingsDevicesAndWrappers
 {
     private readonly Task<ChromaSdkManager> _rzSdkManager;
     private readonly Task<DeviceManager> _deviceManager;
+    private readonly Task<KeyboardLayoutManager> _layoutManager;
 
     private const string StatusConflict = """✗""";
     private const string StatusCheck = """✔""";
     private const string StatusNoMatter = "‐";
     
-    public Control_SettingsDevicesAndWrappers(Task<ChromaSdkManager> rzSdkManager,
-        Task<DeviceManager> deviceManager)
+    public Control_SettingsDevicesAndWrappers(Task<ChromaSdkManager> rzSdkManager, Task<DeviceManager> deviceManager, Task<KeyboardLayoutManager> layoutManager)
     {
         _rzSdkManager = rzSdkManager;
         _deviceManager = deviceManager;
+        _layoutManager = layoutManager;
 
         InitializeComponent();
 
@@ -332,7 +334,6 @@ public partial class Control_SettingsDevicesAndWrappers
         await ChromaInstallationUtils.DisableDeviceControlAsync();
     }
 
-
     private void wrapper_install_lightfx_32_Click(object? sender, RoutedEventArgs e)
     {
         try
@@ -401,5 +402,11 @@ public partial class Control_SettingsDevicesAndWrappers
             ChromaInstallButton.IsEnabled = true;
             ChromaAdvancedButton.IsEnabled = true;
         };
+    }
+
+    private async void LayoutsRefreshButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var keyboardLayoutManager = await _layoutManager;
+        await keyboardLayoutManager.LoadBrandDefault();
     }
 }
