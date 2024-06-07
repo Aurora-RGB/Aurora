@@ -19,6 +19,7 @@ public sealed class EffectCanvas(
     public int Height { get; } = height;
     public int BiggestSize { get; } = Math.Max(width, height);
 
+    //TODO those 4 vars are about Control. Remove htem from here
     public float GridBaselineX { get; } = gridBaselineX;
     public float GridBaselineY { get; } = gridBaselineY;
     private float GridWidth { get; } = gridWidth;
@@ -26,8 +27,8 @@ public sealed class EffectCanvas(
 
     public Dictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; } = bitmapMap;
 
-    public float WidthCenter => Width / 2.0f;    //TODO center the keyboard
-    public float HeightCenter => Height / 2.0f;
+    public float WidthCenter { get; init; }
+    public float HeightCenter { get; init; }
 
     public float EditorToCanvasWidth => Width / GridWidth;
     public float EditorToCanvasHeight => Height / GridHeight;

@@ -35,9 +35,6 @@ internal sealed class KeyboardControlGenerator(
     public double BaselineX { get; private set; }
     public double BaselineY { get; private set; }
 
-    public double GridWidth => virtualKeyboard.Width;
-    public double GridHeight => virtualKeyboard.Height;
-
 
     internal async Task<Panel> Generate()
     {

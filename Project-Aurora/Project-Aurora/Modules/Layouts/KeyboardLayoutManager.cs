@@ -153,6 +153,7 @@ public sealed class KeyboardLayoutManager : IDisposable
                 Global.Configuration.HeadsetPreference,
                 Global.Configuration.ChromaLedsPreference
             );
+            CalculateBitmap(layoutLoad.VirtualKeyboardGroup, layoutLoad.KeyboardWidth, layoutLoad.KeyboardHeight);
 
             await Application.Current.Dispatcher.InvokeAsync(async () =>
             {
@@ -274,7 +275,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         await LoadBrandDefault();
     }
 
-    private void CalculateBitmap(KeyboardControlGenerator kcg, VirtualGroup virtualKeyboardGroup)
+    private void CalculateBitmap(VirtualGroup virtualKeyboardGroup, float keyboardWidth, float keyboardHeight)
     {
         double curWidth = 0;
         double curHeight = 0;
@@ -323,7 +324,7 @@ public sealed class KeyboardLayoutManager : IDisposable
                     curHeight = Math.Max(curHeight, y);
                 }
             }
-
+ 
             widthMax = Math.Max(widthMax, brX);
             heightMax = Math.Max(heightMax, brY);
         }
@@ -333,13 +334,17 @@ public sealed class KeyboardLayoutManager : IDisposable
             PixelToByte(virtualKeyboardGroup.Region.Width),
             PixelToByte(virtualKeyboardGroup.Region.Height),
             bitmapMap,
-            (float)kcg.BaselineX, (float)kcg.BaselineY,
-            (float)kcg.GridWidth, (float)kcg.GridHeight
-        );
+            0, 0,
+            PixelToByte(virtualKeyboardGroup.Region.Width),
+            PixelToByte(virtualKeyboardGroup.Region.Height)
+        )
+        {
+            WidthCenter = keyboardWidth / 2,
+            HeightCenter = keyboardHeight / 2,
+        };
     }
 
-    private async Task<Panel> CreateUserControl(VirtualGroup virtualKeyboardGroup, CancellationToken cancellationToken,
-        bool abstractKeycaps = false)
+    private async Task<Panel> CreateUserControl(VirtualGroup virtualKeyboardGroup, CancellationToken cancellationToken, bool abstractKeycaps = false)
     {
         if (!abstractKeycaps)
             _virtualKeyboardMap.Clear();
@@ -349,7 +354,6 @@ public sealed class KeyboardLayoutManager : IDisposable
             cancellationToken);
 
         var keyboardControl = await kcg.Generate();
-        CalculateBitmap(kcg, virtualKeyboardGroup);
         return keyboardControl;
     }
 

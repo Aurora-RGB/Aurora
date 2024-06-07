@@ -15,6 +15,8 @@ namespace AuroraRgb.Modules.Layouts;
 
 public class LayoutLoad(string layoutsPath, bool loadLinkLeds)
 {
+    public float KeyboardWidth { get; private set; }
+    public float KeyboardHeight { get; private set; }
     public Dictionary<DeviceKeys, DeviceKeys> LayoutKeyConversion { get; private set; } = new();
     public VirtualGroup VirtualKeyboardGroup { get; } = new();
 
@@ -64,6 +66,8 @@ public class LayoutLoad(string layoutsPath, bool loadLinkLeds)
             {
                 var layoutConfigPath = Path.Combine(layoutsPath, keyboardLayoutFile);
                 await LoadKeyboard(layoutConfigPath, cancellationToken);
+                KeyboardWidth = VirtualKeyboardGroup.Region.Width / (int)Global.Configuration.BitmapAccuracy;
+                KeyboardHeight = VirtualKeyboardGroup.Region.Height / (int)Global.Configuration.BitmapAccuracy;
             }
 
             if (PeripheralLayoutMap.MouseLayoutMap.TryGetValue(mousePreference, out var mouseLayoutJsonFile))
