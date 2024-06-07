@@ -7,7 +7,6 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Amib.Threading;
 using AuroraRgb.EffectsEngine;
@@ -414,7 +413,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         }
     }
 
-    protected override async void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
+    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.PropertiesChanged(sender, args);
 
@@ -429,7 +428,10 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         _imageAttributes.SetColorMatrix(new ColorMatrix(mtx));
         _imageAttributes.SetWrapMode(WrapMode.Clamp);
 
-        await ClearEvents();
+        var activeProcessMonitor = ProcessesModule.ActiveProcessMonitor.Result;
+        activeProcessMonitor.ActiveProcessChanged -= ProcessChanged;
+        WindowListener.Instance.WindowCreated -= WindowsChanged;
+        WindowListener.Instance.WindowDestroyed -= WindowsChanged;
         switch (Properties.AmbilightCaptureType)
         {
             case AmbilightCaptureType.SpecificProcess when !string.IsNullOrWhiteSpace(Properties.SpecificProcess):
@@ -440,7 +442,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
                 break;
             case AmbilightCaptureType.ForegroundApp:
                 _specificProcessHandle = User32.GetForegroundWindow();
-                (await ProcessesModule.ActiveProcessMonitor).ActiveProcessChanged += ProcessChanged;
+                activeProcessMonitor.ActiveProcessChanged += ProcessChanged;
                 break;
             case AmbilightCaptureType.Coordinates:
             case AmbilightCaptureType.EntireMonitor:
@@ -448,7 +450,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
                 break;
         }
         
-        await _screenCapture.DisposeAsync();
+        _screenCapture.Dispose();
         _screenCapture = new Temporary<IScreenCapture>(() =>
         {
             IScreenCapture screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
@@ -457,13 +459,6 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         });
 
         _invalidated = true;
-    }
-
-    private async Task ClearEvents()
-    {
-        (await ProcessesModule.ActiveProcessMonitor).ActiveProcessChanged -= ProcessChanged;
-        WindowListener.Instance.WindowCreated -= WindowsChanged;
-        WindowListener.Instance.WindowDestroyed -= WindowsChanged;
     }
 
     private void ProcessChanged(object? sender, EventArgs e)

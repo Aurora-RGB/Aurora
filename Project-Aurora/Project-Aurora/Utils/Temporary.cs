@@ -38,9 +38,9 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
             _lock.EnterWriteLock();
             _value = produce.Invoke();
             ValueCreated?.Invoke(this, EventArgs.Empty);
+            AddInstance(this);
             _lock.ExitWriteLock();
             _lock.ExitUpgradeableReadLock();
-            AddInstance(this);
             return _value;
         }
     }
@@ -112,10 +112,14 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
         Instances.Remove(this);
         _lock.ExitWriteLock();
 
-        if (_aliveTimer != null) await _aliveTimer.DisposeAsync();
-        if (_value is IDisposable disposable)
+        switch (_value)
         {
-            disposable.Dispose();
+            case IAsyncDisposable asyncDisposable:
+                await asyncDisposable.DisposeAsync();
+                break;
+            case IDisposable disposable:
+                disposable.Dispose();
+                break;
         }
     }
 }

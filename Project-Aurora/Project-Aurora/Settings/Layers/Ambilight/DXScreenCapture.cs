@@ -3,19 +3,20 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 
 namespace AuroraRgb.Settings.Layers.Ambilight;
 
-internal sealed class DxScreenCapture : IScreenCapture
+internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
 {
     public event EventHandler<Bitmap>? ScreenshotTaken;
     
     private static readonly Dictionary<Output5, DesktopDuplicator> Duplicators = new();
 
-    private static readonly Semaphore Semaphore = new(1, 1);
+    private static readonly SemaphoreSlim Semaphore = new(1, 1);
     private Rectangle _currentBounds = Rectangle.Empty;
     private DesktopDuplicator? _desktopDuplicator;
 
@@ -24,7 +25,7 @@ internal sealed class DxScreenCapture : IScreenCapture
         SetTarget(desktopRegion);
         try
         {
-            Semaphore.WaitOne();
+            Semaphore.Wait();
             if (_currentBounds.IsEmpty)
                 return;
             
@@ -82,7 +83,7 @@ internal sealed class DxScreenCapture : IScreenCapture
 
         try
         {
-            Semaphore.WaitOne();
+            Semaphore.Wait();
 
             if (Duplicators.TryGetValue(currentOutput, out _desktopDuplicator)) return;
             _desktopDuplicator = new DesktopDuplicator(currentOutput);
@@ -125,7 +126,7 @@ internal sealed class DxScreenCapture : IScreenCapture
     {
         try
         {
-            Semaphore.WaitOne();
+            Semaphore.Wait();
             _outputs = null;
             Duplicators.Clear();
         }
@@ -157,7 +158,20 @@ internal sealed class DxScreenCapture : IScreenCapture
     {
         try
         {
-            Semaphore.WaitOne();
+            Semaphore.Wait();
+            _desktopDuplicator = null;
+        }
+        finally
+        {
+            Semaphore.Release();
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await Semaphore.WaitAsync();
             _desktopDuplicator = null;
         }
         finally
