@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.IO;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
@@ -40,7 +39,6 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
 {
     private Image? _loadedImage;
     private string? _loadedImagePath = "";
-    private bool _invalidated = true;
 
     protected override UserControl CreateControl()
     {
@@ -61,7 +59,7 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
             _loadedImage = new Bitmap(Properties.ImagePath);
             _loadedImagePath = Properties.ImagePath;
 
-            _invalidated = true;
+            Invalidated = true;
 
             if (Properties.ImagePath.EndsWith(".gif") && ImageAnimator.CanAnimate(_loadedImage))
                 ImageAnimator.Animate(_loadedImage, null);
@@ -70,10 +68,10 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
         if (Properties.ImagePath.EndsWith(".gif") && ImageAnimator.CanAnimate(_loadedImage))
         {
             ImageAnimator.UpdateFrames(_loadedImage);
-            _invalidated = true;
+            Invalidated = true;
         }
 
-        if (_invalidated)
+        if (Invalidated)
         {
             EffectLayer.Clear();
         }
@@ -87,14 +85,7 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
             new RectangleF(0, 0, _loadedImage.Width, _loadedImage.Height)
         );
 
-        _invalidated = false;
+        Invalidated = false;
         return EffectLayer;
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-
-        _invalidated = true;
     }
 }

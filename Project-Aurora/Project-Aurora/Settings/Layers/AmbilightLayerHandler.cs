@@ -227,7 +227,6 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     private Bitmap _screenBitmap = new(8, 8);
     private ImageAttributes _imageAttributes = new();
 
-    private bool _invalidated; //properties changed
     private bool _brushChanged = true;
 
     private readonly Stopwatch _captureStopwatch = new();
@@ -288,10 +287,10 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
             return EffectLayer;
         }
 
-        if (_invalidated)
+        if (Invalidated)
         {
             EffectLayer.Clear();
-            _invalidated = false;
+            Invalidated = false;
         }
 
         lock (_screenBrush)
@@ -457,8 +456,6 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
             screenCapture.ScreenshotTaken += ScreenshotAction;
             return screenCapture;
         });
-
-        _invalidated = true;
     }
 
     private void ProcessChanged(object? sender, EventArgs e)

@@ -67,7 +67,6 @@ public sealed class TimerLayerHandlerProperties : LayerHandlerProperties2Color<T
 public class TimerLayerHandler : LayerHandler<TimerLayerHandlerProperties> {
     private readonly CustomTimer _timer;
     private bool _isActive;
-    private bool _invalidated;
 
     public TimerLayerHandler(): base("Timer Layer")
     {
@@ -93,7 +92,7 @@ public class TimerLayerHandler : LayerHandler<TimerLayerHandlerProperties> {
     }
 
     public override EffectLayer Render(IGameState gameState) {
-        if (_invalidated)
+        if (Invalidated)
         {
             EffectLayer.Clear();
         }
@@ -126,13 +125,6 @@ public class TimerLayerHandler : LayerHandler<TimerLayerHandlerProperties> {
         }
 
         return EffectLayer;
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-
-        _invalidated = true;
     }
 
     private void Timer_Elapsed(object? sender) {

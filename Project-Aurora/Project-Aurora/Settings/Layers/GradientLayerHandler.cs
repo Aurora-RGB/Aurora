@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -44,17 +43,10 @@ public class GradientLayerHandlerProperties : LayerHandlerProperties2Color<Gradi
 public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
 {
     private readonly EffectLayer _tempLayerBitmap = new("GradientLayer - Colors", true);
-    private bool _invalidated;
 
     public GradientLayerHandler(): base("GradientLayer")
     {
         Properties.PropertyChanged += PropertiesChanged;
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-        _invalidated = true;
     }
 
     protected override UserControl CreateControl()
@@ -63,10 +55,10 @@ public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
     }
     public override EffectLayer Render(IGameState gamestate)
     {
-        if (_invalidated)
+        if (Invalidated)
         {
             EffectLayer.Clear();
-            _invalidated = false;
+            Invalidated = false;
         }
         //If Wave Size 0 Gradiant Stop Moving Animation
         if (Properties.GradientConfig.GradientSize == 0)

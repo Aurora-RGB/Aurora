@@ -29,5 +29,4 @@ public interface ILayerHandler: IDisposable
 
     void SetApplication(Application profile);
     void SetGameState(IGameState gamestate);
-    void Dispose();
 }

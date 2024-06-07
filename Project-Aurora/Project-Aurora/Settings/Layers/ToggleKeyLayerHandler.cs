@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using AuroraRgb.EffectsEngine;
@@ -35,7 +34,6 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
     private bool _state = true;
     private readonly SolidBrush _primaryBrush;
     private readonly SolidBrush _secondaryBrush;
-    private bool _invalidated;
 
     public ToggleKeyLayerHandler(): base("ToggleKeyLayer")
     {
@@ -63,23 +61,15 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
         return new Control_ToggleKeyLayer(this);
     }
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (_invalidated)
+        if (Invalidated)
         {
             EffectLayer.Clear();
-            _invalidated = false;
+            Invalidated = false;
         }
         EffectLayer.Set(Properties.Sequence, _state ? _primaryBrush : _secondaryBrush);
         return EffectLayer;
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-        _primaryBrush.Color = Properties.PrimaryColor;
-        _secondaryBrush.Color = Properties.SecondaryColor;
-        _invalidated = true;
     }
 
     private void InputEvents_KeyDown(object? sender, EventArgs e)

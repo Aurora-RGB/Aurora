@@ -10,33 +10,31 @@ namespace AuroraRgb.Profiles.Dota_2.Layers;
 /// </summary>
 public partial class Control_Dota2BackgroundLayer
 {
-    private bool settingsset;
+    private bool _settingsSet;
 
     public Control_Dota2BackgroundLayer()
     {
         InitializeComponent();
     }
 
-    public Control_Dota2BackgroundLayer(Dota2BackgroundLayerHandler datacontext)
+    public Control_Dota2BackgroundLayer(Dota2BackgroundLayerHandler dataContext)
     {
         InitializeComponent();
 
-        DataContext = datacontext;
+        DataContext = dataContext;
     }
 
-    public void SetSettings()
+    private void SetSettings()
     {
-        if (DataContext is Dota2BackgroundLayerHandler && !settingsset)
-        {
-            ColorPicker_Dire.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as Dota2BackgroundLayerHandler).Properties._DireColor ?? System.Drawing.Color.Empty);
-            ColorPicker_Radiant.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as Dota2BackgroundLayerHandler).Properties._RadiantColor ?? System.Drawing.Color.Empty);
-            ColorPicker_Default.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as Dota2BackgroundLayerHandler).Properties._DefaultColor ?? System.Drawing.Color.Empty);
-            Checkbox_DimEnabled.IsChecked = (DataContext as Dota2BackgroundLayerHandler).Properties._DimEnabled;
-            TextBox_DimValue.Content = (int)(DataContext as Dota2BackgroundLayerHandler).Properties._DimDelay + "s";
-            Slider_DimSelector.Value = (DataContext as Dota2BackgroundLayerHandler).Properties._DimDelay.Value;
+        if (DataContext is not Dota2BackgroundLayerHandler backgroundLayer || _settingsSet) return;
+        ColorPicker_Dire.SelectedColor = ColorUtils.DrawingColorToMediaColor(backgroundLayer.Properties.DireColor);
+        ColorPicker_Radiant.SelectedColor = ColorUtils.DrawingColorToMediaColor(backgroundLayer.Properties.RadiantColor);
+        ColorPicker_Default.SelectedColor = ColorUtils.DrawingColorToMediaColor(backgroundLayer.Properties.DefaultColor);
+        Checkbox_DimEnabled.IsChecked = backgroundLayer.Properties.DimEnabled;
+        TextBox_DimValue.Content = (int)backgroundLayer.Properties.DimDelay + "s";
+        Slider_DimSelector.Value = backgroundLayer.Properties.DimDelay;
 
-            settingsset = true;
-        }
+        _settingsSet = true;
     }
 
     private void UserControl_Loaded(object? sender, RoutedEventArgs e)
@@ -48,36 +46,33 @@ public partial class Control_Dota2BackgroundLayer
 
     private void ColorPicker_Dire_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Dota2BackgroundLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as Dota2BackgroundLayerHandler).Properties._DireColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is Dota2BackgroundLayerHandler backgroundLayer && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+             backgroundLayer.Properties.DireColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Radiant_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Dota2BackgroundLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as Dota2BackgroundLayerHandler).Properties._RadiantColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is Dota2BackgroundLayerHandler backgroundLayer && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+             backgroundLayer.Properties.RadiantColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Default_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Dota2BackgroundLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as Dota2BackgroundLayerHandler).Properties._DefaultColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is Dota2BackgroundLayerHandler backgroundLayer && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+             backgroundLayer.Properties.DefaultColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void Checkbox_DimEnabled_enabled_Checked(object? sender, RoutedEventArgs e)
     {
-        if (IsLoaded && settingsset && DataContext is Dota2BackgroundLayerHandler && sender is CheckBox && (sender as CheckBox).IsChecked.HasValue)
-            (DataContext as Dota2BackgroundLayerHandler).Properties._DimEnabled  = (sender as CheckBox).IsChecked.Value;
+        if (IsLoaded && _settingsSet && DataContext is Dota2BackgroundLayerHandler backgroundLayer && sender is CheckBox box && box.IsChecked.HasValue)
+             backgroundLayer.Properties.DimEnabled  = box.IsChecked.Value;
     }
 
     private void Slider_DimSelector_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        if (IsLoaded && settingsset && DataContext is Dota2BackgroundLayerHandler && sender is Slider)
-        {
-            (DataContext as Dota2BackgroundLayerHandler).Properties._DimDelay = (sender as Slider).Value;
+        if (!IsLoaded || !_settingsSet || DataContext is not Dota2BackgroundLayerHandler backgroundLayer || sender is not Slider slider) return;
+        backgroundLayer.Properties.DimDelay = slider.Value;
 
-            if (TextBox_DimValue is Label)
-                TextBox_DimValue.Content = (int)(sender as Slider).Value + "s";
-        }
+        TextBox_DimValue.Content = (int)slider.Value + "s";
     }
 }

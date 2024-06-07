@@ -73,7 +73,6 @@ public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLay
 [LayerHandlerMeta(Name = "Logitech Lightsync", IsDefault = true)]
 public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProperties>
 {
-    private bool _invalidated = true;
     private readonly SolidBrush _background = new(Color.Empty);
     
     public LogitechLayerHandler() : base("Logitech Layer")
@@ -88,7 +87,7 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
 
     private void LogitechSdkListenerOnColorsUpdated(object? sender, EventArgs e)
     {
-        _invalidated = true;
+        Invalidated = true;
     }
 
     public override EffectLayer Render(IGameState gamestate)
@@ -99,7 +98,7 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
             return EffectLayer.EmptyLayer;
         }
 
-        if (!_invalidated)
+        if (!Invalidated)
         {
             return EffectLayer;
         }

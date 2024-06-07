@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Controls;
@@ -45,11 +44,6 @@ namespace AuroraRgb.Settings.Layers {
         public RadialLayerHandler(): base("RadialLayer")
         {
             Properties.PropertyChanged += PropertiesChanged;
-        }
-
-        private void PropertiesChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            invalidated = true;
         }
 
         public override EffectLayer Render(IGameState gamestate) {

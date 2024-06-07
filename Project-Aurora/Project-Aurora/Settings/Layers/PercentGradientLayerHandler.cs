@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -40,11 +39,6 @@ public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLa
         return new Control_PercentGradientLayer(this);
     }
 
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-        Invalidated = true;
-    }
     public override EffectLayer Render(IGameState state)
     {
         if (Invalidated)

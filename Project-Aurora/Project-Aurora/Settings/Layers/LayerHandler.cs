@@ -81,7 +81,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
     [JsonIgnore]
     private readonly Temporary<EffectLayer> _effectLayer;
 
-    private static PropertyChangedEventArgs ConstPropertyChangedEventArgs = new("");
+    private static readonly PropertyChangedEventArgs ConstPropertyChangedEventArgs = new("");
     protected EffectLayer EffectLayer
     {
         get
@@ -94,6 +94,8 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
             return _effectLayer.Value;
         }
     }
+
+    protected bool Invalidated = true;
 
     protected LayerHandler(): this("Unoptimized Layer"){}
 
@@ -226,7 +228,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         
     protected virtual void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
-            
+        Invalidated = true;
     }
 
     private void PropertiesChanged(object? sender, EventArgs e)

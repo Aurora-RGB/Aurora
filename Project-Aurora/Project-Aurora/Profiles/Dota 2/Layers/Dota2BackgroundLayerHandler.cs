@@ -11,57 +11,74 @@ namespace AuroraRgb.Profiles.Dota_2.Layers;
 
 public class Dota2BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Dota2BackgroundLayerHandlerProperties>
 {
-    public Color? _DefaultColor { get; set; }
+    private Color? _defaultColor;
 
-    [JsonIgnore]
-    public Color DefaultColor => Logic?._DefaultColor ?? _DefaultColor ?? Color.Empty;
+    [JsonProperty("_DefaultColor")]
+    public Color DefaultColor
+    {
+        get => Logic?._defaultColor ?? _defaultColor ?? Color.Empty;
+        set => _defaultColor = value;
+    }
 
-    public Color? _RadiantColor { get; set; }
+    private Color? _radiantColor;
 
-    [JsonIgnore]
-    public Color RadiantColor => Logic?._RadiantColor ?? _RadiantColor ?? Color.Empty;
+    [JsonProperty("_RadiantColor")]
+    public Color RadiantColor
+    {
+        get => Logic?._radiantColor ?? _radiantColor ?? Color.Empty;
+        set => _radiantColor = value;
+    }
 
-    public Color? _DireColor { get; set; }
+    private Color? _direColor;
 
-    [JsonIgnore]
-    public Color DireColor => Logic?._DireColor ?? _DireColor ?? Color.Empty;
+    [JsonProperty("_DireColor")]
+    public Color DireColor
+    {
+        get => Logic?._direColor ?? _direColor ?? Color.Empty;
+        set => _direColor = value;
+    }
 
-    public bool? _DimEnabled { get; set; }
+    private bool? _dimEnabled;
 
-    [JsonIgnore]
-    public bool DimEnabled => Logic?._DimEnabled ?? _DimEnabled ?? false;
+    [JsonProperty("_DimEnabled")]
+    public bool DimEnabled
+    {
+        get => Logic?._dimEnabled ?? _dimEnabled ?? false;
+        set => _dimEnabled = value;
+    }
 
-    public double? _DimDelay { get; set; }
+    private double? _dimDelay;
 
-    [JsonIgnore]
-    public double DimDelay => Logic?._DimDelay ?? _DimDelay ?? 0.0;
+    [JsonProperty("_DimDelay")]
+    public double DimDelay
+    {
+        get => Logic?._dimDelay ?? _dimDelay ?? 0.0;
+        set => _dimDelay = value;
+    }
 
-    public Dota2BackgroundLayerHandlerProperties() : base() { }
+    public Dota2BackgroundLayerHandlerProperties()
+    { }
 
-    public Dota2BackgroundLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public Dota2BackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
         base.Default();
 
-        _DefaultColor = Color.FromArgb(140, 190, 230);
-        _RadiantColor = Color.FromArgb(0, 140, 30);
-        _DireColor = Color.FromArgb(200, 0, 0);
-        _DimEnabled = true;
-        _DimDelay = 15;
+        _defaultColor = Color.FromArgb(140, 190, 230);
+        _radiantColor = Color.FromArgb(0, 140, 30);
+        _direColor = Color.FromArgb(200, 0, 0);
+        _dimEnabled = true;
+        _dimDelay = 15;
     }
 
 }
 
-public class Dota2BackgroundLayerHandler : LayerHandler<Dota2BackgroundLayerHandlerProperties>
+public class Dota2BackgroundLayerHandler() : LayerHandler<Dota2BackgroundLayerHandlerProperties>("Dota 2 - Background")
 {
-    private bool isDimming;
-    private double dim_value = 1.0;
-    private int dim_bg_at = 15;
-
-    public Dota2BackgroundLayerHandler(): base("Dota 2 - Background")
-    {
-    }
+    private bool _isDimming;
+    private double _dimValue = 1.0;
+    private int _dimBgAt = 15;
 
     protected override UserControl CreateControl()
     {
@@ -75,50 +92,46 @@ public class Dota2BackgroundLayerHandler : LayerHandler<Dota2BackgroundLayerHand
 
         if (dota2State.Previously.Hero.HealthPercent == 0 && dota2State.Hero.HealthPercent == 100 && !dota2State.Previously.Hero.IsAlive && dota2State.Hero.IsAlive)
         {
-            isDimming = false;
-            dim_bg_at = dota2State.Map.GameTime + (int)Properties.DimDelay;
-            dim_value = 1.0;
+            _isDimming = false;
+            _dimBgAt = dota2State.Map.GameTime + (int)Properties.DimDelay;
+            _dimValue = 1.0;
         }
 
-        Color bgColor = dota2State.Player.Team switch
+        var bgColor = dota2State.Player.Team switch
         {
             PlayerTeam.Dire => Properties.DireColor,
             PlayerTeam.Radiant => Properties.RadiantColor,
             _ => Properties.DefaultColor
         };
 
-        if (dota2State.Player.Team == PlayerTeam.Dire || dota2State.Player.Team == PlayerTeam.Radiant)
+        if (dota2State.Player.Team is PlayerTeam.Dire or PlayerTeam.Radiant)
         {
-            if (dim_bg_at <= dota2State.Map.GameTime || !dota2State.Hero.IsAlive)
+            if (_dimBgAt <= dota2State.Map.GameTime || !dota2State.Hero.IsAlive)
             {
-                isDimming = true;
+                _isDimming = true;
                 bgColor = ColorUtils.MultiplyColorByScalar(bgColor, GetDimmingValue());
             }
             else
             {
-                isDimming = false;
-                dim_value = 1.0;
+                _isDimming = false;
+                _dimValue = 1.0;
             }
         }
 
-        if (_currentColor.Color != bgColor)
-        {
-            _currentColor = new SolidBrush(bgColor);
-            EffectLayer.Clear();
-            EffectLayer.Fill(_currentColor);
-        }
+        if (!Invalidated && _currentColor.Color == bgColor) return EffectLayer;
+
+        _currentColor = new SolidBrush(bgColor);
+        EffectLayer.Clear();
+        EffectLayer.Fill(_currentColor);
+        Invalidated = false;
 
         return EffectLayer;
     }
 
     private double GetDimmingValue()
     {
-        if (isDimming && Properties.DimEnabled)
-        {
-            dim_value -= 0.02;
-            return dim_value = (dim_value < 0.0 ? 0.0 : dim_value);
-        }
-
-        return dim_value = 1.0;
+        if (!_isDimming || !Properties.DimEnabled) return _dimValue = 1.0;
+        _dimValue -= 0.02;
+        return _dimValue = _dimValue < 0.0 ? 0.0 : _dimValue;
     }
 }

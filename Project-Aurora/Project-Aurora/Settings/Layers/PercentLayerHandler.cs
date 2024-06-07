@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
@@ -98,14 +97,10 @@ public class PercentLayerHandlerProperties : PercentLayerHandlerProperties<Perce
     public PercentLayerHandlerProperties(bool empty = false) : base(empty) { }
 }
 
-public class PercentLayerHandler<TProperty> : LayerHandler<TProperty> where TProperty : PercentLayerHandlerProperties<TProperty>
+public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("PercentLayer")
+    where TProperty : PercentLayerHandlerProperties<TProperty>
 {
     private double _value;
-    protected bool Invalidated;
-
-    public PercentLayerHandler() : base("PercentLayer")
-    {
-    }
 
     public override EffectLayer Render(IGameState state)
     {
@@ -146,13 +141,6 @@ public class PercentLayerHandler<TProperty> : LayerHandler<TProperty> where TPro
                 Properties.MaxVariablePath = VariablePath.Empty;
         }
         base.SetApplication(profile);
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
-
-        Invalidated = true;
     }
 }
 
