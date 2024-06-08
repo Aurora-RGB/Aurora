@@ -5,7 +5,7 @@ namespace AuroraRgb.Profiles.Witcher3;
 
 public sealed class GameEventWitcher3 : LightEvent
 {
-    private Witcher3GameStateListener _gameStateListener;
+    private readonly Witcher3GameStateListener _gameStateListener;
 
     //The mod this uses was taken from https://github.com/SpoinkyNL/Artemis/, with Spoinky's permission
     public GameEventWitcher3()
@@ -44,6 +44,5 @@ public sealed class GameEventWitcher3 : LightEvent
 
         _gameStateListener.GameStateChanged -= GameStateListenerOnGameStateChanged;
         _gameStateListener.StopListening();
-        _gameStateListener = null;
     }
 }

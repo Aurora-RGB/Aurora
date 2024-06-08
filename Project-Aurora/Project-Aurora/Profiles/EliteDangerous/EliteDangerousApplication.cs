@@ -1,4 +1,3 @@
-using System;
 using AuroraRgb.Profiles.EliteDangerous.Layers;
 
 namespace AuroraRgb.Profiles.EliteDangerous;
@@ -6,11 +5,11 @@ namespace AuroraRgb.Profiles.EliteDangerous;
 public class EliteDangerous : Application
 {
     public EliteDangerous()
-        : base(new LightEventConfig(new Lazy<LightEvent>(() => new GameEvent_EliteDangerous()))
+        : base(new LightEventConfig(() => new GameEvent_EliteDangerous())
         {
             Name = "Elite: Dangerous",
             ID = "EliteDangerous",
-            ProcessNames = new[] { "EliteDangerous64.exe" },
+            ProcessNames = ["EliteDangerous64.exe"],
             SettingsType = typeof(EliteDangerousSettings),
             ProfileType = typeof(EliteDangerousProfile),
             OverviewControlType = typeof(Control_EliteDangerous),

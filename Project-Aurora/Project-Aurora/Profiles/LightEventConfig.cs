@@ -8,11 +8,13 @@ using System.Windows.Controls;
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
+using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles;
 
-public class LightEventConfig(Lazy<LightEvent> lightEvent) : INotifyPropertyChanged
+public class LightEventConfig(Func<LightEvent> lightEvent) : INotifyPropertyChanged
 {
+    private readonly Temporary<LightEvent> _lightEvent = new(lightEvent);
     public string[] ProcessNames
     {
         get => _processNames;
@@ -42,8 +44,8 @@ public class LightEventConfig(Lazy<LightEvent> lightEvent) : INotifyPropertyChan
 
     public Type? GameStateType { get; init; }
 
-    private string[] _processNames = Array.Empty<string>();
-    public LightEvent Event => lightEvent.Value;
+    private string[] _processNames = [];
+    public LightEvent Event => _lightEvent.Value;
 
     public string IconURI { get; init; } = "UNSET ICON";
 
@@ -54,7 +56,7 @@ public class LightEventConfig(Lazy<LightEvent> lightEvent) : INotifyPropertyChan
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    public LightEventConfig() : this(new Lazy<LightEvent>(() => new GameEvent_Generic()))
+    public LightEventConfig() : this(() => new GameEvent_Generic())
     {
     }
 

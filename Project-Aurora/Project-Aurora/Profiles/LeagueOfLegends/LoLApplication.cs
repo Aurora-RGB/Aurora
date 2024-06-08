@@ -1,15 +1,14 @@
-﻿using System;
-using AuroraRgb.Profiles.LeagueOfLegends.Layers;
+﻿using AuroraRgb.Profiles.LeagueOfLegends.Layers;
 
 namespace AuroraRgb.Profiles.LeagueOfLegends;
 
 public class LoL : Application
 {
     public LoL()
-        : base(new LightEventConfig(new Lazy<LightEvent>(() => new GameEvent_LoL())) { 
+        : base(new LightEventConfig(() => new GameEvent_LoL()) { 
             Name = "League of Legends",
             ID = "league_of_legends",
-            ProcessNames = new[] { "league of legends.exe" },
+            ProcessNames = ["league of legends.exe"],
             ProfileType = typeof(LoLGSIProfile),
             OverviewControlType = typeof(Control_LoL),
             GameStateType = typeof(GSI.GameState_LoL),

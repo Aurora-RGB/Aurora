@@ -348,4 +348,12 @@ public class GameEvent_EliteDangerous : GameEvent_Generic
         StopWatchingJournalFile();
         _statusFileWatcher.Stop();
     }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+
+        _statusFileWatcher.Stop();
+        _journalFileWatcher?.Stop();
+    }
 }

@@ -35,7 +35,7 @@ public class GenericApplication : Application
         }
     }
 
-    public GenericApplication(string processName) : base(new LightEventConfig(new Lazy<LightEvent>(() => new Event_GenericApplication())) {
+    public GenericApplication(string processName) : base(new LightEventConfig(() => new Event_GenericApplication()) {
         Name = "Generic Application",
         ID = processName,
         ProcessNames = [processName],

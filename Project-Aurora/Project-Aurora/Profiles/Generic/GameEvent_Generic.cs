@@ -1,15 +1,12 @@
 ﻿using System;
-using AuroraRgb.Settings;
-using AuroraRgb.Settings.Layers;
 
 namespace AuroraRgb.Profiles.Generic;
 
 public class GameEvent_Generic : LightEvent
 {
-
     public override void SetGameState(IGameState new_game_state)
     {
-        if (Application.Config.GameStateType != null && !new_game_state.GetType().Equals(Application.Config.GameStateType))
+        if (Application.Config.GameStateType != null && new_game_state.GetType() != Application.Config.GameStateType)
             return;
 
         _game_state = new_game_state;
@@ -18,14 +15,14 @@ public class GameEvent_Generic : LightEvent
 
     private void UpdateLayerGameStates()
     {
-        ApplicationProfile settings = Application.Profile;
+        var settings = Application.Profile;
         if (settings == null)
             return;
 
-        foreach (Layer lyr in settings.Layers)
+        foreach (var lyr in settings.Layers)
             lyr.SetGameState(_game_state);
 
-        foreach (Layer lyr in settings.OverlayLayers)
+        foreach (var lyr in settings.OverlayLayers)
             lyr.SetGameState(_game_state);
     }
 

@@ -1,12 +1,11 @@
-﻿using System;
-using AuroraRgb.Profiles.ETS2.Layers;
+﻿using AuroraRgb.Profiles.ETS2.Layers;
 using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles.ETS2;
 
 public class ETS2 : Application {
 
-    public ETS2() : base(new LightEventConfig(new Lazy<LightEvent>(() => new GameEvent_ETS2("eurotrucks2"))) {
+    public ETS2() : base(new LightEventConfig(() => new GameEvent_ETS2("eurotrucks2")) {
         Name = "Euro Truck Simulator 2",
         ID = "ets2",
         AppID = "227300",
