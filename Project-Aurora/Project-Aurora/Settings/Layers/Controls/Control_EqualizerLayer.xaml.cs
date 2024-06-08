@@ -64,10 +64,9 @@ public partial class ControlEqualizerLayer
         }
 
         updown_max_amplitude_value.Value = (int)((EqualizerLayerHandler)DataContext).Properties.MaxAmplitude;
-        Clr_dim_color.SelectedColor = ColorUtils.DrawingColorToMediaColor(
-            ((EqualizerLayerHandler)DataContext).Properties._DimColor ?? System.Drawing.Color.Empty);
+        Clr_dim_color.SelectedColor = ColorUtils.DrawingColorToMediaColor(((EqualizerLayerHandler)DataContext).Properties.DimColor);
         lstbx_frequencies.ItemsSource = ((EqualizerLayerHandler)DataContext).Properties.Frequencies;
-        chkbox_scale_with_system_volume.IsChecked = ((EqualizerLayerHandler)DataContext).Properties._ScaleWithSystemVolume;
+        chkbox_scale_with_system_volume.IsChecked = ((EqualizerLayerHandler)DataContext).Properties.ScaleWithSystemVolume;
 
         _settingsSet = true;
     }
@@ -151,13 +150,13 @@ public partial class ControlEqualizerLayer
     private void chkbox_scale_with_system_sound_Checked(object? sender, RoutedEventArgs e)
     {
         if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler && (sender as CheckBox)?.IsChecked != null)
-            ((EqualizerLayerHandler)DataContext).Properties._ScaleWithSystemVolume = ((CheckBox)sender).IsChecked.Value;
+            ((EqualizerLayerHandler)DataContext).Properties.ScaleWithSystemVolume = ((CheckBox)sender).IsChecked.Value;
     }
 
     private void Clr_dim_color_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler && (sender as ColorPicker)?.SelectedColor != null)
-            ((EqualizerLayerHandler)DataContext).Properties._DimColor = ColorUtils.MediaColorToDrawingColor(((ColorPicker)sender).SelectedColor.Value);
+            ((EqualizerLayerHandler)DataContext).Properties.DimColor = ColorUtils.MediaColorToDrawingColor(((ColorPicker)sender).SelectedColor.Value);
     }
 
     private void KeySequence_keys_SequenceUpdated(object? sender, RoutedPropertyChangedEventArgs<KeySequence> e)
@@ -178,19 +177,21 @@ public partial class ControlEqualizerLayer
 
     private void btn_AddFreq_Click(object? sender, RoutedEventArgs e)
     {
-        if (float.TryParse(txtBox_newFreqValue.Text, out var value))
+        if (!float.TryParse(txtBox_newFreqValue.Text, out var value))
         {
-            if (value >= 0.0f && value <= 16000.0f)
-            {
-                ((EqualizerLayerHandler)DataContext).Properties.Frequencies.Add(value);
-
-                lstbx_frequencies.Items.Refresh();
-            }
-            else
-                MessageBox.Show("Frequency must be in-between 0 Hz and 16000 Hz");
-        }
-        else
             MessageBox.Show("Entered value is not a number!");
+            return;
+        }
+
+        if (value is < 0.0f or > 20000.0f)
+        {
+            MessageBox.Show("Frequency must be in-between 0 Hz and 20000 Hz");
+            return;
+        }
+
+        ((EqualizerLayerHandler)DataContext).Properties.Frequencies.Add(value);
+
+        lstbx_frequencies.Items.Refresh();
     }
 
     private void btn_DeleteFreq_Click(object? sender, RoutedEventArgs e)

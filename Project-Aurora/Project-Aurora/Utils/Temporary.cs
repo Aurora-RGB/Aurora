@@ -8,12 +8,6 @@ namespace AuroraRgb.Utils;
 public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposable
     where T : class
 {
-    private static readonly List<Temporary<T>> Instances = [];
-    // ReSharper disable once StaticMemberInGenericType
-    private static Timer? _aliveTimer;
-    // ReSharper disable once StaticMemberInGenericType
-    private static readonly ReaderWriterLockSlim TimerLock = new();
-
     public event EventHandler? ValueCreated;
 
     private T? _value;
@@ -46,6 +40,45 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
     }
 
     public bool HasValue => _value != null;
+
+    public void Dispose()
+    {
+        _lock.EnterWriteLock();
+        Instances.Remove(this);
+        _lock.ExitWriteLock();
+
+        if (_value is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+        _value = null;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _lock.EnterWriteLock();
+        Instances.Remove(this);
+        _lock.ExitWriteLock();
+
+        switch (_value)
+        {
+            case IAsyncDisposable asyncDisposable:
+                await asyncDisposable.DisposeAsync();
+                break;
+            case IDisposable disposable:
+                disposable.Dispose();
+                break;
+        }
+    }
+
+    #region static
+
+    private static readonly List<Temporary<T>> Instances = [];
+    // ReSharper disable once StaticMemberInGenericType
+    private static Timer? _aliveTimer;
+    // ReSharper disable once StaticMemberInGenericType
+    private static readonly ReaderWriterLockSlim TimerLock = new();
+    
 
     private static void AddInstance(Temporary<T> temporary)
     {
@@ -93,33 +126,5 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
         return true;
     }
 
-    public void Dispose()
-    {
-        _lock.EnterWriteLock();
-        Instances.Remove(this);
-        _lock.ExitWriteLock();
-
-        if (_value is IDisposable disposable)
-        {
-            disposable.Dispose();
-        }
-        _value = null;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        _lock.EnterWriteLock();
-        Instances.Remove(this);
-        _lock.ExitWriteLock();
-
-        switch (_value)
-        {
-            case IAsyncDisposable asyncDisposable:
-                await asyncDisposable.DisposeAsync();
-                break;
-            case IDisposable disposable:
-                disposable.Dispose();
-                break;
-        }
-    }
+    #endregion
 }

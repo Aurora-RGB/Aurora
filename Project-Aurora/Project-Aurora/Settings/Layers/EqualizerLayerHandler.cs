@@ -130,15 +130,23 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
         set => _maxAmplitude = value;
     }
 
+    private bool? _scaleWithSystemVolume;
+    [JsonProperty("_ScaleWithSystemVolume")]
     [LogicOverridable("Scale with System Volume")]
-    public bool? _ScaleWithSystemVolume { get; set; }
-    [JsonIgnore]
-    public bool ScaleWithSystemVolume => Logic?._ScaleWithSystemVolume ?? _ScaleWithSystemVolume ?? false;
+    public bool ScaleWithSystemVolume
+    {
+        get => Logic?._scaleWithSystemVolume ?? _scaleWithSystemVolume ?? false;
+        set => _scaleWithSystemVolume = value;
+    }
 
+    private Color? _dimColor;
+    [JsonProperty("_DimColor")]
     [LogicOverridable("Background Color")]
-    public Color? _DimColor { get; set; }
-    [JsonIgnore]
-    public Color DimColor => Logic?._DimColor ?? _DimColor ?? Color.Empty;
+    public Color DimColor
+    {
+        get => Logic?._dimColor ?? _dimColor ?? Color.Empty;
+        set => _dimColor = value;
+    }
 
     private SortedSet<float>? _frequencies;
     [JsonProperty("_Frequencies")]
@@ -178,9 +186,9 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
         _eqType = EqualizerType.PowerBars;
         _viewType = EqualizerPresentationType.SolidColor;
         _maxAmplitude = 1.0f;
-        _ScaleWithSystemVolume = false;
+        _scaleWithSystemVolume = false;
         _backgroundMode = EqualizerBackgroundMode.Disabled;
-        _DimColor = Color.FromArgb(169, 0, 0, 0);
+        _dimColor = Color.FromArgb(169, 0, 0, 0);
         _frequencies = new SortedSet<float> { 50, 95, 130, 180, 250, 350, 500, 620, 700, 850, 1200, 1600, 2200, 3000, 4100, 5600, 7700, 10000 };
         _deviceId = "";
     }
@@ -200,8 +208,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private void DeviceChanged(object? sender, EventArgs e)
     {
-        var deviceProxyValue = _deviceProxy.Value;
-        if (deviceProxyValue.Device == null || deviceProxyValue.WaveIn == null)
+        var deviceProxyValue = sender as AudioDeviceProxy;
+        if (deviceProxyValue?.Device == null || deviceProxyValue.WaveIn == null)
             return;
         _freq = deviceProxyValue.Device.AudioClient.MixFormat.SampleRate;
         _channels = deviceProxyValue.WaveIn.WaveFormat.Channels;
