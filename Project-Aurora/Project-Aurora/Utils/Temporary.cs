@@ -78,7 +78,6 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
     private static Timer? _aliveTimer;
     // ReSharper disable once StaticMemberInGenericType
     private static readonly ReaderWriterLockSlim TimerLock = new();
-    
 
     private static void AddInstance(Temporary<T> temporary)
     {
@@ -97,7 +96,7 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
     {
         TimerLock.EnterReadLock();
 
-        Instances.RemoveAll(CheckInstance);
+        Instances.RemoveAll(ExpiredInstance);
         if (Instances.Count != 0)
         {
             TimerLock.ExitReadLock();
@@ -110,12 +109,11 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
         TimerLock.ExitReadLock();
     }
 
-    private static bool CheckInstance(Temporary<T> temporary)
+    private static bool ExpiredInstance(Temporary<T> temporary)
     {
         var now = Time.GetMillisecondsSinceEpoch();
         if (now - temporary._lastAccess <= temporary._inactiveTimeMilliseconds || temporary._value == null) return false;
 
-        // 20 sec passed since last render, dispose proxy
         var temporaryValue = temporary._value;
         temporary._value = null;
         if (temporaryValue is IDisposable disposable)
