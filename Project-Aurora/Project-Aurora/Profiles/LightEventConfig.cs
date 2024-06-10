@@ -12,9 +12,9 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles;
 
-public class LightEventConfig(Func<LightEvent> lightEvent) : INotifyPropertyChanged
+public class LightEventConfig : INotifyPropertyChanged
 {
-    private readonly Temporary<LightEvent> _lightEvent = new(lightEvent);
+    private readonly Temporary<LightEvent> _lightEvent;
     public string[] ProcessNames
     {
         get => _processNames;
@@ -44,6 +44,8 @@ public class LightEventConfig(Func<LightEvent> lightEvent) : INotifyPropertyChan
 
     public Type? GameStateType { get; init; }
 
+    public Application? Application { get; set; }
+
     private string[] _processNames = [];
     public LightEvent Event => _lightEvent.Value;
 
@@ -58,6 +60,16 @@ public class LightEventConfig(Func<LightEvent> lightEvent) : INotifyPropertyChan
 
     public LightEventConfig() : this(() => new GameEvent_Generic())
     {
+    }
+
+    public LightEventConfig(Func<LightEvent> lightEvent)
+    {
+        _lightEvent = new Temporary<LightEvent>(() =>
+        {
+            var evLightEvent = lightEvent.Invoke();
+            evLightEvent.Application = Application;
+            return evLightEvent;
+        });
     }
 
     public LightEventConfig WithLayer<T>() where T : ILayerHandler {

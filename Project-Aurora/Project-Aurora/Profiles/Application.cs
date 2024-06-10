@@ -19,7 +19,6 @@ using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using AuroraRgb.Vorons;
 using Common.Utils;
-using Debounce.Core;
 using IronPython.Hosting;
 using IronPython.Runtime.Types;
 using JetBrains.Annotations;
@@ -59,8 +58,6 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private readonly Debouncer _saveProfileDebouncer;
-
     private static Uri GetBaseUri()
     {
         if (System.Windows.Application.Current.MainWindow is ConfigUi mainWindow)
@@ -75,7 +72,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     {
         Config = config;
         SettingsSavePath = Path.Combine(GetProfileFolderPath(), "settings.json");
-        config.Event.Application = this;
+        config.Application = this;
         config.Event.ResetGameState();
         Profiles = new ObservableCollection<ApplicationProfile>();
         Profiles.CollectionChanged += (_, e) =>
