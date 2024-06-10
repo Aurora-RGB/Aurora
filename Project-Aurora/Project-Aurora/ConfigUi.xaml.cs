@@ -502,6 +502,11 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
                 _layerPresenter.Layer = value;
                 SelectedControl = _layerPresenter;
             }
+
+            if (FocusedApplication?.Profile != null)
+            {
+                FocusedApplication.SaveProfile(FocusedApplication.Profile);
+            }
         }
     }
     private Layer? _selectedLayer;
