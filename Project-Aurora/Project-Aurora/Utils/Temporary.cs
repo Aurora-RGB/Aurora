@@ -10,32 +10,36 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
 {
     public event EventHandler? ValueCreated;
 
-    private T? _value;
+    private readonly object _createLock = new();
+    private volatile T? _value;
 
     private long _lastAccess = Time.GetMillisecondsSinceEpoch();
     private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
-    private readonly ReaderWriterLockSlim _lock = new(LockRecursionPolicy.SupportsRecursion);
 
     public T Value
     {
         get
         {
-            _lock.EnterUpgradeableReadLock();
             _lastAccess = Time.GetMillisecondsSinceEpoch();
 
             if (_value != null)
             {
-                _lock.ExitUpgradeableReadLock();
                 return _value;
             }
 
-            _lock.EnterWriteLock();
-            _value = produce.Invoke();
-            ValueCreated?.Invoke(this, EventArgs.Empty);
-            AddInstance(this);
-            _lock.ExitWriteLock();
-            _lock.ExitUpgradeableReadLock();
-            return _value;
+            lock(_createLock)
+            {
+                if (_value != null)
+                {
+                    return _value;
+                }
+
+                var value = produce.Invoke();
+                _value = value;
+                ValueCreated?.Invoke(this, EventArgs.Empty);
+                AddInstance(this);
+                return value;
+            }
         }
     }
 
@@ -43,9 +47,10 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
 
     public void Dispose()
     {
-        _lock.EnterWriteLock();
-        Instances.Remove(this);
-        _lock.ExitWriteLock();
+        lock (Instances)
+        {
+            Instances.Remove(this);
+        }
 
         if (_value is IDisposable disposable)
         {
@@ -56,9 +61,10 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
 
     public async ValueTask DisposeAsync()
     {
-        _lock.EnterWriteLock();
-        Instances.Remove(this);
-        _lock.ExitWriteLock();
+        lock (Instances)
+        {
+            Instances.Remove(this);
+        }
 
         switch (_value)
         {
