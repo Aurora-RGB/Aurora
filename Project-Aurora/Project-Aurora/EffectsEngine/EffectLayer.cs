@@ -284,10 +284,16 @@ namespace AuroraRgb.EffectsEngine
         /// <param name="brush">Brush to be used during bitmap fill</param>
         public void Fill(Brush brush)
         {
-            var g = _graphics;
-            g.CompositingMode = CompositingMode.SourceCopy;
-            g.FillRectangle(brush, Dimension);
+            ResetGraphics();
+            _graphics.CompositingMode = CompositingMode.SourceCopy;
+            _graphics.FillRectangle(brush, Dimension);
             Invalidate();
+        }
+
+        private void ResetGraphics()
+        {
+            _graphics.ResetClip();
+            _graphics.ResetTransform();
         }
 
         /// <summary>
@@ -297,13 +303,11 @@ namespace AuroraRgb.EffectsEngine
         /// <returns>Itself</returns>
         public void FillOver(Color color)
         {
-            var g = _graphics;
-            {
-                g.CompositingMode = CompositingMode.SourceOver;
-                g.SmoothingMode = SmoothingMode.None;
-                _solidBrush.Color = color;
-                g.FillRectangle(_solidBrush, Dimension);
-            }
+            ResetGraphics();
+            _graphics.CompositingMode = CompositingMode.SourceOver;
+            _graphics.SmoothingMode = SmoothingMode.None;
+            _solidBrush.Color = color;
+            _graphics.FillRectangle(_solidBrush, Dimension);
 
             Invalidate();
         }
@@ -315,10 +319,10 @@ namespace AuroraRgb.EffectsEngine
         /// <returns>Itself</returns>
         public void FillOver(Brush brush)
         {
-            var g = _graphics;
-            g.CompositingMode = CompositingMode.SourceOver;
-            g.SmoothingMode = SmoothingMode.None;
-            g.FillRectangle(brush, Dimension);
+            ResetGraphics();
+            _graphics.CompositingMode = CompositingMode.SourceOver;
+            _graphics.SmoothingMode = SmoothingMode.None;
+            _graphics.FillRectangle(brush, Dimension);
             Invalidate();
         }
         
@@ -437,8 +441,7 @@ namespace AuroraRgb.EffectsEngine
                 var myMatrix = new Matrix();
                 myMatrix.RotateAt(sequence.Freeform.Angle, rotatePoint, MatrixOrder.Append);    //TODO dependant property? parameter?
 
-                _graphics.ResetClip();
-                _graphics.ResetTransform();
+                ResetGraphics();
                 _graphics.Transform = myMatrix;
                 _graphics.CompositingMode = CompositingMode.SourceCopy;
                 _graphics.FillRectangle(brush, rect);
@@ -619,8 +622,7 @@ namespace AuroraRgb.EffectsEngine
 
             try
             {
-                _graphics.ResetClip();
-                _graphics.ResetTransform();
+                ResetGraphics();
                 _graphics.CompositingMode = CompositingMode.SourceCopy;
                 _graphics.FillRectangle(brush, keyRectangle.Rectangle);
             }catch { /* ignore */}
