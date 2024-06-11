@@ -67,7 +67,7 @@ namespace AuroraRgb.EffectsEngine
         }
 
         [Obsolete("This creates too much garbage memory")]
-        public EffectLayer(string name) : this(name, Color.FromArgb(0, 1, 1, 1))
+        public EffectLayer(string name) : this(name, Color.Transparent)
         {
         }
 
@@ -81,7 +81,6 @@ namespace AuroraRgb.EffectsEngine
             Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
 
             FillOver(color);
-            _graphics = Graphics.FromImage(_colormap);
         }
 
         public EffectLayer(string name, bool persistent) : this(name)
@@ -424,7 +423,6 @@ namespace AuroraRgb.EffectsEngine
                     _lastColor = solidBrush.Color;
                 }
 
-                var g = _graphics;
                 var xPos = (float)Math.Round((sequence.Freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
                 var yPos = (float)Math.Round((sequence.Freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight);
                 var width = (float)Math.Round(sequence.Freeform.Width * Effects.Canvas.EditorToCanvasWidth);
@@ -439,9 +437,11 @@ namespace AuroraRgb.EffectsEngine
                 var myMatrix = new Matrix();
                 myMatrix.RotateAt(sequence.Freeform.Angle, rotatePoint, MatrixOrder.Append);    //TODO dependant property? parameter?
 
-                g.Transform = myMatrix;
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.FillRectangle(brush, rect);
+                _graphics.ResetClip();
+                _graphics.ResetTransform();
+                _graphics.Transform = myMatrix;
+                _graphics.CompositingMode = CompositingMode.SourceCopy;
+                _graphics.FillRectangle(brush, rect);
                 Invalidate();
             }
         }
@@ -619,9 +619,10 @@ namespace AuroraRgb.EffectsEngine
 
             try
             {
-                var g = _graphics;
-                g.CompositingMode = CompositingMode.SourceCopy;
-                g.FillRectangle(brush, keyRectangle.Rectangle);
+                _graphics.ResetClip();
+                _graphics.ResetTransform();
+                _graphics.CompositingMode = CompositingMode.SourceCopy;
+                _graphics.FillRectangle(brush, keyRectangle.Rectangle);
             }catch { /* ignore */}
         }
 
@@ -981,7 +982,7 @@ namespace AuroraRgb.EffectsEngine
         {
             var oldBitmap = _colormap;
             _colormap = new Bitmap(Effects.Canvas.Width, Effects.Canvas.Height);
-            oldBitmap?.Dispose();
+            oldBitmap.Dispose();
             var oldGraphs = _graphics;
             _graphics = Graphics.FromImage(_colormap);
             oldGraphs.Dispose();
