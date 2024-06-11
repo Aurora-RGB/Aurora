@@ -32,7 +32,7 @@ public sealed class GameEvent_LoL : LightEvent
 
     public override void ResetGameState()
     {
-        _game_state = new GameState_LoL();
+        GameState = new GameState_LoL();
     }
 
     public override void OnStart() => _updateTimer.Start();
@@ -48,11 +48,11 @@ public sealed class GameEvent_LoL : LightEvent
         if (!_updatedOnce)
             return;
 
-        var s = _game_state as GameState_LoL;
+        var s = GameState as GameState_LoL;
 
         if (_allGameData == null)
         {
-            _game_state = new GameState_LoL();
+            GameState = new GameState_LoL();
             return;
         }
 

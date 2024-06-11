@@ -9,7 +9,7 @@ public class GameEvent_Generic : LightEvent
         if (Application.Config.GameStateType != null && new_game_state.GetType() != Application.Config.GameStateType)
             return;
 
-        _game_state = new_game_state;
+        GameState = new_game_state;
         UpdateLayerGameStates();
     }
 
@@ -20,18 +20,18 @@ public class GameEvent_Generic : LightEvent
             return;
 
         foreach (var lyr in settings.Layers)
-            lyr.SetGameState(_game_state);
+            lyr.SetGameState(GameState);
 
         foreach (var lyr in settings.OverlayLayers)
-            lyr.SetGameState(_game_state);
+            lyr.SetGameState(GameState);
     }
 
     public override void ResetGameState()
     {
         if (Application?.Config?.GameStateType != null)
-            _game_state = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
+            GameState = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
         else
-            _game_state = new EmptyGameState();
+            GameState = new EmptyGameState();
 
         UpdateLayerGameStates();
     }

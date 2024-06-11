@@ -28,7 +28,7 @@ public partial class Ets2
         _blinkerTimer.Elapsed += BlinkerTimer_Elapsed;
     }
 
-    private GameState_ETS2 GameState => (GameState_ETS2)_profileManager?.Config.Event._game_state;
+    private GameState_ETS2 GameState => (GameState_ETS2)_profileManager?.Config.Event.GameState;
 
     /// <summary>
     /// Installs either the 32-bit or 64-bit version of the Telemetry Server DLL.

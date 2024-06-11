@@ -16,7 +16,7 @@ public class Event_GenericApplication : GameEvent_Generic
         foreach (var layer in timeLayers.Reverse().ToArray())
         {
             if (layer.Enabled)
-                layers.Enqueue(layer.Render(_game_state));
+                layers.Enqueue(layer.Render(GameState));
         }
 
         frame.AddLayers(layers.ToArray());

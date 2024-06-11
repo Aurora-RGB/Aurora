@@ -63,7 +63,7 @@ public partial class Control_Dota2
             {
                 if (_respawnTime < 0)
                 {
-                    (_profileManager.Config.Event._game_state as GameStateDota2).Hero.IsAlive = true;
+                    (_profileManager.Config.Event.GameState as GameStateDota2).Hero.IsAlive = true;
 
                     preview_killplayer.IsEnabled = true;
 
@@ -72,7 +72,7 @@ public partial class Control_Dota2
                 else
                 {
                     preview_respawn_time.Content = "Seconds to respawn: " + _respawnTime;
-                    (_profileManager.Config.Event._game_state as GameStateDota2).Hero.SecondsToRespawn = _respawnTime;
+                    (_profileManager.Config.Event.GameState as GameStateDota2).Hero.SecondsToRespawn = _respawnTime;
 
                     _respawnTime--;
                 }
@@ -101,7 +101,7 @@ public partial class Control_Dota2
 
     private void preview_team_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        (_profileManager.Config.Event._game_state as GameStateDota2).Player.Team = (PlayerTeam)preview_team.SelectedItem;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Player.Team = (PlayerTeam)preview_team.SelectedItem;
     }
 
     private void preview_health_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -110,9 +110,9 @@ public partial class Control_Dota2
         if (preview_health_amount is not Label) return;
         preview_health_amount.Content = hp_val + "%";
                 
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.Health = hp_val;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.MaxHealth = 100;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.HealthPercent = hp_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.Health = hp_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.MaxHealth = 100;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.HealthPercent = hp_val;
     }
 
     private void preview_mana_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -121,19 +121,19 @@ public partial class Control_Dota2
         if (preview_mana_amount is not Label) return;
         preview_mana_amount.Content = mana_val + "%";
 
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.Mana = mana_val;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.MaxMana = 100;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.ManaPercent = mana_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.Mana = mana_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.MaxMana = 100;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.ManaPercent = mana_val;
     }
 
     private void preview_killplayer_Click(object? sender, RoutedEventArgs e)
     {
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.IsAlive = false;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.IsAlive = false;
 
         _respawnTime = 15;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Hero.SecondsToRespawn = _respawnTime;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.SecondsToRespawn = _respawnTime;
         preview_killplayer.IsEnabled = false;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Player.KillStreak = _killstreak = 0;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Player.KillStreak = _killstreak = 0;
         preview_killstreak_label.Content = "Killstreak: " + _killstreak;
 
         _previewRespawnTimer.Start();
@@ -141,8 +141,8 @@ public partial class Control_Dota2
 
     private void preview_addkill_Click(object? sender, RoutedEventArgs e)
     {
-        (_profileManager.Config.Event._game_state as GameStateDota2).Player.KillStreak = _killstreak++;
-        (_profileManager.Config.Event._game_state as GameStateDota2).Player.Kills++;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Player.KillStreak = _killstreak++;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Player.Kills++;
         preview_killstreak_label.Content = "Killstreak: " + _killstreak;
     }
 

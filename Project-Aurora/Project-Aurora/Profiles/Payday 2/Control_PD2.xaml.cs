@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Windows;
@@ -65,19 +64,19 @@ public partial class Pd2
     private void preview_gamestate_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (!IsLoaded) return;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Game.State = (GameStates)preview_gamestate.SelectedValue;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Game.State = (GameStates)preview_gamestate.SelectedValue;
     }
 
     private void preview_levelphase_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (!IsLoaded) return;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Level.Phase = (LevelPhase)preview_levelphase.SelectedValue;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Level.Phase = (LevelPhase)preview_levelphase.SelectedValue;
     }
 
     private void preview_playerstate_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (!IsLoaded) return;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.State = (PlayerState)preview_playerstate.SelectedValue;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.State = (PlayerState)preview_playerstate.SelectedValue;
     }
 
     private void preview_health_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -85,8 +84,8 @@ public partial class Pd2
         var hpVal = (int)preview_health_slider.Value;
         if (preview_health_amount is not Label) return;
         preview_health_amount.Content = hpVal + "%";
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.Health.Current = hpVal;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.Health.Max = 100;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Health.Current = hpVal;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Health.Max = 100;
     }
 
     private void preview_ammo_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -94,8 +93,8 @@ public partial class Pd2
         var ammoVal = (int)preview_ammo_slider.Value;
         if (preview_ammo_amount is not Label) return;
         preview_ammo_amount.Content = ammoVal + "%";
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Current_Clip = ammoVal;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Max_Clip = 100;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Current_Clip = ammoVal;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Max_Clip = 100;
     }
 
     private void preview_suspicion_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -103,7 +102,7 @@ public partial class Pd2
         var suspVal = (float)preview_suspicion_slider.Value;
         if (preview_suspicion_amount is not Label) return;
         preview_suspicion_amount.Content = (int)suspVal + "%";
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.SuspicionAmount = suspVal / 100.0f;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.SuspicionAmount = suspVal / 100.0f;
     }
 
     private void preview_flashbang_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -111,13 +110,13 @@ public partial class Pd2
         var flashVal = (float)preview_flashbang_slider.Value;
         if (preview_flashbang_amount is not Label) return;
         preview_flashbang_amount.Content = (int)flashVal + "%";
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.FlashAmount = flashVal / 100.0f;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.FlashAmount = flashVal / 100.0f;
     }
 
     private void preview_swansong_Checked(object? sender, RoutedEventArgs e)
     {
         if (!IsLoaded || sender is not CheckBox { IsChecked: not null } checkBox) return;
-        (_profileManager.Config.Event._game_state as GameState_PD2).Players.LocalPlayer.IsSwanSong = checkBox.IsChecked.Value;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.IsSwanSong = checkBox.IsChecked.Value;
     }
 
     private void get_lib_button_Click(object? sender, RoutedEventArgs e)

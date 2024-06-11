@@ -35,7 +35,7 @@ public partial class Control_Subnautica
     #endregion
         
     #region Preview Handlers
-    private GameState_Subnautica State => _profile.Config.Event._game_state as GameState_Subnautica;
+    private GameState_Subnautica State => _profile.Config.Event.GameState as GameState_Subnautica;
 
     private void InGameCh_Checked(object? sender, RoutedEventArgs e)
     {

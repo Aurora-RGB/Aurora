@@ -28,7 +28,7 @@ public partial class Control_ATS
         _blinkerTimer.Elapsed += BlinkerTimer_Elapsed;
     }
 
-    private GameState_ETS2 GameState => (GameState_ETS2)_profileManager.Config.Event._game_state;
+    private GameState_ETS2 GameState => (GameState_ETS2)_profileManager.Config.Event.GameState;
 
     private void visit_ets2ts_button_Click(object? sender, RoutedEventArgs e) {
         Process.Start("explorer", "https://github.com/Funbit/ets2-telemetry-server");

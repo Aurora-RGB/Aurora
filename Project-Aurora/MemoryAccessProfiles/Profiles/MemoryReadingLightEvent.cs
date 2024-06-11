@@ -77,7 +77,7 @@ public abstract class MemoryReadingLightEvent<TPointers, TGameState> : LightEven
     /// Resets the game state to be the default value.
     /// </summary>
     public override void ResetGameState() {
-        _game_state = new TGameState();
+        GameState = new TGameState();
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public abstract class MemoryReadingLightEvent<TPointers, TGameState> : LightEven
             // Call a different constructor depending on whether a `processModule` has been provided.
             using (MemoryReader memread = string.IsNullOrWhiteSpace(processModule) ? new MemoryReader(process_search[0], needs64bitMemReader) : new MemoryReader(process_search[0], processModule, needs64bitMemReader))
                 // Call the application-specific method to handle the memory reading
-                UpdateGameState((TGameState)_game_state, memread);
+                UpdateGameState((TGameState)GameState, memread);
     }
 
     public override void SetGameState(IGameState new_game_state) { }

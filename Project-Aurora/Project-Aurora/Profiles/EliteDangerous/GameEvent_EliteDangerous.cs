@@ -47,7 +47,7 @@ public class GameEvent_EliteDangerous : GameEvent_Generic
 
     private void UpdateStatus(Status newStatus)
     {
-        var status = (_game_state as GameState_EliteDangerous).Status;
+        var status = (GameState as GameState_EliteDangerous).Status;
 
         status.timestamp = newStatus.timestamp;
         status.@event = newStatus.@event;
@@ -67,7 +67,7 @@ public class GameEvent_EliteDangerous : GameEvent_Generic
             if (newEvent != null)
             {
                 //If the event is known, do something with it
-                (_game_state as GameState_EliteDangerous).Journal.ProcessEvent(newEvent);
+                (GameState as GameState_EliteDangerous).Journal.ProcessEvent(newEvent);
             }
         }
         catch (JsonSerializationException e)
@@ -99,14 +99,14 @@ public class GameEvent_EliteDangerous : GameEvent_Generic
             return;
         }
             
-        (_game_state as GameState_EliteDangerous).Journal.initialJournalRead = true;
+        (GameState as GameState_EliteDangerous).Journal.initialJournalRead = true;
         foreach (var logFile in Directory.GetFiles(EliteConfig.JournalApiDir, "*.log")
                      .OrderBy(p => new FileInfo(p).CreationTime))
         {
             _currentJournalFile = logFile;
             FileWatcher.ReadFileLines(logFile, JournalReadCallback);
         }
-        (_game_state as GameState_EliteDangerous).Journal.initialJournalRead = false;
+        (GameState as GameState_EliteDangerous).Journal.initialJournalRead = false;
     }
 
     private void SwitchToNewJournalFile(object? sender, FileSystemEventArgs e)
@@ -320,7 +320,7 @@ public class GameEvent_EliteDangerous : GameEvent_Generic
             Global.logger.Error("Error loading binds file: {File}", _currentBindFile);
         }
 
-        var controls = (_game_state as GameState_EliteDangerous).Controls;
+        var controls = (GameState as GameState_EliteDangerous).Controls;
         controls.modifierKeys = modifierKeys;
         controls.commandToBind = commandToBind;
         controls.bindToCommand = bindToCommand;

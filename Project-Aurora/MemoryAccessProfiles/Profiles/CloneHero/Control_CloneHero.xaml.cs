@@ -23,7 +23,7 @@ public partial class Control_CloneHero
     private void preview_streak_amount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (sender is not IntegerUpDown { Value: not null } integerUpDown) return;
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.NoteStreak = integerUpDown.Value.Value;
 
         #region NoteStreak Extras
@@ -93,63 +93,63 @@ public partial class Control_CloneHero
         if (sender is not Slider slider) return;
         preview_sp_percent_label.Text = (int)slider.Value + "%";
 
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.StarPowerPercent = (int)slider.Value;
     }
 
     private void preview_sp_active(object? sender, RoutedEventArgs e)
     {
         preview_sp_enabled_label.Text = "true";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsStarPowerActive = true;
     }
 
     private void preview_sp_deactive(object? sender, RoutedEventArgs e)
     {
         preview_sp_enabled_label.Text = "false";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsStarPowerActive = false;
     }
 
     private void preview_menu_active(object? sender, RoutedEventArgs e)
     {
         preview_menu_enabled_label.Text = "true";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsAtMenu = true;
     }
 
     private void preview_menu_deactive(object? sender, RoutedEventArgs e)
     {
         preview_menu_enabled_label.Text = "false";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsAtMenu = false;
     }
 
     private void preview_fc_active(object? sender, RoutedEventArgs e)
     {
         preview_fc_enabled_label.Text = "true";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsFC = true;
     }
 
     private void preview_fc_deactive(object? sender, RoutedEventArgs e)
     {
         preview_fc_enabled_label.Text = "false";
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsFC = false;
     }
 
     private void preview_notes_total_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (sender is not IntegerUpDown { Value: not null } integerUpDown) return;
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.NotesTotal = integerUpDown.Value.Value;
     }
 
     private void preview_score_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (sender is not IntegerUpDown { Value: not null } integerUpDown) return;
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.Score = integerUpDown.Value.Value;
     }
 
@@ -158,65 +158,65 @@ public partial class Control_CloneHero
     // Green
     private void preview_green_active(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsGreenPressed = true;
     }
 
     private void preview_green_deactive(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsGreenPressed = false;
     }
 
     // Red
     private void preview_red_active(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsRedPressed = true;
     }
 
     private void preview_red_deactive(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsRedPressed = false;
     }
 
     // Yellow
     private void preview_yellow_active(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsYellowPressed = true;
     }
 
     private void preview_yellow_deactive(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsYellowPressed = false;
     }
 
     // Blue
     private void preview_blue_active(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsBluePressed = true;
     }
 
     private void preview_blue_deactive(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsBluePressed = false;
     }
 
     // Orange
     private void preview_orange_active(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsOrangePressed = true;
     }
 
     private void preview_orange_deactive(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_CloneHero gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_CloneHero gameState) return;
         gameState.Player.IsOrangePressed = false;
     }
 

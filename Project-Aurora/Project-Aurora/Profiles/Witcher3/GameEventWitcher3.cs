@@ -19,7 +19,7 @@ public sealed class GameEventWitcher3 : LightEvent
     {
         var player = e.GameState.Player;
 
-        if (_game_state is not GameStateWitcher3 gameState)
+        if (GameState is not GameStateWitcher3 gameState)
         {
             return;
         }
@@ -35,7 +35,7 @@ public sealed class GameEventWitcher3 : LightEvent
 
     public override void ResetGameState()
     {
-        _game_state = new GameStateWitcher3();
+        GameState = new GameStateWitcher3();
     }
 
     public override void Dispose()

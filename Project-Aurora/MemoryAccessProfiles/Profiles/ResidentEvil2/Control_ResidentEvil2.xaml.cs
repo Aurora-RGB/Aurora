@@ -43,20 +43,20 @@ public partial class Control_ResidentEvil2
 
     private void preview_status_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_ResidentEvil2 gameState) return;
         gameState.Player.Status = (Player_ResidentEvil2.PlayerStatus)preview_status.SelectedItem;
     }
 
     private void preview_poison_Checked(object? sender, RoutedEventArgs e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState ||
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_ResidentEvil2 gameState ||
             sender is not CheckBox { IsChecked: not null } checkBox) return;
         gameState.Player.Poison = checkBox.IsChecked.Value;
     }
 
     private void preview_rank_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_ResidentEvil2 gameState ||
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_ResidentEvil2 gameState ||
             sender is not IntegerUpDown { Value: not null } integerUpDown) return;
         gameState.Player.Rank = integerUpDown.Value.Value;
     }

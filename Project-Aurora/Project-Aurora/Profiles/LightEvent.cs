@@ -37,7 +37,7 @@ public class LightEvent : ILightEvent
     public Application Application { get; set; }
     public LightEventConfig Config { get; }
 
-    public IGameState _game_state;
+    public IGameState GameState { get; protected set; }
 
     public LightEvent()
     {
@@ -56,7 +56,7 @@ public class LightEvent : ILightEvent
     public virtual void UpdateLights(EffectFrame frame) {
         UpdateTick();
 
-        var layers = new Queue<EffectLayer>(Application.Profile.Layers.Where(l => l.Enabled).Reverse().Select(l => l.Render(_game_state)));
+        var layers = new Queue<EffectLayer>(Application.Profile.Layers.Where(l => l.Enabled).Reverse().Select(l => l.Render(GameState)));
         frame.AddLayers(layers.ToArray());
     }
 
@@ -69,7 +69,7 @@ public class LightEvent : ILightEvent
             var overlayLayers = Application.Profile.OverlayLayers
                 .Where(l => l.Enabled)
                 .Reverse()
-                .Select(l => l.Render(_game_state));
+                .Select(l => l.Render(GameState));
             frame.AddOverlayLayers(overlayLayers);
         }
         catch(Exception e)
@@ -91,7 +91,7 @@ public class LightEvent : ILightEvent
     /// <param name="newGameState">GameState instance which will be processed before adding new layers</param>
     public virtual void SetGameState(IGameState newGameState)
     {
-        _game_state = newGameState;
+        GameState = newGameState;
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ public class LightEvent : ILightEvent
 
     public virtual void ResetGameState()
     {
-        _game_state = new EmptyGameState();
+        GameState = new EmptyGameState();
     }
         
     public virtual void OnStart()

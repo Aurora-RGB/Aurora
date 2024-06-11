@@ -35,7 +35,7 @@ public partial class Control_Slime_Rancher
     #endregion
         
     #region Preview Handlers
-    private GameState_Slime_Rancher State => profile.Config.Event._game_state as GameState_Slime_Rancher;
+    private GameState_Slime_Rancher State => profile.Config.Event.GameState as GameState_Slime_Rancher;
 
     private void InGameCh_Checked(object? sender, RoutedEventArgs e)
     {

@@ -24,7 +24,7 @@ public partial class Control_Borderlands2
         if (sender is not Slider slider) return;
         preview_health_amount_label.Text = (int)slider.Value + "%";
 
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_Borderlands2 gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_Borderlands2 gameState) return;
         gameState.Player.CurrentHealth = (float)slider.Value;
         gameState.Player.MaximumHealth = 100.0f;
     }
@@ -34,7 +34,7 @@ public partial class Control_Borderlands2
         if (sender is not Slider slider) return;
         preview_shield_amount_label.Text = (int)slider.Value + "%";
 
-        if (!IsLoaded || _profileManager.Config.Event._game_state is not GameState_Borderlands2 gameState) return;
+        if (!IsLoaded || _profileManager.Config.Event.GameState is not GameState_Borderlands2 gameState) return;
         gameState.Player.CurrentShield = (float)slider.Value;
         gameState.Player.MaximumShield = 100.0f;
     }

@@ -44,7 +44,7 @@ namespace AuroraRgb.Profiles.ETS2 {
         }
 
         public override void ResetGameState() {
-            _game_state = new GameState_ETS2(default(ETS2MemoryStruct));
+            GameState = new GameState_ETS2(default(ETS2MemoryStruct));
         }
 
         public override void UpdateTick() {
@@ -58,7 +58,7 @@ namespace AuroraRgb.Profiles.ETS2 {
 
                     memPtr = Marshal.AllocHGlobal(raw.Length);
                     Marshal.Copy(raw, 0, memPtr, raw.Length);
-                    _game_state = new GameState_ETS2((ETS2MemoryStruct)Marshal.PtrToStructure(memPtr, typeof(ETS2MemoryStruct)));
+                    GameState = new GameState_ETS2((ETS2MemoryStruct)Marshal.PtrToStructure(memPtr, typeof(ETS2MemoryStruct)));
                 }
                 finally {
                     if (memPtr != IntPtr.Zero)

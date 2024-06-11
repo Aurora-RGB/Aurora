@@ -76,7 +76,7 @@ public partial class Control_Minecraft
     #endregion
 
     #region Preview Handlers
-    private GameState_Minecraft State => _profile.Config.Event._game_state as GameState_Minecraft;
+    private GameState_Minecraft State => _profile.Config.Event.GameState as GameState_Minecraft;
 
     private void InGameCh_Checked(object? sender, RoutedEventArgs e) {
         State.Player.InGame = (sender as CheckBox).IsChecked ?? false;

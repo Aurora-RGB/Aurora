@@ -34,7 +34,7 @@ public class GameEvent_Aurora_Wrapper : LightEvent
     protected virtual void UpdateWrapperLights(IGameState newGameState)
     {
         if (newGameState is not GameState_Wrapper ngwState) return;
-        _game_state = ngwState;
+        GameState = ngwState;
 
         if(ngwState.Sent_Bitmap.Length != 0)
             _bitmap = ngwState.Sent_Bitmap;
