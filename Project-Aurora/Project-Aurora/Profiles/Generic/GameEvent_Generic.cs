@@ -31,7 +31,7 @@ public class GameEvent_Generic : LightEvent
         if (Application?.Config?.GameStateType != null)
             _game_state = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
         else
-            _game_state = null;
+            _game_state = new EmptyGameState();
 
         UpdateLayerGameStates();
     }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.EffectsEngine;
-using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles;
 
@@ -38,7 +37,7 @@ public class LightEvent : ILightEvent
     public Application Application { get; set; }
     public LightEventConfig Config { get; }
 
-    public IGameState? _game_state;
+    public IGameState _game_state;
 
     public LightEvent()
     {
