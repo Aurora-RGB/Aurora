@@ -746,7 +746,7 @@ public static class ProfileImporter
                     new UltimateListJsonConverter(),
                 ],
             };
-            var inProf = (ApplicationProfile)JsonConvert.DeserializeObject(json, typeof(ApplicationProfile), jsonSerializerSettings)!;
+            var inProf = (ApplicationProfile)JsonConvert.DeserializeObject(json, app.Profile.GetType(), jsonSerializerSettings)!;
 
             // Create a new profile on the current application (so that profiles can be imported from different applications)
             var newProf = app.AddNewProfile(inProf.ProfileName);
