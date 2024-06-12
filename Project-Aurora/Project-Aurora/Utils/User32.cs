@@ -29,7 +29,6 @@ internal static partial class User32
     [LibraryImport("user32.dll")]
     internal static partial IntPtr GetForegroundWindow();
 
-    // LibraryImport does not work for this
     [Pure]
     [LibraryImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
     internal static partial IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);

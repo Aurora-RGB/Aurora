@@ -132,10 +132,11 @@ public partial class App
         Closing = true;
         base.OnExit(e);
 
+        var forceExitTimer = StartForceExitTimer();
+
         if (Global.Configuration != null)
             ConfigManager.Save(Global.Configuration);
 
-        var forceExitTimer = StartForceExitTimer();
         var auroraShutdownTask = AuroraApp!.Shutdown();
         AuroraApp.Dispose();
         await auroraShutdownTask;
