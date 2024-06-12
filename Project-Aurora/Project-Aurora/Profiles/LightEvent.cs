@@ -37,7 +37,7 @@ public class LightEvent : ILightEvent
     public Application Application { get; set; }
     public LightEventConfig Config { get; }
 
-    public IGameState GameState { get; protected set; }
+    public IGameState GameState { get; protected set; } = new EmptyGameState();
 
     public LightEvent()
     {
