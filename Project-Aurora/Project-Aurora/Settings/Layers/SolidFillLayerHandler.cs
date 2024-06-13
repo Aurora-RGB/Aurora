@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
@@ -30,12 +28,6 @@ public class SolidFillLayerHandlerProperties : LayerHandlerProperties<SolidFillL
 public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerProperties>
 {
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
-    private KeySequence _entireSequence = new(Effects.Canvas.WholeFreeForm);
-
-    public SolidFillLayerHandler() : base("Solid Fill Layer")
-    {
-        Effects.CanvasChanged += EffectsOnCanvasChanged;
-    }
 
     protected override UserControl CreateControl()
     {
@@ -44,25 +36,8 @@ public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerPr
 
     public override EffectLayer Render(IGameState gameState)
     {
-        EffectLayer.Set(_entireSequence, _solidBrush);
-        return EffectLayer;
-    }
-
-    private void EffectsOnCanvasChanged(object? sender, EventArgs e)
-    {
-        _entireSequence = new KeySequence(Effects.Canvas.WholeFreeForm);
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
         _solidBrush.Color = Properties.PrimaryColor;
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
-
-        Effects.CanvasChanged -= EffectsOnCanvasChanged;
+        EffectLayer.Set(Effects.Canvas.EntireSequence, _solidBrush);
+        return EffectLayer;
     }
 }

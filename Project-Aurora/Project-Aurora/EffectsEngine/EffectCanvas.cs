@@ -18,26 +18,35 @@ public sealed class CanvasGridProperties(
     public float GridHeight { get; } = gridHeight;
 }
 
-public sealed class EffectCanvas(
-    int width,
-    int height,
-    Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
-    : IEqualityComparer<EffectCanvas>, IEquatable<EffectCanvas>
+public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<EffectCanvas>
 {
-    public int Width { get; } = width;
-    public int Height { get; } = height;
-    public int BiggestSize { get; } = Math.Max(width, height);
+    public EffectCanvas(int width,
+        int height,
+        Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
+    {
+        Width = width;
+        Height = height;
+        BiggestSize = Math.Max(width, height);
+        BitmapMap = bitmapMap;
+        CanvasGridProperties = new(0, 0, width, height);
+        
+        EntireSequence = new(WholeFreeForm);
+    }
+
+    public int Width { get; }
+    public int Height { get; }
+    public int BiggestSize { get; }
 
     //TODO those 4 vars are about Control. Remove htem from here
     public float GridBaselineX => CanvasGridProperties.GridBaselineX;
     public float GridBaselineY => CanvasGridProperties.GridBaselineY;
 
-    public Dictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; } = bitmapMap;
+    public Dictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; }
 
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
 
-    public CanvasGridProperties CanvasGridProperties { get; set; } = new(0, 0, width, height);
+    public CanvasGridProperties CanvasGridProperties { get; set; }
 
     public float EditorToCanvasWidth => Width / CanvasGridProperties.GridWidth;
     public float EditorToCanvasHeight => Height / CanvasGridProperties.GridHeight;
@@ -46,6 +55,7 @@ public sealed class EffectCanvas(
     /// Creates a new FreeFormObject that perfectly occupies the entire canvas.
     /// </summary>
     public FreeFormObject WholeFreeForm => new(-CanvasGridProperties.GridBaselineX, -CanvasGridProperties.GridBaselineY, CanvasGridProperties.GridWidth, CanvasGridProperties.GridHeight);
+    public KeySequence EntireSequence { get; }
 
     public BitmapRectangle GetRectangle(DeviceKeys key)
     {
