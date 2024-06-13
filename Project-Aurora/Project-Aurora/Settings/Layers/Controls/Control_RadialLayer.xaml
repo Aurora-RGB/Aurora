@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:ncore="http://schemas.ncore.com/wpf/xaml/colorbox"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:utils="clr-namespace:AuroraRgb.Utils"
              xmlns:implementation="clr-namespace:ColorBox.Implementation;assembly=ColorBox"
@@ -17,10 +16,10 @@
         <implementation:ColorBox x:Name="GradientPicker" BrushChanged="GradientPicker_BrushChanged" Height="28" Grid.Column="1" Margin="0,4" />
 
         <Label Content="Rotation speed:" Grid.Row="1" />
-        <xctk:IntegerUpDown Value="{Binding Properties._AnimationSpeed}" Grid.Column="1" Grid.Row="1" Margin="0,4" />
+        <xctk:IntegerUpDown Value="{Binding Properties.AnimationSpeed}" Grid.Column="1" Grid.Row="1" Margin="0,4" />
 
         <Label Content="Segment count:" Grid.Row="2" />
-        <xctk:IntegerUpDown Value="{Binding Properties._Brush.SegmentCount}" Minimum="1" Maximum="90" Grid.Column="1" Grid.Row="2" Margin="0,4" />
+        <xctk:IntegerUpDown Value="{Binding Properties.Brush.SegmentCount}" Minimum="1" Maximum="90" Grid.Column="1" Grid.Row="2" Margin="0,4" />
 
         <Label Content="Affected keys:" Grid.Row="3" VerticalAlignment="Top" />
         <controls:KeySequence Sequence="{Binding Properties._Sequence, Mode=TwoWay}" RecordingTag="RadialLayer" Title="Affected Keys" Grid.Row="3" Grid.Column="1" Margin="0,4" />
