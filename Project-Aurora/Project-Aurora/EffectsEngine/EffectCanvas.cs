@@ -20,6 +20,8 @@ public sealed class CanvasGridProperties(
 
 public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<EffectCanvas>
 {
+    private CanvasGridProperties _canvasGridProperties;
+
     public EffectCanvas(int width,
         int height,
         Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
@@ -46,7 +48,15 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
 
-    public CanvasGridProperties CanvasGridProperties { get; set; }
+    public CanvasGridProperties CanvasGridProperties
+    {
+        get => _canvasGridProperties;
+        set
+        {
+            _canvasGridProperties = value;
+            EntireSequence = new(WholeFreeForm);
+        }
+    }
 
     public float EditorToCanvasWidth => Width / CanvasGridProperties.GridWidth;
     public float EditorToCanvasHeight => Height / CanvasGridProperties.GridHeight;
@@ -55,7 +65,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     /// Creates a new FreeFormObject that perfectly occupies the entire canvas.
     /// </summary>
     public FreeFormObject WholeFreeForm => new(-CanvasGridProperties.GridBaselineX, -CanvasGridProperties.GridBaselineY, CanvasGridProperties.GridWidth, CanvasGridProperties.GridHeight);
-    public KeySequence EntireSequence { get; }
+    public KeySequence EntireSequence { get; private set; }
 
     public BitmapRectangle GetRectangle(DeviceKeys key)
     {
