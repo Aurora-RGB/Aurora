@@ -8,13 +8,12 @@ using System.Windows.Controls;
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
-using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles;
 
 public class LightEventConfig : INotifyPropertyChanged
 {
-    private readonly Temporary<LightEvent> _lightEvent;
+    private readonly Lazy<LightEvent> _lightEvent;
     public string[] ProcessNames
     {
         get => _processNames;
@@ -64,7 +63,7 @@ public class LightEventConfig : INotifyPropertyChanged
 
     public LightEventConfig(Func<LightEvent> lightEvent)
     {
-        _lightEvent = new Temporary<LightEvent>(() =>
+        _lightEvent = new (() =>
         {
             var evLightEvent = lightEvent.Invoke();
             evLightEvent.Application = Application;
