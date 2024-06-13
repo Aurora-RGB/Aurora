@@ -15,7 +15,7 @@ public class GameEvent_Generic : LightEvent
 
     private void UpdateLayerGameStates()
     {
-        var settings = Application.Profile;
+        var settings = Application?.Profile;
         if (settings == null)
             return;
 
@@ -26,12 +26,9 @@ public class GameEvent_Generic : LightEvent
             lyr.SetGameState(GameState);
     }
 
-    public override void ResetGameState()
+    public override void ResetGameState(Type? gameStateType = null)
     {
-        if (Application?.Config?.GameStateType != null)
-            GameState = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
-        else
-            GameState = new EmptyGameState();
+        base.ResetGameState(gameStateType);
 
         UpdateLayerGameStates();
     }

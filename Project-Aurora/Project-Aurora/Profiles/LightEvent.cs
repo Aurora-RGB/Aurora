@@ -15,7 +15,7 @@ public interface ILightEvent : IDisposable, IAsyncDisposable
 
     void SetGameState(IGameState newGameState);
 
-    void ResetGameState();
+    void ResetGameState(Type? gameStateType = null);
 
     void OnStart();
 
@@ -104,9 +104,14 @@ public class LightEvent : ILightEvent
 
     public bool Initialized { get; private set; }
 
-    public virtual void ResetGameState()
+    public virtual void ResetGameState(Type? gameStateType = null)
     {
-        GameState = new EmptyGameState();
+        if (gameStateType != null)
+            GameState = (IGameState)Activator.CreateInstance(gameStateType);
+        else if (Application?.Config?.GameStateType != null)
+            GameState = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
+        else
+            GameState = new EmptyGameState();
     }
         
     public virtual void OnStart()

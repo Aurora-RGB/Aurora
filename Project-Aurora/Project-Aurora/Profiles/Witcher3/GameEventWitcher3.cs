@@ -33,11 +33,6 @@ public sealed class GameEventWitcher3 : LightEvent
         gameStatePlayer.ActiveSign = player.ActiveSign;
     }
 
-    public override void ResetGameState()
-    {
-        GameState = new GameStateWitcher3();
-    }
-
     public override void Dispose()
     {
         base.Dispose();

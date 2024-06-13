@@ -30,11 +30,6 @@ public sealed class GameEvent_LoL : LightEvent
         _updateTimer.Elapsed += UpdateData;
     }
 
-    public override void ResetGameState()
-    {
-        GameState = new GameState_LoL();
-    }
-
     public override void OnStart() => _updateTimer.Start();
 
     public override void OnStop()

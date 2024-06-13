@@ -76,7 +76,7 @@ public abstract class MemoryReadingLightEvent<TPointers, TGameState> : LightEven
     /// <summary>
     /// Resets the game state to be the default value.
     /// </summary>
-    public override void ResetGameState() {
+    public override void ResetGameState(Type? gameStateType = null) {
         GameState = new TGameState();
     }
 

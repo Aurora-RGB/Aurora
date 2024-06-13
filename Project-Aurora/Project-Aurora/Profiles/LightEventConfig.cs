@@ -68,6 +68,7 @@ public class LightEventConfig : INotifyPropertyChanged
         {
             var evLightEvent = lightEvent.Invoke();
             evLightEvent.Application = Application;
+            evLightEvent.ResetGameState(GameStateType);
             return evLightEvent;
         });
     }

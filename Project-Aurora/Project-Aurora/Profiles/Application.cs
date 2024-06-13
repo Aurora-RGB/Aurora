@@ -73,7 +73,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         Config = config;
         SettingsSavePath = Path.Combine(GetProfileFolderPath(), "settings.json");
         config.Application = this;
-        config.Event.ResetGameState();
+        config.Event.ResetGameState(config.GameStateType);
         Profiles = new ObservableCollection<ApplicationProfile>();
         Profiles.CollectionChanged += (_, e) =>
         {
@@ -412,7 +412,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         Config.Event.SetGameState(state);
     }
 
-    public virtual void ResetGameState()
+    public virtual void ResetGameState(Type? gameStateType = null)
     {
         if (Disposed)
             return;
