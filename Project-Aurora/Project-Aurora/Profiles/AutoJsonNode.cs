@@ -26,11 +26,15 @@ public class AutoJsonNode<TSelf> : Node where TSelf : AutoJsonNode<TSelf> {
     // Compiled action to be run during the contructor that will populate relevant fields
     private static readonly Lazy<Action<TSelf>> CtorAction = new(() => {
         var fields = typeof(TSelf).GetFields(bf | BindingFlags.FlattenHierarchy);
-        var properties = typeof(TSelf).GetProperties();
+        var properties = typeof(TSelf).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty);
         var body = new List<Expression>(fields.Length);
         var selfParam = Parameter(typeof(TSelf));
 
-        var attributes = fields.Select(f => ((MemberInfo)f, f.FieldType)).Concat(properties.Select(p => ((MemberInfo)p, p.PropertyType)));
+        var fieldSetters = fields.Select(f => ((MemberInfo)f, f.FieldType));
+        var propertySetters = properties
+            .Where(p => p.CanWrite)
+            .Select(p => ((MemberInfo)p, p.PropertyType));
+        var attributes = fieldSetters.Concat(propertySetters);
         // Find all the fields
         foreach (var (field, type) in attributes.Where(f => f.Item1.GetCustomAttribute<AutoJsonIgnoreAttribute>() == null)) {
             if (TryGetMethodForType(type, out var getter))
