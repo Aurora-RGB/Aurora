@@ -328,13 +328,13 @@ namespace AuroraRgb.EffectsEngine
         
         public void Clear()
         {
-            var g = _graphics;
-            g.ResetClip();
-            g.ResetTransform();
-            g.CompositingMode = CompositingMode.SourceCopy;
-            g.SmoothingMode = SmoothingMode.None;
-            g.InterpolationMode = InterpolationMode.NearestNeighbor;
-            g.FillRectangle(ClearingBrush, Dimension);
+            ResetGraphics();
+            _graphics.ResetClip();
+            _graphics.ResetTransform();
+            _graphics.CompositingMode = CompositingMode.SourceCopy;
+            _graphics.SmoothingMode = SmoothingMode.None;
+            _graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            _graphics.FillRectangle(ClearingBrush, Dimension);
             _lastColor = Color.Empty;
             Invalidate();
         }
@@ -487,6 +487,7 @@ namespace AuroraRgb.EffectsEngine
             var boundsRaw = sequence.GetAffectedRegion();
             var bounds = new RectangleF((int)Math.Round(boundsRaw.X), (int)Math.Round(boundsRaw.Y), (int)boundsRaw.Width, (int)boundsRaw.Height);
 
+            ResetGraphics();
             var gfx = _graphics;
             {
                 // First, calculate the scaling required to transform the sourceRect's size into the bounds' size
@@ -651,6 +652,7 @@ namespace AuroraRgb.EffectsEngine
         public Graphics GetGraphics()
         {
             Invalidate();
+            ResetGraphics();
             return _graphics;
         }
 
@@ -661,7 +663,7 @@ namespace AuroraRgb.EffectsEngine
 
         public void Add(EffectLayer other)
         {
-            var _ = this + other;
+            _ = this + other;
         }
 
         /// <summary>
@@ -938,6 +940,7 @@ namespace AuroraRgb.EffectsEngine
             if (width < 3) width = 3;
             if (height < 3) height = 3;
             
+            ResetGraphics();
             var g = _graphics;
             if (percentEffectType == PercentEffectType.AllAtOnce)
             {
@@ -979,6 +982,7 @@ namespace AuroraRgb.EffectsEngine
             _textureBrush = null;
             _needsRender = true;
             _keyColors.Clear();
+            ResetGraphics();
         }
         private void InvalidateColorMap(object? sender, EventArgs args)
         {
@@ -1031,6 +1035,7 @@ namespace AuroraRgb.EffectsEngine
             if (width < 2) width = 2;
             if (height < 2) height = 2;
 
+            ResetGraphics();
             var g = _graphics;
             if (percentEffectType == PercentEffectType.AllAtOnce)
             {
