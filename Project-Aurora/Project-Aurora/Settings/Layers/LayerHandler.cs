@@ -118,7 +118,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         Properties.PropertyChanged += PropertiesChanged;
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), PropertiesChanged);
 
-        _control = new Temporary<Task<UserControl>>(CreateControlOnMain);
+        _control = new Temporary<Task<UserControl>>(CreateControlOnMain, false);
     }
 
     public virtual EffectLayer Render(IGameState gameState)

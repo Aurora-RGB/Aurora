@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AuroraRgb.Utils;
 
-public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposable
+public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDisposable, IAsyncDisposable
     where T : class
 {
     public event EventHandler? ValueCreated;
@@ -52,11 +52,15 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
             Instances.Remove(this);
         }
 
+        if (!callDispose)
+        {
+            return;
+        }
+
         if (_value is IDisposable disposable)
         {
             disposable.Dispose();
         }
-        _value = null;
     }
 
     public async ValueTask DisposeAsync()
@@ -64,6 +68,11 @@ public sealed class Temporary<T>(Func<T> produce) : IDisposable, IAsyncDisposabl
         lock (Instances)
         {
             Instances.Remove(this);
+        }
+
+        if (!callDispose)
+        {
+            return;
         }
 
         switch (_value)
