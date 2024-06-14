@@ -17,6 +17,7 @@ public class UserNode : AutoJsonNode<UserNode> {
     public bool Mentions { get; set; }
     [AutoJsonPropertyName("unread_messages")] public bool UnreadMessages { get; set; }
     [AutoJsonPropertyName("being_called")] public bool BeingCalled { get; set; }
+    [AutoJsonPropertyName("is_speaking")] public bool IsSpeaking { get; set; }
 
     internal UserNode(string json) : base(json) {
         Status = GetStatus(GetString("status"));
