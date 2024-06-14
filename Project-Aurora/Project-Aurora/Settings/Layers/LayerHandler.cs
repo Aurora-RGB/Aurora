@@ -21,14 +21,13 @@ namespace AuroraRgb.Settings.Layers;
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
 public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : LayerHandlerProperties<TProperty>
 {
+    private readonly Temporary<Task<UserControl>> _control;
+    
     [JsonIgnore]
     public Application Application { get; protected set; }
 
     [JsonIgnore]
-    private Task<UserControl>? _Control;
-
-    [JsonIgnore]
-    public Task<UserControl> Control => _Control ??= CreateControlOnMain();
+    public Task<UserControl> Control => _control.Value;
 
     private TProperty _properties = Activator.CreateInstance<TProperty>();
     public TProperty Properties
@@ -118,6 +117,8 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         _ExclusionMask = new KeySequence();
         Properties.PropertyChanged += PropertiesChanged;
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), PropertiesChanged);
+
+        _control = new Temporary<Task<UserControl>>(CreateControlOnMain);
     }
 
     public virtual EffectLayer Render(IGameState gameState)
