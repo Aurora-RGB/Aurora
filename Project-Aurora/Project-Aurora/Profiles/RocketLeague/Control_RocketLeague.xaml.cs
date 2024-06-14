@@ -73,12 +73,12 @@ public partial class Control_RocketLeague
 
     private void preview_team_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Player.Team = (int)((preview_team.SelectedItem as dynamic).Value);
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Player.Team = (int)((preview_team.SelectedItem as dynamic).Value);
     }
 
     private void preview_status_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Game.Status = (RLStatus)(preview_status.SelectedItem);
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Game.Status = (RLStatus)(preview_status.SelectedItem);
     }
 
     private void preview_boost_amount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -87,32 +87,32 @@ public partial class Control_RocketLeague
         preview_boost_amount_label.Text = (int)(slider.Value * 100) + "%";
 
         if (!IsLoaded) return;
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Player.Boost = (float)(slider.Value);
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Player.Boost = (float)(slider.Value);
     }
 
     private void preview_team1_score_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (sender is not IntegerUpDown { Value: not null } upDown) return;
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Match.Blue.Goals = upDown.Value ?? 0;
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Match.Blue.Goals = upDown.Value ?? 0;
     }
 
     private void preview_team2_score_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (sender is IntegerUpDown upDown && upDown.Value.HasValue)
-            (_profileManager.Config.Event.GameState as GameState_RocketLeague).Match.Orange.Goals = upDown.Value ?? 0;
+            (_profileManager.Config.Event.GameState as GameStateRocketLeague).Match.Orange.Goals = upDown.Value ?? 0;
     }
 
     private void ColorPicker_Team1_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (sender is not ColorPicker) return;
         var clr = ColorPicker_team1.SelectedColor ?? new Color();
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Match.Blue.TeamColor = System.Drawing.Color.FromArgb(clr.A, clr.R, clr.G, clr.B);
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Match.Blue.TeamColor = System.Drawing.Color.FromArgb(clr.A, clr.R, clr.G, clr.B);
     }
 
     private void ColorPicker_Team2_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (sender is not ColorPicker) return;
         var clr = ColorPicker_team2.SelectedColor ?? new Color();
-        (_profileManager.Config.Event.GameState as GameState_RocketLeague).Match.Orange.TeamColor = System.Drawing.Color.FromArgb(clr.A, clr.R, clr.G, clr.B);
+        (_profileManager.Config.Event.GameState as GameStateRocketLeague).Match.Orange.TeamColor = System.Drawing.Color.FromArgb(clr.A, clr.R, clr.G, clr.B);
     }
 }

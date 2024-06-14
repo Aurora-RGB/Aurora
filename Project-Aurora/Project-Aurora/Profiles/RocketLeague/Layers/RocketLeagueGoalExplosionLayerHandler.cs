@@ -7,169 +7,168 @@ using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using Newtonsoft.Json;
 
-namespace AuroraRgb.Profiles.RocketLeague.Layers
+namespace AuroraRgb.Profiles.RocketLeague.Layers;
+
+public class RocketLeagueGoalExplosionProperties : LayerHandlerProperties<RocketLeagueGoalExplosionProperties>
 {
-    public class RocketLeagueGoalExplosionProperties : LayerHandlerProperties<RocketLeagueGoalExplosionProperties>
+    private bool? _showFriendlyGoalExplosion;
+
+    [JsonProperty("_ShowFriendlyGoalExplosion")]
+    public bool ShowFriendlyGoalExplosion
     {
-        public bool? _ShowFriendlyGoalExplosion { get; set; }
-
-        [JsonIgnore]
-        public bool ShowFriendlyGoalExplosion { get { return Logic?._ShowFriendlyGoalExplosion ?? _ShowFriendlyGoalExplosion ?? true; } }
-
-        public bool? _ShowEnemyGoalExplosion { get; set; }
-
-        [JsonIgnore]
-        public bool ShowEnemyGoalExplosion { get { return Logic?._ShowEnemyGoalExplosion ?? _ShowEnemyGoalExplosion ?? true; } }
-
-        public bool? _Background { get; set; }
-
-        [JsonIgnore]
-        public bool Background { get { return Logic?._Background ?? _Background ?? true; } }
-
-        public RocketLeagueGoalExplosionProperties() : base()
-        {
-
-        }
-
-        public RocketLeagueGoalExplosionProperties(bool arg = false) : base(arg)
-        {
-
-        }
-
-        public override void Default()
-        {
-            base.Default();
-            _PrimaryColor = Color.FromArgb(125,0,0,0);
-            _ShowEnemyGoalExplosion = true;
-            _ShowFriendlyGoalExplosion = true;
-            _Background = true;
-        } 
+        get => Logic?._showFriendlyGoalExplosion ?? _showFriendlyGoalExplosion ?? true;
+        set => _showFriendlyGoalExplosion = value;
     }
 
-    public class RocketLeagueGoalExplosionLayerHandler : LayerHandler<RocketLeagueGoalExplosionProperties>
+    private bool? _showEnemyGoalExplosion;
+
+    [JsonProperty("_ShowEnemyGoalExplosion")]
+    public bool ShowEnemyGoalExplosion
     {
-        private int previousOwnTeamGoals = 0;
-        private int previousOpponentGoals = 0;
+        get => Logic?._showEnemyGoalExplosion ?? _showEnemyGoalExplosion ?? true;
+        set => _showEnemyGoalExplosion = value;
+    }
 
-        private readonly AnimationTrack[] tracks =
+    private bool? _background;
+
+    [JsonProperty("_Background")]
+    public bool Background
+    {
+        get => Logic?._background ?? _background ?? true;
+        set => _background = value;
+    }
+
+    public RocketLeagueGoalExplosionProperties()
+    {
+    }
+
+    public RocketLeagueGoalExplosionProperties(bool arg = false) : base(arg)
+    {
+    }
+
+    public override void Default()
+    {
+        base.Default();
+        _PrimaryColor = Color.FromArgb(125,0,0,0);
+        _showEnemyGoalExplosion = true;
+        _showFriendlyGoalExplosion = true;
+        _background = true;
+    } 
+}
+
+public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeagueGoalExplosionProperties>("Goal Explosion")
+{
+    private int _previousOwnTeamGoals;
+    private int _previousOpponentGoals;
+
+    private readonly AnimationTrack[] _tracks =
+    [
+        new AnimationTrack("Goal Explosion Track 0", 1.0f),
+        new AnimationTrack("Goal Explosion Track 1", 1.0f, 0.5f),
+        new AnimationTrack("Goal Explosion Track 2", 1.0f, 1.0f),
+        new AnimationTrack("Goal Explosion Track 3", 1.0f, 1.5f),
+        new AnimationTrack("Goal Explosion Track 4", 1.0f, 2.0f)
+    ];
+
+    private long _currentTime;
+
+    private float _goalEffectKeyframe;
+    private const float GoalEffectAnimationTime = 3.0f;
+
+    private bool _showAnimationExplosion;
+
+    public override EffectLayer Render(IGameState gameState)
+    {
+        var previousTime = _currentTime;
+        _currentTime = Time.GetMillisecondsSinceEpoch();
+
+        var goalExplosionMix = new AnimationMix();
+
+        if (gameState is not GameStateRocketLeague state)
+            return EffectLayer.EmptyLayer;
+
+        if (state.Game.Status == RLStatus.Undefined)
+            return EffectLayer.EmptyLayer;
+
+        if (state.YourTeam.Goals == -1 || state.OpponentTeam.Goals == -1 || _previousOwnTeamGoals > state.YourTeam.Goals || _previousOpponentGoals > state.OpponentTeam.Goals)
         {
-            new AnimationTrack("Goal Explosion Track 0", 1.0f, 0.0f),
-            new AnimationTrack("Goal Explosion Track 1", 1.0f, 0.5f),
-            new AnimationTrack("Goal Explosion Track 2", 1.0f, 1.0f),
-            new AnimationTrack("Goal Explosion Track 3", 1.0f, 1.5f),
-            new AnimationTrack("Goal Explosion Track 4", 1.0f, 2.0f)
-        };
+            //reset goals when game ends
+            _previousOwnTeamGoals = 0;
+            _previousOpponentGoals = 0;
+        }
 
-        private long previoustime = 0;
-        private long currenttime = 0;
-
-        private static float goalEffect_keyframe = 0.0f;
-        private const float goalEffect_animationTime = 3.0f;
-
-        private bool showAnimation_Explosion = false;
-
-        public override EffectLayer Render(IGameState gamestate)
+        if (state.YourTeam.Goals > _previousOwnTeamGoals)//keep track of goals even if we dont play the animation
         {
-            previoustime = currenttime;
-            currenttime = Time.GetMillisecondsSinceEpoch();
-
-            EffectLayer layer = new EffectLayer("Goal Explosion");
-            AnimationMix goal_explosion_mix = new AnimationMix();
-
-            if (gamestate is GameState_RocketLeague)
+            _previousOwnTeamGoals = state.YourTeam.Goals;
+            if (Properties.ShowFriendlyGoalExplosion && state.ColorsValid())
             {
-                var state = gamestate as GameState_RocketLeague;
-                if (state.Game.Status == RLStatus.Undefined)
-                    return layer;
-
-                if (state.YourTeam.Goals == -1 || state.OpponentTeam.Goals == -1 || previousOwnTeamGoals > state.YourTeam.Goals || previousOpponentGoals > state.OpponentTeam.Goals)
-                {
-                    //reset goals when game ends
-                    previousOwnTeamGoals = 0;
-                    previousOpponentGoals = 0;
-                }
-
-                if (state.YourTeam.Goals > previousOwnTeamGoals)//keep track of goals even if we dont play the animation
-                {
-                    previousOwnTeamGoals = state.YourTeam.Goals;
-                    if (Properties.ShowFriendlyGoalExplosion && state.ColorsValid())
-                    {
-                        Color playerColor = state.YourTeam.TeamColor;
-                        this.SetTracks(playerColor);
-                        goal_explosion_mix.Clear();
-                        showAnimation_Explosion = true;
-                    }
-                }
-
-                if(state.OpponentTeam.Goals > previousOpponentGoals)
-                {
-                    previousOpponentGoals = state.OpponentTeam.Goals;
-                    if (Properties.ShowEnemyGoalExplosion && state.ColorsValid())
-                    {
-                        Color opponentColor = state.OpponentTeam.TeamColor;
-                        this.SetTracks(opponentColor);
-                        goal_explosion_mix.Clear();
-                        showAnimation_Explosion = true;
-                    }
-                }
-
-                if (showAnimation_Explosion)
-                {
-                    if(Properties.Background)
-                        layer.FillOver(Properties.PrimaryColor);
-
-                    goal_explosion_mix = new AnimationMix(tracks);
-
-                    var graphics = layer.GetGraphics();
-                    {
-                        goal_explosion_mix.Draw(graphics, goalEffect_keyframe);
-                    }
-                    goalEffect_keyframe += (currenttime - previoustime) / 1000.0f;
-
-                    if (goalEffect_keyframe >= goalEffect_animationTime)
-                    {
-                        showAnimation_Explosion = false;
-                        goalEffect_keyframe = 0;
-                    }
-                }
+                var playerColor = state.YourTeam.TeamColor;
+                SetTracks(playerColor);
+                goalExplosionMix.Clear();
+                _showAnimationExplosion = true;
             }
-            return layer;
         }
 
-        public override void SetApplication(Application profile)
+        if(state.OpponentTeam.Goals > _previousOpponentGoals)
         {
-            base.SetApplication(profile);
-        }
-
-        protected override UserControl CreateControl()
-        {
-            return new Control_RocketLeagueGoalExplosionLayer(this);
-        }
-
-        private void SetTracks(Color playerColor)
-        {
-            for(int i = 0; i< tracks.Length; i++)
+            _previousOpponentGoals = state.OpponentTeam.Goals;
+            if (Properties.ShowEnemyGoalExplosion && state.ColorsValid())
             {
-                tracks[i].SetFrame(
-                    0.0f, 
-                    new AnimationCircle(
-                        (int)(Effects.Canvas.WidthCenter * 0.9),
-                        Effects.Canvas.HeightCenter,
-                        0, 
-                        playerColor,
-                        4)
-                );
-
-                tracks[i].SetFrame(
-                    1.0f,
-                    new AnimationCircle(
-                        (int)(Effects.Canvas.WidthCenter * 0.9),
-                        Effects.Canvas.HeightCenter, 
-                        Effects.Canvas.BiggestSize / 2.0f, 
-                        playerColor,
-                        4)
-                );
+                var opponentColor = state.OpponentTeam.TeamColor;
+                SetTracks(opponentColor);
+                goalExplosionMix.Clear();
+                _showAnimationExplosion = true;
             }
+        }
+
+        if (!_showAnimationExplosion) return EffectLayer;
+
+        if(Properties.Background)
+            EffectLayer.FillOver(Properties.PrimaryColor);
+
+        goalExplosionMix = new AnimationMix(_tracks);
+
+        EffectLayer.Clear();
+        var graphics = EffectLayer.GetGraphics();
+        goalExplosionMix.Draw(graphics, _goalEffectKeyframe);
+        _goalEffectKeyframe += (_currentTime - previousTime) / 1000.0f;
+
+        if (_goalEffectKeyframe >= GoalEffectAnimationTime)
+        {
+            _showAnimationExplosion = false;
+            _goalEffectKeyframe = 0;
+        }
+        return EffectLayer;
+    }
+
+    protected override UserControl CreateControl()
+    {
+        return new Control_RocketLeagueGoalExplosionLayer(this);
+    }
+
+    private void SetTracks(Color playerColor)
+    {
+        foreach (var track in _tracks)
+        {
+            track.SetFrame(
+                0.0f, 
+                new AnimationCircle(
+                    (int)(Effects.Canvas.WidthCenter * 0.9),
+                    Effects.Canvas.HeightCenter,
+                    0, 
+                    playerColor,
+                    4)
+            );
+
+            track.SetFrame(
+                1.0f,
+                new AnimationCircle(
+                    (int)(Effects.Canvas.WidthCenter * 0.9),
+                    Effects.Canvas.HeightCenter, 
+                    Effects.Canvas.BiggestSize / 2.0f, 
+                    playerColor,
+                    4)
+            );
         }
     }
 }

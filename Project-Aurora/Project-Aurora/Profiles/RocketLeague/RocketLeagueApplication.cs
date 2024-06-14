@@ -10,7 +10,7 @@ public class RocketLeague : Application
                 ProcessNames = new[] { "rocketleague.exe" },
                 ProfileType = typeof(RocketLeagueBMProfile),
                 OverviewControlType = typeof(Control_RocketLeague),
-                GameStateType = typeof(GSI.GameState_RocketLeague),
+                GameStateType = typeof(GSI.GameStateRocketLeague),
                 IconURI = "Resources/rocketleague_256x256.png"
             })
     {
