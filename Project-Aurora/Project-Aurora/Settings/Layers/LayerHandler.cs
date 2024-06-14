@@ -130,7 +130,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 
     }
 
-    private readonly Lazy<EffectLayer> _postfxLayer = new(() => new EffectLayer("PostFXLayer", true));
+    private readonly Temporary<EffectLayer> _postfxLayer = new(() => new EffectLayer("PostFXLayer", true));
     private readonly ImageAttributes _prevImageAttributes;
     private readonly ImageAttributes _secondPrevImageAttributes;
 

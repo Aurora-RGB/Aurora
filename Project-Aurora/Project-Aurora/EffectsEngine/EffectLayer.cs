@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Threading;
 using System.Windows;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
@@ -20,9 +19,7 @@ namespace AuroraRgb.EffectsEngine
     /// </summary>
     public sealed class EffectLayer : IDisposable
     {
-        private static readonly Lazy<EffectLayer> EmptyLayerFactory = new(
-            () => new EffectLayer("EmptyLayer", true), LazyThreadSafetyMode.PublicationOnly);
-        public static EffectLayer EmptyLayer => EmptyLayerFactory.Value;
+        public static EffectLayer EmptyLayer { get; } = new("EmptyLayer", true);
         
         // Yes, this is no thread-safe but Aurora isn't supposed to take up resources
         // This is done to prevent memory leaks from creating new brushes
@@ -57,7 +54,7 @@ namespace AuroraRgb.EffectsEngine
 
                 if (_disposed)
                 {
-                    return EmptyLayerFactory.Value.TextureBrush;
+                    return EmptyLayer.TextureBrush;
                 }
                 _textureBrush = new TextureBrush(_colormap, Dimension, imageAttributes);
                 _needsRender = false;

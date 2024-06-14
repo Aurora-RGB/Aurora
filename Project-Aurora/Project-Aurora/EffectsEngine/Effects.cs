@@ -134,8 +134,7 @@ public class Effects(Task<DeviceManager> deviceManager)
 
     private readonly Dictionary<DeviceKeys, SimpleColor> _keyColors = new(MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
-    private readonly Lazy<EffectLayer> _effectLayerFactory = new(() => new EffectLayer("Global Background", Color.Black, true));
-    private EffectLayer Background => _effectLayerFactory.Value;
+    private EffectLayer Background { get; } = new("Global Background", Color.Black, true);
 
     private readonly SolidBrush _keyboardDarknessBrush = new(Color.Empty);
     private readonly SolidBrush _blackBrush = new(Color.Black);
