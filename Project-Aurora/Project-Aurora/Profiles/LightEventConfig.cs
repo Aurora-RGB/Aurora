@@ -8,12 +8,13 @@ using System.Windows.Controls;
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
+using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles;
 
 public class LightEventConfig : INotifyPropertyChanged
 {
-    private readonly Lazy<LightEvent> _lightEvent;
+    private readonly Temporary<LightEvent> _lightEvent;
     public string[] ProcessNames
     {
         get => _processNames;
