@@ -15,6 +15,25 @@ public class RocketLeagueBMProfile : ApplicationProfile
         base.Reset();
         Layers =
         [
+            new Layer("Controller Throttle", new PercentGradientLayerHandler
+            {
+                Properties = new PercentGradientLayerHandlerProperties
+                {
+                    PercentType = PercentEffectType.Progressive_Gradual,
+                    _Sequence = new KeySequence(new[]
+                    {
+                        DeviceKeys.TILDE, DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR,
+                        DeviceKeys.FIVE, DeviceKeys.SIX, DeviceKeys.SEVEN, DeviceKeys.EIGHT, DeviceKeys.NINE,
+                        DeviceKeys.ZERO, DeviceKeys.MINUS, DeviceKeys.EQUALS, DeviceKeys.BACKSPACE
+                    }),
+                    Gradient = new EffectBrush(new ColorSpectrum(Color.Yellow, Color.Red).SetColorAt(0.75f, Color.OrangeRed)),
+                    BlinkThreshold = 0.0,
+                    BlinkDirection = false,
+                    VariablePath = new VariablePath("LocalPCInfo/Controllers/Controller1/RightTrigger"),
+                    MaxVariablePath = new VariablePath("255"),
+                },
+            }),
+
             new Layer("Boost Indicator (Peripheral)", new PercentGradientLayerHandler
             {
                 Properties = new PercentGradientLayerHandlerProperties
