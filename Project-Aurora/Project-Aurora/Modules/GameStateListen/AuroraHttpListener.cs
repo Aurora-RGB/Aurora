@@ -20,7 +20,7 @@ public class AuroraHttpListener
         private set
         {
             _currentGameState = value;
-            NewGameState?.Invoke(this, CurrentGameState);
+            NewGameState?.Invoke(this, value);
         }
     }
 
@@ -45,6 +45,7 @@ public class AuroraHttpListener
     /// </summary>
     public bool Start()
     {
+        ServicePointManager.UseNagleAlgorithm = false;
         if (_isRunning) return false;
 
         try
@@ -90,6 +91,10 @@ public class AuroraHttpListener
         try
         {
             var context = _netListener.EndGetContext(result);
+
+            //run in another thread to reset stack
+            Task.Run(() => _netListener.BeginGetContext(ReceiveGameState, null));
+
             var json = TryProcessRequest(context);
 
             if (!string.IsNullOrWhiteSpace(json))
@@ -101,9 +106,6 @@ public class AuroraHttpListener
         {
             Global.logger.Error(e, "[NetworkListener] ReceiveGameState error:");
         }
-
-        //run in another thread to reset stack
-        Task.Run(() => _netListener.BeginGetContext(ReceiveGameState, null));
     }
 
     private static string TryProcessRequest(HttpListenerContext context)
@@ -122,6 +124,8 @@ public class AuroraHttpListener
             response.StatusDescription = "OK";
             response.ContentType = "application/json";
             response.ContentLength64 = 0;
+            response.AppendHeader("Access-Control-Allow-Origin", "*");
+            response.AppendHeader("Access-Control-Allow-Private-Network", "true");
         }
 
         return json;
