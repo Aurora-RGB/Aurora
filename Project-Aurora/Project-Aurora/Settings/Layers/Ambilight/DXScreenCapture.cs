@@ -3,29 +3,36 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 
 namespace AuroraRgb.Settings.Layers.Ambilight;
 
-internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
+internal sealed class DxScreenCapture : IScreenCapture
 {
     public event EventHandler<Bitmap>? ScreenshotTaken;
     
     private static readonly Dictionary<Output5, DesktopDuplicator> Duplicators = new();
-
-    private static readonly SemaphoreSlim Semaphore = new(1, 1);
+    private static readonly object Lock = new();
+    
     private Rectangle _currentBounds = Rectangle.Empty;
     private DesktopDuplicator? _desktopDuplicator;
 
     public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
         SetTarget(desktopRegion);
+
+        lock (Lock)
+        {
+            CaptureLocked(bitmap);
+        }
+    }
+
+    private void CaptureLocked(Bitmap bitmap)
+    {
         try
         {
-            Semaphore.Wait();
             if (_currentBounds.IsEmpty)
                 return;
             
@@ -36,6 +43,7 @@ internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
                 {
                     _desktopDuplicator = null;
                 }
+
                 return;
             }
             ScreenshotTaken?.Invoke(this, capture);
@@ -49,8 +57,6 @@ internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
                 _desktopDuplicator = null;
             }
             Thread.Sleep(2000);
-        } finally {
-            Semaphore.Release();
         }
     }
 
@@ -81,17 +87,12 @@ internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
 
         _currentBounds = screenWindowRectangle;
 
-        try
+        
+        lock (Lock)
         {
-            Semaphore.Wait();
-
             if (Duplicators.TryGetValue(currentOutput, out _desktopDuplicator)) return;
             _desktopDuplicator = new DesktopDuplicator(currentOutput);
             Duplicators.Add(currentOutput, _desktopDuplicator);
-        }
-        finally
-        {
-            Semaphore.Release();
         }
     }
 
@@ -124,15 +125,10 @@ internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
 
     private static void FactoryDisposed(object? sender, EventArgs e)
     {
-        try
+        lock (Lock)
         {
-            Semaphore.Wait();
             _outputs = null;
             Duplicators.Clear();
-        }
-        finally
-        {
-            Semaphore.Release();
         }
     }
 
@@ -156,27 +152,9 @@ internal sealed class DxScreenCapture : IScreenCapture, IAsyncDisposable
 
     public void Dispose()
     {
-        try
+        lock (Lock)
         {
-            Semaphore.Wait();
             _desktopDuplicator = null;
-        }
-        finally
-        {
-            Semaphore.Release();
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            await Semaphore.WaitAsync();
-            _desktopDuplicator = null;
-        }
-        finally
-        {
-            Semaphore.Release();
         }
     }
 }
