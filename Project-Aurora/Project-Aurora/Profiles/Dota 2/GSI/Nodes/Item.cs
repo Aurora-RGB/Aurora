@@ -1,55 +1,43 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes
+namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
+
+/// <summary>
+/// Class representing item information
+/// </summary>
+public class Item
 {
+    public static readonly Item Default = new();
+
     /// <summary>
-    /// Class representing item information
+    /// Item name
     /// </summary>
-    public class Item : Node
-    {
-        /// <summary>
-        /// Item name
-        /// </summary>
-        public string Name;
+    public string Name { get; }
 
-        /// <summary>
-        /// The name of the rune cotnained inside this item.
-        /// <note type="note">Possible rune names: empty, arcane, bounty, double_damage, haste, illusion, invisibility, regen</note>
-        /// </summary>
-        public string ContainsRune;
+    /// <summary>
+    /// The name of the rune cotnained inside this item.
+    /// <note type="note">Possible rune names: empty, arcane, bounty, double_damage, haste, illusion, invisibility, regen</note>
+    /// </summary>
+    public string ContainsRune { get; }
 
-        /// <summary>
-        /// A boolean representing whether this item can be casted
-        /// </summary>
-        public bool CanCast;
+    /// <summary>
+    /// A boolean representing whether this item can be casted
+    /// </summary>
+    public bool CanCast { get; }
 
-        /// <summary>
-        /// Item's cooldown
-        /// </summary>
-        public int Cooldown;
+    /// <summary>
+    /// Item's cooldown
+    /// </summary>
+    public int Cooldown { get; }
 
-        /// <summary>
-        /// A boolean representing whether this item is passive
-        /// </summary>
-        public bool IsPassive;
+    /// <summary>
+    /// A boolean representing whether this item is passive
+    /// </summary>
+    [JsonPropertyName("passive")]
+    public bool IsPassive { get; }
 
-        /// <summary>
-        /// The amount of charges on this item
-        /// </summary>
-        public int Charges;
-
-        public Item() : this("")
-        {
-        }
-
-        internal Item(string json_data) : base(json_data)
-        {
-            Name = GetString("name");
-            ContainsRune = GetString("contains_rune");
-            CanCast = GetBool("can_cast");
-            Cooldown = GetInt("cooldown");
-            IsPassive = GetBool("passive");
-            Charges = GetInt("charges");
-        }
-    }
+    /// <summary>
+    /// The amount of charges on this item
+    /// </summary>
+    public int Charges { get; }
 }

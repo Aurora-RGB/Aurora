@@ -1,4 +1,6 @@
-﻿using AuroraRgb.Profiles.CSGO.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+using AuroraRgb.Profiles.CSGO.GSI.Nodes;
+using AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
 namespace AuroraRgb.Profiles.CSGO.GSI;
 
@@ -7,56 +9,45 @@ namespace AuroraRgb.Profiles.CSGO.GSI;
 /// </summary>
 public partial class GameStateCsgo : GameState
 {
-    private ProviderNode? _provider;
-    private MapNode? _map;
-    private RoundNode? _round;
-    private PlayerNode? _player;
-    private AllPlayersNode? _allPlayers;
-    private GameStateCsgo? _previously;
-    private GameStateCsgo? _added;
-    private AuthNode? _auth;
-
     /// <summary>
     /// Information about the provider of this GameState
     /// </summary>
-    public ProviderNode Provider => _provider ??= new ProviderNode(_ParsedData["provider"]?.ToString() ?? "");
+    [JsonPropertyName("provider")]
+    public ProviderValve Provider { get; set; } = ProviderValve.Default;
 
     /// <summary>
     /// Information about the current map
     /// </summary>
-    public MapNode Map => _map ??= new MapNode(_ParsedData["map"]?.ToString() ?? "");
+    [JsonPropertyName("map")]
+    public MapNode Map { get; set; } = MapNode.Default;
 
     /// <summary>
     /// Information about the current round
     /// </summary>
-    public RoundNode Round => _round ??= new RoundNode(_ParsedData["round"]?.ToString() ?? "");
+    [JsonPropertyName("round")]
+    public RoundNode Round { get; set; } = RoundNode.Default;
 
     /// <summary>
     /// Information about the current player
     /// </summary>
-    public PlayerNode Player => _player ??= new PlayerNode(_ParsedData["player"]?.ToString() ?? "");
-
-    /// <summary>
-    /// Information about all players in the lobby
-    /// </summary>
-    public AllPlayersNode AllPlayers => _allPlayers ??= new AllPlayersNode(_ParsedData["allplayers"]?.ToString() ?? "");
+    [JsonPropertyName("player")]
+    public PlayerNode Player { get; set; } = PlayerNode.Default;
 
     /// <summary>
     /// A previous GameState
     /// </summary>
-    public GameStateCsgo Previously => _previously ??= new GameStateCsgo(_ParsedData["previously"]?.ToString() ?? "");
+    [JsonPropertyName("previously")]
+    public GameStateCsgo? Previously { get; set; }
 
     /// <summary>
     /// A GameState with only added information
     /// </summary>
-    public GameStateCsgo Added => _added ??= new GameStateCsgo(_ParsedData["added"]?.ToString() ?? "");
+    [JsonPropertyName("added")]
+    public GameStateCsgo? Added { get; set; }
 
     /// <summary>
     /// Information about GSI authentication
     /// </summary>
-    public AuthNode Auth => _auth ??= new AuthNode(_ParsedData["auth"]?.ToString() ?? "");
-
-
-    public GameStateCsgo() { }
-    public GameStateCsgo(string jsonData) : base(jsonData) { }
+    [JsonPropertyName("auth")]
+    public AuthNode Auth { get; set; } = AuthNode.Default;
 }

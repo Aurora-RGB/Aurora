@@ -9,7 +9,7 @@ public class StardewValley : Application {
         ProcessNames = new[] { "StardewModdingAPI.exe" },
         ProfileType = typeof(StardewValleyProfile),
         OverviewControlType = typeof(Control_StardewValley),
-        GameStateType = typeof(GSI.GameState_StardewValley),
+        GameStateType = typeof(GSI.GameStateStardewValley),
         IconURI = "Resources/stardew_valley_32x32.png"
     })
     {

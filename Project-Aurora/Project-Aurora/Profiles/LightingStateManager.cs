@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,12 +18,21 @@ using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Profiles;
 
 public sealed class LightingStateManager : IDisposable
 {
+    private static readonly JsonSerializerOptions GameStateJsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+        TypeInfoResolverChain = { GameStateSourceGenerationContext.Default }
+    };
+    
     public event EventHandler? EventAdded;
     public Dictionary<string, ILightEvent> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
 
@@ -433,6 +443,15 @@ public sealed class LightingStateManager : IDisposable
     }
 
     private bool _profilesDisabled;
+
+    private static readonly DefaultContractResolver ContractResolver = new()
+    {
+        NamingStrategy = new SnakeCaseNamingStrategy()
+        {
+            OverrideSpecifiedNames = false
+        }
+    };
+
     private void Update()
     {
         PreUpdate?.Invoke(this, EventArgs.Empty);
@@ -576,34 +595,72 @@ public sealed class LightingStateManager : IDisposable
         application.SwitchToProfile(possibleProfiles[trg]);
     }
 
+    public void JsonGameStateUpdate(object? sender, JsonGameStateEventArgs eventArgs)
+    {
+        var gameId = eventArgs.GameId;
+        var profile = GetProfileFromAppId(gameId);
+        if (profile == null)
+        {
+            return;
+        }
+
+        var gameStateType = profile.Config.GameStateType;
+        var json = eventArgs.Json;
+
+        var gameState = JsonSerializer.Deserialize(json, gameStateType, GameStateJsonSerializerOptions) as IGameState;
+        
+        profile.SetGameState(gameState);
+    }
+
     public void GameStateUpdate(object? sender, IGameState gs)
     {
-#if !DEBUG
         try
         {
-#endif
-            ILightEvent? profile;
-
-            var provider = JObject.Parse(gs.GetNode("provider"));
+            if (gs is not NewtonsoftGameState newtonsoftGameState)
+            {
+                return;
+            }
+            
+            if (!newtonsoftGameState.Announce)
+            {
+                 return;   
+            }
+            
+            var provider = JObject.Parse(newtonsoftGameState.GetNode("provider"));
             var appid = provider.GetValue("appid").ToString();
             var name = provider.GetValue("name").ToString().ToLowerInvariant();
 
+            ILightEvent? profile;
             if ((profile = GetProfileFromAppId(appid)) == null && (profile = GetProfileFromProcessName(name)) == null)
             {
                 return;
             }
+            
+            if (profile.Config.GameStateType == null)
+                return;
 
-            var gameState = gs;
-            if (profile.Config.GameStateType != null)
-                gameState = (IGameState)Activator.CreateInstance(profile.Config.GameStateType, gs.Json);
+            // profile supports System.Text.Json but we received data on old endpoint
+            if (!profile.Config.GameStateType.IsAssignableTo(typeof(NewtonsoftGameState)))
+            {
+                var njGameState = JsonConvert.DeserializeObject(newtonsoftGameState.Json, profile.Config.GameStateType, new JsonSerializerSettings()
+                {
+                    ContractResolver = ContractResolver,
+                }) as IGameState;
+                profile.SetGameState(njGameState);
+                return;
+            }
+
+            var gameState = (NewtonsoftGameState)Activator.CreateInstance(profile.Config.GameStateType, newtonsoftGameState.Json);
             profile.SetGameState(gameState);
-#if !DEBUG
         }
         catch (Exception e)
         {
             Global.logger.Warning(e, "Exception during GameStateUpdate(), error: ");
+            if (Debugger.IsAttached)
+            {
+                throw;
+            }
         }
-#endif
     }
 
     public void ResetGameState(object? sender, string process)
@@ -626,7 +683,7 @@ public sealed class LightingStateManager : IDisposable
     public async Task DisposeAsync()
     {
         await _initializeCancelSource.CancelAsync();
-        Task.WaitAll(_initTasks.ToArray());
+        await Task.WhenAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
         if (_updateTimer != null)
             await _updateTimer.DisposeAsync();

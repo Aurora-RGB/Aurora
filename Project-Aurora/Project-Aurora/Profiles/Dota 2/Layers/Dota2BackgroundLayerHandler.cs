@@ -90,7 +90,7 @@ public class Dota2BackgroundLayerHandler() : LayerHandler<Dota2BackgroundLayerHa
     {
         if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
 
-        if (dota2State.Previously.Hero.HealthPercent == 0 && dota2State.Hero.HealthPercent == 100 && !dota2State.Previously.Hero.IsAlive && dota2State.Hero.IsAlive)
+        if (dota2State.Previously?.Hero.HealthPercent == 0 && dota2State.Hero.HealthPercent == 100 && !dota2State.Previously.Hero.IsAlive && dota2State.Hero.IsAlive)
         {
             _isDimming = false;
             _dimBgAt = dota2State.Map.GameTime + (int)Properties.DimDelay;

@@ -5,7 +5,7 @@ namespace AuroraRgb.Profiles.Witcher3.GSI;
 /// <summary>
 /// A class representing various information retaining to Game State Integration of Witcher 3
 /// </summary>
-public class GameStateWitcher3 : GameState
+public class GameStateWitcher3 : NewtonsoftGameState
 {
     public PlayerWitcher3 Player { get; } = new();
 
@@ -19,8 +19,8 @@ public class GameStateWitcher3 : GameState
     /// <summary>
     /// Creates a GameState instance based on the passed json data.
     /// </summary>
-    /// <param name="json_data">The passed json data</param>
-    public GameStateWitcher3(string json_data) : base(json_data)
+    /// <param name="jsonData">The passed json data</param>
+    public GameStateWitcher3(string jsonData) : base(jsonData)
     {
     }
 }

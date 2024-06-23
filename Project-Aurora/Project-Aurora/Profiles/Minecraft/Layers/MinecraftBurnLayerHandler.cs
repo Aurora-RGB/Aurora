@@ -39,7 +39,7 @@ public class MinecraftBurnLayerHandler : LayerHandler<LayerHandlerProperties> {
 
     public override EffectLayer Render(IGameState gamestate) {
         // Render nothing if invalid gamestate or player isn't on fire
-        if (gamestate is not GameState_Minecraft minecraft || !minecraft.Player.IsBurning)
+        if (gamestate is not GameStateMinecraft minecraft || !minecraft.Player.IsBurning)
             return EffectLayer.EmptyLayer;
 
         // Set the background to red

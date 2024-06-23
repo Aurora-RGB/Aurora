@@ -1,4 +1,6 @@
-﻿namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+
+namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
 
 public enum DiscordStatus
 {
@@ -9,19 +11,38 @@ public enum DiscordStatus
     Invisible
 }
 
-public class UserNode : AutoJsonNode<UserNode> {
-    public long Id = 0;
-    [AutoJsonIgnore] public DiscordStatus Status { get; set; }
-    [AutoJsonPropertyName("self_mute")] public bool SelfMute { get; set; }
-    [AutoJsonPropertyName("self_deafen")] public bool SelfDeafen { get; set; }
-    public bool Mentions { get; set; }
-    [AutoJsonPropertyName("unread_messages")] public bool UnreadMessages { get; set; }
-    [AutoJsonPropertyName("being_called")] public bool BeingCalled { get; set; }
-    [AutoJsonPropertyName("is_speaking")] public bool IsSpeaking { get; set; }
+public class UserNode
+{
+    public static readonly UserNode Default = new();
 
-    internal UserNode(string json) : base(json) {
-        Status = GetStatus(GetString("status"));
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+
+    [JsonIgnore]
+    public DiscordStatus Status { get; private set; }
+
+    [JsonPropertyName("status")]
+    public string StatusJson
+    {
+        set => Status = GetStatus(value);
     }
+
+    [JsonPropertyName("self_mute")]
+    public bool SelfMute { get; set; }
+
+    [JsonPropertyName("self_deafen")]
+    public bool SelfDeafen { get; set; }
+
+    public bool Mentions { get; set; }
+
+    [JsonPropertyName("unread_messages")]
+    public bool UnreadMessages { get; set; }
+
+    [JsonPropertyName("being_called")]
+    public bool BeingCalled { get; set; }
+
+    [JsonPropertyName("is_speaking")]
+    public bool IsSpeaking { get; set; }
 
     private static DiscordStatus GetStatus(string status)
     {

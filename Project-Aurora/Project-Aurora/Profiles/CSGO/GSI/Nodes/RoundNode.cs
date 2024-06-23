@@ -1,34 +1,31 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
 /// <summary>
 /// Class representing information about the round
 /// </summary>
-public class RoundNode : Node
+public class RoundNode
 {
+    public static readonly RoundNode Default = new();
+
     /// <summary>
     /// Current round phase
     /// </summary>
-    public RoundPhase Phase { get; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public RoundPhase Phase { get; set; }
 
     /// <summary>
     /// Current bomb state
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public BombState Bomb { get; set; }
 
     /// <summary>
     /// Round winning team
     /// </summary>
-    public RoundWinTeam WinTeam { get; }
-
-    internal RoundNode(string json)
-        : base(json)
-    {
-        Phase = GetEnum<RoundPhase>("phase");
-        Bomb = GetEnum<BombState>("bomb");
-        WinTeam = GetEnum<RoundWinTeam>("win_team");
-    }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public RoundWinTeam WinTeam { get; set; }
 }
 
 /// <summary>

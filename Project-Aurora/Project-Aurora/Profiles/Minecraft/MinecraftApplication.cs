@@ -12,7 +12,7 @@ public partial class Minecraft : Application {
         ProcessTitles = [StartsWithMinecraft()], // Match any window title that starts with Minecraft
         ProfileType = typeof(MinecraftProfile),
         OverviewControlType = typeof(Control_Minecraft),
-        GameStateType = typeof(GSI.GameState_Minecraft),
+        GameStateType = typeof(GSI.GameStateMinecraft),
         IconURI = "Resources/minecraft_128x128.png"
     }) {
         AllowLayer<MinecraftHealthBarLayerHandler>();

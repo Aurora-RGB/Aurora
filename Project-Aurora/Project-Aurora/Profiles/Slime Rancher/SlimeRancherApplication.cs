@@ -10,7 +10,7 @@ public class Slime_Rancher : Application {
         ProcessNames = new[] { "SlimeRancher.exe" },
         ProfileType = typeof(SlimeRancherProfile),
         OverviewControlType = typeof(Control_Slime_Rancher),
-        GameStateType = typeof(GSI.GameState_Slime_Rancher),
+        GameStateType = typeof(GSI.GameStateSlimeRancher),
         IconURI = "Resources/Slime_Rancher.png"
     })
     { }        

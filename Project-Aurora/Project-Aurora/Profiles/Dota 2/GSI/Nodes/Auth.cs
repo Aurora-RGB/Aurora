@@ -1,20 +1,13 @@
-﻿using AuroraRgb.Nodes;
+﻿namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes
+/// <summary>
+/// A class representing the authentication information for GSI
+/// </summary>
+public class AuthDota2
 {
+    public static readonly AuthDota2 Default = new();
     /// <summary>
-    /// A class representing the authentication information for GSI
+    /// The auth token sent by this GSI
     /// </summary>
-    public class Auth_Dota2 : Node
-    {
-        /// <summary>
-        /// The auth token sent by this GSI
-        /// </summary>
-        public string Token;
-
-        internal Auth_Dota2(string json_data) : base(json_data)
-        {
-            Token = GetString("token");
-        }
-    }
+    public string Token { get; set; } = string.Empty;
 }

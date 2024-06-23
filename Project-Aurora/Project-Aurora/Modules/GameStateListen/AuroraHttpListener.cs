@@ -1,18 +1,34 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Profiles;
 
 namespace AuroraRgb.Modules.GameStateListen;
 
-public class AuroraHttpListener
+public sealed class JsonGameStateEventArgs(string gameId, string json) : EventArgs
+{
+    public string GameId { get; } = gameId;
+    public string Json { get; } = json;
+}
+
+public sealed partial class AuroraHttpListener
 {
     private bool _isRunning;
-    private IGameState _currentGameState = new EmptyGameState("{}");
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly CancellationToken _cancellationToken;
+    private IGameState _currentGameState = new NewtonsoftGameState("{}");
     private readonly HttpListener _netListener;
     private readonly int _port;
+    private static readonly WebHeaderCollection WebHeaderCollection = new()
+    {
+        ["Access-Control-Allow-Origin"] = "*",
+        ["Access-Control-Allow-Private-Network"] = "true",
+    };
+
 
     public IGameState CurrentGameState
     {
@@ -29,6 +45,8 @@ public class AuroraHttpListener
     /// </summary>
     public event EventHandler<IGameState>? NewGameState;
 
+    public event EventHandler<JsonGameStateEventArgs>? NewJsonGameState;
+
     /// <summary>
     /// A GameStateListener that listens for connections on http://127.0.0.1:port/
     /// </summary>
@@ -38,6 +56,9 @@ public class AuroraHttpListener
         _port = port;
         _netListener = new HttpListener();
         _netListener.Prefixes.Add($"http://127.0.0.1:{port}/");
+
+        _cancellationTokenSource = new CancellationTokenSource();
+        _cancellationToken = _cancellationTokenSource.Token;
     }
 
     /// <summary>
@@ -66,8 +87,19 @@ public class AuroraHttpListener
         }
         _isRunning = true;
 
-        _netListener.BeginGetContext(ReceiveGameState, null);
+        StartAsyncRead();
+        StartAsyncRead();
         return true;
+    }
+
+    private void StartAsyncRead()
+    {
+        Task.Run(async () =>
+        {
+            var context = await _netListener.GetContextAsync();
+            StartAsyncRead();
+            ProcessContext(context);
+        }, _cancellationToken);
     }
 
     /// <summary>
@@ -76,30 +108,21 @@ public class AuroraHttpListener
     public Task Stop()
     {
         _isRunning = false;
+        _cancellationTokenSource.Cancel();
+        _cancellationTokenSource.Dispose();
 
         _netListener.Close();
         return Task.CompletedTask;
     }
 
-    private void ReceiveGameState(IAsyncResult result)
+    private void ProcessContext(HttpListenerContext context)
     {
-        if (!_isRunning)
-        {
-            return;
-        }
-
         try
         {
-            var context = _netListener.EndGetContext(result);
-
-            //run in another thread to reset stack
-            Task.Run(() => _netListener.BeginGetContext(ReceiveGameState, null));
-
             var json = TryProcessRequest(context);
-
-            if (!string.IsNullOrWhiteSpace(json))
+            if (json != null)
             {
-                CurrentGameState = new EmptyGameState(json);
+                CurrentGameState = json;
             }
         }
         catch (Exception e)
@@ -108,7 +131,7 @@ public class AuroraHttpListener
         }
     }
 
-    private static string TryProcessRequest(HttpListenerContext context)
+    private NewtonsoftGameState? TryProcessRequest(HttpListenerContext context)
     {
         var request = context.Request;
         string json;
@@ -118,16 +141,42 @@ public class AuroraHttpListener
             json = sr.ReadToEnd();
         }
 
-        using (var response = context.Response)
+        // immediately respond to the game, don't let it wait for response
+        var response = context.Response;
+        response.StatusCode = (int)HttpStatusCode.OK;
+        response.ContentLength64 = 0;
+        response.Headers = WebHeaderCollection;
+        response.Close([], true);
+
+        if (string.IsNullOrWhiteSpace(json))
         {
-            response.StatusCode = (int)HttpStatusCode.OK;
-            response.StatusDescription = "OK";
-            response.ContentType = "application/json";
-            response.ContentLength64 = 0;
-            response.AppendHeader("Access-Control-Allow-Origin", "*");
-            response.AppendHeader("Access-Control-Allow-Private-Network", "true");
+            return null;
         }
 
-        return json;
+        var uri = request.Url.LocalPath;
+        if (!uri.StartsWith("/gameState/"))
+        {
+            return new NewtonsoftGameState(json);
+        }
+
+        var match = GameStateRegex().Match(uri);
+        if (!match.Success)
+        {
+            return new NewtonsoftGameState(json);
+        }
+ 
+        var gameIdGroup = match.Groups[1];
+        var gameId = gameIdGroup.Value;
+
+        var eventArgs = new JsonGameStateEventArgs(gameId, json);
+        NewJsonGameState?.Invoke(this, eventArgs);
+        
+        // set announce false to prevent LSM from setting it to a profile
+        // also return NewtonsoftGameState for compatibility and GSI window 
+        return new NewtonsoftGameState(json, false);
     }
+
+    // https://regex101.com/r/N3BMIu/1
+    [GeneratedRegex(@"\/gameState\/([a-zA-Z0-9_]*)\??\/?.*")]
+    private static partial Regex GameStateRegex();
 }

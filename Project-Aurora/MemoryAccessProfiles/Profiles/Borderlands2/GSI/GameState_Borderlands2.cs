@@ -6,7 +6,7 @@ namespace MemoryAccessProfiles.Profiles.Borderlands2.GSI;
 /// <summary>
 /// A class representing various information relating to Borderlands 2
 /// </summary>
-public class GameState_Borderlands2 : GameState
+public class GameState_Borderlands2 : NewtonsoftGameState
 {
     private Player_Borderlands2 player;
 
@@ -27,7 +27,7 @@ public class GameState_Borderlands2 : GameState
     /// <summary>
     /// Creates a default GameState_Borderlands2 instance.
     /// </summary>
-    public GameState_Borderlands2() : base()
+    public GameState_Borderlands2()
     {
     }
 

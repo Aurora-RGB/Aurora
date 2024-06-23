@@ -1,52 +1,47 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
 /// <summary>
 /// Class representing information about the map
 /// </summary>
-public class MapNode : Node
+public class MapNode
 {
+    public static readonly MapNode Default = new();
+
     /// <summary>
     /// Current gamemode
     /// </summary>
-    public MapMode Mode { get; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public MapMode Mode { get; set; } = MapMode.Undefined;
 
     /// <summary>
     /// Name of the current map
     /// </summary>
-    public string Name { get; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Current phase of the map
     /// </summary>
-    public MapPhase Phase { get; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public MapPhase Phase { get; set; } = MapPhase.Undefined;
 
     /// <summary>
     /// Current round
     /// </summary>
-    public int Round { get; }
+    public int Round { get; set; }
 
     /// <summary>
     /// Counter-Terrorist team information
     /// </summary>
-    public MapTeamNode TeamCT { get; }
+    [JsonPropertyName("team_ct")]
+    public MapTeamNode TeamCT { get; set; } = MapTeamNode.Default;
 
     /// <summary>
     /// Terrorist team information
     /// </summary>
-    public MapTeamNode TeamT { get; }
-
-    internal MapNode(string json)
-        : base(json)
-    {
-        Mode = GetEnum<MapMode>("mode");
-        Name = GetString("name");
-        Phase = GetEnum<MapPhase>("phase");
-        Round = GetInt("round");
-        TeamCT = new MapTeamNode(_ParsedData["team_ct"]?.ToString() ?? "");
-        TeamT = new MapTeamNode(_ParsedData["team_t"]?.ToString() ?? "");
-    }
+    [JsonPropertyName("team_t")]
+    public MapTeamNode TeamT { get; set; } = MapTeamNode.Default;
 }
 
 /// <summary>

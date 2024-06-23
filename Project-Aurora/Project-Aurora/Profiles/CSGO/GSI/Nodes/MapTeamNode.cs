@@ -1,26 +1,19 @@
-﻿using AuroraRgb.Nodes;
-
-namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
+﻿namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
 /// <summary>
 /// Class representing team information
 /// </summary>
-public class MapTeamNode : Node
+public class MapTeamNode
 {
+    public static readonly MapTeamNode Default = new();
+
     /// <summary>
     /// Team score
     /// </summary>
-    public int Score { get; }
+    public int Score { get; set; }
 
     /// <summary>
     /// Remaining Timeouts
     /// </summary>
-    public int TimeoutsRemaining { get; }
-
-    internal MapTeamNode(string json)
-        : base(json)
-    {
-        Score = GetInt("score");
-        TimeoutsRemaining = GetInt("timeouts_remaining");
-    }
+    public int TimeoutsRemaining { get; set; }
 }

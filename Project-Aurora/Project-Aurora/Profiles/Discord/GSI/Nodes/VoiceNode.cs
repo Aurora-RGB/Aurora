@@ -1,4 +1,6 @@
-﻿namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+
+namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
 
 public enum DiscordVoiceType
 {
@@ -7,11 +9,16 @@ public enum DiscordVoiceType
     VoiceChannel = 2,
 }
 
-public class VoiceNode : AutoJsonNode<VoiceNode> {
-    public long Id  { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public DiscordVoiceType Type { get; set; }
-    [AutoJsonPropertyName("somebody_speaking")] public bool SomebodySpeaking { get; set; }
+public class VoiceNode {
+    
+    public static readonly VoiceNode Default = new();
 
-    internal VoiceNode(string json) : base(json) { }
+    [JsonPropertyName("id")]
+    public long Id  { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("type")]
+    public DiscordVoiceType Type { get; set; } = DiscordVoiceType.Undefined;
+    [JsonPropertyName("somebody_speaking")]
+    public bool SomebodySpeaking { get; set; }
 }

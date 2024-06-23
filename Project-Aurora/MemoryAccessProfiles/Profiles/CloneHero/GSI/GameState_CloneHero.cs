@@ -6,7 +6,7 @@ namespace MemoryAccessProfiles.Profiles.CloneHero.GSI;
 /// <summary>
 /// A class representing various information relating to CloneHero
 /// </summary>
-public class GameState_CloneHero : GameState
+public class GameState_CloneHero : NewtonsoftGameState
 {
     private Player_CloneHero player;
 

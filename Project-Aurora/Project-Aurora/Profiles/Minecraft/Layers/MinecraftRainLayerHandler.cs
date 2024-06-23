@@ -60,10 +60,10 @@ public class MinecraftRainLayerHandler : LayerHandler<MinecraftRainLayerHandlerP
     }
 
     public override EffectLayer Render(IGameState gamestate) {
-        if (!(gamestate is GameState_Minecraft)) return EffectLayer.EmptyLayer;
+        if (!(gamestate is GameStateMinecraft)) return EffectLayer.EmptyLayer;
 
         // Add more droplets based on the intensity
-        float strength = (gamestate as GameState_Minecraft).World.RainStrength;
+        float strength = (gamestate as GameStateMinecraft).World.RainStrength;
         if (strength > 0) {
             if (frame <= 0) {
                 // calculate time (in frames) until next droplet is created

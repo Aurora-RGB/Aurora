@@ -43,6 +43,7 @@ public sealed class LightingStateManagerModule(
         if (httpListener1 != null)
         {
             httpListener1.NewGameState += lightingStateManager.GameStateUpdate;
+            httpListener1.NewJsonGameState += lightingStateManager.JsonGameStateUpdate;
         }
         Global.logger.Information("Loaded Applications");
         await lightingStateManager.InitUpdate();
@@ -50,8 +51,24 @@ public sealed class LightingStateManagerModule(
     
     public override async ValueTask DisposeAsync()
     {
-        if(_manager != null)
-            await _manager.DisposeAsync();
+        if (_manager == null)
+            return;
+        await _manager.DisposeAsync();
+
+        var ipcListener = await listener;
+        if (ipcListener != null)
+        {
+            ipcListener.NewGameState -= _manager.GameStateUpdate;
+            ipcListener.WrapperConnectionClosed -= _manager.ResetGameState;
+        }
+
+        var httpListener1 = await httpListener;
+        if (httpListener1 != null)
+        {
+            httpListener1.NewGameState -= _manager.GameStateUpdate;
+            httpListener1.NewJsonGameState -= _manager.JsonGameStateUpdate;
+        }
+        
         Global.LightingStateManager = null;
         _manager = null;
     }

@@ -80,7 +80,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
 
         public override EffectLayer Render(IGameState gamestate) {
             // Ensure the gamestate is for Minecraft, and store a casted reference to it
-            if (gamestate is not GameState_Minecraft minecraftState) return EffectLayer.EmptyLayer;
+            if (gamestate is not GameStateMinecraft minecraftState) return EffectLayer.EmptyLayer;
 
             // Choose the main healthbar's color depending on whether the player is withered/poisoned/regen/normal.
             var barColor = Properties.NormalHealthColor; // Default normal color

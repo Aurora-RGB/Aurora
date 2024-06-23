@@ -1,46 +1,51 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
 /// <summary>
 /// Class representing hero information
 /// </summary>
-public class HeroDota2 : Node
+public class HeroDota2
 {
+    public static readonly HeroDota2 Default = new();
+
     /// <summary>
     /// Hero ID
     /// </summary>
-    public int ID { get; }
+    [JsonPropertyName("id")]
+    public int ID { get; set; }
 
     /// <summary>
     /// Hero name
     /// </summary>
-    public string Name { get; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Hero level
     /// </summary>
-    public int Level { get; }
+    public int Level { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is alive
     /// </summary>
+    [JsonPropertyName("alive")]
     public bool IsAlive { get; set; }
 
     /// <summary>
     /// Amount of seconds until the hero respawns
     /// </summary>
+    [JsonPropertyName("respawn_seconds")]
     public int SecondsToRespawn { get; set; }
 
     /// <summary>
     /// The buyback cost
     /// </summary>
-    public int BuybackCost { get; }
+    public int BuybackCost { get; set; }
 
     /// <summary>
     /// The buyback cooldown
     /// </summary>
-    public int BuybackCooldown { get; }
+    public int BuybackCooldown { get; set; }
 
     /// <summary>
     /// Hero health
@@ -75,100 +80,82 @@ public class HeroDota2 : Node
     /// <summary>
     /// A boolean representing whether the hero is silenced
     /// </summary>
-    public bool IsSilenced { get; }
+    [JsonPropertyName("silenced")]
+    public bool IsSilenced { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is stunned
     /// </summary>
-    public bool IsStunned { get; }
+    [JsonPropertyName("stunned")]
+    public bool IsStunned { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is disarmed
     /// </summary>
-    public bool IsDisarmed { get; }
+    [JsonPropertyName("disarmed")]
+    public bool IsDisarmed { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is magic immune
     /// </summary>
-    public bool IsMagicImmune { get; }
+    [JsonPropertyName("magicimmune")]
+    public bool IsMagicImmune { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is hexed
     /// </summary>
-    public bool IsHexed { get; }
+    [JsonPropertyName("hexed")]
+    public bool IsHexed { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is muteds
     /// </summary>
-    public bool IsMuted { get; }
+    [JsonPropertyName("muted")]
+    public bool IsMuted { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is broken
     /// </summary>
-    public bool IsBreak { get; }
+    [JsonPropertyName("break")]
+    public bool IsBreak { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero has Aghanim's Scepter
     /// </summary>
-    public bool HasScepter { get; }
+    [JsonPropertyName("aghanims_scepter")]
+    public bool HasScepter { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero has Aghanim's Shard
     /// </summary>
-    public bool HasShard { get; }
+    [JsonPropertyName("aghanims_shard")]
+    public bool HasShard { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is under smoke effect
     /// </summary>
-    public bool IsSmoked { get; }
+    [JsonPropertyName("smoked")]
+    public bool IsSmoked { get; set; }
 
     /// <summary>
     /// A boolean representing whether the hero is debuffed
     /// </summary>
-    public bool HasDebuff { get; }
+    public bool HasDebuff { get; set; }
 
-    public bool HasTalent1 { get; }
-    public bool HasTalent2 { get; }
-    public bool HasTalent3 { get; }
-    public bool HasTalent4 { get; }
-    public bool HasTalent5 { get; }
-    public bool HasTalent6 { get; }
-    public bool HasTalent7 { get; }
-    public bool HasTalent8 { get; }
-
-    internal HeroDota2(string jsonData) : base(jsonData)
-    {
-        ID = GetInt("id");
-        Name = GetString("name");
-        Level = GetInt("level");
-        IsAlive = GetBool("alive");
-        SecondsToRespawn = GetInt("respawn_seconds");
-        BuybackCost = GetInt("buyback_cost");
-        BuybackCooldown = GetInt("buyback_cooldown");
-        Health = GetInt("health");
-        MaxHealth = GetInt("max_health");
-        HealthPercent = GetInt("health_percent");
-        Mana = GetInt("mana");
-        MaxMana = GetInt("max_mana");
-        ManaPercent = GetInt("mana_percent");
-        IsSilenced = GetBool("silenced");
-        IsStunned = GetBool("stunned");
-        IsDisarmed = GetBool("disarmed");
-        IsMagicImmune = GetBool("magicimmune");
-        IsHexed = GetBool("hexed");
-        IsMuted = GetBool("muted");
-        IsBreak = GetBool("break");
-        HasScepter = GetBool("aghanims_scepter");
-        HasShard = GetBool("aghanims_shard");
-        IsSmoked = GetBool("smoked");
-        HasDebuff = GetBool("has_debuff");
-        HasTalent1 = GetBool("talen1_1");
-        HasTalent2 = GetBool("talen1_2");
-        HasTalent3 = GetBool("talen1_3");
-        HasTalent4 = GetBool("talen1_4");
-        HasTalent5 = GetBool("talen1_5");
-        HasTalent6 = GetBool("talen1_6");
-        HasTalent7 = GetBool("talen1_7");
-        HasTalent8 = GetBool("talen1_8");
-    }
+    [JsonPropertyName("talent_1")]
+    public bool HasTalent1 { get; set; }
+    [JsonPropertyName("talent_2")]
+    public bool HasTalent2 { get; set; }
+    [JsonPropertyName("talent_3")]
+    public bool HasTalent3 { get; set; }
+    [JsonPropertyName("talent_4")]
+    public bool HasTalent4 { get; set; }
+    [JsonPropertyName("talent_5")]
+    public bool HasTalent5 { get; set; }
+    [JsonPropertyName("talent_6")]
+    public bool HasTalent6 { get; set; }
+    [JsonPropertyName("talent_7")]
+    public bool HasTalent7 { get; set; }
+    [JsonPropertyName("talent_8")]
+    public bool HasTalent8 { get; set; }
 }

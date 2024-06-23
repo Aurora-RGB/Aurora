@@ -6,7 +6,7 @@ namespace MemoryAccessProfiles.Profiles.Dishonored.GSI;
 /// <summary>
 /// A class representing various information relating to Dishonored
 /// </summary>
-public class GameState_Dishonored : GameState
+public class GameState_Dishonored : NewtonsoftGameState
 {
     private Player_Dishonored player;
 

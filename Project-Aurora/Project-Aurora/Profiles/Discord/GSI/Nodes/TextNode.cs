@@ -1,4 +1,6 @@
-﻿namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+
+namespace AuroraRgb.Profiles.Discord.GSI.Nodes;
 
 public enum DiscordTextType
 {
@@ -8,10 +10,14 @@ public enum DiscordTextType
     GroupChat = 3
 }
 
-public class TextNode : AutoJsonNode<TextNode> {
-    public long Id  { get; set; }
-    public string Name { get; set; }
-    public DiscordTextType Type { get; set; }
+public class TextNode
+{
+    public static readonly TextNode Default = new();
 
-    internal TextNode(string json) : base(json) { }
+    [JsonPropertyName("id")]
+    public long Id { get; set; }
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("type")]
+    public DiscordTextType Type { get; set; } = DiscordTextType.Undefined;
 }

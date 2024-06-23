@@ -114,7 +114,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
 
         private readonly Random _randomizer = new();
 
-        private static AbilitiesDota2 _abilities;
+        private static AbilitiesDota2? _abilities;
 
         public Dota2HeroAbilityEffectsLayerHandler(): base("Dota 2 - Ability Effects")
         {

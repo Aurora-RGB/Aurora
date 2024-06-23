@@ -42,7 +42,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         }
 
         public override EffectLayer Render(IGameState gameState) {
-            if (gameState is not GameState_Minecraft minecraftState || !minecraftState.Game.ControlsGuiOpen)
+            if (gameState is not GameStateMinecraft minecraftState || !minecraftState.Game.ControlsGuiOpen)
             {
                 return EffectLayer.EmptyLayer;
             }
@@ -64,7 +64,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         /// Returns an enumerable of all DeviceKeys with a conflict, and whether they are only modifier conflicts (warning).
         /// Forge shows modifier conflicts in red and soft in orange on the in-game keys menu.
         /// </summary>
-        private Dictionary<DeviceKeys, bool> CalculateConflicts(GameState_Minecraft state) {
+        private Dictionary<DeviceKeys, bool> CalculateConflicts(GameStateMinecraft state) {
             Dictionary<DeviceKeys, bool> keys = new Dictionary<DeviceKeys, bool>();
             foreach (var bind in state.Game.KeyBindings) { // For every key binding
 

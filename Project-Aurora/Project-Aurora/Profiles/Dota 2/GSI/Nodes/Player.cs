@@ -1,4 +1,4 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
@@ -26,22 +26,26 @@ public enum PlayerActivity
 /// <summary>
 /// Class representing player information
 /// </summary>
-public class PlayerDota2 : Node
+public class PlayerDota2
 {
+    public static readonly PlayerDota2 Default = new();
+
     /// <summary>
     /// Player's steam ID
     /// </summary>
-    public string SteamID { get; }
+    [JsonPropertyName("steamid")]
+    public string SteamID { get; set; }
 
     /// <summary>
     /// Player's name
     /// </summary>
-    public string Name { get; }
+    public string Name { get; set; }
 
     /// <summary>
     /// Player's current activity state
     /// </summary>
-    public PlayerActivity Activity { get; }
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public PlayerActivity Activity { get; set; }
 
     /// <summary>
     /// Player's amount of kills
@@ -56,17 +60,17 @@ public class PlayerDota2 : Node
     /// <summary>
     /// Player's amount of assists
     /// </summary>
-    public int Assists { get; }
+    public int Assists { get; set; }
 
     /// <summary>
     /// Player's amount of last hits
     /// </summary>
-    public int LastHits { get; }
+    public int LastHits { get; set; }
 
     /// <summary>
     /// Player's amount of denies
     /// </summary>
-    public int Denies { get; }
+    public int Denies { get; set; }
 
     /// <summary>
     /// Player's killstreak
@@ -76,49 +80,34 @@ public class PlayerDota2 : Node
     /// <summary>
     /// Player's team
     /// </summary>
+    [JsonPropertyName("team_name")]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public PlayerTeam Team { get; set; }
 
     /// <summary>
     /// Player's amount of gold
     /// </summary>
-    public int Gold { get; }
+    public int Gold { get; set; }
 
     /// <summary>
     /// Player's amount of reliable gold
     /// </summary>
-    public int GoldReliable { get; }
+    public int GoldReliable { get; set; }
 
     /// <summary>
     /// Player's amount of unreliable gold
     /// </summary>
-    public int GoldUnreliable { get; }
+    public int GoldUnreliable { get; set; }
 
     /// <summary>
     /// PLayer's gold per minute
     /// </summary>
-    public int GoldPerMinute { get; }
+    [JsonPropertyName("gpm")]
+    public int GoldPerMinute { get; set; }
 
     /// <summary>
     /// Player's experience per minute
     /// </summary>
-    public int ExperiencePerMinute { get; }
-
-    internal PlayerDota2(string jsonData) : base(jsonData)
-    {
-        SteamID = GetString("steamid");
-        Name = GetString("name");
-        Activity = GetEnum<PlayerActivity>("activity");
-        Kills = GetInt("kills");
-        Deaths = GetInt("deaths");
-        Assists = GetInt("assists");
-        LastHits = GetInt("last_hits");
-        Denies = GetInt("denies");
-        KillStreak = GetInt("kill_streak");
-        Team = GetEnum<PlayerTeam>("team_name");
-        Gold = GetInt("gold");
-        GoldReliable = GetInt("gold_reliable");
-        GoldUnreliable = GetInt("gold_unreliable");
-        GoldPerMinute = GetInt("gpm");
-        ExperiencePerMinute = GetInt("xpm");
-    }
+    [JsonPropertyName("xpm")]
+    public int ExperiencePerMinute { get; set; }
 }

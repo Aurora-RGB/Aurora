@@ -10,7 +10,7 @@ public class Subnautica : Application {
         ProcessNames = new[] { "Subnautica.exe" },
         ProfileType = typeof(SubnauticaProfile),
         OverviewControlType = typeof(Control_Subnautica),
-        GameStateType = typeof(GSI.GameState_Subnautica),
+        GameStateType = typeof(GSI.GameStateSubnautica),
         IconURI = "Resources/Subnautica.png"
     })
     { }        

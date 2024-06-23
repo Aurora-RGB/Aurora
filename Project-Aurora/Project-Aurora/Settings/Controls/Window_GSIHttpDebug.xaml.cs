@@ -59,7 +59,8 @@ public partial class Window_GSIHttpDebug
         _httpListener.NewGameState += Net_listener_NewGameState;
 
         // If a gamestate is already stored by the network listener, display it to the user immediately.
-        SetJsonText(_httpListener.CurrentGameState.Json);
+        var httpListenerCurrentGameState = _httpListener.CurrentGameState as NewtonsoftGameState;
+        SetJsonText(httpListenerCurrentGameState?.Json ?? string.Empty);
 
         // Start a timer to update the time displays for the request
         _timeDisplayTimer = new Timer(_ => Dispatcher.BeginInvoke(() => {
@@ -87,9 +88,13 @@ public partial class Window_GSIHttpDebug
 
     private void Net_listener_NewGameState(object? sender, IGameState gamestate)
     {
+        if (gamestate is not NewtonsoftGameState jsonGameState)
+        {
+            return;
+        }
         // This needs to be invoked due to the UI thread being different from the networking thread.
         // Without this, an exception is thrown trying to update the text box.
-        Dispatcher.BeginInvoke(() => SetJsonText(gamestate.Json), DispatcherPriority.DataBind);
+        Dispatcher.BeginInvoke(() => SetJsonText(jsonGameState.Json), DispatcherPriority.DataBind);
         // Also record the time this request came in
         _lastRequestTime = DateTime.UtcNow;
     }

@@ -31,7 +31,7 @@ public class GameRocketLeague : AutoJsonNode<GameRocketLeague>
 /// <summary>
 /// A class representing various information relating to Rocket League
 /// </summary>
-public partial class GameStateRocketLeague : GameState
+public partial class GameStateRocketLeague : NewtonsoftGameState
 {
     public Match_RocketLeague Match => NodeFor<Match_RocketLeague>("match");
     public Player_RocketLeague Player => NodeFor<Player_RocketLeague>("player");

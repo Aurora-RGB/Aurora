@@ -8,7 +8,7 @@ namespace AuroraRgb.Profiles;
 /// <summary>
 /// A class representing various lighting information retaining to the wrapper.
 /// </summary>
-public class GameState_Wrapper : GameState
+public class GameState_Wrapper : NewtonsoftGameState
 {
     private Provider_Wrapper? _Provider;
     private string? _Command;
@@ -20,7 +20,7 @@ public class GameState_Wrapper : GameState
     /// Information about the provider of this GameState
     /// </summary>
     [GameStateIgnore]
-    public Provider_Wrapper Provider => _Provider ??= new Provider_Wrapper(_ParsedData["provider"]?.ToString() ?? "");
+    public Provider_Wrapper Provider => _Provider ??= new Provider_Wrapper(ParsedData["provider"]?.ToString() ?? "");
 
     /// <summary>
     /// The sent wrapper command
@@ -31,7 +31,7 @@ public class GameState_Wrapper : GameState
         get
         {
             if (_Command != null) return _Command;
-            _Command = _ParsedData.TryGetValue("command", out var value) ? value.ToString() : "";
+            _Command = ParsedData.TryGetValue("command", out var value) ? value.ToString() : "";
             return _Command;
         }
     }
@@ -40,7 +40,7 @@ public class GameState_Wrapper : GameState
     /// Data related to the passed command
     /// </summary>
     [GameStateIgnore]
-    public Command_Wrapper Command_Data => _Command_Data ??= new Command_Wrapper(_ParsedData["command_data"]?.ToString() ?? "");
+    public Command_Wrapper Command_Data => _Command_Data ??= new Command_Wrapper(ParsedData["command_data"]?.ToString() ?? "");
 
     /// <summary>
     /// The bitmap sent from the wrapper
@@ -50,7 +50,7 @@ public class GameState_Wrapper : GameState
     {
         get
         {
-            return _Bitmap ??= _ParsedData.TryGetValue("bitmap", out var value)
+            return _Bitmap ??= ParsedData.TryGetValue("bitmap", out var value)
                 ? value.ToObject<int[]>()
                 : Array.Empty<int>();
         }
@@ -60,7 +60,7 @@ public class GameState_Wrapper : GameState
     /// Lighting information for extra keys that are not part of the bitmap
     /// </summary>
     [GameStateIgnore]
-    public Extra_Keys_Wrapper Extra_Keys => _Extra_Keys ??= new Extra_Keys_Wrapper(_ParsedData["extra_keys"]?.ToString() ?? "");
+    public Extra_Keys_Wrapper Extra_Keys => _Extra_Keys ??= new Extra_Keys_Wrapper(ParsedData["extra_keys"]?.ToString() ?? "");
 
     /// <summary>
     /// Creates a default GameState_Wrapper instance.

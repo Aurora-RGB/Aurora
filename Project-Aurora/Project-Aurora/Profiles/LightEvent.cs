@@ -37,7 +37,7 @@ public class LightEvent : ILightEvent
     public Application Application { get; set; }
     public LightEventConfig Config { get; }
 
-    public IGameState GameState { get; protected set; } = new EmptyGameState();
+    public IGameState GameState { get; protected set; } = new NewtonsoftGameState();
 
     public LightEvent()
     {
@@ -111,7 +111,7 @@ public class LightEvent : ILightEvent
         else if (Application?.Config?.GameStateType != null)
             GameState = (IGameState)Activator.CreateInstance(Application.Config.GameStateType);
         else
-            GameState = new EmptyGameState();
+            GameState = new NewtonsoftGameState();
     }
         
     public virtual void OnStart()

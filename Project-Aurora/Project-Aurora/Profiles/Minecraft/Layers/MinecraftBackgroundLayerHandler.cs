@@ -32,9 +32,9 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         }
 
         public override EffectLayer Render(IGameState gamestate) {
-            if (gamestate is GameState_Minecraft) {
+            if (gamestate is GameStateMinecraft) {
 
-                long time = (gamestate as GameState_Minecraft).World.WorldTime;
+                long time = (gamestate as GameStateMinecraft).World.WorldTime;
 
                 if (time >= 1000 && time <= 11000) // Between 1000 and 11000, world is fully bright day time
                     EffectLayer.Set(Properties.Sequence, Properties.PrimaryColor);

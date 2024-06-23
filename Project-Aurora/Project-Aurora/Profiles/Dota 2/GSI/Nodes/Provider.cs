@@ -1,37 +1,39 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
 /// <summary>
 /// Information about the provider of this GameState
 /// </summary>
-public class Provider_Dota2 : Node
+public class ProviderValve
 {
+    public static readonly ProviderValve Default = new();
+
     /// <summary>
     /// Game name
     /// </summary>
-    public string Name { get; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Game's Steam AppID
     /// </summary>
-    public int AppID { get; }
+    [JsonPropertyName("appid")]
+    public int AppID { get; set; }
 
     /// <summary>
     /// Game's version
     /// </summary>
-    public int Version { get; }
+    public int Version { get; set; }
+
+    /// <summary>
+    /// Local player's Steam ID
+    /// </summary>
+    [JsonPropertyName("steamid")]
+    public string SteamID { get; set; } = string.Empty;
 
     /// <summary>
     /// Current timestamp
     /// </summary>
-    public string TimeStamp { get; }
-
-    internal Provider_Dota2(string jsonData) : base(jsonData)
-    {
-        Name = GetString("name");
-        AppID = GetInt("appid");
-        Version = GetInt("version");
-        TimeStamp = GetString("timestamp");
-    }
+    [JsonPropertyName("timestamp")]
+    public int TimeStamp { get; set; }
 }

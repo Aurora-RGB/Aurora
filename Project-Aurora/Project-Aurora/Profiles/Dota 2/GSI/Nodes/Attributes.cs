@@ -1,20 +1,14 @@
-﻿using AuroraRgb.Nodes;
+﻿namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes
+/// <summary>
+/// Class representing ability attributes
+/// </summary>
+public class Attributes
 {
+    public static readonly Attributes Default = new();
+    
     /// <summary>
-    /// Class representing ability attributes
+    /// Amount of levels to spend
     /// </summary>
-    public class Attributes : Node
-    {
-        /// <summary>
-        /// Amount of levels to spend
-        /// </summary>
-        public int Level;
-
-        internal Attributes(string json_data) : base(json_data)
-        {
-            Level = GetInt("level");
-        }
-    }
+    public int Level { get; set; }
 }

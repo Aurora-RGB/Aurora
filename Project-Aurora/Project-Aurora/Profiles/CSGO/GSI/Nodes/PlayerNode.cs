@@ -1,28 +1,29 @@
-﻿using AuroraRgb.Nodes;
+﻿using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
 /// <summary>
 /// Class representing player information
 /// </summary>
-public class PlayerNode : Node
+public class PlayerNode
 {
-    internal string _SteamID { get; set; }
+    public static readonly PlayerNode Default = new();
 
     /// <summary>
     /// Player's steam ID
     /// </summary>
-    public string SteamID => _SteamID;
+    [JsonPropertyName("steamid")]
+    public string SteamID { get; set; } = string.Empty;
 
     /// <summary>
     /// Observer Slot
     /// </summary>
-    public int ObserverSlot { get; }
+    public int ObserverSlot  { get; set; }
 
     /// <summary>
     /// Player's name
     /// </summary>
-    public string Name { get; }
+    public string Name  { get; set; }
 
     /// <summary>
     /// Player's team
@@ -32,41 +33,28 @@ public class PlayerNode : Node
     /// <summary>
     /// Player's clan tag
     /// </summary>
-    public string Clan { get; }
+    public string Clan  { get; set; }
 
     /// <summary>
     /// Player's current activity state
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public PlayerActivity Activity { get; set; }
 
     /// <summary>
     /// Player's current weapons
     /// </summary>
-    public WeaponsNode Weapons { get; }
+    public WeaponsNode Weapons { get; set; } = WeaponsNode.Default;
 
     /// <summary>
     /// Player's match statistics
     /// </summary>
-    public MatchStatsNode MatchStats { get; }
+    public MatchStatsNode MatchStats  { get; set; } = MatchStatsNode.Default;
 
     /// <summary>
     /// Player's state information
     /// </summary>
-    public PlayerStateNode State { get; }
-
-    internal PlayerNode(string json)
-        : base(json)
-    {
-        _SteamID = GetString("steamid");
-        ObserverSlot = GetInt("observer_slot");
-        Name = GetString("name");
-        Team = GetEnum<PlayerTeam>("team");
-        Clan = GetString("clan");
-        State = new PlayerStateNode(_ParsedData?.SelectToken("state")?.ToString() ?? "{}");
-        Weapons = new WeaponsNode(_ParsedData?.SelectToken("weapons")?.ToString() ?? "{}");
-        MatchStats = new MatchStatsNode(_ParsedData?.SelectToken("match_stats")?.ToString() ?? "{}");
-        Activity = GetEnum<PlayerActivity>("activity");
-    }
+    public PlayerStateNode State  { get; set; } = PlayerStateNode.Default;
 }
 
 /// <summary>

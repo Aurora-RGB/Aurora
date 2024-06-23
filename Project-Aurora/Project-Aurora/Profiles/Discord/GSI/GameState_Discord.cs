@@ -1,21 +1,25 @@
-﻿using AuroraRgb.Profiles.Discord.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+using AuroraRgb.Profiles.Discord.GSI.Nodes;
 using AuroraRgb.Profiles.Generic;
 
 namespace AuroraRgb.Profiles.Discord.GSI;
 
-public partial class GameState_Discord : GameState
+public partial class GameStateDiscord : GameState
 {
-    public ProviderNode Provider => NodeFor<ProviderNode>("provider");
+    public static readonly GameStateDiscord Default = new();
+    
+    [JsonPropertyName("provider")]
+    public ProviderNode Provider { get; set; } = ProviderNode.Default;
 
-    public UserNode User => NodeFor<UserNode>("user");
+    [JsonPropertyName("user")]
+    public UserNode User { get; set; } = UserNode.Default;
 
-    public GuildNode Guild => NodeFor<GuildNode>("guild");
+    [JsonPropertyName("guild")]
+    public GuildNode Guild { get; set; } = GuildNode.Default;
 
-    public TextNode Text => NodeFor<TextNode>("text");
+    [JsonPropertyName("text")]
+    public TextNode Text { get; set; } = TextNode.Default;
 
-    public VoiceNode Voice => NodeFor<VoiceNode>("voice");
-
-
-    public GameState_Discord() : base() { }
-    public GameState_Discord(string JSONstring) : base(JSONstring) { }
+    [JsonPropertyName("voice")]
+    public VoiceNode Voice { get; set; } = VoiceNode.Default;
 }
