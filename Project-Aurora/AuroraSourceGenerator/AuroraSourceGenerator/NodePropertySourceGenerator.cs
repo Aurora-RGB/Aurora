@@ -24,7 +24,6 @@ public class NodePropertySourceGenerator : ISourceGenerator
     public void Execute(GeneratorExecutionContext context)
     {
         const string gamestate = "AuroraRgb.Profiles.GameState";
-        //HashSet<string> classNames = ["AuroraRgb.Profiles.EmptyGameState", "AuroraRgb.Profiles.Discord.GSI.GameState_Discord"];
         HashSet<string> ignore = [gamestate];
         
         var compilation = context.Compilation;
@@ -91,12 +90,11 @@ public class NodePropertySourceGenerator : ISourceGenerator
                        {
                            public partial class {{classSymbol.Name}}
                            {
-                               private static readonly Dictionary<string, Func<object, object?>> _innerProperties = new()
+                               private static readonly Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new()
                                 {
-                       {{string.Join(",\n", properties.Select(p => $"[\"{p.Replace('.', '/')}\"] =\t\t\t(t) => ((dynamic)t).{p}"))}}
+                       {{string.Join(",\n", properties.Select(Selector(classSymbol)))}}
                                 };
-                                
-                                public override IReadOnlyDictionary<string, Func<object, object?>> PropertyMap => _innerProperties;
+                                public override IReadOnlyDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
                            }
                        }
                        """;
@@ -105,7 +103,25 @@ public class NodePropertySourceGenerator : ISourceGenerator
         context.AddSource(classSymbol.Name + ".g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
-    private static IEnumerable<string> GetClassProperties(string currentPath, INamedTypeSymbol type)
+    private static Func<(string, bool), string> Selector(INamedTypeSymbol classSymbol)
+    {
+        return p => AccessorMethodSource(classSymbol, p);
+    }
+
+    private static string AccessorMethodSource(INamedTypeSymbol classSymbol, (string, bool) valueTuple)
+    {
+        var p = valueTuple.Item1;
+        var containsStatic = valueTuple.Item2;
+        var pathString = p.Replace('.', '/');
+        if (containsStatic)
+        {
+            return $"[\"{pathString}\"]\t=\t(t) => ((dynamic)t).{p}";
+        }
+
+        return $"[\"{pathString}\"]\t=\t(t) => (({classSymbol.Name})t).{p}";
+    }
+
+    private static IEnumerable<(string, bool)> GetClassProperties(string currentPath, INamedTypeSymbol type, bool containsStatic = false)
     {
         var currentType = type;
         while (currentType != null)
@@ -113,6 +129,7 @@ public class NodePropertySourceGenerator : ISourceGenerator
             foreach (var member in currentType.GetMembers())
             {
                 if (member is not IPropertySymbol property) continue;
+                if (property.GetMethod?.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal)) continue;
                 if (property.Name == "Parent") continue;
                 if (string.IsNullOrWhiteSpace(property.Name)) continue;
                 if (property.Name.Contains('[')) continue;
@@ -120,29 +137,33 @@ public class NodePropertySourceGenerator : ISourceGenerator
                 if (property.Name.Contains('<')) continue;
                 if (property.Name.Contains('>')) continue;
 
-                yield return currentPath + property.Name;
+                var propertyContainsStatic = containsStatic || property.IsStatic;
 
                 var propertyType = property.Type;
 
                 // Check if the type is a primitive type
-                if (propertyType.SpecialType != SpecialType.None && propertyType.SpecialType == SpecialType.System_String)
+                if (propertyType.IsValueType || propertyType.SpecialType == SpecialType.System_String)
                 {
+                    yield return (currentPath + property.Name, propertyContainsStatic);
+                    continue;
                 }
                 // Check if the type is a class
-                else if (propertyType.TypeKind is TypeKind.Class or TypeKind.Interface)
+
+                if (propertyType.TypeKind is not (TypeKind.Class or TypeKind.Interface)) continue;
+
+                var namedTypeSymbol = (INamedTypeSymbol)property.Type;
+                if (!IsAuroraClass(namedTypeSymbol))
+                    continue;
+                // prevent infinite recursions
+                if (SymbolEqualityComparer.Default.Equals(namedTypeSymbol, currentType))
                 {
-                    var namedTypeSymbol = (INamedTypeSymbol)property.Type;
-                    if (!IsAuroraClass(namedTypeSymbol))
-                        continue;
-                    // prevent infinite recursions
-                    if (SymbolEqualityComparer.Default.Equals(namedTypeSymbol, currentType))
-                    {
-                        continue;
-                    }
-                    foreach (var classProperty in GetClassProperties(currentPath + property.Name + ".", namedTypeSymbol))
-                    {
-                        yield return classProperty;
-                    }
+                    continue;
+                }
+
+                var upperProperty = currentPath + property.Name + (property.NullableAnnotation == NullableAnnotation.Annotated ? "?." : ".");
+                foreach (var classProperty in GetClassProperties(upperProperty, namedTypeSymbol, propertyContainsStatic))
+                {
+                    yield return classProperty;
                 }
             }
 
