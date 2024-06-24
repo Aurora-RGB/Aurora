@@ -63,8 +63,12 @@ public sealed class SingleConcurrentThread
 
     private void TriggerPool()
     {
+        if (_worker.IsShuttingdown)
+        {
+            return;
+        }
         // (_worker.CurrentWorkItemsCount == 0 || _worker.InUseThreads == 0) part wakes the worker when program freezes more than 1 sec
-        if (_worker.WaitingCallbacks <= 1 && (_worker.CurrentWorkItemsCount == 0 || _worker.InUseThreads == 0))
+        if (_worker.WaitingCallbacks <= 1 && (_worker.CurrentWorkItemsCount <= 1 || _worker.InUseThreads == 0))
         {
             _worker.QueueWorkItem(_updateAction);
         }

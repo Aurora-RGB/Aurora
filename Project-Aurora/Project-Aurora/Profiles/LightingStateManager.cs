@@ -18,9 +18,11 @@ using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
+using Common.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using AssemblyExtensions = AuroraRgb.Utils.AssemblyExtensions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Profiles;
@@ -81,6 +83,8 @@ public sealed class LightingStateManager : IDisposable
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
                                          Array.Exists(evt.Config.ProcessNames, processRunning);
 
+        _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate);
+
         bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
     }
 
@@ -102,7 +106,7 @@ public sealed class LightingStateManager : IDisposable
 
         // Register all layer types that are in the Aurora.Settings.Layers namespace.
         // Do not register all that are inside the assembly since some are application-specific (e.g. minecraft health layer)
-        var layerTypes = from type in Assembly.GetExecutingAssembly().GetLoadableTypes()
+        var layerTypes = from type in AssemblyExtensions.GetLoadableTypes(Assembly.GetExecutingAssembly())
             where type.GetInterfaces().Contains(typeof(ILayerHandler))
             let name = type.Name.CamelCaseToSpaceCase()
             let meta = type.GetCustomAttribute<LayerHandlerMetaAttribute>()
@@ -135,7 +139,7 @@ public sealed class LightingStateManager : IDisposable
 
     private static IEnumerable<Application> EnumerateDefaultApps()
     {
-        return from type in Assembly.GetExecutingAssembly().GetLoadableTypes()
+        return from type in AssemblyExtensions.GetLoadableTypes(Assembly.GetExecutingAssembly())
             where (type.BaseType == typeof(Application) || type.BaseType == typeof(GsiApplication)) && type != typeof(GenericApplication) && type != typeof(GsiApplication)
             let inst = (Application)Activator.CreateInstance(type)
             orderby inst.Config.Name
@@ -325,7 +329,7 @@ public sealed class LightingStateManager : IDisposable
         return Events[value];
     }
 
-    private Timer? _updateTimer;
+    private SingleConcurrentThread _updateTimer;
 
     private long _nextProcessNameUpdate;
     private long _currentTick;
@@ -339,29 +343,16 @@ public sealed class LightingStateManager : IDisposable
     }
 
     private readonly Stopwatch _watch = new();
-        
-    private readonly Semaphore _updateLock = new(1, 1);
-    private bool _locked;
 
     public Task InitUpdate()
     {
         _watch.Start();
-        _updateTimer = new Timer(_ =>
-        {
-            TimerUpdate();
-        }, null, 0, Timeout.Infinite);
+        _updateTimer.Trigger();
         return Task.CompletedTask;
     }
 
     private void TimerUpdate()
     {
-        if (_locked)
-        {
-            return;
-        }
-        _updateLock.WaitOne();
-        _locked = true;
-
         GC.WaitForPendingFinalizers();
         if (Debugger.IsAttached)
         {
@@ -384,11 +375,10 @@ public sealed class LightingStateManager : IDisposable
             }
         }
         _currentTick += _watch.ElapsedMilliseconds;
-        _updateTimer?.Change(
-            Math.Max(Global.Configuration.UpdateDelay - _watch.ElapsedMilliseconds, Global.Configuration.UpdateDelay), Timeout.Infinite);
-        _watch.Reset();
-        _locked = false;
-        _updateLock.Release();
+        var millisecondsTimeout = Math.Max(Global.Configuration.UpdateDelay - _watch.ElapsedMilliseconds, 1);
+        Thread.Sleep(TimeSpan.FromMilliseconds(millisecondsTimeout));
+        _updateTimer.Trigger();
+        _watch.Restart();
     }
 
     private void UpdateProcess()
@@ -684,7 +674,7 @@ public sealed class LightingStateManager : IDisposable
         _initializeCancelSource.Cancel();
         Task.WaitAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
-        _updateTimer?.Dispose();
+        _updateTimer?.Dispose(200);
         _updateTimer = null;
         foreach (var (_, lightEvent) in Events)
             lightEvent.Dispose();
@@ -696,7 +686,7 @@ public sealed class LightingStateManager : IDisposable
         await Task.WhenAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
         if (_updateTimer != null)
-            await _updateTimer.DisposeAsync();
+            _updateTimer.Dispose(200);
         _updateTimer = null;
         foreach (var (_, lightEvent) in Events)
             lightEvent.Dispose();
