@@ -51,11 +51,11 @@ internal sealed class DxScreenCapture : IScreenCapture
         catch(Exception e)
         {
             Global.logger.Error(e, "DX Screenshot Error");
-            if (!_desktopDuplicator?.IsDisposed ?? false)
-            {
-                _desktopDuplicator.Dispose(); 
-                _desktopDuplicator = null;
-            }
+            //if (!_desktopDuplicator?.IsDisposed ?? false)
+            //{
+            //    _desktopDuplicator.Dispose(); 
+            //    _desktopDuplicator = null;
+            //}
             Thread.Sleep(2000);
         }
     }

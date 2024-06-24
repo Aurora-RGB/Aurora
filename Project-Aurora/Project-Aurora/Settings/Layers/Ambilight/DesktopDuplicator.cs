@@ -1,7 +1,6 @@
 ﻿// Based on https://github.com/sharpdx/SharpDX-Samples/blob/master/Desktop/Direct3D11.1/ScreenCapture/Program.cs
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows;
@@ -33,12 +32,7 @@ public sealed class DesktopDuplicator : IDisposable
         {
             Dispose();
         });
-        var deviceFlags = DeviceCreationFlags.SingleThreaded;
-        if (Global.isDebug && Debugger.IsAttached)
-        {
-            deviceFlags |= DeviceCreationFlags.Debug;
-        }
-        _device = new Device(DriverType.Hardware, deviceFlags);
+        _device = new Device(DriverType.Hardware, DeviceCreationFlags.SingleThreaded);
         
         Global.logger.Information("Starting desktop duplicator");
         if (Global.isDebug)

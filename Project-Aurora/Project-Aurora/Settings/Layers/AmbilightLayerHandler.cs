@@ -221,6 +221,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     private readonly SmartThreadPool _captureWorker;
     private readonly WorkItemCallback _screenshotWork;
 
+    private readonly object _brushLock = new();
     private Brush _screenBrush = Brushes.Transparent;
     private IntPtr _specificProcessHandle = IntPtr.Zero;
     private Rectangle _cropRegion = Rectangle.Empty;
@@ -279,23 +280,24 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         }
 
         //and because of that, this should never happen 
+        var effectLayer = EffectLayer;
         if (_cropRegion.IsEmpty)
-            return EffectLayer;
+            return effectLayer;
 
         if (!_brushChanged)
         {
-            return EffectLayer;
+            return effectLayer;
         }
 
         if (Invalidated)
         {
-            EffectLayer.Clear();
+            effectLayer.Clear();
             Invalidated = false;
         }
 
-        lock (_screenBrush)
+        lock (_brushLock)
         {
-            EffectLayer.DrawTransformed(Properties.Sequence,
+            effectLayer.DrawTransformed(Properties.Sequence,
                 m =>
                 {
                     if (!Properties.FlipVertically) return;
@@ -319,7 +321,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         }
         _brushChanged = false;
 
-        return EffectLayer;
+        return effectLayer;
     }
 
     protected override System.Windows.Controls.UserControl CreateControl()
@@ -379,7 +381,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         switch (Properties.AmbilightType)
         {
             case AmbilightType.Default:
-                lock (_screenBrush)
+                lock (_brushLock)
                 {
                     var previousBrush = _screenBrush;
                     _screenBrush = new TextureBrush(screenCapture, new Rectangle(0, 0, screenCapture.Width, screenCapture.Height), _imageAttributes);
@@ -402,7 +404,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
                     return;
                 }
 
-                lock (_screenBrush)
+                lock (_brushLock)
                 {
                     _screenBrush.Dispose();
                     _screenBrush = new SolidBrush(average);
