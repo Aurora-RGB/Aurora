@@ -199,6 +199,8 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public double Lon { get; set; }
 
     public IList<string> Migrations { get; set; } = [];
+    
+    public bool? AutoInstallGsi { get; set; }
 
     /// <summary>
     /// Called after the configuration file has been deserialized or created for the first time.

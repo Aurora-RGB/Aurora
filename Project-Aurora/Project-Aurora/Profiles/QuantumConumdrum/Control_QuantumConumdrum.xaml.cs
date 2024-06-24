@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
 namespace AuroraRgb.Profiles.QuantumConumdrum;
@@ -19,9 +18,9 @@ public partial class Control_QuantumConumdrum
         _profileManager = profile;
 
         //Apply LightFX Wrapper, if needed.
-        if ((_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        if (_profileManager.Settings?.InstallationCompleted ?? true) return;
         InstallWrapper();
-        (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+        _profileManager.Settings.CompleteInstallation();
     }
 
     private void patch_button_Click(object? sender, RoutedEventArgs e)

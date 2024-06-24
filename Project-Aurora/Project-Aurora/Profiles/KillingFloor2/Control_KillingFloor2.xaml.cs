@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
 namespace AuroraRgb.Profiles.KillingFloor2;
@@ -19,9 +18,9 @@ public partial class Control_KillingFloor2
         _profileManager = profile;
 
         //Apply LightFX Wrapper, if needed.
-        if ((_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        if (_profileManager.Settings?.InstallationCompleted ?? true) return;
         InstallWrapper();
-        (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+        _profileManager.Settings.CompleteInstallation();
     }
 
     private void patch_button_Click(object? sender, RoutedEventArgs e)
@@ -38,14 +37,6 @@ public partial class Control_KillingFloor2
             MessageBox.Show("Aurora LightFX Wrapper uninstalled successfully.");
         else
             MessageBox.Show("Aurora LightFX Wrapper could not be uninstalled.\r\nGame is not installed.");
-    }
-
-    private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-    {
-    }
-
-    private void UserControl_Unloaded(object? sender, RoutedEventArgs e)
-    {
     }
 
     private bool InstallWrapper(string installpath = "")

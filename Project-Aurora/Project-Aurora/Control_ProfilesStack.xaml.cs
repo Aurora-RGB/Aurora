@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Profiles;
-using AuroraRgb.Profiles.Aurora_Wrapper;
 using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
@@ -226,9 +225,9 @@ public partial class Control_ProfilesStack
         lightingStateManager.RemoveGenericProfile(name);
         await GenerateProfileStack(eventList[idx].Key);
 
-        bool ShowProfile(KeyValuePair<string, ILightEvent> x)
+        bool ShowProfile(KeyValuePair<string, Application> x)
         {
-            var application1 = (Application)x.Value;
+            var application1 = x.Value;
             if (application1.Settings == null)
             {
                 return true;
@@ -262,15 +261,10 @@ public partial class Control_ProfilesStack
         var filename = Path.GetFileName(dialog.ChosenExecutablePath.ToLowerInvariant());
 
         var lightingStateManager = await _lightingStateManager;
-        if (lightingStateManager.Events.TryGetValue(filename, out var lightEvent))
+        if (lightingStateManager.Events.ContainsKey(filename))
         {
-            if (lightEvent is GameEvent_Aurora_Wrapper)
-                lightingStateManager.Events.Remove(filename);
-            else
-            {
-                MessageBox.Show("Profile for this application already exists.");
-                return;
-            }
+            MessageBox.Show("Profile for this application already exists.");
+            return;
         }
 
         var genAppPm = new GenericApplication(filename);

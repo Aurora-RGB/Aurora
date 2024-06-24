@@ -63,7 +63,8 @@ public sealed class AuroraApp : IDisposable
             lightingStateManagerModule,
             onlineSettings,
             _layoutsModule,
-            new PerformanceMonitor(ProcessesModule.RunningProcessMonitor)
+            new PerformanceMonitor(ProcessesModule.RunningProcessMonitor),
+            new AutomaticGsiPatcher(),
         ];
         
         _trayIcon = new AuroraTrayIcon(ControlInterface);

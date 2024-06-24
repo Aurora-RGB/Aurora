@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Windows;
 using System.Windows.Forms;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 using MessageBox = System.Windows.MessageBox;
 
@@ -12,18 +11,18 @@ namespace AuroraRgb.Profiles.HotlineMiami;
 /// </summary>
 public partial class Control_HM
 {
-    private Application profile_manager;
+    private Application _profileManager;
 
     public Control_HM(Application profile)
     {
         InitializeComponent();
 
-        profile_manager = profile;
+        _profileManager = profile;
 
         //Apply LightFX Wrapper, if needed.
-        if ((profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        if (_profileManager.Settings?.InstallationCompleted ?? true) return;
         InstallWrapper();
-        (profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+        _profileManager.Settings.CompleteInstallation();
     }
 
     private void patch_button_Click(object? sender, RoutedEventArgs e)
@@ -52,14 +51,6 @@ public partial class Control_HM
             MessageBox.Show("Aurora Wrapper Patch for LightFX applied to\r\n" + dialog.SelectedPath);
         else
             MessageBox.Show("Aurora LightFX Wrapper could not be installed.\r\nGame is not installed.");
-    }
-
-    private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-    {
-    }
-
-    private void UserControl_Unloaded(object? sender, RoutedEventArgs e)
-    {
     }
 
     private bool InstallWrapper(string installPath = "")

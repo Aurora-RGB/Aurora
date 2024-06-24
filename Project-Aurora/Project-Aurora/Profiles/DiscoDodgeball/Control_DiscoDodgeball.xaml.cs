@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
 namespace AuroraRgb.Profiles.DiscoDodgeball;
@@ -10,18 +9,18 @@ namespace AuroraRgb.Profiles.DiscoDodgeball;
 /// </summary>
 public partial class Control_DiscoDodgeball
 {
-    private Application profile_manager;
+    private readonly Application _profileManager;
 
     public Control_DiscoDodgeball(Application profile)
     {
         InitializeComponent();
 
-        profile_manager = profile;
+        _profileManager = profile;
 
         //Apply LightFX Wrapper, if needed.
-        if ((profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        if (_profileManager.Settings?.InstallationCompleted ?? true) return;
         InstallWrapper();
-        (profile_manager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+        _profileManager.Settings.CompleteInstallation();
     }
 
     private void patch_button_Click(object? sender, RoutedEventArgs e)

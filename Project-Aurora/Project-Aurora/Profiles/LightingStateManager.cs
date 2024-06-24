@@ -25,6 +25,11 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Profiles;
 
+public sealed class ApplicationInitializedEventArgs(Application application) : EventArgs
+{
+    public Application Application { get; } = application;
+}
+
 public sealed class LightingStateManager : IDisposable
 {
     private static readonly JsonSerializerOptions GameStateJsonSerializerOptions = new()
@@ -33,15 +38,15 @@ public sealed class LightingStateManager : IDisposable
         TypeInfoResolverChain = { GameStateSourceGenerationContext.Default }
     };
     
-    public event EventHandler? EventAdded;
-    public Dictionary<string, ILightEvent> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
+    public event EventHandler<ApplicationInitializedEventArgs>? EventAdded;
+    public Dictionary<string, Application> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
 
     private Desktop.Desktop DesktopProfile => (Desktop.Desktop)Events["desktop"];
-    private ILightEvent? _currentEvent;
-    public ILightEvent CurrentEvent => _currentEvent ?? DesktopProfile;
+    private Application? _currentEvent;
+    public Application CurrentEvent => _currentEvent ?? DesktopProfile;
 
-    private readonly List<ILightEvent> _startedEvents = [];
-    private readonly List<ILightEvent> _updatedEvents = [];
+    private readonly List<LightEvent> _startedEvents = [];
+    private readonly List<LightEvent> _updatedEvents = [];
 
     private Dictionary<string, string> EventProcesses { get; } = new();
     private Dictionary<Regex, string> EventTitles { get; } = new();
@@ -51,7 +56,7 @@ public sealed class LightingStateManager : IDisposable
     public event EventHandler? PreUpdate;
     public event EventHandler? PostUpdate;
 
-    private readonly Func<ILightEvent, bool> _isOverlayActiveProfile;
+    private readonly Func<Application, bool> _isOverlayActiveProfile;
 
     private readonly Task<PluginManager> _pluginManager;
     private readonly Task<IpcListener?> _ipcListener;
@@ -111,13 +116,13 @@ public sealed class LightingStateManager : IDisposable
         LoadSettings();
         await LoadPlugins();
 
-        foreach (var profile in Events)
+        foreach (var (_, profile) in Events)
         {
             // don't await on purpose, need Aurora open fast.
-            var initTask = Task.Delay(200, cancellationToken).ContinueWith(_ =>
+            var initTask = Task.Delay(200, cancellationToken).ContinueWith(async _ =>
             {
-                profile.Value.Initialize(cancellationToken);
-                EventAdded?.Invoke(this, EventArgs.Empty);
+                await profile.Initialize(cancellationToken);
+                EventAdded?.Invoke(this, new ApplicationInitializedEventArgs(profile));
             }, cancellationToken);
             _initTasks.Add(initTask);
         }
@@ -131,7 +136,7 @@ public sealed class LightingStateManager : IDisposable
     private static IEnumerable<Application> EnumerateDefaultApps()
     {
         return from type in Assembly.GetExecutingAssembly().GetLoadableTypes()
-            where type.BaseType == typeof(Application) && type != typeof(GenericApplication)
+            where (type.BaseType == typeof(Application) || type.BaseType == typeof(GsiApplication)) && type != typeof(GenericApplication) && type != typeof(GsiApplication)
             let inst = (Application)Activator.CreateInstance(type)
             orderby inst.Config.Name
             select inst;
@@ -180,17 +185,17 @@ public sealed class LightingStateManager : IDisposable
         Global.Configuration.ProfileOrder.Insert(0, profileId);
     }
 
-    public void RegisterEvent(ILightEvent @event)
+    public void RegisterEvent(Application application)
     {
-        var profileId = @event.Config.ID;
-        if (string.IsNullOrWhiteSpace(profileId) || !Events.TryAdd(profileId, @event)) return;
+        var profileId = application.Config.ID;
+        if (string.IsNullOrWhiteSpace(profileId) || !Events.TryAdd(profileId, application)) return;
 
-        foreach (var exe in @event.Config.ProcessNames)
+        foreach (var exe in application.Config.ProcessNames)
         {
             EventProcesses[exe.ToLower()] = profileId;
         }
 
-        @event.Config.ProcessNamesChanged += (_, _) =>
+        application.Config.ProcessNamesChanged += (_, _) =>
         {
             var keysToRemove = new List<string>();
             foreach (var (s, value) in EventProcesses)
@@ -206,27 +211,27 @@ public sealed class LightingStateManager : IDisposable
                 EventProcesses.Remove(s);
             }
 
-            foreach (var exe in @event.Config.ProcessNames)
+            foreach (var exe in application.Config.ProcessNames)
             {
                 if (!exe.Equals(profileId))
                     EventProcesses.TryAdd(exe.ToLower(), profileId);
             }
         };
 
-        if (@event.Config.ProcessTitles != null)
-            foreach (var titleRx in @event.Config.ProcessTitles)
+        if (application.Config.ProcessTitles != null)
+            foreach (var titleRx in application.Config.ProcessTitles)
                 EventTitles.Add(titleRx, profileId);
 
-        if (!string.IsNullOrWhiteSpace(@event.Config.AppID))
-            EventAppIDs.Add(@event.Config.AppID, profileId);
+        if (!string.IsNullOrWhiteSpace(application.Config.AppID))
+            EventAppIDs.Add(application.Config.AppID, profileId);
 
-        if (@event is Application && !Global.Configuration.ProfileOrder.Contains(profileId))
+        if (application is Application && !Global.Configuration.ProfileOrder.Contains(profileId))
         {
             Global.Configuration.ProfileOrder.Add(profileId);
         }
 
         if (Initialized)
-            @event.Initialize(_initializeCancelSource.Token);
+            application.Initialize(_initializeCancelSource.Token);
     }
 
     public void RemoveGenericProfile(string key)
@@ -245,7 +250,7 @@ public sealed class LightingStateManager : IDisposable
     }
 
     // Used to match a process's name and optional window title to a profile
-    private ILightEvent? GetProfileFromProcessData(string processName, string processTitle)
+    private Application? GetProfileFromProcessData(string processName, string processTitle)
     {
         var processNameProfile = GetProfileFromProcessName(processName);
 
@@ -270,7 +275,7 @@ public sealed class LightingStateManager : IDisposable
         return null;
     }
 
-    private ILightEvent? GetProfileFromProcessName(string process)
+    private Application? GetProfileFromProcessName(string process)
     {
         if (EventProcesses.TryGetValue(process, out var eventId) &&
             Events.TryGetValue(eventId, out var res))
@@ -293,7 +298,7 @@ public sealed class LightingStateManager : IDisposable
         return true;
     }
 
-    private ILightEvent? GetProfileFromProcessTitle(string title)
+    private Application? GetProfileFromProcessTitle(string title)
     {
         foreach (var value in EventTitles
                      .Where(entry => entry.Key.IsMatch(title))
@@ -310,7 +315,7 @@ public sealed class LightingStateManager : IDisposable
         return null;
     }
 
-    private ILightEvent? GetProfileFromAppId(string appid)
+    private Application? GetProfileFromAppId(string appid)
     {
         if (!EventAppIDs.TryGetValue(appid, out var value)) return Events.GetValueOrDefault(appid);
         if (!Events.ContainsKey(value))
@@ -412,13 +417,18 @@ public sealed class LightingStateManager : IDisposable
         UpdateEvent(_idleE, newFrame);
     }
 
-    private void UpdateEvent(ILightEvent @event, EffectsEngine.EffectFrame frame)
+    private void UpdateEvent(LightEvent @event, EffectsEngine.EffectFrame frame)
     {
         StartEvent(@event);
         @event.UpdateLights(frame);
     }
 
-    private void StartEvent(ILightEvent @event)
+    private void UpdateEvent(Application @event, EffectsEngine.EffectFrame frame)
+    {
+        @event.UpdateLights(frame);
+    }
+
+    private void StartEvent(LightEvent @event)
     {
         _updatedEvents.Add(@event);
 
@@ -531,12 +541,12 @@ public sealed class LightingStateManager : IDisposable
     /// <summary>Gets the current application.</summary>
     /// <param name="preview">Boolean indicating whether the application is selected because it is previewing (true)
     /// or because the process is open (false).</param>
-    private ILightEvent GetCurrentProfile(out bool preview)
+    private Application GetCurrentProfile(out bool preview)
     {
         var processName = _activeProcessMonitor.Result.ProcessName.ToLower();
         var processTitle = _activeProcessMonitor.Result.ProcessTitle;
-        ILightEvent? profile = null;
-        ILightEvent? tempProfile;
+        Application? profile = null;
+        Application? tempProfile;
         preview = false;
 
         //TODO: GetProfile that checks based on event type
@@ -564,12 +574,12 @@ public sealed class LightingStateManager : IDisposable
     }
 
     /// <summary>Gets the current application.</summary>
-    private ILightEvent GetCurrentProfile() => GetCurrentProfile(out _);
+    private Application GetCurrentProfile() => GetCurrentProfile(out _);
     /// <summary>
     /// Returns a list of all profiles that should have their overlays active. This will include processes that running but not in the foreground.
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<ILightEvent> GetOverlayActiveProfiles()
+    private IEnumerable<Application> GetOverlayActiveProfiles()
     {
         return Events.Values.Where(_isOverlayActiveProfile);
     }
@@ -630,7 +640,7 @@ public sealed class LightingStateManager : IDisposable
             var appid = provider.GetValue("appid").ToString();
             var name = provider.GetValue("name").ToString().ToLowerInvariant();
 
-            ILightEvent? profile;
+            Application? profile;
             if ((profile = GetProfileFromAppId(appid)) == null && (profile = GetProfileFromProcessName(name)) == null)
             {
                 return;

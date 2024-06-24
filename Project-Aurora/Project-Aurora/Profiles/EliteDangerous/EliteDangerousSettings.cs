@@ -1,8 +1,10 @@
-﻿using AuroraRgb.Settings;
+﻿using System.Text.Json.Serialization;
+using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles.EliteDangerous;
 
-public class EliteDangerousSettings : FirstTimeApplicationSettings
+[method: JsonConstructor]
+public class EliteDangerousSettings(bool isFirstTimeInstalled) : FirstTimeApplicationSettings(isFirstTimeInstalled)
 {
     public string GamePath { get; set; } = "";
 }

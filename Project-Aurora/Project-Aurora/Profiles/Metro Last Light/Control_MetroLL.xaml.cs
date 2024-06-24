@@ -1,7 +1,5 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
 namespace AuroraRgb.Profiles.Metro_Last_Light;
@@ -20,9 +18,9 @@ public partial class Control_MetroLL
         _profileManager = profile;
 
         //Apply LightFX Wrapper, if needed.
-        if ((_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled) return;
+        if (_profileManager.Settings?.InstallationCompleted ?? true) return;
         InstallWrapper();
-        (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
+        _profileManager.Settings.CompleteInstallation();
     }
 
     private void patch_button_Click(object? sender, RoutedEventArgs e)

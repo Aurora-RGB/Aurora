@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using AuroraRgb.Profiles.Dota_2.GSI;
 using AuroraRgb.Profiles.Dota_2.GSI.Nodes;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 
 namespace AuroraRgb.Profiles.Dota_2;
@@ -15,7 +14,7 @@ namespace AuroraRgb.Profiles.Dota_2;
 /// </summary>
 public partial class Control_Dota2
 {
-    private readonly Application _profileManager;
+    private readonly Dota2 _profileManager;
 
     private int _respawnTime = 15;
     private readonly Timer _previewRespawnTimer;
@@ -25,22 +24,14 @@ public partial class Control_Dota2
     {
         InitializeComponent();
 
-        _profileManager = profile;
+        _profileManager = (Dota2)profile;
 
         SetSettings();
 
         _previewRespawnTimer = new Timer(1000);
         _previewRespawnTimer.Elapsed += preview_respawn_timer_Tick;
 
-        //Copy cfg file if needed
-        if (!(_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled)
-        {
-            InstallGsi();
-            (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
-        }
-
         _profileManager.ProfileChanged += Control_Dota2_ProfileChanged;
-
     }
 
     private void Control_Dota2_ProfileChanged(object? sender, EventArgs e)
@@ -81,9 +72,10 @@ public partial class Control_Dota2
 
     //Overview
 
-    private void patch_button_Click(object? sender, RoutedEventArgs e)
+    private async void patch_button_Click(object? sender, RoutedEventArgs e)
     {
-        if (InstallGsi())
+        var result = await _profileManager.InstallGsi();;
+        if (result)
             MessageBox.Show("Aurora GSI Config file installed successfully.");
         else
             MessageBox.Show("Aurora GSI Config file could not be installed.\r\nGame is not installed.");
@@ -106,13 +98,13 @@ public partial class Control_Dota2
 
     private void preview_health_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        var hp_val = (int)preview_health_slider.Value;
+        var hpVal = (int)preview_health_slider.Value;
         if (preview_health_amount is not Label) return;
-        preview_health_amount.Content = hp_val + "%";
+        preview_health_amount.Content = hpVal + "%";
                 
-        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.Health = hp_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.Health = hpVal;
         (_profileManager.Config.Event.GameState as GameStateDota2).Hero.MaxHealth = 100;
-        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.HealthPercent = hp_val;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Hero.HealthPercent = hpVal;
     }
 
     private void preview_mana_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -144,24 +136,6 @@ public partial class Control_Dota2
         (_profileManager.Config.Event.GameState as GameStateDota2).Player.KillStreak = _killstreak++;
         (_profileManager.Config.Event.GameState as GameStateDota2).Player.Kills++;
         preview_killstreak_label.Content = "Killstreak: " + _killstreak;
-    }
-
-    private bool InstallGsi()
-    {
-        var installPath = SteamUtils.GetGamePath(570);
-        if (string.IsNullOrWhiteSpace(installPath)) return false;
-        var path = Path.Combine(installPath, "game", "dota", "cfg", "gamestate_integration", "gamestate_integration_aurora.cfg");
-
-        if (!File.Exists(path))
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-        }
-
-        using var cfgStream = File.Create(path);
-        cfgStream.Write(Properties.Resources.gamestate_integration_aurora_dota2, 0, Properties.Resources.gamestate_integration_aurora_dota2.Length);
-
-        return true;
-
     }
 
     private bool UninstallGsi()

@@ -6,7 +6,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Navigation;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 using MessageBox = System.Windows.MessageBox;
 
@@ -17,18 +16,9 @@ namespace AuroraRgb.Profiles.Witcher3;
 /// </summary>
 public partial class Control_Witcher3
 {
-    private readonly Application _profileManager;
-
-    public Control_Witcher3(Application profile)
+    public Control_Witcher3(Application _)
     {
         InitializeComponent();
-
-        _profileManager = profile;
-
-        if (!(_profileManager.Settings as FirstTimeApplicationSettings)?.IsFirstTimeInstalled ?? false)
-        {
-            ((FirstTimeApplicationSettings)_profileManager.Settings).IsFirstTimeInstalled = true;
-        }
     }
 
     //Overview

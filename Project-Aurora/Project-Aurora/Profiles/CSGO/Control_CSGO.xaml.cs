@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using AuroraRgb.Profiles.CSGO.GSI;
 using AuroraRgb.Profiles.CSGO.GSI.Nodes;
-using AuroraRgb.Settings;
 using AuroraRgb.Utils.Steam;
 using Timer = System.Timers.Timer;
 
@@ -16,7 +15,7 @@ namespace AuroraRgb.Profiles.CSGO;
 /// </summary>
 public partial class Control_CSGO
 {
-    private readonly Application _profileManager;
+    private readonly CSGO _profileManager;
 
     private readonly Timer _previewBombTimer;
     private readonly Timer _previewBombRemoveEffectTimer;
@@ -28,7 +27,7 @@ public partial class Control_CSGO
     {
         InitializeComponent();
 
-        _profileManager = profile;
+        _profileManager = (CSGO)profile;
 
         SetSettings();
 
@@ -39,13 +38,6 @@ public partial class Control_CSGO
         _previewBombRemoveEffectTimer.Elapsed += preview_bomb_remove_effect_timer_Tick;
 
         _profileManager.ProfileChanged += Profile_manager_ProfileChanged;
-
-        //Copy cfg file if needed
-        if (!(_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled)
-        {
-            InstallGSI();
-            (_profileManager.Settings as FirstTimeApplicationSettings).IsFirstTimeInstalled = true;
-        }
     }
 
     private void Profile_manager_ProfileChanged(object? sender, EventArgs e)
@@ -85,9 +77,10 @@ public partial class Control_CSGO
 
     //Overview
 
-    private void patch_button_Click(object? sender, RoutedEventArgs e)
+    private async void patch_button_Click(object? sender, RoutedEventArgs e)
     {
-        if (InstallGSI())
+        var result = await _profileManager.InstallGsi();;
+        if (result)
             MessageBox.Show("Aurora GSI Config file installed successfully.");
         else
             MessageBox.Show("Aurora GSI Config file could not be installed.\r\nGame is not installed.");
@@ -265,23 +258,6 @@ public partial class Control_CSGO
         _previewKillshs = 0;
 
         preview_kills_label.Text = $"Kills: {_previewKills} Headshots: {_previewKillshs}";
-    }
-
-    private bool InstallGSI()
-    {
-        var installPath = SteamUtils.GetGamePath(730);
-        if (string.IsNullOrWhiteSpace(installPath)) return false;
-        var path = Path.Combine(installPath, "game", "csgo", "cfg", "gamestate_integration_aurora.cfg");
-
-        if (!File.Exists(path))
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(path));
-        }
-
-        using var cfgStream = File.Create(path);
-        cfgStream.Write(Properties.Resources.gamestate_integration_aurora_csgo, 0, Properties.Resources.gamestate_integration_aurora_csgo.Length);
-
-        return true;
     }
 
     private bool UninstallGSI()

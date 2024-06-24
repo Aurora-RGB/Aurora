@@ -8,7 +8,6 @@
              xmlns:auroraRgb="clr-namespace:AuroraRgb"
              xmlns:settings="clr-namespace:AuroraRgb.Settings"
              xmlns:audioCapture="clr-namespace:AuroraRgb.Modules.AudioCapture"
-             xmlns:controls="clr-namespace:AuroraRgb.Settings.Controls"
              Loaded="Control_SettingsGeneral_OnLoaded"
              mc:Ignorable="d">
     <UserControl.Resources>
@@ -18,9 +17,9 @@
     <ScrollViewer VerticalScrollBarVisibility="Visible" PanningMode="VerticalOnly">
         <Grid DataContext="{x:Static auroraRgb:Global.Configuration}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0">
@@ -47,6 +46,9 @@
                           Margin="12,62,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                 <CheckBox Content="Start Aurora minimized" IsChecked="{Binding StartSilently}" Margin="12,39,0,0"
                           HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <CheckBox Content="Automatically install integrations"
+                          IsChecked="{Binding AutoInstallGsi}"
+                          Margin="10,332,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
                 <!-- Time-based dimming -->
                 <CheckBox Content="Enable timed blackout of the keyboard" IsChecked="{Binding TimeBasedDimmingEnabled}"
@@ -150,13 +152,13 @@
                 <!-- Audio capture -->
                 <Grid VerticalAlignment="Top">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
+                        <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     
                     <TextBlock Margin="0,1,0,1" Text="GSI Playback Device:" />
@@ -176,9 +178,9 @@
                 <TextBlock Margin="0,1,0,1">Location:</TextBlock>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="0,1,0,1">Lat: </TextBlock>
-                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lat, UpdateSourceTrigger=PropertyChanged}"></xctk:DoubleUpDown>
+                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lat, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBlock Margin="0,1,0,1">Lon: </TextBlock>
-                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lon, UpdateSourceTrigger=PropertyChanged}"></xctk:DoubleUpDown>
+                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lon, UpdateSourceTrigger=PropertyChanged}" />
                     <Button Margin="0,1,0,1" Click="ResetLocation_Clicked">Reset</Button>
                     <TextBlock Text="?" TextDecorations="Underline" Margin="0,1,0,1"
                                ToolTip="Location is used in Celestial data node. Initial data is determined by IP and not a precise location"
