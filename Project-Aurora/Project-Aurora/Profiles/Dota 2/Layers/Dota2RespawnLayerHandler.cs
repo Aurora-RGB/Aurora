@@ -67,7 +67,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
         {
             if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
 
-            if (dota2State.Player.Team is PlayerTeam.Undefined or PlayerTeam.None ||
+            if (dota2State.Player.Team is DotaPlayerTeam.Undefined or DotaPlayerTeam.None ||
                 dota2State.Hero.IsAlive) return EffectLayer.EmptyLayer;
             var percent = dota2State.Hero.SecondsToRespawn > 5 ? 0.0 : 1.0 - dota2State.Hero.SecondsToRespawn / 5.0;
             if (!(percent > 0)) return EffectLayer.EmptyLayer;

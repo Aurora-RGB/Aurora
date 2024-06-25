@@ -66,7 +66,7 @@ public enum DOTA_GameState
 /// <summary>
 /// Enum list for each player team
 /// </summary>
-public enum PlayerTeam
+public enum DotaPlayerTeam
 {
     /// <summary>
     /// Undefined
@@ -140,7 +140,7 @@ public class Map_Dota2
     /// </summary>
     [JsonPropertyName("win_team")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public PlayerTeam Win_team { get; set; }
+    public DotaPlayerTeam Win_team { get; set; }
 
     /// <summary>
     /// The name of the custom game

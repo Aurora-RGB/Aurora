@@ -42,9 +42,9 @@ public partial class Control_Dota2
     private void SetSettings()
     {
         if (preview_team.HasItems) return;
-        preview_team.Items.Add(PlayerTeam.None);
-        preview_team.Items.Add(PlayerTeam.Dire);
-        preview_team.Items.Add(PlayerTeam.Radiant);
+        preview_team.Items.Add(DotaPlayerTeam.None);
+        preview_team.Items.Add(DotaPlayerTeam.Dire);
+        preview_team.Items.Add(DotaPlayerTeam.Radiant);
     }
 
     private void preview_respawn_timer_Tick(object? sender, EventArgs e)
@@ -93,7 +93,7 @@ public partial class Control_Dota2
 
     private void preview_team_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        (_profileManager.Config.Event.GameState as GameStateDota2).Player.Team = (PlayerTeam)preview_team.SelectedItem;
+        (_profileManager.Config.Event.GameState as GameStateDota2).Player.Team = (DotaPlayerTeam)preview_team.SelectedItem;
     }
 
     private void preview_health_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)

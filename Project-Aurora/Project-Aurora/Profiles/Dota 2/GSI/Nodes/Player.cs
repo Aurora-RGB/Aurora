@@ -5,7 +5,7 @@ namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 /// <summary>
 /// Enum for various player activities
 /// </summary>
-public enum PlayerActivity
+public enum DotaPlayerActivity
 {
     /// <summary>
     /// Undefined
@@ -45,7 +45,7 @@ public class PlayerDota2
     /// Player's current activity state
     /// </summary>
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public PlayerActivity Activity { get; set; }
+    public DotaPlayerActivity Activity { get; set; }
 
     /// <summary>
     /// Player's amount of kills
@@ -82,7 +82,7 @@ public class PlayerDota2
     /// </summary>
     [JsonPropertyName("team_name")]
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public PlayerTeam Team { get; set; }
+    public DotaPlayerTeam Team { get; set; }
 
     /// <summary>
     /// Player's amount of gold

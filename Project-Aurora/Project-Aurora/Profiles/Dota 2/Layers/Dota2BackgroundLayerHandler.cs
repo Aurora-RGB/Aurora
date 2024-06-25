@@ -99,12 +99,12 @@ public class Dota2BackgroundLayerHandler() : LayerHandler<Dota2BackgroundLayerHa
 
         var bgColor = dota2State.Player.Team switch
         {
-            PlayerTeam.Dire => Properties.DireColor,
-            PlayerTeam.Radiant => Properties.RadiantColor,
+            DotaPlayerTeam.Dire => Properties.DireColor,
+            DotaPlayerTeam.Radiant => Properties.RadiantColor,
             _ => Properties.DefaultColor
         };
 
-        if (dota2State.Player.Team is PlayerTeam.Dire or PlayerTeam.Radiant)
+        if (dota2State.Player.Team is DotaPlayerTeam.Dire or DotaPlayerTeam.Radiant)
         {
             if (_dimBgAt <= dota2State.Map.GameTime || !dota2State.Hero.IsAlive)
             {
