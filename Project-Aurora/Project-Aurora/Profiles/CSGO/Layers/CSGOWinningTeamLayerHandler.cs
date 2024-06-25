@@ -60,7 +60,7 @@ public class CSGOWinningTeamLayerHandler : LayerHandler<CSGOWinningTeamLayerHand
         _solidBrush.Color = Color.White;
 
         // Triggers directly after a team wins a round
-        if (csgostate.Round.WinTeam != RoundWinTeam.Undefined && csgostate.Previously.Round.WinTeam == RoundWinTeam.Undefined)
+        if (csgostate.Round.WinTeam != RoundWinTeam.Undefined && csgostate.Previously?.Round.WinTeam == RoundWinTeam.Undefined)
         {
             // Determine round or game winner
             if (csgostate.Map.Phase == MapPhase.GameOver)

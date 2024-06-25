@@ -38,6 +38,8 @@ public class WeaponsNode(Dictionary<string, WeaponNode> weaponNodes)
         }
     }
 
+    public Dictionary<string, WeaponNode> WeaponNodes => weaponNodes;
+
     public bool HasPrimary => _weapons.Exists(w => w.Type is WeaponType.Rifle or WeaponType.MachineGun or WeaponType.SniperRifle or WeaponType.SubmachineGun or WeaponType.Shotgun);
     public bool HasRifle => _weapons.Exists(w => w.Type == WeaponType.Rifle);
     public bool HasMachineGun => _weapons.Exists(w => w.Type == WeaponType.MachineGun);

@@ -42,9 +42,10 @@ public class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color
     [JsonIgnore]
     public int DimAmount => Logic?._DimAmount ?? _DimAmount ?? 100;
 
-    public CSGOBackgroundLayerHandlerProperties() : base() { }
+    public CSGOBackgroundLayerHandlerProperties()
+    { }
 
-    public CSGOBackgroundLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGOBackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
@@ -60,28 +61,24 @@ public class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color
 
 }
 
-public class CSGOBackgroundLayerHandler : LayerHandler<CSGOBackgroundLayerHandlerProperties>
+public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHandlerProperties>("CSGO - Background")
 {
     private bool _isDimming;
     private double _dimValue = 100.0;
     private long _dimBgAt = 15;
     private readonly SolidBrush _solidBrush = new(Color.Empty);
 
-    public CSGOBackgroundLayerHandler(): base("CSGO - Background")
-    {
-    }
-
     protected override UserControl CreateControl()
     {
         return new Control_CSGOBackgroundLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
-        var inGame = csgostate.Previously.Player.State.Health is > -1 and < 100
-                     || (csgostate.Round.WinTeam == RoundWinTeam.Undefined && csgostate.Previously.Round.WinTeam != RoundWinTeam.Undefined);
+        var inGame = csgostate.Previously?.Player.State.Health is > -1 and < 100
+                     || (csgostate.Round.WinTeam == RoundWinTeam.Undefined && csgostate.Previously?.Round.WinTeam != RoundWinTeam.Undefined);
         if (csgostate.Player.State.Health == 100 && inGame && csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID))
         {
             _isDimming = false;

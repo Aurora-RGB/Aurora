@@ -35,23 +35,19 @@ public class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color<CS
     }
 }
 
-public class CSGOBurningLayerHandler : LayerHandler<CSGOBurningLayerHandlerProperties>
+public class CSGOBurningLayerHandler() : LayerHandler<CSGOBurningLayerHandlerProperties>("CSGO - Burning")
 {
     private readonly Random _randomizer = new();
     private readonly SolidBrush _solidBrush = new(Color.Empty);
-
-    public CSGOBurningLayerHandler(): base("CSGO - Burning")
-    {
-    }
 
     protected override UserControl CreateControl()
     {
         return new Control_CSGOBurningLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         //Update Burning
 
@@ -60,7 +56,7 @@ public class CSGOBurningLayerHandler : LayerHandler<CSGOBurningLayerHandlerPrope
 
         if (Properties.Animated)
         {
-            var redAdjusted = (int)(burnColor.R + (Math.Cos((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(75)) / 75.0) * 0.15 * 255));
+            var redAdjusted = (int)(burnColor.R + Math.Cos((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(75)) / 75.0) * 0.15 * 255);
 
             byte red = redAdjusted switch
             {
@@ -69,7 +65,7 @@ public class CSGOBurningLayerHandler : LayerHandler<CSGOBurningLayerHandlerPrope
                 _ => (byte) redAdjusted
             };
 
-            var greenAdjusted = (int)(burnColor.G + (Math.Sin((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(150)) / 75.0) * 0.15 * 255));
+            var greenAdjusted = (int)(burnColor.G + Math.Sin((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(150)) / 75.0) * 0.15 * 255);
 
             byte green = greenAdjusted switch
             {
@@ -78,7 +74,7 @@ public class CSGOBurningLayerHandler : LayerHandler<CSGOBurningLayerHandlerPrope
                 _ => (byte) greenAdjusted
             };
 
-            var blueAdjusted = (int)(burnColor.B + (Math.Cos((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(225)) / 75.0) * 0.15 * 255));
+            var blueAdjusted = (int)(burnColor.B + Math.Cos((Time.GetMillisecondsSinceEpoch() + _randomizer.Next(225)) / 75.0) * 0.15 * 255);
 
             byte blue = blueAdjusted switch
             {

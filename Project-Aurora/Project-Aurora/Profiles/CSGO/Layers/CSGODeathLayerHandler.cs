@@ -37,16 +37,12 @@ public class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color<CSGO
 
 }
 
-public class CSGODeathLayerHandler : LayerHandler<CSGODeathLayerHandlerProperties>
+public class CSGODeathLayerHandler() : LayerHandler<CSGODeathLayerHandlerProperties>("CSGO - Death Effect")
 {
     private bool _isDead;
     private int _fadeAlpha = 255;
     private long _lastTimeMillis;
     private readonly SolidBrush _solidBrush = new(Color.Empty);
-
-    public CSGODeathLayerHandler(): base("CSGO - Death Effect")
-    {
-    }
 
     protected override UserControl CreateControl()
     {
@@ -62,7 +58,7 @@ public class CSGODeathLayerHandler : LayerHandler<CSGODeathLayerHandlerPropertie
         if (!gameState.Provider.SteamID.Equals(gameState.Player.SteamID)) return EffectLayer.EmptyLayer;
 
         // Are they dead?
-        if (!_isDead && gameState.Player.State.Health <= 0 && gameState.Previously.Player.State.Health > 0)
+        if (!_isDead && gameState.Player.State.Health <= 0 && gameState.Previously?.Player.State.Health > 0)
         {
             _isDead = true;
             _lastTimeMillis = Time.GetMillisecondsSinceEpoch();

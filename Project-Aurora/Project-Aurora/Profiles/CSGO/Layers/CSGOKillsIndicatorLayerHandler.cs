@@ -26,7 +26,7 @@ public class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Co
     public CSGOKillIndicatorLayerHandlerProperties()
     { }
 
-    public CSGOKillIndicatorLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGOKillIndicatorLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
@@ -48,8 +48,8 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
         Headshot
     }
 
-    private List<RoundKillType> roundKills = new()
-    {
+    private readonly List<RoundKillType> _roundKills =
+    [
         RoundKillType.None,
         RoundKillType.None,
         RoundKillType.None,
@@ -59,8 +59,8 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
         RoundKillType.None,
         RoundKillType.None,
         RoundKillType.None,
-        RoundKillType.None,
-    };
+        RoundKillType.None
+    ];
     private int _lastCountedKill;
 
     protected override UserControl CreateControl()
@@ -68,9 +68,9 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
         return new Control_CSGOKillIndicatorLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
 
         if (!csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID)) return EffectLayer;
         if (csgostate.Round.Phase == RoundPhase.FreezeTime) return EffectLayer;
@@ -82,9 +82,9 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
         
         for (var pos = 0; pos < Properties.Sequence.Keys.Count; pos++)
         {
-            if (pos < roundKills.Count)
+            if (pos < _roundKills.Count)
             {
-                switch (roundKills[pos])
+                switch (_roundKills[pos])
                 {
                     case RoundKillType.Regular:
                         EffectLayer.Set(Properties.Sequence.Keys[pos], Properties.RegularKillColor);
@@ -105,34 +105,34 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
     private void CalculateKills(GameStateCsgo csgostate)
     {
         var roundClearPhase = csgostate.Round.WinTeam == RoundWinTeam.Undefined &&
-                              csgostate.Previously.Round.WinTeam != RoundWinTeam.Undefined;
+                              csgostate.Previously?.Round.WinTeam != RoundWinTeam.Undefined;
         var respawned = csgostate.Player.State.Health == 100 &&
-                        csgostate.Previously.Player.State.Health is > -1 and < 100 &&
+                        csgostate.Previously?.Player.State.Health is > -1 and < 100 &&
                         csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID);
             
         if (csgostate.Player.State.RoundKills == 0 || roundClearPhase || respawned)
         {
-            for (var i = 0; i < roundKills.Count; i++)
+            for (var i = 0; i < _roundKills.Count; i++)
             {
-                roundKills[i] = RoundKillType.None;
+                _roundKills[i] = RoundKillType.None;
             }
         }
 
-        if (csgostate.Previously.Player.State.RoundKills != -1 && csgostate.Player.State.RoundKills != -1 &&
-            csgostate.Previously.Player.State.RoundKills < csgostate.Player.State.RoundKills &&
+        if (csgostate.Previously?.Player.State.RoundKills != -1 && csgostate.Player.State.RoundKills != -1 &&
+            csgostate.Previously?.Player.State.RoundKills < csgostate.Player.State.RoundKills &&
             csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID))
         {
             var index = csgostate.Player.State.RoundKills - 1;
-            if (index >= roundKills.Count)
+            if (index >= _roundKills.Count)
             {
                 return;
             }
             if (csgostate.Previously.Player.State.RoundKillHS != -1 && csgostate.Player.State.RoundKillHS != -1 &&
                 csgostate.Previously.Player.State.RoundKillHS < csgostate.Player.State.RoundKillHS)
                     
-                roundKills[index] = RoundKillType.Headshot;
+                _roundKills[index] = RoundKillType.Headshot;
             else
-                roundKills[index] = RoundKillType.Regular;
+                _roundKills[index] = RoundKillType.Regular;
         }
 
         _lastCountedKill = csgostate.Player.State.RoundKills;

@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using AuroraRgb.Profiles.CSGO.GSI.Nodes;
+using AuroraRgb.Profiles.CSGO.GSI.Nodes.Converters;
 using AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
 namespace AuroraRgb.Profiles.CSGO.GSI;
@@ -37,13 +38,8 @@ public partial class GameStateCsgo : GameState
     /// A previous GameState
     /// </summary>
     [JsonPropertyName("previously")]
-    public GameStateCsgo? Previously { get; set; }
-
-    /// <summary>
-    /// A GameState with only added information
-    /// </summary>
-    [JsonPropertyName("added")]
-    public GameStateCsgo? Added { get; set; }
+    [JsonConverter(typeof(PreviousNodeConverter<PreviousState>))]
+    public PreviousState? Previously { get; set; }
 
     /// <summary>
     /// Information about GSI authentication

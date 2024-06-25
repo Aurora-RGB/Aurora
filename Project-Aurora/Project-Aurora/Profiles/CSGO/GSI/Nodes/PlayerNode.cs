@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
@@ -28,6 +29,7 @@ public class PlayerNode
     /// <summary>
     /// Player's team
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public PlayerTeam Team { get; set; }
 
     /// <summary>
@@ -44,7 +46,15 @@ public class PlayerNode
     /// <summary>
     /// Player's current weapons
     /// </summary>
+    [JsonIgnore]
     public WeaponsNode Weapons { get; set; } = WeaponsNode.Default;
+
+    [JsonPropertyName("weapons")]
+    public Dictionary<string, WeaponNode> WeaponsDictionary
+    {
+        get => Weapons.WeaponNodes;
+        set => Weapons = new WeaponsNode(value);
+    }
 
     /// <summary>
     /// Player's match statistics

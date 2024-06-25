@@ -117,21 +117,52 @@ public sealed partial class AuroraHttpListener
 
     private void ProcessContext(HttpListenerContext context)
     {
+        var json = ReadContent(context, out var path);
         try
         {
-            var json = TryProcessRequest(context);
-            if (json != null)
+            var response = TryProcessRequest(json, path);
+            if (response != null)
             {
-                CurrentGameState = json;
+                CurrentGameState = response;
             }
         }
         catch (Exception e)
         {
             Global.logger.Error(e, "[NetworkListener] ReceiveGameState error:");
+            Global.logger.Debug("JSON: {Json}", json);
         }
     }
 
-    private NewtonsoftGameState? TryProcessRequest(HttpListenerContext context)
+    private NewtonsoftGameState? TryProcessRequest(string json, string path)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        if (!path.StartsWith("/gameState/"))
+        {
+            return new NewtonsoftGameState(json);
+        }
+
+        var match = GameStateRegex().Match(path);
+        if (!match.Success)
+        {
+            return new NewtonsoftGameState(json);
+        }
+ 
+        var gameIdGroup = match.Groups[1];
+        var gameId = gameIdGroup.Value;
+
+        var eventArgs = new JsonGameStateEventArgs(gameId, json);
+        NewJsonGameState?.Invoke(this, eventArgs);
+        
+        // set announce false to prevent LSM from setting it to a profile
+        // also return NewtonsoftGameState for compatibility and GSI window 
+        return new NewtonsoftGameState(json, false);
+    }
+
+    private static string ReadContent(HttpListenerContext context, out string path)
     {
         var request = context.Request;
         string json;
@@ -147,33 +178,10 @@ public sealed partial class AuroraHttpListener
         response.ContentLength64 = 0;
         response.Headers = WebHeaderCollection;
         response.Close([], true);
-
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return null;
-        }
-
-        var uri = request.Url.LocalPath;
-        if (!uri.StartsWith("/gameState/"))
-        {
-            return new NewtonsoftGameState(json);
-        }
-
-        var match = GameStateRegex().Match(uri);
-        if (!match.Success)
-        {
-            return new NewtonsoftGameState(json);
-        }
- 
-        var gameIdGroup = match.Groups[1];
-        var gameId = gameIdGroup.Value;
-
-        var eventArgs = new JsonGameStateEventArgs(gameId, json);
-        NewJsonGameState?.Invoke(this, eventArgs);
         
-        // set announce false to prevent LSM from setting it to a profile
-        // also return NewtonsoftGameState for compatibility and GSI window 
-        return new NewtonsoftGameState(json, false);
+        path = request.Url.LocalPath;
+
+        return json;
     }
 
     // https://regex101.com/r/N3BMIu/1

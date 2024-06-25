@@ -39,21 +39,16 @@ public class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2
 }
 
 [Obsolete("This layer is obselete and has been replaced by the Overrides system.")]
-public class CSGOTypingIndicatorLayerHandler : LayerHandler<CSGOTypingIndicatorLayerHandlerProperties>
+public class CSGOTypingIndicatorLayerHandler() : LayerHandler<CSGOTypingIndicatorLayerHandlerProperties>("CSGO - Typing Keys")
 {
-
-    public CSGOTypingIndicatorLayerHandler(): base("CSGO - Typing Keys")
-    {
-    }
-
     protected override UserControl CreateControl()
     {
         return new Control_CSGOTypingIndicatorLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
         if (csgostate.Player.Activity != PlayerActivity.TextInput) return EffectLayer.EmptyLayer;
 
         //Update Typing Keys
