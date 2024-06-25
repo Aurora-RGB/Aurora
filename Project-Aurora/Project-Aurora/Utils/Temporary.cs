@@ -15,6 +15,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
     private long _lastAccess = Time.GetMillisecondsSinceEpoch();
     private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
+    private readonly bool _callDispose = callDispose;
 
     public T Value
     {
@@ -52,7 +53,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
             Instances.Remove(this);
         }
 
-        if (!callDispose)
+        if (!_callDispose)
         {
             return;
         }
@@ -70,7 +71,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
             Instances.Remove(this);
         }
 
-        if (!callDispose)
+        if (!_callDispose)
         {
             return;
         }
@@ -131,7 +132,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
         var temporaryValue = temporary._value;
         temporary._value = null;
-        if (temporaryValue is IDisposable disposable)
+        if (temporary._callDispose && temporaryValue is IDisposable disposable)
         {
             disposable.Dispose();
         }

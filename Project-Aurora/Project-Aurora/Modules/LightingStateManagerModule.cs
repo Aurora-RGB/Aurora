@@ -4,6 +4,7 @@ using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
+using AuroraRgb.Settings.Overrides.Logic;
 
 namespace AuroraRgb.Modules;
 
@@ -47,6 +48,9 @@ public sealed class LightingStateManagerModule(
         }
         Global.logger.Information("Loaded Applications");
         await lightingStateManager.InitUpdate();
+
+        // warmup static value
+        EvaluatableRegistry.Get();
     }
     
     public override async ValueTask DisposeAsync()

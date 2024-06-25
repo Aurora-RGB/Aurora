@@ -23,10 +23,10 @@ using AuroraRgb.Settings.Controls;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using Common;
+using Common.Utils;
 using PropertyChanged;
 using Application = AuroraRgb.Profiles.Application;
 using Brushes = System.Windows.Media.Brushes;
-using Timer = System.Timers.Timer;
 
 namespace AuroraRgb;
 
@@ -50,7 +50,8 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     private FrameworkElement? _selectedManager;
 
-    private readonly Timer _virtualKeyboardTimer = new(8);
+    private bool _runKeyboardUpdate = true;
+    private readonly SingleConcurrentThread _virtualKeyboardTimer;
     private readonly Func<Task> _keyboardTimerCallback;
 
     public static readonly DependencyProperty FocusedApplicationProperty = DependencyProperty.Register(
@@ -132,7 +133,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         _settingsControl.DataContext = this;
 
         _keyboardTimerCallback = KeyboardTimerCallback;
-        _virtualKeyboardTimer.Elapsed += virtual_keyboard_timer_Tick;
+        _virtualKeyboardTimer = new SingleConcurrentThread("ConfigUI render thread", virtual_keyboard_timer_Tick);
 
         _profilesStack = new Control_ProfilesStack(httpListener, lightingStateManager);
         _profilesStack.FocusedAppChanged += ProfilesStackOnFocusedAppChanged;
@@ -257,7 +258,8 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         windowHwndSource = HwndSource.FromHwnd(handle);
         windowHwndSource?.AddHook(WndProcDrag);
 
-        _virtualKeyboardTimer.Start();
+        _runKeyboardUpdate = true;
+        _virtualKeyboardTimer.Trigger();
 
         KeyboardRecordMessage.Visibility = Visibility.Hidden;
 
@@ -317,7 +319,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     private async void Window_Unloaded(object sender, RoutedEventArgs e)
     {
-        _virtualKeyboardTimer.Stop();
+        _runKeyboardUpdate = false;
         await _keyboardUpdateCancel.CancelAsync();
 
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
@@ -330,18 +332,20 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     }
 
     private readonly Stopwatch _keyboardTimer = Stopwatch.StartNew();
-    private void virtual_keyboard_timer_Tick(object? sender, EventArgs e)
+    private void virtual_keyboard_timer_Tick()
     {
-        if (Visibility != Visibility.Visible) return;
+        if (Visibility != Visibility.Visible || !_runKeyboardUpdate) return;
         _keyboardTimerCallback.Invoke();
         _keyboardTimer.Restart();
+        Thread.Sleep(8);
+        _virtualKeyboardTimer.Trigger();
     }
 
     ////Misc
 
     private async void Window_Closing(object? sender, CancelEventArgs e)
     {
-        _virtualKeyboardTimer.Stop();
+        _runKeyboardUpdate = false;
         await _keyboardUpdateCancel.CancelAsync();
 
         if (FocusedApplication != null)
@@ -521,6 +525,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     public void Dispose()
     {
-        _virtualKeyboardTimer.Dispose();
+        _runKeyboardUpdate = false;
+        _virtualKeyboardTimer.Dispose(50);
     }
 }
