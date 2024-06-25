@@ -14,8 +14,7 @@ public static class FastMemberExtensions {
     public static object? ResolvePropertyPath(this object target, string path) {
         if (target is IGameState gameState && gameState.PropertyMap.TryGetValue(path, out var getter))
         {
-            var generatedAccess = getter.Invoke(gameState);
-            return generatedAccess;
+            return getter.Invoke(gameState);
         }
 
         var pathParts = path.Split('/');

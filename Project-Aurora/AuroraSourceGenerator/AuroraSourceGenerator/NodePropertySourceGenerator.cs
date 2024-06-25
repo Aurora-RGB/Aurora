@@ -9,6 +9,12 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace AuroraSourceGenerator;
 
+internal class PropertyAccess(string gsiPath, string accessPath)
+{
+    public string GsiPath { get; } = gsiPath;
+    public string AccessPath { get; } = accessPath;
+}
+
 /// <summary>
 /// A sample source generator that creates C# classes based on the text file (in this case, Domain Driven Design ubiquitous language registry).
 /// When using a simple text file as a baseline, we can create a non-incremental source generator.
@@ -76,7 +82,7 @@ public class NodePropertySourceGenerator : ISourceGenerator
     private static void GenerateClassProperties(GeneratorExecutionContext context, INamedTypeSymbol classSymbol)
     {
         // Get all properties of the class
-        var properties = GetClassProperties("", classSymbol);
+        var properties = GetClassProperties("", classSymbol, $"(({classSymbol.Name})t).");
 
         var source = $$"""
                        // Auto-generated code
@@ -92,7 +98,7 @@ public class NodePropertySourceGenerator : ISourceGenerator
                            {
                                private static readonly Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new()
                                 {
-                       {{string.Join(",\n", properties.Select(Selector(classSymbol)))}}
+                       {{string.Join(",\n", properties.Select(Selector()))}}
                                 };
                                 public override IReadOnlyDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
                            }
@@ -103,25 +109,18 @@ public class NodePropertySourceGenerator : ISourceGenerator
         context.AddSource(classSymbol.Name + ".g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
-    private static Func<(string, bool), string> Selector(INamedTypeSymbol classSymbol)
+    private static Func<PropertyAccess, string> Selector()
     {
-        return p => AccessorMethodSource(classSymbol, p);
+        return AccessorMethodSource;
     }
 
-    private static string AccessorMethodSource(INamedTypeSymbol classSymbol, (string, bool) valueTuple)
+    private static string AccessorMethodSource(PropertyAccess valueTuple)
     {
-        var p = valueTuple.Item1;
-        var containsStatic = valueTuple.Item2;
-        var pathString = p.Replace('.', '/');
-        if (containsStatic)
-        {
-            return $"[\"{pathString}\"]\t=\t(t) => ((dynamic)t).{p}";
-        }
-
-        return $"[\"{pathString}\"]\t=\t(t) => (({classSymbol.Name})t).{p}";
+        var pathString = valueTuple.GsiPath;
+        return $"[\"{pathString}\"]\t=\t(t) => {valueTuple.AccessPath}";
     }
 
-    private static IEnumerable<(string, bool)> GetClassProperties(string currentPath, INamedTypeSymbol type, bool containsStatic = false)
+    private static IEnumerable<PropertyAccess> GetClassProperties(string currentPath, INamedTypeSymbol type, string upperAccessPath)
     {
         var currentType = type;
         while (currentType != null)
@@ -136,15 +135,16 @@ public class NodePropertySourceGenerator : ISourceGenerator
                 if (property.Name.Contains(']')) continue;
                 if (property.Name.Contains('<')) continue;
                 if (property.Name.Contains('>')) continue;
-
-                var propertyContainsStatic = containsStatic || property.IsStatic;
+                if (property.GetAttributes().Any(IgnoredAttribute)) continue;
 
                 var propertyType = property.Type;
 
+                var accessPath = property.IsStatic ? GetStaticAccessPath(currentType, property) : upperAccessPath + property.Name;
+                
                 // Check if the type is a primitive type
                 if (propertyType.IsValueType || propertyType.SpecialType == SpecialType.System_String)
                 {
-                    yield return (currentPath + property.Name, propertyContainsStatic);
+                    yield return new PropertyAccess(currentPath + property.Name, accessPath);
                     continue;
                 }
                 // Check if the type is a class
@@ -154,14 +154,18 @@ public class NodePropertySourceGenerator : ISourceGenerator
                 var namedTypeSymbol = (INamedTypeSymbol)property.Type;
                 if (!IsAuroraClass(namedTypeSymbol))
                     continue;
-                // prevent infinite recursions
+                // prevent infinite recursions, this should look for all previous types actually
                 if (SymbolEqualityComparer.Default.Equals(namedTypeSymbol, currentType))
                 {
                     continue;
                 }
 
-                var upperProperty = currentPath + property.Name + (property.NullableAnnotation == NullableAnnotation.Annotated ? "?." : ".");
-                foreach (var classProperty in GetClassProperties(upperProperty, namedTypeSymbol, propertyContainsStatic))
+                var upperProperty = currentPath + property.Name + "/";
+
+                var s = property.NullableAnnotation == NullableAnnotation.Annotated ? "?." : ".";
+                var lowerAccessPath = property.IsStatic ? GetStaticAccessPath(currentType, property) : upperAccessPath + property.Name + s;
+                
+                foreach (var classProperty in GetClassProperties(upperProperty, namedTypeSymbol, lowerAccessPath))
                 {
                     yield return classProperty;
                 }
@@ -171,6 +175,16 @@ public class NodePropertySourceGenerator : ISourceGenerator
         }
 
         Console.WriteLine($"{type} property scan complete");
+    }
+
+    private static bool IgnoredAttribute(AttributeData arg)
+    {
+        return arg.AttributeClass?.Name == "GameStateIgnoreAttribute";
+    }
+
+    private static string GetStaticAccessPath(INamedTypeSymbol currentType, IPropertySymbol property)
+    {
+        return currentType.ContainingNamespace + "." + currentType.Name + "." + property.Name + ".";
     }
 
     private static bool IsAuroraClass(INamedTypeSymbol namedTypeSymbol)

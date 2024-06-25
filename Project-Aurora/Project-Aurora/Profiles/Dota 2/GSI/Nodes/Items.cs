@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
-using AuroraRgb.Nodes;
 
 namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
 
 /// <summary>
 /// Class representing item information
 /// </summary>
-public class ItemsDota2 : Node
+public class ItemsDota2
 {
     public static readonly ItemsDota2 Default = new(
         Item.Default, Item.Default, Item.Default, Item.Default, Item.Default,

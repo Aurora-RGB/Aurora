@@ -34,12 +34,12 @@ public class PlayerDota2
     /// Player's steam ID
     /// </summary>
     [JsonPropertyName("steamid")]
-    public string SteamID { get; set; }
+    public string SteamID { get; set; } = string.Empty;
 
     /// <summary>
     /// Player's name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Player's current activity state

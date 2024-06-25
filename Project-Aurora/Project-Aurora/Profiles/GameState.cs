@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Text.Json.Serialization;
 using AuroraRgb.Nodes;
 using AuroraRgb.Utils;
 using FastMember;
@@ -43,6 +44,7 @@ public abstract class GameState : IGameState
     
     public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 
+    [JsonIgnore]
     public virtual IReadOnlyDictionary<string, Func<IGameState, object?>> PropertyMap => ImmutableDictionary<string, Func<IGameState, object?>>.Empty;
 
     /// <summary>
