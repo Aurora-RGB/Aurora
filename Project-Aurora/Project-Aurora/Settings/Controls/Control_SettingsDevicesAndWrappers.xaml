@@ -49,11 +49,6 @@
                     <TextBlock HorizontalAlignment="Left" Margin="0,1,0,1" Height="22" TextWrapping="Wrap"
                                Text="Bitmap Accuracy/Ratio: " VerticalAlignment="Top"
                                ToolTip="Determines how accurate the Freestyle key sequence option will map to the keys it is drawn over. Better accuracy comes at the cost of CPU/RAM usage, will likely only be a problem at Best" />
-                    <Button HorizontalAlignment="Right" Margin="0,1,0,1" Height="22"
-                            VerticalAlignment="Top"
-                            Content="↻"
-                            Click="LayoutsRefreshButton_OnClick"
-                            ToolTip="Reload layouts" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Vertical">
                     <ComboBox SelectedValue="{Binding KeyboardLocalization}"
@@ -90,6 +85,12 @@
                               Margin="0,1,0,1" Width="192" HorizontalAlignment="Left" VerticalAlignment="Top" />
                     <ComboBox SelectedValue="{Binding BitmapAccuracy}" ItemsSource="{Binding BitmapAccuracies}"
                               Margin="0,1,0,1" Width="192" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                    <Button HorizontalAlignment="Left" Margin="0,1,0,1" Height="22"
+                            VerticalAlignment="Center"
+                            Content="↻"
+                            FontSize="16"
+                            Click="LayoutsRefreshButton_OnClick"
+                            ToolTip="Reload layouts" />
                 </StackPanel>
                 <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
                     <CheckBox Content="Allow Aurora wrappers to take priority over desktop profile while active"
@@ -138,15 +139,23 @@
                                     HorizontalAlignment="Right" Margin="5 0 5 0"
                                     Content="Disable Device Control" Width="155"
                                     ToolTipService.InitialShowDelay="0"
-ToolTip="Disabling device control will stop ChromaSDK from controlling Razer Devices.&#x0a;After this you have to control them with OpenRGB. To enable it back reinstall ChromaSDK&#x0a;Synapse still needs to be closed completely"
                                     VerticalAlignment="Center"
-                                    Click="razer_wrapper_disable_device_control_button_Click" />
+                                    Click="razer_wrapper_disable_device_control_button_Click">
+                                <Button.ToolTip>
+                                    <TextBlock>
+                                        Disabling device control will stop official Razer software from controlling Razer Devices
+                                        <LineBreak />
+                                        After this you will have to control them via OpenRGB
+                                        <LineBreak />
+                                        Synapse still needs to be closed completely
+                                    </TextBlock> 
+                                </Button.ToolTip>
+                            </Button>
                             <CheckBox IsChecked="{Binding ChromaDisableDeviceControl}"
-                                ToolTipService.InitialShowDelay="0"
-                                ToolTip="Automatically reapply"
-                                VerticalAlignment="Center">
-                                ↻
-                            </CheckBox>
+                                      Content="↻"
+                                      ToolTipService.InitialShowDelay="0"
+                                      ToolTip="Automatically reapply"
+                                      VerticalAlignment="Center" />
                         </StackPanel>
 
                         <Label Grid.Row="1" Grid.Column="0" Content="Installed Version:" Margin="5 0 5 0" Padding="0"

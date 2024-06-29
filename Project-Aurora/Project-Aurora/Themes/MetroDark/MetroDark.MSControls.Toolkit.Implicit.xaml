@@ -36,8 +36,8 @@
 
     <!-- Accordion Brushes -->
 	<SolidColorBrush x:Key="AccordionBorderBrush" Color="{StaticResource Color_004}" />
-    <SolidColorBrush x:Key="AccordionBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="AccordionItemBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="AccordionBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="AccordionItemBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="AccordionButtonBackgroundBrush" Color="{StaticResource Color_009}" />
     <SolidColorBrush x:Key="AccordionButtonBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="AccordionButtonHoverBackgroundBrush" Color="{StaticResource Color_006}" />
@@ -47,7 +47,7 @@
     <SolidColorBrush x:Key="AccordionButtonExpandedBackgroundBrush" Color="{StaticResource Color_024}" />
     <SolidColorBrush x:Key="AccordionButtonExpandedBorderBrush" Color="{StaticResource Color_024}" />
     <SolidColorBrush x:Key="AccordionArrowBackgroundBrush" Color="{StaticResource Color_003}" />
-    <SolidColorBrush x:Key="AccordionArrowExpandedBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="AccordionArrowExpandedBackgroundBrush" Color="{StaticResource Color_018}" />
 
 	<!--********************************** RatingItem Style **********************************-->
 	<Style x:Key="RatingItemStyle" TargetType="{x:Type inputToolkit:RatingItem}">

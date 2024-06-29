@@ -1,4 +1,5 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:vsm ="clr-namespace:System.Windows;assembly=PresentationFramework" mc:Ignorable="d">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="d">
 
   <!-- ********************************** THEME BRUSHES - For Color Tuner **********************************-->
   <SolidColorBrush x:Key="Brush01" Color="#FF00AADE" />
@@ -18,7 +19,7 @@
   <Color x:Key="Color_006">#66454545</Color>
   <Color x:Key="Color_007">#99333333</Color>
   <Color x:Key="Color_008">#66181818</Color>
-  <Color x:Key="Color_009">#99181818</Color>
+  <Color x:Key="Color_009">#FF181818</Color>
 
   <!--Transparent and Whites with transparency-->
   <Color x:Key="Color_010">#E5FFFFFF</Color>

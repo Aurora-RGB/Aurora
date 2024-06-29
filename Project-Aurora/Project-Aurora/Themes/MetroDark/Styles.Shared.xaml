@@ -14,17 +14,17 @@
     <SolidColorBrush x:Key="ForegroundBrush" Color="{StaticResource Color_002}" />
     <SolidColorBrush x:Key="LightForegroundBrush" Color="{StaticResource Color_001}" />
     <SolidColorBrush x:Key="TransparentBrush" Color="{StaticResource Color_016}" />
-    <SolidColorBrush x:Key="DisabledVisualElement" Color="{StaticResource Color_009}" Opacity="0.6" />
+    <SolidColorBrush x:Key="DisabledVisualElement" Color="{StaticResource Color_018}" Opacity="0.6" />
     <SolidColorBrush x:Key="ValidationErrorElement" Color="{StaticResource Color_028}" />
     <SolidColorBrush x:Key="CaretForegroundBrush" Color="{StaticResource Color_022}" />
 
     <!--  TabControl Brushes -->
-    <SolidColorBrush x:Key="TabControlBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="TabControlBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="TabControlBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="TabItemBackgroundBrush" Color="{StaticResource Color_024}" />
     <SolidColorBrush x:Key="TabItemBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="TabItemHoverBackgroundBrush" Color="{StaticResource Color_006}" />
-    <SolidColorBrush x:Key="TabItemSelectedBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="TabItemSelectedBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="TabItemSelectedBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="TabItemFocusedBorderBrush" Color="{StaticResource Color_024}" />
     <SolidColorBrush x:Key="TabItemTexForegroundBrush" Color="{StaticResource Color_001}" Opacity="0.7" />
@@ -44,18 +44,18 @@
     <SolidColorBrush x:Key="VScrollbarThumbDisabledBackgroundBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="HScrollbarThumbDisabledBackgroundBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ScrollbarDisabledBackgroundBrush" Color="{StaticResource Color_008}" />
-    <SolidColorBrush x:Key="ScrollbarBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="ScrollViewerCornerBackgroundBrush" Color="{StaticResource Color_009}"/>
+    <SolidColorBrush x:Key="ScrollbarBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="ScrollViewerCornerBackgroundBrush" Color="{StaticResource Color_018}"/>
 
     <!-- ComboBox Brushes -->
-    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="ComboBoxBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="ComboBoxBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ComboBoxReadOnlyBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ComboBoxHoverBackgroundBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ComboBoxHoverBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="ComboBoxFocusedBorderBrush" Color="{StaticResource Color_024}" />
-    <SolidColorBrush x:Key="ComboBoxDisabledBackgroundBrush" Color="{StaticResource Color_009}" Opacity="0.6" />
-    <SolidColorBrush x:Key="PopupBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="ComboBoxDisabledBackgroundBrush" Color="{StaticResource Color_018}" Opacity="0.6" />
+    <SolidColorBrush x:Key="PopupBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="PopupBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ComboBoxReadOnlyBackgroundBrush" Color="{StaticResource Color_064}" />
     <!-- Need to change color or delete -->
@@ -85,7 +85,7 @@
     <SolidColorBrush x:Key="ComboBoxItemPressedBorderBrush" Color="{StaticResource Color_024}" />
 
     <!-- ComboBoxToggleButton Brushes -->
-    <SolidColorBrush x:Key="ComboBoxToggleButtonBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="ComboBoxToggleButtonBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="ComboBoxToggleButtonBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="ComboBoxToggleButtonHoverBackgroundBrush" Color="{StaticResource Color_008}" />
     <SolidColorBrush x:Key="ComboBoxToggleButtonHoverBorderBrush" Color="{StaticResource Color_004}" />
@@ -111,12 +111,12 @@
     <!-- Need to change color or delete -->
 
     <!-- CheckBox Brushes -->
-    <SolidColorBrush x:Key="CheckBoxBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="CheckBoxHoverBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="CheckBoxPressedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="CheckBoxFocusedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="CheckBoxInvalidUnfocusedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="CheckBoxInvalidFocusedBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="CheckBoxBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="CheckBoxHoverBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="CheckBoxPressedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="CheckBoxFocusedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="CheckBoxInvalidUnfocusedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="CheckBoxInvalidFocusedBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="CheckBoxBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="CheckBoxHoverBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="CheckBoxPressedBorderBrush" Color="{StaticResource Color_024}" />
@@ -127,12 +127,12 @@
     <SolidColorBrush x:Key="CheckBoxCheckBackgroundBrush" Color="{StaticResource Color_024}" />
 
     <!-- RadioButton Brushes -->
-    <SolidColorBrush x:Key="RadioButtonBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="RadioButtonHoverBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="RadioButtonPressedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="RadioButtonFocusedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="RadioButtonInvalidUnfocusedBackgroundBrush" Color="{StaticResource Color_009}" />
-    <SolidColorBrush x:Key="RadioButtonInvalidFocusedBackgroundBrush" Color="{StaticResource Color_009}" />
+    <SolidColorBrush x:Key="RadioButtonBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="RadioButtonHoverBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="RadioButtonPressedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="RadioButtonFocusedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="RadioButtonInvalidUnfocusedBackgroundBrush" Color="{StaticResource Color_018}" />
+    <SolidColorBrush x:Key="RadioButtonInvalidFocusedBackgroundBrush" Color="{StaticResource Color_018}" />
     <SolidColorBrush x:Key="RadioButtonBorderBrush" Color="{StaticResource Color_006}" />
     <SolidColorBrush x:Key="RadioButtonHoverBorderBrush" Color="{StaticResource Color_004}" />
     <SolidColorBrush x:Key="RadioButtonPressedBorderBrush" Color="{StaticResource Color_024}" />

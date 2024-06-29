@@ -190,7 +190,7 @@ public partial class Control_ProfilesStack
     private void AddProfileDisabledImage(Application application, Grid profileGrid)
     {
         var disabledTooltip = application.Settings?.IsOverlayEnabled ?? true ?
-            "Profile is disabled. Overlay Layers can still work " :  "Profile is completely disabled";
+            "Profile is disabled. Overlay Layers can still work\nRight click to change" :  "Profile is completely disabled\nRight click to change";
         var profileDisabledImage = new Image
         {
             Source = _disabledProfileImage,
@@ -242,7 +242,7 @@ public partial class Control_ProfilesStack
         {
             Tag = application,
             Source = application.Icon,
-            ToolTip = application.Config.Name + " Settings",
+            ToolTip = application.Config.Name + " Settings\n\nRight click to enabled/disable the profile",
             Margin = new Thickness(0, 5, 0, 0),
             Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
         };
