@@ -345,8 +345,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fi = x * waveStepAmount;
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
-                        var yOff = -Math.Max(Math.Min(fftVal / scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
-                        g.DrawLine(new Pen(brush), x, halfHeight, x, halfHeight + yOff);
+                        var yOff = Math.Max(Math.Min(fftVal / scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
+                        g.FillRectangle(brush, x, halfHeight - yOff, 1, yOff * 2);
                     }
                     break;
                 case EqualizerType.WaveformBottom:
@@ -355,8 +355,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fi = x * waveStepAmount;
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
-                        g.DrawLine(new Pen(brush), x, SourceRect.Height, x,
-                            SourceRect.Height - Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f, SourceRect.Height));
+                        var yOff = Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f, SourceRect.Height);
+                        g.FillRectangle(brush, x, SourceRect.Height - yOff, 1, yOff * 2);
                     }
                     break;
                 case EqualizerType.PowerBars:
