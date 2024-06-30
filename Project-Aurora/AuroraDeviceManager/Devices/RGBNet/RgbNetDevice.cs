@@ -107,7 +107,7 @@ public abstract class RgbNetDevice : DefaultDevice
 
                 try
                 {
-                    await Task.Delay(1800, cancellationToken);
+                    await Task.Delay(3800, cancellationToken);
                 }
                 catch (TaskCanceledException)
                 {
