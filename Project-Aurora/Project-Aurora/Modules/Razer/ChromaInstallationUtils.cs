@@ -31,6 +31,9 @@ public static class ChromaInstallationUtils
                                        </devices>
                                        """;
 
+    private const string RazerChromaSdkServer = "Razer Chroma SDK Server";
+    private const string RazerChromaStreamServer = "Razer Chroma Stream Server";
+
     public static async Task<int> UninstallAsync() => await Task.Run(() =>
     {
         if (RzHelper.GetSdkVersion() == new RzSdkVersion())
@@ -172,13 +175,13 @@ public static class ChromaInstallationUtils
         var chromaPath = GetChromaPath();
         if (chromaPath != null)
         {
-            File.Delete(chromaPath);
+            File.Delete(Path.Combine(chromaPath, DevicesXml));
         }
 
         var chromaPath64 = GetChromaPath64();
         if (chromaPath64 != null)
         {
-            File.Delete(chromaPath64);
+            File.Delete(Path.Combine(chromaPath64, DevicesXml));
         }
         RestartChromaService();
     }
@@ -218,8 +221,8 @@ public static class ChromaInstallationUtils
 
     public static void DisableChromaBloat()
     {
-        DisableService("Razer Chroma SDK Server");
-        DisableService("Razer Chroma Stream Server");
+        DisableService(RazerChromaSdkServer);
+        DisableService(RazerChromaStreamServer);
     }
 
     private static void DisableService(string serviceName)

@@ -90,11 +90,14 @@ public partial class Control_SettingsDevicesAndWrappers
             ChromaConnectionStatusLabel.Content = "Failure";
             ChromaConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
             ChromaDisableDeviceControlButton.IsEnabled = false;
+            ChromaInstallButton.IsEnabled = true;
             return;
         }
 
         ChromaConnectionStatusLabel.Content = "Success";
         ChromaConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.LightGreen);
+        ChromaDisableDeviceControlButton.IsEnabled = true;
+        ChromaInstallButton.IsEnabled = false;
 
         var currentApp = RzHelper.CurrentAppExecutable;
         var currentAppId = RzHelper.CurrentAppId;
