@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -62,11 +63,13 @@ public class VariableRegistryItem : ICloneable
         return value;
     }
 
+    [Pure]
     private static object GetColor(JsonElement jsonElement)
     {
         return jsonElement.Deserialize<SimpleColor>();
     }
 
+    [Pure]
     private static object? GetStringOrColor(JsonElement jsonElement)
     {
         var str = jsonElement.GetString();
@@ -97,6 +100,7 @@ public class VariableRegistryItem : ICloneable
         }
     }
 
+    [Pure]
     private static object GetNumber(JsonElement jsonElement)
     {
         if (int.TryParse(jsonElement.GetDecimal().ToString(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture, out var intVal))
@@ -185,6 +189,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
             Variables = vars;
     }
 
+    [Pure]
     public IEnumerable<string> GetRegisteredVariableKeys()
     {
         return Variables.Keys.ToArray();
@@ -218,6 +223,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         }
     }
 
+    [Pure]
     public string GetString(string name)
     {
         if (Variables.TryGetValue(name, out var value) && value.Value is string strVal)
@@ -226,6 +232,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         return string.Empty;
     }
 
+    [Pure]
     public T GetVariable<T>(string name) where T : new()
     {
         if (Variables.TryGetValue(name, out var value))
@@ -234,6 +241,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         return default(T) ?? new T();
     }
 
+    [Pure]
     public bool GetVariableMax<T>(string name, out T? value)
     {
         if (Variables.TryGetValue(name, out var outVal) && outVal is { Max: not null, Value: T })
@@ -246,6 +254,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         return false;
     }
 
+    [Pure]
     public bool GetVariableMin<T>(string name, out T value)
     {
         if (Variables.TryGetValue(name, out var outVal) && outVal is { Min: not null, Value: T })
@@ -258,6 +267,7 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         return false;
     }
 
+    [Pure]
     public Type GetVariableType(string name)
     {
         if (Variables.TryGetValue(name, out var value) && value.Value != null)
@@ -266,16 +276,19 @@ public class VariableRegistry : ICloneable //Might want to implement something l
         return typeof(object);
     }
 
+    [Pure]
     public string GetTitle(string name)
     {
         return Variables.TryGetValue(name, out var variable) ? variable.Title : string.Empty;
     }
 
+    [Pure]
     public string GetRemark(string name)
     {
         return Variables.TryGetValue(name, out var variable) ? variable.Remark : string.Empty;
     }
 
+    [Pure]
     public IntVariableDisplay GetFlags(string name)
     {
         return Variables.TryGetValue(name, out var variable) ? variable.Flags : IntVariableDisplay.None;

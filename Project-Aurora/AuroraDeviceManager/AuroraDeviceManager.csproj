@@ -102,12 +102,12 @@
         <PackageReference Include="RGB.NET.Core" Version="2.0.0-prerelease.83" />
         <PackageReference Include="RGB.NET.Devices.OpenRGB" Version="2.0.0-prerelease.83" />
         -->
-        <PackageReference Include="RGB.NET.Devices.CorsairLegacy" Version="2.0.0"/>
-        <PackageReference Include="RGB.NET.Devices.CoolerMaster" Version="2.0.0"/>
-        <PackageReference Include="RGB.NET.Devices.Logitech" Version="2.0.4-prerelease.16"/>
-        <PackageReference Include="RGB.NET.Devices.Razer" Version="2.0.4-prerelease.14"/>
-        <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="2.0.0"/>
-        <PackageReference Include="RGB.NET.Devices.Wooting" Version="2.0.0"/>
+        <PackageReference Include="RGB.NET.Devices.CorsairLegacy" Version="2.2.0-prerelease.1" />
+        <PackageReference Include="RGB.NET.Devices.CoolerMaster" Version="2.2.0-prerelease.1" />
+        <PackageReference Include="RGB.NET.Devices.Logitech" Version="2.2.0-prerelease.1" />
+        <PackageReference Include="RGB.NET.Devices.Razer" Version="2.2.0-prerelease.1" />
+        <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="2.2.0-prerelease.1" />
+        <PackageReference Include="RGB.NET.Devices.Wooting" Version="2.2.0-prerelease.1" />
         <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0"/>
         <PackageReference Include="System.Management" Version="8.0.0"/>
