@@ -5,7 +5,7 @@ using Amib.Threading;
 
 namespace AuroraRgb.Modules;
 
-public abstract class AuroraModule : IDisposable, IAsyncDisposable
+public abstract class AuroraModule : IAsyncDisposable
 {
     private static readonly SmartThreadPool ModuleThreadPool = new(new STPStartInfo
     {
@@ -65,9 +65,4 @@ public abstract class AuroraModule : IDisposable, IAsyncDisposable
 
     protected abstract Task Initialize();
     public abstract ValueTask DisposeAsync();
-
-    public virtual void Dispose()
-    {
-        DisposeAsync().AsTask().Wait();
-    }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using AuroraRgb.Modules.Inputs;
-using AuroraRgb.Settings;
-using Common.Devices;
 using Common.Utils;
 
 namespace AuroraRgb.Modules;
@@ -15,36 +11,32 @@ public sealed class InputsModule : AuroraModule
     /// Input event subscriptions
     /// </summary>
     public static Task<IInputEvents> InputEvents { get; } = Tcs.Task;
-    
-    private const bool VolumeToBrightnessReady = false;
-    
+
     public override async Task InitializeAsync()
     {
         await Initialize();
     }
 
-    protected override async Task Initialize()
+    protected override Task Initialize()
     {
         if (Global.Configuration.EnableInputCapture)
         {
             Global.logger.Information("Loading Input Hooking");
-            Tcs.SetResult(new InputEvents());
-            if (VolumeToBrightnessReady)
-            {
-                Global.Configuration.PropertyChanged += SetupVolumeAsBrightness;
-                SetupVolumeAsBrightness(Global.Configuration,
-                    new PropertyChangedEventArgs(nameof(Global.Configuration.UseVolumeAsBrightness)));
-            }
+
+            var inputEvents = new InputEvents();
+            Global.key_recorder = new KeyRecorder(inputEvents);
+            Tcs.SetResult(inputEvents);
             Global.logger.Information("Loaded Input Hooking");
         }
         else
         {
-            Tcs.SetResult(new NoopInputEvents());
+            var inputEvents = new NoopInputEvents();
+            Global.key_recorder = new KeyRecorder(inputEvents);
+            Tcs.SetResult(inputEvents);
         }
 
         DesktopUtils.StartSessionWatch();
-
-        Global.key_recorder = new KeyRecorder(await InputEvents);
+        return Task.CompletedTask;
     }
 
     public override async ValueTask DisposeAsync()
@@ -54,34 +46,5 @@ public sealed class InputsModule : AuroraModule
         {
             (await InputEvents).Dispose();
         }
-    }
-
-    private static async void SetupVolumeAsBrightness(object? sender, PropertyChangedEventArgs eventArgs)
-    {
-        if (eventArgs.PropertyName != nameof(Global.Configuration.UseVolumeAsBrightness)) return;
-
-        var inputEvents = await InputEvents;
-
-        inputEvents.KeyDown -= InterceptVolumeAsBrightness;
-        if (Global.Configuration.UseVolumeAsBrightness)
-        {
-            inputEvents.KeyDown += InterceptVolumeAsBrightness;
-        }
-    }
-    
-    private static async void InterceptVolumeAsBrightness(object? sender, KeyboardKeyEventArgs e)
-    {
-        if (!(await InputEvents).Alt) return;
-        
-        e.Intercepted = true;
-        await Task.Factory.StartNew(async () =>
-            {
-                var brightness = Global.Configuration.GlobalBrightness;
-                brightness += e.GetDeviceKey() == DeviceKeys.VOLUME_UP ? 0.05f : -0.05f;
-                Global.Configuration.GlobalBrightness = Math.Max(0f, Math.Min(1f, brightness));
-
-                await ConfigManager.SaveAsync(Global.Configuration);
-            }
-        );
     }
 }

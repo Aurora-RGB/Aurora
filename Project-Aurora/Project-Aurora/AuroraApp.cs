@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Settings;
@@ -39,7 +38,8 @@ public sealed class AuroraApp : IDisposable
         _devicesModule = new DevicesModule(ControlInterface);
         var lightingStateManagerModule = new LightingStateManagerModule(
             PluginsModule.PluginManager, IpcListenerModule.IpcListener, _httpListenerModule.HttpListener,
-            _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor
+            _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor,
+            _devicesModule
         );
         var onlineSettings = new OnlineSettings(ProcessesModule.RunningProcessMonitor);
         _layoutsModule = new LayoutsModule(RazerSdkModule.RzSdkManager, onlineSettings.LayoutsUpdate);
@@ -79,8 +79,6 @@ public sealed class AuroraApp : IDisposable
         //Load config
         Global.logger.Information("Loading Configuration");
         Global.Configuration = await ConfigManager.Load();
-
-        Global.effengine = new Effects(_devicesModule.DeviceManager);
 
         if (Global.Configuration.HighPriority)
         {

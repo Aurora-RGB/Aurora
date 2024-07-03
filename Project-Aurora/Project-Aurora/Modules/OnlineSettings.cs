@@ -220,9 +220,4 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
     {
         (await runningProcessMonitor).ProcessStarted -= OnRunningProcessesChanged;
     }
-
-    public override void Dispose()
-    {
-        DisposeAsync().AsTask().Wait();
-    }
 }

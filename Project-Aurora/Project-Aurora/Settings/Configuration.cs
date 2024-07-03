@@ -33,9 +33,6 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool ChromaDisableDeviceControl { get; set; }
     public bool EnableLightsyncTakeover { get; set; } = true;
 
-    [JsonProperty("use_volume_as_brightness")]
-    public bool UseVolumeAsBrightness { get; set; }
-
     [JsonProperty("global_brightness")]
     public float GlobalBrightness { get; set; } = 1.0f;
 

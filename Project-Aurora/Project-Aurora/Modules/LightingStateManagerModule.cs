@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AuroraRgb.Devices;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Profiles;
@@ -14,8 +15,8 @@ public sealed class LightingStateManagerModule(
     Task<AuroraHttpListener?> httpListener,
     Task<DeviceManager> deviceManager,
     Task<ActiveProcessMonitor> activeProcessMonitor,
-    Task<RunningProcessMonitor> runningProcessMonitor
-) : AuroraModule
+    Task<RunningProcessMonitor> runningProcessMonitor,
+    DevicesModule devicesModule) : AuroraModule
 {
     private static readonly TaskCompletionSource<LightingStateManager> TaskSource = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -28,7 +29,10 @@ public sealed class LightingStateManagerModule(
         Global.logger.Information("Loading Applications");
         var lightingStateManager = new LightingStateManager(pluginManager, listener, deviceManager, activeProcessMonitor, runningProcessMonitor);
         _manager = lightingStateManager;
+
         Global.LightingStateManager = lightingStateManager;
+        Global.effengine = new Effects(devicesModule.DeviceManager);
+
         await lightingStateManager.Initialize();
 
         TaskSource.SetResult(lightingStateManager);

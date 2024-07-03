@@ -69,9 +69,4 @@ public sealed class AutomaticGsiPatcher : AuroraModule
     {
         return ValueTask.CompletedTask;
     }
-
-    public override void Dispose()
-    {
-        // unused
-    }
 }

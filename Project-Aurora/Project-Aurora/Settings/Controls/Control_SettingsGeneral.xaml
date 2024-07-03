@@ -38,9 +38,6 @@
                                     HorizontalAlignment="Left" VerticalAlignment="Top" />
                 <TextBlock Text="sec" Margin="389,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                <CheckBox Content="Use ALT + volume controls for global brightness (only when Aurora is out of focus)"
-                          IsChecked="{Binding UseVolumeAsBrightness}" Margin="11,91,0,0" HorizontalAlignment="Left"
-                          VerticalAlignment="Top" />
                 <CheckBox Content="Show Overlays and Underlays in Application Preview"
                           IsChecked="{Binding OverlaysInPreview}"
                           Margin="12,62,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />

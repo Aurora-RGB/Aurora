@@ -6,10 +6,10 @@ using Microsoft.Collections.Extensions;
 
 namespace AuroraRgb.Modules.ProcessMonitor;
 
-public class WindowProcess(int windowHandle) : IEquatable<WindowProcess>
+public sealed class WindowProcess(int windowHandle) : IEquatable<WindowProcess>
 {
-    public int ProcessId { get; protected internal set; }
-    public string ProcessName { get; protected internal set; } = string.Empty;
+    public int ProcessId { get; internal set; }
+    public string ProcessName { get; internal set; } = string.Empty;
     public int WindowHandle { get; } = windowHandle;
 
     public bool Equals(WindowProcess? other)
@@ -35,7 +35,7 @@ public class WindowProcess(int windowHandle) : IEquatable<WindowProcess>
 public class WindowEventArgs(string processName, int processId, int windowHandle, bool opened): EventArgs
 {
     public string ProcessName => processName;
-    public int ProcessId => ProcessId;
+    public int ProcessId => processId;
     public int WindowHandle => windowHandle;
     public bool Opened => opened;
 }

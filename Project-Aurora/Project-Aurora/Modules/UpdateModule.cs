@@ -66,7 +66,7 @@ public sealed class UpdateModule : AuroraModule
         var changelogsFolder = Path.Join(Global.ExecutingDirectory, "changelogs");
         if (!Path.Exists(changelogsFolder))
         {
-            return Task.FromResult(Array.Empty<AuroraChangelog>());
+            return Task.FromResult<AuroraChangelog[]>([]);
         }
         var fileContents = Directory.EnumerateFiles(changelogsFolder)
             .OrderDescending()
@@ -87,11 +87,6 @@ public sealed class UpdateModule : AuroraModule
     {
         SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
         return ValueTask.CompletedTask;
-    }
-
-    public override void Dispose()
-    {
-        SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
     }
 
     public void ClearChangelogs()
