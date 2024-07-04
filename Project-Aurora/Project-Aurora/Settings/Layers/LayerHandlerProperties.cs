@@ -54,7 +54,7 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
     // These properties are special in that they are designed only for use with the overrides system and
     // allows the overrides to access properties not actually present on the Layer.Handler.Properties.
     // Note that this is NOT the variable that is changed when the user changes one of these settings in the
-    // UI (for example not changed when an item in the layer list is enabled/disabled with the checkbox).
+    // UI (for example not changed when an item in the layer list is enable/disabled with the checkbox).
     [LogicOverridable("Enabled")] public bool? _Enabled { get; set; }
     [JsonIgnore] public bool Enabled => Logic?._Enabled ?? _Enabled ?? true;
 

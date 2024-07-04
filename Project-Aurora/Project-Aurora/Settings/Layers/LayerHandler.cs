@@ -52,7 +52,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
     public bool EnableSmoothing { get; set; }
 
     // Always return true if the user is overriding the exclusion zone (so that we don't have to present the user with another
-    // option in the overrides asking if they want to enabled/disable it), otherwise if there isn't an overriden value for
+    // option in the overrides asking if they want to enable/disable it), otherwise if there isn't an overriden value for
     // exclusion, simply return the value of the settings checkbox (as normal)
     [JsonIgnore]
     public bool EnableExclusionMask => Properties.Logic._Exclusion != null || (_EnableExclusionMask ?? false);

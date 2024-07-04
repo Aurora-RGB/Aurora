@@ -242,7 +242,7 @@ public partial class Control_ProfilesStack
         {
             Tag = application,
             Source = application.Icon,
-            ToolTip = application.Config.Name + " Settings\n\nRight click to enabled/disable the profile",
+            ToolTip = application.Config.Name + " Settings\n\nRight click to enable/disable the profile",
             Margin = new Thickness(0, 5, 0, 0),
             Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
         };
