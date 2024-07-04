@@ -167,7 +167,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         _transitionAmount += _keyboardTimer.Elapsed.TotalSeconds;
         if (IsDragging)
         {
-            _transitionAmount = 0.4;
+            _transitionAmount = 0.3;
             _previousColor = SimpleColor.Transparent;
         }
         if (_transitionAmount <= 1.0f)
