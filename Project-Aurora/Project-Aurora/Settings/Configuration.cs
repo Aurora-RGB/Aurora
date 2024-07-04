@@ -192,11 +192,8 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     [JsonProperty("GSIAudioCaptureDevice", NullValueHandling = NullValueHandling.Ignore)]
     public string GsiAudioCaptureDevice { get; set; } = AudioDevices.DefaultDeviceId;
 
-    public double Lat { get; set; }
-    public double Lon { get; set; }
-
     public IList<string> Migrations { get; set; } = [];
-    
+
     public bool? AutoInstallGsi { get; set; }
 
     /// <summary>

@@ -68,6 +68,8 @@ public static class Global
         }
     }
 
+    public static SensitiveData SensitiveData { get; set; } = new();
+
     public static KeyboardLayoutManager? kbLayout { get; set; }                //TODO module access
     public static Effects effengine { get; set; }
     public static KeyRecorder? key_recorder { get; set; }

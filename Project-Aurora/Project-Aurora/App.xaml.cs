@@ -136,6 +136,8 @@ public partial class App
 
         if (Global.Configuration != null)
             ConfigManager.Save(Global.Configuration);
+        if (Global.SensitiveData != null)
+            ConfigManager.SaveSensitiveData();
 
         var auroraShutdownTask = AuroraApp!.Shutdown();
         AuroraApp.Dispose();

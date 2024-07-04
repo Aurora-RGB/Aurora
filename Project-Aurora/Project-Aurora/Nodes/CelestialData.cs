@@ -20,9 +20,9 @@ public class CelestialData : Node
 
     public CelestialData()
     {
-        Global.Configuration.PropertyChanged += (_, propertyChangedEvent) =>
+        Global.SensitiveData.PropertyChanged += (_, propertyChangedEvent) =>
         {
-            if (propertyChangedEvent.PropertyName is not (nameof(Configuration.Lat) or nameof(Configuration.Lon))) return;
+            if (propertyChangedEvent.PropertyName is not (nameof(SensitiveData.Lat) or nameof(SensitiveData.Lon))) return;
 
             _currentHour = -1;
             _invalidated = true;
@@ -35,7 +35,7 @@ public class CelestialData : Node
         {
             if (_invalidated)
             {
-                Coordinate = new Coordinate(Global.Configuration.Lat, Global.Configuration.Lon, DateTime.UtcNow, El);
+                Coordinate = new Coordinate(Global.SensitiveData.Lat, Global.SensitiveData.Lon, DateTime.UtcNow, El);
                 _invalidated = false;
             }
             

@@ -32,7 +32,7 @@
                           VerticalAlignment="Top" />
                 <!-- Startup delay -->
                 <TextBlock Text="Delay:" Margin="278,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <xctk:IntegerUpDown x:Name="startDelayAmount" Minimum="0" Increment="15"
+                <xctk:IntegerUpDown x:Name="StartDelayAmount" Minimum="0" Increment="15"
                                     ValueChanged="StartDelayAmount_ValueChanged" Margin="315,8,0,0" Width="69"
                                     Height="22"
                                     HorizontalAlignment="Left" VerticalAlignment="Top" />
@@ -173,23 +173,25 @@
                 
                 <!-- Location -->
                 <TextBlock Margin="0,1,0,1">Location:</TextBlock>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="0,1,0,1">Lat: </TextBlock>
-                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lat, UpdateSourceTrigger=PropertyChanged}" />
-                    <TextBlock Margin="0,1,0,1">Lon: </TextBlock>
-                    <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lon, UpdateSourceTrigger=PropertyChanged}" />
-                    <Button Margin="0,1,0,1" Click="ResetLocation_Clicked">Reset</Button>
-                    <TextBlock Text="?" TextDecorations="Underline" Margin="0,1,0,1"
-                               ToolTip="Location is used in Celestial data node. Initial data is determined by IP and not a precise location"
-                               ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                </StackPanel>
+                <Canvas Height="20">
+                    <StackPanel Name="LocationPanel" Orientation="Horizontal" DataContext="{x:Static auroraRgb:Global.SensitiveData}">
+                        <TextBlock Margin="0,1,0,1">Lat: </TextBlock>
+                        <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lat, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="0,1,0,1">Lon: </TextBlock>
+                        <xctk:DoubleUpDown Margin="0,1,0,1" Value="{Binding Lon, UpdateSourceTrigger=PropertyChanged}" />
+                        <Button Margin="0,1,0,1" Click="ResetLocation_Clicked">Reset</Button>
+                        <TextBlock Text="?" TextDecorations="Underline" Margin="0,1,0,1"
+                                   ToolTip="Location is used in Celestial data node. Initial data is determined by IP and not a precise location"
+                                   ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                    </StackPanel>
+                    <Button Height="20" Name="LocationRevealButton" Click="LocationReveal_Clicked">Click to reveal</Button>
+                </Canvas>
 
                 <!-- Excluded Programs List -->
                 <Canvas>
+                    <TextBlock Text="Excluded Processes" Width="113" HorizontalAlignment="Left" VerticalAlignment="Top" />
                     <ListBox Name="ExcludedProcessesList" ItemsSource="{Binding ExcludedPrograms}"
                              Margin="0,23,0,0" Width="160" Height="199" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                    <TextBlock Text="Excluded Processes" Width="113" HorizontalAlignment="Left"
-                               VerticalAlignment="Top" />
                     <Button Content="Add Process" Click="ExcludedAdd_Click" Margin="165,23,0,0" HorizontalAlignment="Left"
                             VerticalAlignment="Top" />
                     <Button Content="Remove Process" Click="ExcludedRemove_Click" Margin="165,45,0,0"

@@ -44,13 +44,13 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
 
         (await runningProcessMonitor).ProcessStarted += OnRunningProcessesChanged;
 
-        if (Global.Configuration.Lat == 0 && Global.Configuration.Lon == 0)
+        if (Global.SensitiveData.Lat == 0 && Global.SensitiveData.Lon == 0)
         {
             try
             {
                 var ipData = await IpApiClient.GetIpData();
-                Global.Configuration.Lat = ipData.Lat;
-                Global.Configuration.Lon = ipData.Lon;
+                Global.SensitiveData.Lat = ipData.Lat;
+                Global.SensitiveData.Lon = ipData.Lon;
             }
             catch (Exception e)
             {

@@ -10,6 +10,7 @@ using AuroraRgb.Utils;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Settings;
 
@@ -63,14 +64,12 @@ public static class ConfigManager
             return await CreateDefaultConfigurationFile();
         
         var content = await File.ReadAllTextAsync(Configuration.ConfigFile, Encoding.UTF8);
-        return string.IsNullOrWhiteSpace(content)
-            ? await CreateDefaultConfigurationFile()
-            : JsonConvert.DeserializeObject<Configuration>(content,
+        return JsonConvert.DeserializeObject<Configuration>(content,
                 new JsonSerializerSettings
                 {
                     ObjectCreationHandling = ObjectCreationHandling.Replace,
                     TypeNameHandling = TypeNameHandling.All,
-                })!;
+                }) ?? await CreateDefaultConfigurationFile();
     }
 
     public static async Task<DeviceConfig> LoadDeviceConfig()
@@ -108,7 +107,7 @@ public static class ConfigManager
         }
 
         var content = await File.ReadAllTextAsync(DeviceConfig.ConfigFile, Encoding.UTF8);
-        return System.Text.Json.JsonSerializer.Deserialize(content, CommonSourceGenerationContext.Default.DeviceConfig) ?? await MigrateDeviceConfig();
+        return JsonSerializer.Deserialize(content, CommonSourceGenerationContext.Default.DeviceConfig) ?? await MigrateDeviceConfig();
     }
 
     public static async Task<AuroraChromaSettings> LoadChromaConfig()
@@ -138,7 +137,7 @@ public static class ConfigManager
         }
 
         var content = await File.ReadAllTextAsync(AuroraChromaSettings.ConfigFile, Encoding.UTF8);
-        return System.Text.Json.JsonSerializer.Deserialize(content, ChromaSourceGenerationContext.Default.AuroraChromaSettings) ?? new AuroraChromaSettings();
+        return JsonSerializer.Deserialize(content, ChromaSourceGenerationContext.Default.AuroraChromaSettings) ?? new AuroraChromaSettings();
     }
 
     public static void Save(IAuroraConfig configuration)
@@ -197,5 +196,34 @@ public static class ConfigManager
             }) ?? new DeviceConfig();
         File.Copy(Configuration.ConfigFile, Configuration.ConfigFile + ".v194", true);
         return config;
+    }
+
+    public static async Task<SensitiveData> LoadSensitiveData()
+    {
+        var exists = File.Exists(SensitiveData.ConfigFile);
+        if (!exists)
+        {
+            return new SensitiveData();
+        }
+
+        try
+        {
+            var encryptedContent = await File.ReadAllBytesAsync(SensitiveData.ConfigFile);
+            var content = Encryption.Decrypt(encryptedContent);
+            return JsonSerializer.Deserialize<SensitiveData>(content) ?? new SensitiveData();
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error(e, "Failed parsing Sensitive.json");
+        }
+        return new SensitiveData();
+    }
+
+    public static async Task SaveSensitiveData()
+    {
+        var content = JsonSerializer.Serialize(Global.SensitiveData);
+        var encryptedContent = Encryption.Encrypt(content);
+        await File.WriteAllBytesAsync(SensitiveData.ConfigFile, encryptedContent);
+        File.Encrypt(SensitiveData.ConfigFile);
     }
 }

@@ -79,6 +79,7 @@ public sealed class AuroraApp : IDisposable
         //Load config
         Global.logger.Information("Loading Configuration");
         Global.Configuration = await ConfigManager.Load();
+        Global.SensitiveData = await ConfigManager.LoadSensitiveData();
 
         if (Global.Configuration.HighPriority)
         {

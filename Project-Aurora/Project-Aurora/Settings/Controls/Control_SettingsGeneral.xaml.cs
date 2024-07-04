@@ -10,7 +10,6 @@ namespace AuroraRgb.Settings.Controls;
 
 public partial class Control_SettingsGeneral
 {
-    
     public Control_SettingsGeneral()
     {
         InitializeComponent();
@@ -22,7 +21,10 @@ public partial class Control_SettingsGeneral
     {
         DataContext = Global.Configuration;
         RunAtWinStartup.IsChecked = AutoStartUtils.GetAutostartTask(out var delayAmount);
-        startDelayAmount.Value = delayAmount;
+        StartDelayAmount.Value = delayAmount;
+
+        LocationPanel.Visibility = Visibility.Hidden;
+        LocationRevealButton.Visibility = Visibility.Visible;
     }
 
     private void ExcludedAdd_Click(object? sender, RoutedEventArgs e)
@@ -65,12 +67,18 @@ public partial class Control_SettingsGeneral
         try
         {
             var ipData = await IpApiClient.GetIpData();
-            Global.Configuration.Lat = ipData.Lat;
-            Global.Configuration.Lon = ipData.Lon;
+            Global.SensitiveData.Lat = ipData.Lat;
+            Global.SensitiveData.Lon = ipData.Lon;
         }
         catch (Exception exc)
         {
             Global.logger.Error(exc, "Failed getting geographic data");
         }
+    }
+
+    private void LocationReveal_Clicked(object sender, RoutedEventArgs e)
+    {
+        LocationPanel.Visibility = Visibility.Visible;
+        LocationRevealButton.Visibility = Visibility.Hidden;
     }
 }
