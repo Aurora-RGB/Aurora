@@ -12,8 +12,6 @@ public class CorsairRgbNetDevice : RgbNetDevice
 
     public override string DeviceName => "Corsair (RGB.NET)";
 
-    private bool _icueDetectedOff;
-
     protected override void RegisterVariables(VariableRegistry variableRegistry)
     {
         base.RegisterVariables(variableRegistry);
@@ -42,17 +40,14 @@ public class CorsairRgbNetDevice : RgbNetDevice
         var isIcueRunning = ProcessUtils.IsProcessRunning("icue");
         if (!isIcueRunning)
         {
-            _icueDetectedOff = true;
             throw new DeviceProviderException(new ApplicationException("iCUE is not running!"), false);
         }
 
-        if (_icueDetectedOff)
+        if (!IsNamedPipeOpen("iCUESDKv4"))
         {
-            await Task.Delay(5000, cancellationToken);
+            throw new DeviceProviderException(new ApplicationException("iCUE SDK not started yet!"), false);
         }
 
-        _icueDetectedOff = false;
-        
         //give iCUE some time to initialize
         await Task.Delay(1500, cancellationToken);
 
@@ -73,4 +68,24 @@ public class CorsairRgbNetDevice : RgbNetDevice
         IsInitialized = false;
     }
     */
+
+    private static bool IsNamedPipeOpen(string pipeName)
+    {
+        try
+        {
+            using var fileStream = new FileStream(@"\\.\pipe\" + pipeName, FileMode.Open, FileAccess.ReadWrite, FileShare.None);
+            // If the FileStream can be opened, the named pipe exists and is open
+            return true;
+        }
+        catch (IOException)
+        {
+            // IOException will be thrown if the pipe does not exist or is not available
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Handle access issues if necessary
+            return false;
+        }
+    }
 }
