@@ -84,8 +84,16 @@ public partial class Control_DeviceManager
             oldToken.Dispose();
 
             LstDevices.Children.Clear();
-            NoDevManTextBlock.Visibility = isDeviceManagerUp ? Visibility.Collapsed : Visibility.Visible;
-            PopulateDevices(deviceConfig, deviceContainers, cancellationToken);
+            Dispatcher.InvokeAsync(() =>
+            {
+                if (deviceContainers.Count > 0)
+                {
+                    NoDevManTextBlock.Visibility = Visibility.Collapsed;
+                    PopulateDevices(deviceConfig, deviceContainers, cancellationToken);
+                }
+                else
+                    NoDevManTextBlock.Visibility = Visibility.Visible;
+            }, DispatcherPriority.Background);
         }, DispatcherPriority.Loaded);
     }
 
@@ -101,7 +109,7 @@ public partial class Control_DeviceManager
                     Content = controlDeviceItem,
                 };
                 LstDevices.Children.Add(listViewItem);
-            }, DispatcherPriority.Loaded, cancelSourceToken);
+            }, DispatcherPriority.DataBind, cancelSourceToken);
         }
     }
 
