@@ -13,7 +13,7 @@ public sealed class SingleConcurrentThread
     private readonly SmartThreadPool _worker = new(1000, 1)
     {
         Concurrency = 1,
-        MaxQueueLength = 1
+        MaxQueueLength = 5
     };
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
