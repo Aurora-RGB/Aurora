@@ -198,6 +198,10 @@ public abstract class RgbNetDevice : DefaultDevice
     [MethodImpl(MethodImplOptions.Synchronized)]
     protected override Task Shutdown()
     {
+        if (!IsInitialized)
+        {
+            return Task.CompletedTask;
+        }
         if (!OnShutdown())
         {
             return Task.CompletedTask;

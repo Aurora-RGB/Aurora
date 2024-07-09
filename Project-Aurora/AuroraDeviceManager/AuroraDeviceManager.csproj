@@ -75,6 +75,10 @@
             <HintPath>.\RGB.NET.Devices.OpenRGB.dll</HintPath>
             <Private>true</Private>
         </Reference>
+        <Reference Include="RGB.NET.Devices.Corsair">
+            <HintPath>.\RGB.NET.Devices.Corsair.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
         <Reference Include="RGB.NET.Devices.Bloody">
             <HintPath>.\RGB.NET.Devices.Bloody.dll</HintPath>
             <Private>true</Private>
