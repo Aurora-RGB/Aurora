@@ -15,6 +15,7 @@ namespace AuroraRgb.Modules.OnlineConfigs;
 [JsonSerializable(typeof(DeviceTooltips))]
 [JsonSerializable(typeof(ConflictingProcesses))]
 [JsonSerializable(typeof(Dictionary<string, DeviceTooltips>))]
+[JsonSerializable(typeof(RazerDevices))]
 internal partial class OnlineSettingsSourceGenerationContext : JsonSerializerContext;
 
 public static class OnlineConfigsRepository
@@ -22,10 +23,12 @@ public static class OnlineConfigsRepository
     private const string ConflictingProcesses = "ConflictingProcesses.json";
     private const string DeviceTooltips = "DeviceInformations.json";
     private const string OnlineSettings = "OnlineSettings.json";
+    private const string RazerDevices = "RazerDevices.json";
 
     private static readonly string ConflictingProcessLocalCache = Path.Combine(".", ConflictingProcesses);
     private static readonly string DeviceTooltipsLocalCache = Path.Combine(".", DeviceTooltips);
     private static readonly string OnlineSettingsLocalCache = Path.Combine(".", OnlineSettings);
+    private static readonly string RazerDeviceInfoLocalCache = Path.Combine(".", RazerDevices);
 
     private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
@@ -46,6 +49,11 @@ public static class OnlineConfigsRepository
     public static async Task<OnlineSettingsMeta> GetOnlineSettingsLocal()
     {
         return await ParseLocalJson<OnlineSettingsMeta>(OnlineSettingsLocalCache);
+    }
+
+    public static async Task<RazerDevices> GetRazerDeviceInfo()
+    {
+        return await ParseLocalJson<RazerDevices>(RazerDeviceInfoLocalCache);
     }
 
     public static async Task<OnlineSettingsMeta> GetOnlineSettingsOnline()

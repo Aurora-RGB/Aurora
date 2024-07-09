@@ -99,6 +99,12 @@
           "System.Management": "7.0.0"
         }
       },
+      "LibUsbDotNet": {
+        "type": "Direct",
+        "requested": "[3.0.102-alpha, )",
+        "resolved": "3.0.102-alpha",
+        "contentHash": "OhZQNKqy4pso1YCWi3SjUCCDW05K8POwU0utIpZW2SsoHkCePSb1kAH3qBd8+sjHwRGa77U9fUn2/bXsdKOU2w=="
+      },
       "MdXaml": {
         "type": "Direct",
         "requested": "[1.27.0, )",
@@ -1501,6 +1507,12 @@
       }
     },
     "net8.0-windows10.0.19041/win-x64": {
+      "LibUsbDotNet": {
+        "type": "Direct",
+        "requested": "[3.0.102-alpha, )",
+        "resolved": "3.0.102-alpha",
+        "contentHash": "OhZQNKqy4pso1YCWi3SjUCCDW05K8POwU0utIpZW2SsoHkCePSb1kAH3qBd8+sjHwRGa77U9fUn2/bXsdKOU2w=="
+      },
       "System.Management": {
         "type": "Direct",
         "requested": "[8.0.0, )",

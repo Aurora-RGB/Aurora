@@ -29,6 +29,7 @@ public class LocalPcInformation : Node
     public NETInfo NET => _netInfo ??= new NETInfo();
 
     public Controllers Controllers { get; } = new();
+    public RazerDevices RazerDevices { get; } = new();
 
     #region Cursor Position
 

@@ -19,6 +19,8 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
 {
     public static Dictionary<string, DeviceTooltips> DeviceTooltips { get; private set; } = new();
 
+    public static RazerDevices RazerDeviceInfo { get; private set; } = new();
+
     private Dictionary<string, ShutdownProcess> _shutdownProcesses = new();
     private readonly TaskCompletionSource _layoutUpdateTaskSource = new();
 
@@ -88,6 +90,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
 
         if (commitDate <= localSettingsDate)
         {
+            // no update required
             return;
         }
 
@@ -121,6 +124,15 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         catch (Exception e)
         {
             Global.logger.Error(e, "Failed to update device infos");
+        }
+
+        try
+        {
+            await UpdateRazerMiceInfo();
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error(e, "Failed to update razer mice info");
         }
     }
 
@@ -179,6 +191,11 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
     private static async Task UpdateDeviceInfos()
     {
         DeviceTooltips = await OnlineConfigsRepository.GetDeviceTooltips();
+    }
+
+    private static async Task UpdateRazerMiceInfo()
+    {
+        RazerDeviceInfo = await OnlineConfigsRepository.GetRazerDeviceInfo();
     }
 
     async Task WaitGithubAccess(TimeSpan timeout)
