@@ -72,7 +72,7 @@ class RazerBatteryFetcher : IDisposable
             return;
         }
 
-        MouseBatteryPercentage = res[9];
+        MouseBatteryPercentage = res[9] / 255d;
     }
 
     private byte[]? GetValue(int vendorId)
