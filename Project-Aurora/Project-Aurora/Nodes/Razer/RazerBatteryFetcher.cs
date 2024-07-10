@@ -25,7 +25,7 @@ class RazerBatteryFetcher : IDisposable
 
     public RazerBatteryFetcher()
     {
-        _timer = new Timer(_ => UpdateBattery(), null, TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20));
+        _timer = new Timer(_ => UpdateBattery(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(20));
     }
 
     private byte[] GenerateMessage(RazerMouseHidInfo mouseHidInfo)
@@ -48,6 +48,16 @@ class RazerBatteryFetcher : IDisposable
     private void UpdateBattery()
     {
         const int vendorId = 0x1532;
+        var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
+
+        using var context = new UsbContext();
+        var usbDevice = context.Find(d =>
+            d.VendorId == vendorId &&
+            mouseDictionary.ContainsKey(GetDeviceProductKeyString(d)));
+        if (usbDevice == null)
+        {
+            return;
+        }
         
         using Mutex mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
 
@@ -63,7 +73,8 @@ class RazerBatteryFetcher : IDisposable
             //continue
         }
 
-        var res = GetValue(vendorId);
+        var mouseHidInfo = mouseDictionary[GetDeviceProductKeyString(usbDevice)];
+        var res = GetValue(usbDevice, GenerateMessage(mouseHidInfo));
         mutex.ReleaseMutex();
 
         if (res == null)
@@ -74,24 +85,11 @@ class RazerBatteryFetcher : IDisposable
         MouseBatteryPercentage = res[9] / 255d;
     }
 
-    private byte[]? GetValue(int vendorId)
+    private static byte[]? GetValue(IUsbDevice usbDevice, byte[] msg)
     {
-        var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
-
-        using var context = new UsbContext();
-        var usbDevice = context.Find(d =>
-            d.VendorId == vendorId &&
-            mouseDictionary.ContainsKey(GetDeviceProductKeyString(d)));
-        if (usbDevice == null)
-        {
-            return null;
-        }
-
-        var mouseHidInfo = mouseDictionary[GetDeviceProductKeyString(usbDevice)];
-        var msg = GenerateMessage(mouseHidInfo);
-
         usbDevice.Open();
-        RazerSendControlMsg(usbDevice, msg, 0x09, 200, 2000);
+        RazerSendControlMsg(usbDevice, msg, 0x09);
+        Thread.Sleep(50);
         var res = RazerReadResponseMsg(usbDevice, 0x01);
         usbDevice.Close();
         usbDevice.Dispose();
@@ -103,7 +101,7 @@ class RazerBatteryFetcher : IDisposable
         return "0x"+device.ProductId.ToString("X4");
     }
 
-    private static void RazerSendControlMsg(IUsbDevice usbDev, byte[] data, uint reportIndex, int waitMin, int waitMax)
+    private static void RazerSendControlMsg(IUsbDevice usbDev, byte[] data, uint reportIndex)
     {
         const ushort value = 0x300;
 
@@ -111,15 +109,7 @@ class RazerBatteryFetcher : IDisposable
 
         // Send USB control message
         var transferredLength = data.Length;
-        var ec = usbDev.ControlTransfer(setupPacket, data, 0, transferredLength);
-        if (ec == 0)
-        {
-            return;
-        }
-
-        // Wait
-        var waitTime = new Random().Next(waitMin, waitMax);
-        Thread.Sleep(waitTime);
+        usbDev.ControlTransfer(setupPacket, data, 0, transferredLength);
     }
 
     private static byte[]? RazerReadResponseMsg(IUsbDevice usbDev, uint reportIndex)
@@ -136,7 +126,7 @@ class RazerBatteryFetcher : IDisposable
         {
             return null;
         }
-
+        
         return transferredLength != responseBuffer.Length ? null : responseBuffer;
     }
 
