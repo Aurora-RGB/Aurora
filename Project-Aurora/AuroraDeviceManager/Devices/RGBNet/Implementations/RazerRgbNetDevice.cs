@@ -1,4 +1,6 @@
-﻿using Common.Devices;
+﻿using AuroraDeviceManager.Utils;
+using Common.Devices;
+using RGB.NET.Core;
 using RGB.NET.Devices.Razer;
 
 namespace AuroraDeviceManager.Devices.RGBNet.Implementations;
@@ -12,6 +14,12 @@ public class RazerRgbNetDevice : RgbNetDevice
     protected override async Task ConfigureProvider(CancellationToken cancellationToken)
     {
         await base.ConfigureProvider(cancellationToken);
+        
+        var isRazerServiceRunning = ProcessUtils.IsProcessRunning("rzsdkservice");
+        if (!isRazerServiceRunning)
+        {
+            throw new DeviceProviderException(new ApplicationException("Razer Chroma SDK Service is not running!"), false);
+        }
 
         var loadDevices = RazerEndpointType.None;
         if (Global.DeviceConfig.VarRegistry.GetVariable<bool>($"{DeviceName}_force_all"))
