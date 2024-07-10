@@ -9,6 +9,7 @@ Thank you for reporting your issues to us, helping to make Aurora better! :)
 Please make sure you SEARCH for an issue similar to yours before submitting your issue - it might already have been answered.
 
 If you have log files or screenshots that may help, please also attach them to the issue. The logs can be found in %APPDATA%\Aurora\Logs
+Please attach them as file
 -->
 ### Expected Behaviour (if not obvious)
 <!-- Write what should be happening here or delete the section -->
