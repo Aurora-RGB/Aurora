@@ -49,13 +49,12 @@ class RazerBatteryFetcher : IDisposable
     {
         const int vendorId = 0x1532;
         
-        Mutex mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
+        using Mutex mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
 
         try
         {
-            if (!mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
+            if (!mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
             {
-                mutex.Dispose();
                 return;
             }
         }
@@ -65,7 +64,7 @@ class RazerBatteryFetcher : IDisposable
         }
 
         var res = GetValue(vendorId);
-        mutex.Dispose();
+        mutex.ReleaseMutex();
 
         if (res == null)
         {
