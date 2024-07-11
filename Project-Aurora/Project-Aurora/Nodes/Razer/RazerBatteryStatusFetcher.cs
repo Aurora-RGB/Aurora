@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using AuroraRgb.Modules;
 using AuroraRgb.Modules.OnlineConfigs.Model;
 
 namespace AuroraRgb.Nodes.Razer;
@@ -16,7 +15,7 @@ sealed class RazerBatteryStatusFetcher : RazerFetcher
         _timer = new Timer(_ => TimerUpdate(), null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(20));
     }
 
-    private byte[] BatteryStatusMessage(RazerMouseHidInfo mouseHidInfo)
+    protected override byte[] GetMessage(RazerMouseHidInfo mouseHidInfo)
     {
         var tid = byte.Parse(mouseHidInfo.TransactionId.Split('x')[1], System.Globalization.NumberStyles.HexNumber);
         var header = new byte[] { 0x00, tid, 0x00, 0x00, 0x00, 0x02, 0x07, 0x84 };
@@ -47,35 +46,11 @@ sealed class RazerBatteryStatusFetcher : RazerFetcher
 
     private void UpdateBatteryStatus()
     {
-        var usbDevice = GetUsbDevice();
-        if (usbDevice == null)
-        {
-            return;
-        }
+        var batteryStatusReport = Update();
 
-        try
+        if (batteryStatusReport != null)
         {
-            if (!Mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
-            {
-                return;
-            }
-        }
-        catch (AbandonedMutexException)
-        {
-            //continue
-        }
-
-        var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
-        var mouseHidInfo = mouseDictionary[GetDeviceProductKeyString(usbDevice)];
-        usbDevice.Open();
-        var batteryStatus = GetReport(usbDevice, BatteryStatusMessage(mouseHidInfo));
-        Mutex.ReleaseMutex();
-        usbDevice.Close();
-        usbDevice.Dispose();
-
-        if (batteryStatus != null)
-        {
-            MouseBatteryCharging = batteryStatus[9] == 1;
+            MouseBatteryCharging = batteryStatusReport[9] == 1;
         }
     }
 

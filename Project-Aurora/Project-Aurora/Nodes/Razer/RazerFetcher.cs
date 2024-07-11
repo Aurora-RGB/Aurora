@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading;
 using AuroraRgb.Modules;
-using LibUsbDotNet.LibUsb;
+using AuroraRgb.Modules.OnlineConfigs.Model;
+using LibUsbDotNet;
 using LibUsbDotNet.Main;
 
 namespace AuroraRgb.Nodes.Razer;
@@ -18,21 +19,54 @@ internal abstract class RazerFetcher : IDisposable
     private const int UsbTypeRequestIn = UsbTypeClass | UsbRecipInterface | UsbDirIn;
     private const int RazerUsbReportLen = 90; // Example length, set this according to actual length
 
-    protected readonly Mutex Mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
+    private readonly Mutex Mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
 
-    protected static IUsbDevice? GetUsbDevice()
+    protected byte[]? Update()
+    {
+        var usbDevice = GetUsbDevice(out var mouseHidInfo);
+        if (usbDevice == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            if (!Mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
+            {
+                return null;
+            }
+        }
+        catch (AbandonedMutexException)
+        {
+            //continue
+        }
+
+        usbDevice.Open();
+        var report = GetReport(usbDevice, GetMessage(mouseHidInfo));
+        Mutex.ReleaseMutex();
+        usbDevice.Close();
+
+        return report;
+    }
+
+    protected abstract byte[] GetMessage(RazerMouseHidInfo mouseHidInfo);
+
+    protected static UsbDevice? GetUsbDevice(out RazerMouseHidInfo mouseHidInfo)
     {
         const int vendorId = 0x1532;
         var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
-   
-        using var context = new UsbContext();
-        var usbDevice = context.Find(d =>
-            d.VendorId == vendorId &&
+
+        UsbDevice.ForceLibUsbWinBack = true;
+        var usbDevice = UsbDevice.OpenUsbDevice(d =>
+            d.Vid == vendorId &&
             mouseDictionary.ContainsKey(GetDeviceProductKeyString(d)));
+   
+        var productKeyString = GetDeviceProductKeyString(usbDevice);
+        mouseHidInfo = mouseDictionary[productKeyString];
         return usbDevice;
     }
 
-    protected static byte[]? GetReport(IUsbDevice usbDevice, byte[] msg)
+    protected static byte[]? GetReport(UsbDevice usbDevice, byte[] msg)
     {
         RazerSendControlMsg(usbDevice, msg, 0x09);
         Thread.Sleep(50);
@@ -40,18 +74,17 @@ internal abstract class RazerFetcher : IDisposable
         return res;
     }
 
-    private static void RazerSendControlMsg(IUsbDevice usbDev, byte[] data, uint reportIndex)
+    private static void RazerSendControlMsg(UsbDevice usbDev, byte[] data, uint reportIndex)
     {
         const ushort value = 0x300;
 
         var setupPacket = new UsbSetupPacket(UsbTypeRequestOut, HidReqSetReport, value, (ushort)reportIndex, (ushort)data.Length);
 
         // Send USB control message
-        var transferredLength = data.Length;
-        usbDev.ControlTransfer(setupPacket, data, 0, transferredLength);
+        usbDev.ControlTransfer(ref setupPacket, data, RazerUsbReportLen, out _);
     }
 
-    private static byte[]? RazerReadResponseMsg(IUsbDevice usbDev, uint reportIndex)
+    private static byte[]? RazerReadResponseMsg(UsbDevice usbDev, uint reportIndex)
     {
         const ushort value = 0x300;
         var responseBuffer = new byte[RazerUsbReportLen];
@@ -60,24 +93,25 @@ internal abstract class RazerFetcher : IDisposable
 
         // Receive USB control message
         var transferredLength = responseBuffer.Length;
-        var ec = usbDev.ControlTransfer(setupPacket, responseBuffer, 0, transferredLength);
-        if (ec == 0)
-        {
-            return null;
-        }
+        usbDev.ControlTransfer(ref setupPacket, responseBuffer, RazerUsbReportLen, out _);
         
         return transferredLength != responseBuffer.Length ? null : responseBuffer;
     }
 
-    protected static string GetDeviceProductKeyString(IUsbDevice device)
+    private static string GetDeviceProductKeyString(UsbDevice device)
     {
-        return "0x"+device.ProductId.ToString("X4");
+        return "0x"+device.Info.Descriptor.ProductID.ToString("X4");
+    }
+
+    private static string GetDeviceProductKeyString(UsbRegistry device)
+    {
+        return "0x"+device.Pid.ToString("X4");
     }
 
     protected virtual void Dispose(bool disposing)
     {
         if (!disposing) return;
-        Mutex.Close();
+        Mutex.ReleaseMutex();
         Mutex.Dispose();
     }
 

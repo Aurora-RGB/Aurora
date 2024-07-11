@@ -101,9 +101,12 @@
       },
       "LibUsbDotNet": {
         "type": "Direct",
-        "requested": "[3.0.102-alpha, )",
-        "resolved": "3.0.102-alpha",
-        "contentHash": "OhZQNKqy4pso1YCWi3SjUCCDW05K8POwU0utIpZW2SsoHkCePSb1kAH3qBd8+sjHwRGa77U9fUn2/bXsdKOU2w=="
+        "requested": "[2.2.29, )",
+        "resolved": "2.2.29",
+        "contentHash": "kYXcaTDhoJlZP7yuh3yuBTYQxzw1p+QXpJnGRkdtGMq7Vy7NTD/DzBLnZR72gL7HEQUz+mpyRpq+ZOySwQb4Zw==",
+        "dependencies": {
+          "Microsoft.Win32.Registry": "4.5.0"
+        }
       },
       "MdXaml": {
         "type": "Direct",
@@ -1507,12 +1510,6 @@
       }
     },
     "net8.0-windows10.0.19041/win-x64": {
-      "LibUsbDotNet": {
-        "type": "Direct",
-        "requested": "[3.0.102-alpha, )",
-        "resolved": "3.0.102-alpha",
-        "contentHash": "OhZQNKqy4pso1YCWi3SjUCCDW05K8POwU0utIpZW2SsoHkCePSb1kAH3qBd8+sjHwRGa77U9fUn2/bXsdKOU2w=="
-      },
       "System.Management": {
         "type": "Direct",
         "requested": "[8.0.0, )",

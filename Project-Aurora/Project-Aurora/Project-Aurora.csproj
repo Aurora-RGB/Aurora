@@ -61,7 +61,7 @@
         <PackageReference Include="JetBrains.Annotations" Version="2023.3.0"/>
         <PackageReference Include="JsonSubTypes" Version="2.0.1"/>
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.2"/>
-        <PackageReference Include="LibUsbDotNet" Version="3.0.102-alpha" />
+        <PackageReference Include="LibUsbDotNet" Version="2.2.29" />
         <PackageReference Include="MdXaml" Version="1.27.0"/>
         <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3"/>
         <PackageReference Include="NAudio.Core" Version="2.2.1"/>
