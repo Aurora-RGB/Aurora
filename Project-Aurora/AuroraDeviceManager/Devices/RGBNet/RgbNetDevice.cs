@@ -55,7 +55,7 @@ public abstract class RgbNetDevice : DefaultDevice
     {
         Global.Logger.Information("Initializing {DeviceName}", DeviceName);
 
-        var connectSleepTimeSeconds = Global.DeviceConfig.VarRegistry.GetVariable<int>($"{DeviceName}_connect_sleep_time");
+        var connectSleepTimeSeconds = Global.DeviceConfig.VarRegistry.GetVariable<int>($"{DeviceName}_connect_timeout");
         var remainingMillis = TimeSpan.FromSeconds(connectSleepTimeSeconds);
 
         Provider.DevicesChanged += ProviderOnDevicesChanged;
@@ -265,7 +265,7 @@ public abstract class RgbNetDevice : DefaultDevice
     {
         base.RegisterVariables(variableRegistry);
 
-        variableRegistry.Register($"{DeviceName}_connect_sleep_time", 120, "Connection timeout seconds");
+        variableRegistry.Register($"{DeviceName}_connect_timeout", 200, "Connection timeout seconds");
     }
 
     protected override void Dispose(bool disposing)
