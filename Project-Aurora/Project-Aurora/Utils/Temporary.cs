@@ -13,15 +13,15 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
     private readonly object _createLock = new();
     private volatile T? _value;
 
-    private long _lastAccess = Time.GetMillisecondsSinceEpoch();
-    private readonly double _inactiveTimeMilliseconds = TimeSpan.FromSeconds(20).TotalMilliseconds;
+    private DateTime _lastAccess = DateTime.UtcNow;
+    private readonly TimeSpan _inactiveTimeSpan = TimeSpan.FromSeconds(20);
     private readonly bool _callDispose = callDispose;
 
     public T Value
     {
         get
         {
-            _lastAccess = Time.GetMillisecondsSinceEpoch();
+            _lastAccess = DateTime.UtcNow;
 
             if (_value != null)
             {
@@ -127,8 +127,8 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
     private static bool ExpiredInstance(Temporary<T> temporary)
     {
-        var now = Time.GetMillisecondsSinceEpoch();
-        if (now - temporary._lastAccess <= temporary._inactiveTimeMilliseconds || temporary._value == null) return false;
+        var now = DateTime.UtcNow;
+        if (now - temporary._lastAccess <= temporary._inactiveTimeSpan || temporary._value == null) return false;
 
         var temporaryValue = temporary._value;
         temporary._value = null;

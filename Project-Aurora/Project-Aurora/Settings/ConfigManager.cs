@@ -16,8 +16,8 @@ namespace AuroraRgb.Settings;
 
 public static class ConfigManager
 {
-    private static readonly Dictionary<string, long> LastSaveTimes = new();
-    private const long SaveInterval = 300L;
+    private static readonly Dictionary<string, DateTime> LastSaveTimes = new();
+    private static readonly TimeSpan SaveInterval = TimeSpan.FromMilliseconds(300);
 
     public static async Task<Configuration> Load()
     {
@@ -143,7 +143,7 @@ public static class ConfigManager
     public static void Save(IAuroraConfig configuration)
     {
         var path = configuration.ConfigPath;
-        var currentTime = Time.GetMillisecondsSinceEpoch();
+        var currentTime = DateTime.UtcNow;
 
         if (LastSaveTimes.TryGetValue(path, out var lastSaveTime) && lastSaveTime + SaveInterval > currentTime) return;
 
@@ -161,7 +161,7 @@ public static class ConfigManager
     public static async Task SaveAsync(IAuroraConfig configuration)
     {
         var path = configuration.ConfigPath;
-        var currentTime = Time.GetMillisecondsSinceEpoch();
+        var currentTime = DateTime.UtcNow;
 
         if (LastSaveTimes.TryGetValue(path, out var lastSaveTime) && lastSaveTime + SaveInterval > currentTime) return;
 
