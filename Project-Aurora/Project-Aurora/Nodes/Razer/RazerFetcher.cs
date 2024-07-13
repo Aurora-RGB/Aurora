@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.OnlineConfigs.Model;
@@ -19,7 +21,19 @@ internal abstract class RazerFetcher : IDisposable
     private const int UsbTypeRequestIn = UsbTypeClass | UsbRecipInterface | UsbDirIn;
     private const int RazerUsbReportLen = 90; // Example length, set this according to actual length
 
-    private readonly Mutex Mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
+    private readonly Mutex _mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
+
+    protected RazerFetcher()
+    {
+        var rule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), 
+            MutexRights.Synchronize | MutexRights.Modify | MutexRights.FullControl | MutexRights.ReadPermissions | MutexRights.TakeOwnership, 
+            AccessControlType.Allow);
+        
+        var mutexSecurity = new MutexSecurity();
+        mutexSecurity.AddAccessRule(rule);
+        
+        _mutex.SetAccessControl(mutexSecurity);
+    }
 
     protected byte[]? Update()
     {
@@ -31,7 +45,7 @@ internal abstract class RazerFetcher : IDisposable
 
         try
         {
-            if (!Mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
+            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
             {
                 return null;
             }
@@ -43,7 +57,7 @@ internal abstract class RazerFetcher : IDisposable
 
         usbDevice.Open();
         var report = GetReport(usbDevice, GetMessage(mouseHidInfo));
-        Mutex.ReleaseMutex();
+        _mutex.ReleaseMutex();
         usbDevice.Close();
 
         return report;
@@ -51,7 +65,7 @@ internal abstract class RazerFetcher : IDisposable
 
     protected abstract byte[] GetMessage(RazerMouseHidInfo mouseHidInfo);
 
-    protected static UsbDevice? GetUsbDevice(out RazerMouseHidInfo mouseHidInfo)
+    private static UsbDevice? GetUsbDevice(out RazerMouseHidInfo mouseHidInfo)
     {
         const int vendorId = 0x1532;
         var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
@@ -66,7 +80,7 @@ internal abstract class RazerFetcher : IDisposable
         return usbDevice;
     }
 
-    protected static byte[]? GetReport(UsbDevice usbDevice, byte[] msg)
+    private static byte[]? GetReport(UsbDevice usbDevice, byte[] msg)
     {
         RazerSendControlMsg(usbDevice, msg, 0x09);
         Thread.Sleep(50);
@@ -111,8 +125,8 @@ internal abstract class RazerFetcher : IDisposable
     protected virtual void Dispose(bool disposing)
     {
         if (!disposing) return;
-        Mutex.ReleaseMutex();
-        Mutex.Dispose();
+        _mutex.Close();
+        _mutex.Dispose();
     }
 
     public void Dispose()
