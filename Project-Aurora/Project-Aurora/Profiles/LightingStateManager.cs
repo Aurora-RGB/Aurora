@@ -347,7 +347,7 @@ public sealed class LightingStateManager : IDisposable
     public Task InitUpdate()
     {
         _watch.Start();
-        _updateTimer.Trigger();
+        _updateTimer?.Trigger();
         return Task.CompletedTask;
     }
 
@@ -674,8 +674,7 @@ public sealed class LightingStateManager : IDisposable
         _initializeCancelSource.Cancel();
         Task.WaitAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
-        _updateTimer?.Dispose(200);
-        _updateTimer = null;
+        _updateTimer.Dispose(200);
         foreach (var (_, lightEvent) in Events)
             lightEvent.Dispose();
     }
@@ -685,9 +684,7 @@ public sealed class LightingStateManager : IDisposable
         await _initializeCancelSource.CancelAsync();
         await Task.WhenAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
-        if (_updateTimer != null)
-            _updateTimer.Dispose(200);
-        _updateTimer = null;
+        _updateTimer.Dispose(200);
         foreach (var (_, lightEvent) in Events)
             lightEvent.Dispose();
     }
