@@ -35,6 +35,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
                     return _value;
                 }
 
+                //TODO add an infinite loop check
                 var value = produce.Invoke();
                 _value = value;
                 ValueCreated?.Invoke(this, EventArgs.Empty);
@@ -110,19 +111,19 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
     private static void AliveTimerCallback(object? state)
     {
-        TimerLock.EnterReadLock();
+        TimerLock.EnterWriteLock();
 
         Instances.RemoveAll(ExpiredInstance);
         if (Instances.Count != 0)
         {
-            TimerLock.ExitReadLock();
+            TimerLock.ExitWriteLock();
             return;
         }
 
         _aliveTimer?.Dispose();
         _aliveTimer = null;
 
-        TimerLock.ExitReadLock();
+        TimerLock.ExitWriteLock();
     }
 
     private static bool ExpiredInstance(Temporary<T> temporary)
