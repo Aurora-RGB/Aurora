@@ -356,7 +356,7 @@ public sealed class LightingStateManager : IDisposable
         GC.WaitForPendingFinalizers();
         if (Debugger.IsAttached)
         {
-            Thread.Sleep(90);
+            Thread.Sleep(40);
         }
 
         if (Global.isDebug)
