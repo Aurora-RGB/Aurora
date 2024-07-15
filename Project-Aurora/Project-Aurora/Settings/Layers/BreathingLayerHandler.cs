@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class BreathingLayerHandlerProperties : LayerHandlerProperties2Color<BreathingLayerHandlerProperties>
+public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Color<BreathingLayerHandlerProperties>
 {
     public bool? _RandomPrimaryColor { get; set; }
 
@@ -29,10 +29,22 @@ public class BreathingLayerHandlerProperties : LayerHandlerProperties2Color<Brea
     [JsonIgnore]
     public double EffectSpeed => Logic?._EffectSpeed ?? _EffectSpeed ?? 0.0;
 
-    public BreathingLayerHandlerProperties()
-    { }
+    private CurveFunction? _curveFunction;
 
-    public BreathingLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
+    [LogicOverridable]
+    public CurveFunction CurveFunction
+    {
+        get => Logic?._curveFunction != CurveFunction.Unset ? Logic?._curveFunction ?? CurveFunction.SineSquared : CurveFunction.SineSquared;
+        set => _curveFunction = value;
+    }
+
+    public BreathingLayerHandlerProperties()
+    {
+    }
+
+    public BreathingLayerHandlerProperties(bool assignDefault = false) : base(assignDefault)
+    {
+    }
 
     public override void Default()
     {
@@ -55,20 +67,35 @@ public class BreathingLayerHandler() : LayerHandler<BreathingLayerHandlerPropert
 
     public override EffectLayer Render(IGameState gameState)
     {
-        var currentSine = (float)Math.Pow(Math.Sin((double)(Time.GetMillisecondsSinceEpoch() % 10000L / 10000.0f) * 2 * Math.PI * Properties.EffectSpeed), 2);
+        var seconds = (DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds * Properties.EffectSpeed;
 
-        if (currentSine <= 0.0025f * Properties.EffectSpeed && Properties.RandomSecondaryColor)
+        // https://www.desmos.com/calculator/yxhba9jczx
+        var x = seconds % 10 < 5 ? IncreasingFunc(seconds) : DecreasingFunc(seconds);
+
+        var smoothed = CurveFunctions.Functions[Properties.CurveFunction](x);
+
+        if (smoothed <= 0.0025f * Properties.EffectSpeed && Properties.RandomSecondaryColor)
             _currentSecondaryColor = CommonColorUtils.GenerateRandomColor();
-        else if(!Properties.RandomSecondaryColor)
+        else if (!Properties.RandomSecondaryColor)
             _currentSecondaryColor = Properties.SecondaryColor;
 
-        if (currentSine >= 1.0f - 0.0025f * Properties.EffectSpeed && Properties.RandomPrimaryColor)
+        if (smoothed >= 1.0f - 0.0025f * Properties.EffectSpeed && Properties.RandomPrimaryColor)
             _currentPrimaryColor = CommonColorUtils.GenerateRandomColor();
         else if (!Properties.RandomPrimaryColor)
             _currentPrimaryColor = Properties.PrimaryColor;
 
-        EffectLayer.Set(Properties.Sequence, ColorUtils.BlendColors(_currentPrimaryColor, _currentSecondaryColor, currentSine));
+        EffectLayer.Set(Properties.Sequence, ColorUtils.BlendColors(_currentPrimaryColor, _currentSecondaryColor, smoothed));
 
         return EffectLayer;
+    }
+
+    private static double IncreasingFunc(double x)
+    {
+        return x/5 - Math.Floor(x/5);
+    }
+
+    private static double DecreasingFunc(double x)
+    {
+        return -x/5 + 1 + Math.Floor(x/5);
     }
 }

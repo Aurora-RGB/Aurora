@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
@@ -48,6 +49,8 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
 
     [JsonIgnore] public KeySequence Sequence => Logic?._Sequence ?? _Sequence;
 
+    [JsonIgnore]
+    public virtual IReadOnlyDictionary<string, Action<IValueOverridable, object?>> SetterMap { get; } = new Dictionary<string, Action<IValueOverridable, object?>>();
 
     #region Override Special Properties
 
@@ -100,6 +103,12 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
 
     public void SetOverride(string propertyName, object? value)
     {
+        if (SetterMap.TryGetValue(propertyName, out var setter))
+        {
+            setter(Logic!, value);
+            return;
+        }
+        
         try
         {
             if (Accessor.Value[Logic, propertyName] == value)
