@@ -8,7 +8,6 @@ using AuroraRgb.Profiles;
 using AuroraRgb.Utils;
 using Common;
 using Common.Utils;
-using FastMember;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Overrides.Logic;
@@ -20,6 +19,8 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 [JsonObject]
 public class OverrideDynamicValue : IOverrideLogic
 {
+    private const string Value = "Value";
+
     #region Constructors
 
     /// <summary>
@@ -67,7 +68,6 @@ public class OverrideDynamicValue : IOverrideLogic
             if ((value.IsClass || value.IsValueType) && !value.IsPrimitive)
             {
                 _value = new Lazy<object>(() => Instantiator.Constructor(value).Invoke(null));
-                _accessor = new Lazy<ObjectAccessor>(ObjectAccessor.Create(value));
             }
 
             _varType = value;
@@ -79,7 +79,6 @@ public class OverrideDynamicValue : IOverrideLogic
     public Dictionary<string, IEvaluatable> ConstructorParameters { get; set; }
 
     private Lazy<object> _value = new();
-    private Lazy<ObjectAccessor> _accessor = null!;
     private Type _varType = null!;
 
     #endregion
@@ -96,15 +95,7 @@ public class OverrideDynamicValue : IOverrideLogic
             return creator(gameState, this);
         }
 
-        // only try to override value types we know
-        if (!TypeDynamicDefMap.TryGetValue(VarType, out _)) return null;
-
-        foreach (var (property, evaluatable) in ConstructorParameters)
-        {
-            _accessor.Value[property] = evaluatable.Evaluate(gameState);
-        }
-
-        return _value;
+        return null;
     }
 
     /// <summary>
@@ -126,13 +117,13 @@ public class OverrideDynamicValue : IOverrideLogic
         new Dictionary<Type, Func<IGameState, OverrideDynamicValue, object?>>
         {
             // Boolean
-            { typeof(bool), (state, evaluator) => evaluator.ConstructorParameters["Value"].Evaluate(state) },
+            { typeof(bool), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
 
             // Numeric
-            { typeof(int), (state, evaluator) => evaluator.ConstructorParameters["Value"].Evaluate(state) },
-            { typeof(long), (state, evaluator) => evaluator.ConstructorParameters["Value"].Evaluate(state) },
-            { typeof(float), (state, evaluator) => evaluator.ConstructorParameters["Value"].Evaluate(state) },
-            { typeof(double), (state, evaluator) => evaluator.ConstructorParameters["Value"].Evaluate(state) },
+            { typeof(int), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
+            { typeof(long), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
+            { typeof(float), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
+            { typeof(double), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
 
             // Special
             {
@@ -198,13 +189,13 @@ public class OverrideDynamicValue : IOverrideLogic
     internal static readonly IReadOnlyDictionary<Type, DynamicSetterDefinition> TypeDynamicDefMap = new Dictionary<Type, DynamicSetterDefinition>
     {
         // Boolean
-        { typeof(bool), new DynamicSetterDefinition([new DynamicPropertyDefinition("Value", typeof(bool))]) },
+        { typeof(bool), new DynamicSetterDefinition([new DynamicPropertyDefinition(Value, typeof(bool))]) },
 
         // Numeric
-        { typeof(int), new DynamicSetterDefinition([new DynamicPropertyDefinition("Value", typeof(double))]) },
-        { typeof(long), new DynamicSetterDefinition([new DynamicPropertyDefinition("Value", typeof(double))]) },
-        { typeof(float), new DynamicSetterDefinition([new DynamicPropertyDefinition("Value", typeof(double))]) },
-        { typeof(double), new DynamicSetterDefinition([new DynamicPropertyDefinition("Value", typeof(double))]) },
+        { typeof(int), new DynamicSetterDefinition([new DynamicPropertyDefinition(Value, typeof(double))]) },
+        { typeof(long), new DynamicSetterDefinition([new DynamicPropertyDefinition(Value, typeof(double))]) },
+        { typeof(float), new DynamicSetterDefinition([new DynamicPropertyDefinition(Value, typeof(double))]) },
+        { typeof(double), new DynamicSetterDefinition([new DynamicPropertyDefinition(Value, typeof(double))]) },
 
         // Special
         {

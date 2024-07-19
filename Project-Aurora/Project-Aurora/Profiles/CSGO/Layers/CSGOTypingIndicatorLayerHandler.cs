@@ -11,12 +11,16 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOTypingIndicatorLayerHandlerProperties>
+public partial class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOTypingIndicatorLayerHandlerProperties>
 {
-    public Color? _TypingKeysColor { get; set; }
+    private Color? _typingKeysColor;
 
-    [JsonIgnore]
-    public Color TypingKeysColor => Logic?._TypingKeysColor ?? _TypingKeysColor ?? Color.Empty;
+    [JsonProperty("_TypingKeysColor")]
+    public Color TypingKeysColor
+    {
+        get => Logic?._TypingKeysColor ?? _typingKeysColor ?? Color.Empty;
+        set => _typingKeysColor = value;
+    }
 
     public CSGOTypingIndicatorLayerHandlerProperties()
     { }
@@ -34,7 +38,7 @@ public class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2
             DeviceKeys.LEFT_CONTROL, DeviceKeys.LEFT_WINDOWS, DeviceKeys.LEFT_ALT, DeviceKeys.SPACE, DeviceKeys.RIGHT_ALT, DeviceKeys.RIGHT_WINDOWS, DeviceKeys.APPLICATION_SELECT, DeviceKeys.RIGHT_CONTROL,
             DeviceKeys.ARROW_UP, DeviceKeys.ARROW_LEFT, DeviceKeys.ARROW_DOWN, DeviceKeys.ARROW_RIGHT, DeviceKeys.ESC
         });
-        _TypingKeysColor = Color.FromArgb(0, 255, 0);
+        _typingKeysColor = Color.FromArgb(0, 255, 0);
     }
 }
 

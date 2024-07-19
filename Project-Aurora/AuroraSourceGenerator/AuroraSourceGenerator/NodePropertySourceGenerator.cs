@@ -122,17 +122,15 @@ public class NodePropertySourceGenerator : ISourceGenerator
 
     private static IEnumerable<PropertyAccess> GetClassProperties(string currentPath, INamedTypeSymbol type, string upperAccessPath)
     {
-        var currentType = type;
-        while (currentType != null)
+        var namedTypeSymbols = GetBaseTypes(type);
+        foreach (var currentType in namedTypeSymbols)
         {
             foreach (var member in currentType.GetMembers())
             {
                 if (member is not IPropertySymbol property) continue;
                 if (property.GetMethod?.DeclaredAccessibility is not (Accessibility.Public or Accessibility.Internal)) continue;
                 if (property.Name == "Parent") continue;
-                if (string.IsNullOrWhiteSpace(property.Name)) continue;
-                if (property.Name.Contains('[')) continue;
-                if (property.Name.Contains(']')) continue;
+                if (property.IsIndexer) continue;
                 if (property.Name.Contains('<')) continue;
                 if (property.Name.Contains('>')) continue;
                 if (property.GetAttributes().Any(IgnoredAttribute)) continue;
@@ -170,11 +168,18 @@ public class NodePropertySourceGenerator : ISourceGenerator
                     yield return classProperty;
                 }
             }
-
-            currentType = currentType.BaseType;
         }
 
-        Console.WriteLine($"{type} property scan complete");
+    }
+
+    private static IEnumerable<INamedTypeSymbol> GetBaseTypes(INamedTypeSymbol type)
+    {
+        var currentType = type;
+        while (currentType != null)
+        {
+            yield return currentType;
+            currentType = currentType.BaseType;
+        }
     }
 
     private static bool IgnoredAttribute(AttributeData arg)

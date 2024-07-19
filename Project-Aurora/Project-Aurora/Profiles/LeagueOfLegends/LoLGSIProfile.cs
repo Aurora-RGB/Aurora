@@ -3,8 +3,6 @@ using AuroraRgb.Profiles.LeagueOfLegends.GSI.Nodes;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
-using AuroraRgb.Settings.Overrides.Logic.Number;
 using DK = Common.Devices.DeviceKeys;
 
 namespace AuroraRgb.Profiles.LeagueOfLegends
@@ -54,9 +52,9 @@ namespace AuroraRgb.Profiles.LeagueOfLegends
                     Properties = new BreathingLayerHandlerProperties()
                     {
                         _PrimaryColor = Color.Red,
-                        _SecondaryColor = Color.Black, 
+                        SecondaryColor = Color.Black, 
                         _Sequence = new KeySequence(new FreeFormObject(0f,0f,820f,215f)),
-                        _EffectSpeed = 6
+                        EffectSpeed = 6
                     }
                 }, EnabledWhen(new BooleanAnd( new Evaluatable <bool>[]{
                                 new BooleanGSIBoolean("Match/InGame"),
@@ -67,7 +65,7 @@ namespace AuroraRgb.Profiles.LeagueOfLegends
                     Properties = new PercentLayerHandlerProperties()
                     {
                         _PrimaryColor = Color.Green,
-                        _SecondaryColor = Color.Black,
+                        SecondaryColor = Color.Black,
                         _Sequence = new KeySequence(new DK[] { DK.F1, DK.F2, DK.F3, DK.F4, DK.F5, DK.F6, DK.F7, DK.F8, DK.F9, DK.F10, DK.F11, DK.F12 }),
                         VariablePath = new VariablePath("Player/ChampionStats/HealthCurrent"),
                         MaxVariablePath = new VariablePath("Player/ChampionStats/HealthMax")
@@ -78,7 +76,7 @@ namespace AuroraRgb.Profiles.LeagueOfLegends
                     Properties = new PercentLayerHandlerProperties()
                     {
                         _PrimaryColor = Color.DarkBlue,
-                        _SecondaryColor = Color.Black,
+                        SecondaryColor = Color.Black,
                         _Sequence = new KeySequence(new DK[] { DK.Z, DK.X, DK.C, DK.V, DK.B, DK.N, DK.M, DK.COMMA, DK.PERIOD, DK.FORWARD_SLASH }),
                         VariablePath = new VariablePath("Player/ChampionStats/ResourceCurrent"),
                         MaxVariablePath = new VariablePath("Player/ChampionStats/ResourceMax")

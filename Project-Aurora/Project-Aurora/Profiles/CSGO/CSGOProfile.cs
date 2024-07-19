@@ -68,7 +68,7 @@ public class CSGOProfile : ApplicationProfile
                     Properties = new PercentLayerHandlerProperties
                     {
                         _PrimaryColor = Color.FromArgb(0, 255, 0),
-                        _SecondaryColor = Color.FromArgb(255, 0, 0),
+                        SecondaryColor = Color.FromArgb(255, 0, 0),
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new[]
                         {
@@ -91,7 +91,7 @@ public class CSGOProfile : ApplicationProfile
                     Properties = new PercentLayerHandlerProperties
                     {
                         _PrimaryColor = Color.FromArgb(0, 0, 255),
-                        _SecondaryColor = Color.FromArgb(255, 0, 0),
+                        SecondaryColor = Color.FromArgb(255, 0, 0),
                         PercentType = PercentEffectType.Progressive,
                         _Sequence = new KeySequence(new[]
                         {

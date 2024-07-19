@@ -34,27 +34,27 @@ public partial class Control_Dota2ItemLayer
     {
         if (DataContext is not Dota2ItemLayerHandler || _settingsSet) return;
 
-        ColorPicker_Item_Empty.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties._EmptyItemColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Item_Cooldown.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties._ItemCooldownColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Item_NoCharges.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties._ItemNoChargersColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Item_Color.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties._ItemsColor ?? System.Drawing.Color.Empty);
-        CheckBox_Use_Item_Colors.IsChecked = ((Dota2ItemLayerHandler)DataContext).Properties._UseItemColors;
+        ColorPicker_Item_Empty.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties.EmptyItemColor);
+        ColorPicker_Item_Cooldown.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties.ItemCooldownColor);
+        ColorPicker_Item_NoCharges.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties.ItemNoChargersColor);
+        ColorPicker_Item_Color.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Dota2ItemLayerHandler)DataContext).Properties.ItemsColor);
+        CheckBox_Use_Item_Colors.IsChecked = ((Dota2ItemLayerHandler)DataContext).Properties.UseItemColors;
 
-        UIUtils.SetSingleKey(item_slot1_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 0);
-        UIUtils.SetSingleKey(item_slot2_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 1);
-        UIUtils.SetSingleKey(item_slot3_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 2);
-        UIUtils.SetSingleKey(item_slot4_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 3);
-        UIUtils.SetSingleKey(item_slot5_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 4);
-        UIUtils.SetSingleKey(item_slot6_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 5);
-        UIUtils.SetSingleKey(item_slot7_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 6);
-        UIUtils.SetSingleKey(item_slot8_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 7);
-        UIUtils.SetSingleKey(item_slot9_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 8);
-        UIUtils.SetSingleKey(stash_slot1_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 9);
-        UIUtils.SetSingleKey(stash_slot2_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 10);
-        UIUtils.SetSingleKey(stash_slot3_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 11);
-        UIUtils.SetSingleKey(stash_slot4_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 12);
-        UIUtils.SetSingleKey(stash_slot5_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 13);
-        UIUtils.SetSingleKey(stash_slot6_textblock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, 14);
+        UIUtils.SetSingleKey(item_slot1_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 0);
+        UIUtils.SetSingleKey(item_slot2_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 1);
+        UIUtils.SetSingleKey(item_slot3_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 2);
+        UIUtils.SetSingleKey(item_slot4_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 3);
+        UIUtils.SetSingleKey(item_slot5_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 4);
+        UIUtils.SetSingleKey(item_slot6_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 5);
+        UIUtils.SetSingleKey(item_slot7_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 6);
+        UIUtils.SetSingleKey(item_slot8_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 7);
+        UIUtils.SetSingleKey(item_slot9_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 8);
+        UIUtils.SetSingleKey(stash_slot1_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 9);
+        UIUtils.SetSingleKey(stash_slot2_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 10);
+        UIUtils.SetSingleKey(stash_slot3_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 11);
+        UIUtils.SetSingleKey(stash_slot4_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 12);
+        UIUtils.SetSingleKey(stash_slot5_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 13);
+        UIUtils.SetSingleKey(stash_slot6_textblock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, 14);
 
         _settingsSet = true;
     }
@@ -225,9 +225,9 @@ public partial class Control_Dota2ItemLayer
 
             if (resultingKeys.Count <= 0) return;
             if (IsLoaded)
-                ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys[itemPosition] = resultingKeys[0];
+                ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys[itemPosition] = resultingKeys[0];
 
-            UIUtils.SetSingleKey(textBlock, ((Dota2ItemLayerHandler)DataContext).Properties._ItemKeys, itemPosition);
+            UIUtils.SetSingleKey(textBlock, ((Dota2ItemLayerHandler)DataContext).Properties.ItemKeys, itemPosition);
         });
     }
 
@@ -268,30 +268,30 @@ public partial class Control_Dota2ItemLayer
     private void ColorPicker_Item_Empty_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (IsLoaded && _settingsSet && DataContext is Dota2ItemLayerHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
-            ((Dota2ItemLayerHandler)DataContext).Properties._EmptyItemColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
+            ((Dota2ItemLayerHandler)DataContext).Properties.EmptyItemColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void ColorPicker_Item_Cooldown_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (IsLoaded && _settingsSet && DataContext is Dota2ItemLayerHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
-            ((Dota2ItemLayerHandler)DataContext).Properties._ItemCooldownColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
+            ((Dota2ItemLayerHandler)DataContext).Properties.ItemCooldownColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void ColorPicker_Item_NoCharges_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (IsLoaded && _settingsSet && DataContext is Dota2ItemLayerHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
-            ((Dota2ItemLayerHandler)DataContext).Properties._ItemNoChargersColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
+            ((Dota2ItemLayerHandler)DataContext).Properties.ItemNoChargersColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void ColorPicker_Item_Color_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
         if (IsLoaded && _settingsSet && DataContext is Dota2ItemLayerHandler && sender is ColorPicker { SelectedColor: not null } colorPicker)
-            ((Dota2ItemLayerHandler)DataContext).Properties._ItemsColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
+            ((Dota2ItemLayerHandler)DataContext).Properties.ItemsColor = ColorUtils.MediaColorToDrawingColor(colorPicker.SelectedColor.Value);
     }
 
     private void CheckBox_Use_Item_Colors_Checked(object? sender, RoutedEventArgs e)
     {
         if (IsLoaded && _settingsSet && DataContext is Dota2ItemLayerHandler && sender is CheckBox { IsChecked: not null } checkBox)
-            ((Dota2ItemLayerHandler)DataContext).Properties._UseItemColors = checkBox.IsChecked.Value;
+            ((Dota2ItemLayerHandler)DataContext).Properties.UseItemColors = checkBox.IsChecked.Value;
     }
 }

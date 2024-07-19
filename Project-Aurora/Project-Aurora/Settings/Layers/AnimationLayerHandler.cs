@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public class AnimationLayerHandlerProperties : LayerHandlerProperties2Color<AnimationLayerHandlerProperties>
+    public partial class AnimationLayerHandlerProperties : LayerHandlerProperties2Color<AnimationLayerHandlerProperties>
     {
         public AnimationMix _AnimationMix { get; set; }
 
@@ -101,8 +101,8 @@ namespace AuroraRgb.Settings.Layers
         }
     }
 
-    [LogicOverrideIgnoreProperty("_PrimaryColor")]
-    [LogicOverrideIgnoreProperty("_SecondaryColor")]
+    [LogicOverrideIgnoreProperty("PrimaryColor")]
+    [LogicOverrideIgnoreProperty("SecondaryColor")]
     public sealed class AnimationLayerHandler() : LayerHandler<AnimationLayerHandlerProperties>("Animation Layer")
     {
         private readonly List<RunningAnimation> _runningAnimations = [];

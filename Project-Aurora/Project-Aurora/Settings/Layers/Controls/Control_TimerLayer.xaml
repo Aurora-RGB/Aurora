@@ -34,7 +34,7 @@
         <xctk:ColorPicker SelectedColor="{Binding Properties._PrimaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Grid.Row="0" Grid.Column="1" Margin="4,2" />
 
         <Label Content="Active Color:" Grid.Row="1" HorizontalAlignment="Right" />
-        <xctk:ColorPicker SelectedColor="{Binding Properties._SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Grid.Row="1" Grid.Column="1" Margin="4,2" />
+        <xctk:ColorPicker SelectedColor="{Binding Properties.SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Grid.Row="1" Grid.Column="1" Margin="4,2" />
 
         <Label Content="Duration (ms):" Grid.Row="2" HorizontalAlignment="Right" />
         <xctk:IntegerUpDown Value="{Binding Properties.Duration}" Grid.Row="2" Grid.Column="1" Margin="4,2" />

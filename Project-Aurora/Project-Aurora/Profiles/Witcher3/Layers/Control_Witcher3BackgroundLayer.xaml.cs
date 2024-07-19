@@ -27,18 +27,12 @@ public partial class Control_Witcher3BackgroundLayer
     private void SetSettings()
     {
         if (DataContext is not Witcher3BackgroundLayerHandler || settingsset) return;
-        ColorPicker_Aard.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._AardColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Igni.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._IgniColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Quen.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._QuenColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Yrden.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._YrdenColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Axii.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._AxiiColor ?? System.Drawing.Color.Empty);
-        ColorPicker_Default.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext)
-            .Properties._DefaultColor ?? System.Drawing.Color.Empty);
+        ColorPicker_Aard.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.AardColor);
+        ColorPicker_Igni.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.IgniColor);
+        ColorPicker_Quen.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.QuenColor);
+        ColorPicker_Yrden.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.YrdenColor);
+        ColorPicker_Axii.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.AxiiColor);
+        ColorPicker_Default.SelectedColor = ColorUtils.DrawingColorToMediaColor(((Witcher3BackgroundLayerHandler)DataContext).Properties.DefaultColor);
 
         settingsset = true;
     }
@@ -52,37 +46,37 @@ public partial class Control_Witcher3BackgroundLayer
 
     private void ColorPicker_Aard_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._AardColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.AardColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Igni_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._IgniColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.IgniColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Quen_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._QuenColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.QuenColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Yrden_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._YrdenColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.YrdenColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Axii_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._AxiiColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.AxiiColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_Default_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler && sender is ColorPicker && (sender as ColorPicker).SelectedColor.HasValue)
-            (DataContext as Witcher3BackgroundLayerHandler).Properties._DefaultColor = ColorUtils.MediaColorToDrawingColor((sender as ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is Witcher3BackgroundLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.DefaultColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 }

@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<WrapperLightsLayerHandlerProperties>
+public partial class WrapperLightsLayerHandlerProperties : LayerHandlerProperties<WrapperLightsLayerHandlerProperties>
 {
     // Color Enhancing
     [JsonIgnore]

@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class ScriptLayerHandlerProperties : LayerHandlerProperties<ScriptLayerHandlerProperties>
+public partial class ScriptLayerHandlerProperties : LayerHandlerProperties<ScriptLayerHandlerProperties>
 {
     private string? _script;
     [JsonProperty("_Script")]

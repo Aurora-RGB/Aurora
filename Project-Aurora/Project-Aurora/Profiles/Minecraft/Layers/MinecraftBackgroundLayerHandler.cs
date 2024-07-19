@@ -8,7 +8,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Minecraft.Layers {
 
-    public class MinecraftBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<MinecraftBackgroundLayerHandlerProperties> {
+    public partial class MinecraftBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<MinecraftBackgroundLayerHandlerProperties> {
 
         public MinecraftBackgroundLayerHandlerProperties() : base() { }
         public MinecraftBackgroundLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
@@ -17,7 +17,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
             base.Default();
 
             _PrimaryColor = Color.FromArgb(200, 255, 240);
-            _SecondaryColor = Color.FromArgb(30, 50, 60);
+            SecondaryColor = Color.FromArgb(30, 50, 60);
             _Sequence = new KeySequence(new FreeFormObject(0, -60, 900, 300));
         }
     }

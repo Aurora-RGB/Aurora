@@ -7,7 +7,7 @@ using Common.Utils;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class SolidFillLayerHandlerProperties : LayerHandlerProperties<SolidFillLayerHandlerProperties>
+public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties<SolidFillLayerHandlerProperties>
 {
     public SolidFillLayerHandlerProperties()
     {

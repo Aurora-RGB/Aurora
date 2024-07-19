@@ -30,7 +30,7 @@
         <CheckBox Content="Use a random primary color" IsChecked="{Binding Properties.RandomPrimaryColor}" Margin="0,54,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
         <TextBlock Text="Secondary Color:" Margin="0,77,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-        <xctk:ColorPicker SelectedColor="{Binding Properties._SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="95,74,0,0" Width="148" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <xctk:ColorPicker SelectedColor="{Binding Properties.SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="95,74,0,0" Width="148" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
         <CheckBox Content="Use a random secondary color" IsChecked="{Binding Properties.RandomSecondaryColor}" Margin="0,103,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
         
         <TextBlock Text="Effect Speed:" Margin="0,125,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />

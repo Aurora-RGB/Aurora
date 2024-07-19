@@ -25,10 +25,10 @@ public partial class Control_EliteDangerousBackgroundLayer
 
     public void SetSettings()
     {
-        if (DataContext is EliteDangerousBackgroundLayerHandler && !settingsset)
+        if (DataContext is EliteDangerousBackgroundLayerHandler dataContext && !settingsset)
         {
-            ColorPicker_CombatMode.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousBackgroundLayerHandler).Properties._CombatModeColor ?? System.Drawing.Color.Empty);
-            ColorPicker_DiscoveryMode.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousBackgroundLayerHandler).Properties._DiscoveryModeColor ?? System.Drawing.Color.Empty);
+            ColorPicker_CombatMode.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.CombatModeColor);
+            ColorPicker_DiscoveryMode.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.DiscoveryModeColor);
 
             settingsset = true;
         }
@@ -43,13 +43,13 @@ public partial class Control_EliteDangerousBackgroundLayer
 
     private void ColorPicker_CombatMode_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is EliteDangerousBackgroundLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as EliteDangerousBackgroundLayerHandler).Properties._CombatModeColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is EliteDangerousBackgroundLayerHandler context && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+            context.Properties.CombatModeColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void ColorPicker_DiscoveryMode_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is EliteDangerousBackgroundLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as EliteDangerousBackgroundLayerHandler).Properties._DiscoveryModeColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is EliteDangerousBackgroundLayerHandler context && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+            context.Properties.DiscoveryModeColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 }

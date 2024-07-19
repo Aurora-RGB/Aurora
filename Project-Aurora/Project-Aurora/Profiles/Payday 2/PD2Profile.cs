@@ -23,7 +23,7 @@ namespace AuroraRgb.Profiles.Payday_2
                     Properties = new PercentLayerHandlerProperties()
                     {
                         _PrimaryColor =  Color.FromArgb(0, 255, 0),
-                        _SecondaryColor = Color.FromArgb(255, 0, 0),
+                        SecondaryColor = Color.FromArgb(255, 0, 0),
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new DeviceKeys[] {
                             DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4,
@@ -41,7 +41,7 @@ namespace AuroraRgb.Profiles.Payday_2
                     Properties = new PercentLayerHandlerProperties()
                     {
                         _PrimaryColor =  Color.FromArgb(0, 0, 255),
-                        _SecondaryColor = Color.FromArgb(255, 0, 0),
+                        SecondaryColor = Color.FromArgb(255, 0, 0),
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new DeviceKeys[] {
                             DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR,

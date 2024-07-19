@@ -23,18 +23,22 @@ public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Co
     [JsonIgnore]
     public bool RandomSecondaryColor => Logic?._RandomSecondaryColor ?? _RandomSecondaryColor ?? false;
 
-    [LogicOverridable("Effect Speed")]
-    public double? _EffectSpeed { get; set; }
+    private double? _effectSpeed;
 
-    [JsonIgnore]
-    public double EffectSpeed => Logic?._EffectSpeed ?? _EffectSpeed ?? 0.0;
+    [JsonProperty("_EffectSpeed")]
+    [LogicOverridable("Effect Speed")]
+    public double EffectSpeed
+    {
+        get => Logic?._EffectSpeed ?? _effectSpeed ?? 0.0;
+        set => _effectSpeed = value;
+    }
 
     private CurveFunction? _curveFunction;
 
     [LogicOverridable]
     public CurveFunction CurveFunction
     {
-        get => Logic?._curveFunction != CurveFunction.Unset ? Logic?._curveFunction ?? CurveFunction.SineSquared : CurveFunction.SineSquared;
+        get => Logic?._curveFunction ?? _curveFunction ?? CurveFunction.SineSquared;
         set => _curveFunction = value;
     }
 
@@ -51,7 +55,7 @@ public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Co
         base.Default();
         _RandomPrimaryColor = false;
         _RandomSecondaryColor = false;
-        _EffectSpeed = 1.0f;
+        _effectSpeed = 1.0f;
     }
 }
 

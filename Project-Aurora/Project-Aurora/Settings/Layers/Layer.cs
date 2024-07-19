@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
+using AuroraRgb.Settings.Layers.Exceptions;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Utils;
 using Newtonsoft.Json;
@@ -66,18 +67,27 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
         if (OverrideLogic != null)
         {
             // For every property which has an override logic assigned
-            foreach (var kvp in OverrideLogic)
+            foreach (var (key, overrideLogic) in OverrideLogic)
                 // Set the value of the logic evaluation as the override for this property
             {
-                var value = kvp.Value.Evaluate(gs);
-                if (kvp.Value.VarType is { IsEnum: true })
+                var value = overrideLogic.Evaluate(gs);
+                try
                 {
-                    ((IValueOverridable)Handler.Properties).SetOverride(kvp.Key,
-                        value == null ? null : Enum.ToObject(kvp.Value.VarType, value));
+                    if (overrideLogic.VarType is { IsEnum: true })
+                    {
+                        ((IValueOverridable)Handler.Properties).SetOverride(key,
+                            value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
+                    }
+                    else
+                    {
+                        ((IValueOverridable)Handler.Properties).SetOverride(key, value);
+                    }
                 }
-                else
+                catch (OverrideNameRefactoredException)
                 {
-                    ((IValueOverridable)Handler.Properties).SetOverride(kvp.Key, value);
+                    OverrideLogic.Remove(key);
+                    OverrideLogic.Add(key[1..], overrideLogic);
+                    break;
                 }
             }
         }
@@ -91,7 +101,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             Error = false;
             return effectLayer;
         }
-        catch (Exception e)
+        catch (System.Exception e)
         {
             if (++_renderErrors == 3)
             {

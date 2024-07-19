@@ -8,7 +8,7 @@ using Common.Devices;
 
 namespace AuroraRgb.Profiles.Minecraft.Layers {
 
-    public class MinecraftKeyConflictLayerProperties : LayerHandlerProperties2Color<MinecraftKeyConflictLayerProperties> {
+    public partial class MinecraftKeyConflictLayerProperties : LayerHandlerProperties2Color<MinecraftKeyConflictLayerProperties> {
 
         // PrimaryColor -> No conflict
         // SecondaryColor -> Hard conflict
@@ -24,7 +24,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         public override void Default() {
             base.Default();
             _PrimaryColor = Color.FromArgb(0, 255, 0);
-            _SecondaryColor = Color.FromArgb(255, 0, 0);
+            SecondaryColor = Color.FromArgb(255, 0, 0);
             _TertiaryColor = Color.FromArgb(255, 127, 0);
         }
     }

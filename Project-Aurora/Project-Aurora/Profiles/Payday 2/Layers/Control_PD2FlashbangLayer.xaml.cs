@@ -1,50 +1,49 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using AuroraRgb.Utils;
+using Xceed.Wpf.Toolkit;
 
-namespace AuroraRgb.Profiles.Payday_2.Layers
+namespace AuroraRgb.Profiles.Payday_2.Layers;
+
+/// <summary>
+/// Interaction logic for Control_PD2FlashbangLayer.xaml
+/// </summary>
+public partial class Control_PD2FlashbangLayer
 {
-    /// <summary>
-    /// Interaction logic for Control_PD2FlashbangLayer.xaml
-    /// </summary>
-    public partial class Control_PD2FlashbangLayer : UserControl
+    private bool _settingsSet;
+
+    public Control_PD2FlashbangLayer()
     {
-        private bool settingsset = false;
+        InitializeComponent();
+    }
 
-        public Control_PD2FlashbangLayer()
+    public Control_PD2FlashbangLayer(PD2FlashbangLayerHandler dataContext)
+    {
+        InitializeComponent();
+
+        DataContext = dataContext;
+    }
+
+    public void SetSettings()
+    {
+        if (DataContext is PD2FlashbangLayerHandler layerHandler && !_settingsSet)
         {
-            InitializeComponent();
+            ColorPicker_Flashbang.SelectedColor = ColorUtils.DrawingColorToMediaColor(layerHandler.Properties.FlashbangColor);
+
+            _settingsSet = true;
         }
+    }
 
-        public Control_PD2FlashbangLayer(PD2FlashbangLayerHandler datacontext)
-        {
-            InitializeComponent();
+    private void UserControl_Loaded(object? sender, RoutedEventArgs e)
+    {
+        SetSettings();
 
-            this.DataContext = datacontext;
-        }
+        Loaded -= UserControl_Loaded;
+    }
 
-        public void SetSettings()
-        {
-            if (this.DataContext is PD2FlashbangLayerHandler && !settingsset)
-            {
-                this.ColorPicker_Flashbang.SelectedColor = ColorUtils.DrawingColorToMediaColor((this.DataContext as PD2FlashbangLayerHandler).Properties._FlashbangColor ?? System.Drawing.Color.Empty);
-
-                settingsset = true;
-            }
-        }
-
-        private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-        {
-            SetSettings();
-
-            this.Loaded -= UserControl_Loaded;
-        }
-
-        private void ColorPicker_Flashbang_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is PD2FlashbangLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as PD2FlashbangLayerHandler).Properties._FlashbangColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Flashbang_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsSet && DataContext is PD2FlashbangLayerHandler layerHandler && sender is ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.FlashbangColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 }

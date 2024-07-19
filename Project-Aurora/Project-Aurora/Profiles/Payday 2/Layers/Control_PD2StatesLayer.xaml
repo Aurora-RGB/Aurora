@@ -8,16 +8,16 @@
     
     <Grid>
         <Label HorizontalAlignment="Left" Padding="0" Content="Downed Color:" VerticalAlignment="Top" Margin="0,3,0,0"/>
-        <xctk:ColorPicker x:Name="clrDowned" Margin="84,0,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="160" UsingAlphaChannel="True" ColorMode="ColorCanvas" SelectedColor="{Binding Path=_DownedColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <xctk:ColorPicker x:Name="clrDowned" Margin="84,0,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="160" UsingAlphaChannel="True" ColorMode="ColorCanvas" SelectedColor="{Binding Path=DownedColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <Label HorizontalAlignment="Left" Margin="0,32,0,0" Padding="0" Content="Arrested Color:" VerticalAlignment="Top"/>
-        <xctk:ColorPicker x:Name="clrArrested" Margin="84,29,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="160" ColorMode="ColorCanvas" UsingAlphaChannel="True" SelectedColor="{Binding _ArrestedColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <xctk:ColorPicker x:Name="clrArrested" Margin="84,29,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="160" ColorMode="ColorCanvas" UsingAlphaChannel="True" SelectedColor="{Binding ArrestedColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         <Label HorizontalAlignment="Left" Margin="0,87,0,0" Padding="0" Content="Swan Song Color:" VerticalAlignment="Top"/>
-        <xctk:ColorPicker x:Name="clr_SwanSong" Margin="98,84,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="146" ColorMode="ColorCanvas" UsingAlphaChannel="True" SelectedColor="{Binding _SwanSongColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <xctk:ColorPicker x:Name="clr_SwanSong" Margin="98,84,0,0" Height="24" VerticalAlignment="Top" HorizontalAlignment="Left" Width="146" ColorMode="ColorCanvas" UsingAlphaChannel="True" SelectedColor="{Binding SwanSongColor, Converter={StaticResource DrawingToMediaColorConv}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
         <TextBlock HorizontalAlignment="Left" Margin="0,115,0,0" TextWrapping="Wrap" Text="Swan Song Speed:" VerticalAlignment="Top"/>
         <Label x:Name="lblSwanSongSpeed" Content="x 1" HorizontalAlignment="Left" Margin="262,108,0,0" VerticalAlignment="Top"/>
-        <Slider x:Name="sldSwanSongSpeed" HorizontalAlignment="Left" Margin="102,113,0,0" VerticalAlignment="Top" Width="155" Minimum="0.5" Maximum="1.5" SmallChange="0.25" Value="{Binding _SwanSongSpeedMultiplier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="sldSwanSongSpeed_ValueChanged"/>
+        <Slider x:Name="sldSwanSongSpeed" HorizontalAlignment="Left" Margin="102,113,0,0" VerticalAlignment="Top" Width="155" Minimum="0.5" Maximum="1.5" SmallChange="0.25" Value="{Binding SwanSongSpeedMultiplier, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="sldSwanSongSpeed_ValueChanged"/>
 
-        <CheckBox x:Name="chkbx_UseSwanSong" Content="Enable Swan Song effect" HorizontalAlignment="Left" Margin="0,63,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=_ShowSwanSong, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        <CheckBox x:Name="chkbx_UseSwanSong" Content="Enable Swan Song effect" HorizontalAlignment="Left" Margin="0,63,0,0" VerticalAlignment="Top" IsChecked="{Binding Path=ShowSwanSong, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
     </Grid>
 </UserControl>

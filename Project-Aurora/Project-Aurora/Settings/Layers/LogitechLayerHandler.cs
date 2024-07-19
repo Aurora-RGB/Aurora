@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLayerHandlerProperties>
+public partial class LogitechLayerHandlerProperties : LayerHandlerProperties<LogitechLayerHandlerProperties>
 {
     private bool? _colorPostProcessEnabled;
     [JsonProperty("_ColorPostProcessEnabled")]

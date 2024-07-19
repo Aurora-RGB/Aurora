@@ -77,7 +77,7 @@ namespace AuroraRgb.Profiles.Slime_Rancher
                         VariablePath = new VariablePath("Player/Health/Current"),
                         MaxVariablePath = new VariablePath("Player/Health/Max"),
                         _PrimaryColor = Color.FromArgb(255, 17, 17),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         _Sequence = new KeySequence(new[] {
                             DK.Q, DK.W, DK.E, DK.R, DK.T, DK.Y, DK.U, DK.I, DK.O, DK.P, DK.OPEN_BRACKET, DK.CLOSE_BRACKET
                         })
@@ -89,7 +89,7 @@ namespace AuroraRgb.Profiles.Slime_Rancher
                         VariablePath = new VariablePath("Player/Energy/Current"),
                         MaxVariablePath = new VariablePath("Player/Energy/Max"),
                         _PrimaryColor = Color.FromArgb(9, 173, 233),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         _Sequence = new KeySequence(new[] {
                             DK.A, DK.S, DK.D, DK.F, DK.G, DK.H, DK.J, DK.K, DK.L, DK.SEMICOLON, DK.APOSTROPHE
                         })
@@ -101,7 +101,7 @@ namespace AuroraRgb.Profiles.Slime_Rancher
                         VariablePath = new VariablePath("Player/Radiation/Current"),
                         MaxVariablePath = new VariablePath("Player/Radiation/Max"),
                         _PrimaryColor = Color.FromArgb(60, 233, 118),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         _Sequence = new KeySequence(new[] {
                             DK.Z, DK.X, DK.C, DK.V, DK.B, DK.N, DK.M, DK.COMMA, DK.PERIOD, DK.FORWARD_SLASH
                         })

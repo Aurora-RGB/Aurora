@@ -9,104 +9,100 @@ using AuroraRgb.Utils;
 using Common.Devices;
 using Newtonsoft.Json;
 
-namespace AuroraRgb.Profiles.Payday_2.Layers
+namespace AuroraRgb.Profiles.Payday_2.Layers;
+
+public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Color<PD2StatesLayerHandlerProperties>
 {
-    public class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Color<PD2StatesLayerHandlerProperties>
+    private Color? _downedColor;
+
+    [JsonProperty("_DownedColor")]
+    public Color DownedColor => Logic?._DownedColor ?? _downedColor ?? Color.Empty;
+
+    private Color? _arrestedColor;
+
+    [JsonProperty("_ArrestedColor")]
+    public Color ArrestedColor => Logic?._ArrestedColor ?? _arrestedColor ?? Color.Empty;
+
+    private Color? _swanSongColor;
+
+    [JsonProperty("_SwanSongColor")]
+    public Color SwanSongColor => Logic?._SwanSongColor ?? _swanSongColor ?? Color.Empty;
+
+    private bool? _showSwanSong;
+
+    [JsonProperty("_ShowSwanSong")]
+    public bool ShowSwanSong => Logic?._ShowSwanSong ?? _showSwanSong ?? false;
+
+    private float? _swanSongSpeedMultiplier;
+
+    [JsonProperty("_SwanSongSpeedMultiplier")]
+    public float SwanSongSpeedMultiplier => Logic?._SwanSongSpeedMultiplier ?? _swanSongSpeedMultiplier ?? 0.0F;
+
+    public PD2StatesLayerHandlerProperties()
+    { }
+
+    public PD2StatesLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
+
+    public override void Default()
     {
-        public Color? _DownedColor { get; set; }
+        base.Default();
 
-        [JsonIgnore]
-        public Color DownedColor { get { return Logic?._DownedColor ?? _DownedColor ?? Color.Empty; } }
-
-        public Color? _ArrestedColor { get; set; }
-
-        [JsonIgnore]
-        public Color ArrestedColor { get { return Logic?._ArrestedColor ?? _ArrestedColor ?? Color.Empty; } }
-
-        public Color? _SwanSongColor { get; set; }
-
-        [JsonIgnore]
-        public Color SwanSongColor { get { return Logic?._SwanSongColor ?? _SwanSongColor ?? Color.Empty; } }
-
-        public bool? _ShowSwanSong { get; set; }
-
-        [JsonIgnore]
-        public bool ShowSwanSong { get { return Logic?._ShowSwanSong ?? _ShowSwanSong ?? false; } }
-
-        public float? _SwanSongSpeedMultiplier { get; set; }
-
-        [JsonIgnore]
-        public float SwanSongSpeedMultiplier { get { return Logic?._SwanSongSpeedMultiplier ?? _SwanSongSpeedMultiplier ?? 0.0F; } }
-
-        public PD2StatesLayerHandlerProperties() : base() { }
-
-        public PD2StatesLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
-        public override void Default()
-        {
-            base.Default();
-
-            _DownedColor = Color.White;
-            _ArrestedColor = Color.DarkRed;
-            _ShowSwanSong = true;
-            _SwanSongColor = Color.FromArgb(158, 205, 255);
-            _SwanSongSpeedMultiplier = 1.0f;
-        }
-
+        _downedColor = Color.White;
+        _arrestedColor = Color.DarkRed;
+        _showSwanSong = true;
+        _swanSongColor = Color.FromArgb(158, 205, 255);
+        _swanSongSpeedMultiplier = 1.0f;
     }
 
-    public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerProperties>
+}
+
+public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerProperties>
+{
+    protected override UserControl CreateControl()
     {
-        protected override UserControl CreateControl()
-        {
-            return new Control_PD2StatesLayer(this);
-        }
+        return new Control_PD2StatesLayer(this);
+    }
 
-        public override EffectLayer Render(IGameState state)
-        {
-            EffectLayer states_layer = new EffectLayer("Payday 2 - States");
+    public override EffectLayer Render(IGameState state)
+    {
+        var statesLayer = new EffectLayer("Payday 2 - States");
 
-            if (state is GameState_PD2)
+        if (state is not GameState_PD2 pd2State) return statesLayer;
+
+        if (pd2State.Game.State != GameStates.Ingame) return statesLayer;
+        switch (pd2State.LocalPlayer.State)
+        {
+            case PlayerState.Incapacitated or PlayerState.Bleed_out or PlayerState.Fatal:
             {
-                GameState_PD2 pd2state = (GameState_PD2)state;
+                var incapAlpha = (int)(pd2State.LocalPlayer.DownTime > 10 ? 0 : 255 * (1.0D - (double)pd2State.LocalPlayer.DownTime / 10.0D));
 
-                if (pd2state.Game.State == GameStates.Ingame)
-                {
-                    if (pd2state.LocalPlayer.State == PlayerState.Incapacitated || pd2state.LocalPlayer.State == PlayerState.Bleed_out || pd2state.LocalPlayer.State == PlayerState.Fatal)
-                    {
-                        int incapAlpha = (int)(pd2state.LocalPlayer.DownTime > 10 ? 0 : 255 * (1.0D - (double)pd2state.LocalPlayer.DownTime / 10.0D));
+                if (incapAlpha > 255)
+                    incapAlpha = 255;
+                else if (incapAlpha < 0)
+                    incapAlpha = 0;
 
-                        if (incapAlpha > 255)
-                            incapAlpha = 255;
-                        else if (incapAlpha < 0)
-                            incapAlpha = 0;
+                var incapColor = Color.FromArgb(incapAlpha, Properties.DownedColor);
 
-                        Color incapColor = Color.FromArgb(incapAlpha, Properties.DownedColor);
-
-                        states_layer.FillOver(incapColor);
-                        states_layer.Set(DeviceKeys.Peripheral, incapColor);
-                    }
-                    else if (pd2state.LocalPlayer.State == PlayerState.Arrested)
-                    {
-                        states_layer.FillOver(Properties.ArrestedColor);
-                        states_layer.Set(DeviceKeys.Peripheral, Properties.ArrestedColor);
-                    }
-
-                    if (pd2state.LocalPlayer.IsSwanSong && Properties.ShowSwanSong)
-                    {
-                        double blend_percent = Math.Pow(Math.Cos((Time.GetMillisecondsSinceEpoch() % 1300L) / 1300.0D * Properties.SwanSongSpeedMultiplier * 2.0D * Math.PI), 2.0D);
-
-                        Color swansongColor = ColorUtils.MultiplyColorByScalar(Properties.SwanSongColor, blend_percent);
-
-                        EffectLayer swansong_layer = new EffectLayer("Payday 2 - Swansong", swansongColor);
-                        swansong_layer.Set(DeviceKeys.Peripheral, swansongColor);
-
-                        states_layer += swansong_layer;
-                    }
-                }
+                statesLayer.FillOver(incapColor);
+                statesLayer.Set(DeviceKeys.Peripheral, incapColor);
+                break;
             }
-
-            return states_layer;
+            case PlayerState.Arrested:
+                statesLayer.FillOver(Properties.ArrestedColor);
+                statesLayer.Set(DeviceKeys.Peripheral, Properties.ArrestedColor);
+                break;
         }
+
+        if (!pd2State.LocalPlayer.IsSwanSong || !Properties.ShowSwanSong) return statesLayer;
+        var blendPercent = Math.Pow(Math.Cos((Time.GetMillisecondsSinceEpoch() % 1300L) / 1300.0D * Properties.SwanSongSpeedMultiplier * 2.0D * Math.PI), 2.0D);
+
+        var swansongColor = ColorUtils.MultiplyColorByScalar(Properties.SwanSongColor, blendPercent);
+
+        var swansongLayer = new EffectLayer("Payday 2 - Swansong", swansongColor);
+        swansongLayer.Set(DeviceKeys.Peripheral, swansongColor);
+
+        statesLayer += swansongLayer;
+
+        return statesLayer;
     }
 }

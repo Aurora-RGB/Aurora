@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class GlitchLayerHandlerProperties<TProperty> : LayerHandlerProperties2Color<TProperty> where TProperty : GlitchLayerHandlerProperties<TProperty>
+public partial class GlitchLayerHandlerProperties<TProperty> : LayerHandlerProperties2Color<TProperty> where TProperty : GlitchLayerHandlerProperties<TProperty>
 {
     private double? _updateInterval;
 
@@ -57,7 +57,7 @@ public class GlitchLayerHandlerProperties<TProperty> : LayerHandlerProperties2Co
     }
 }
 
-public class GlitchLayerHandlerProperties : GlitchLayerHandlerProperties<GlitchLayerHandlerProperties>
+public partial class GlitchLayerHandlerProperties : GlitchLayerHandlerProperties<GlitchLayerHandlerProperties>
 {
     public GlitchLayerHandlerProperties()
     { }
@@ -109,7 +109,7 @@ public class GlitchLayerHandler<TProperty>() : LayerHandler<TProperty>("Glitch L
 }
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
-[LogicOverrideIgnoreProperty("_SecondaryColor")]
+[LogicOverrideIgnoreProperty("SecondaryColor")]
 public class GlitchLayerHandler : GlitchLayerHandler<GlitchLayerHandlerProperties>
 {
     protected override UserControl CreateControl()

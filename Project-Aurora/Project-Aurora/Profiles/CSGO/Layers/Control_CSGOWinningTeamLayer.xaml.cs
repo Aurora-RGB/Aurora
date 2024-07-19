@@ -25,10 +25,10 @@ public partial class Control_CSGOWinningTeamLayer
 
     public void SetSettings()
     {
-        if (DataContext is CSGOWinningTeamLayerHandler && !settingsset)
+        if (DataContext is CSGOWinningTeamLayerHandler layerHandler && !settingsset)
         {
-            ColorPicker_CT.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOWinningTeamLayerHandler).Properties._CTColor ?? System.Drawing.Color.Empty);
-            ColorPicker_T.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOWinningTeamLayerHandler).Properties._TColor ?? System.Drawing.Color.Empty);
+            ColorPicker_CT.SelectedColor = ColorUtils.DrawingColorToMediaColor(layerHandler.Properties.CtColor);
+            ColorPicker_T.SelectedColor = ColorUtils.DrawingColorToMediaColor(layerHandler.Properties.TColor);
 
             settingsset = true;
         }
@@ -43,13 +43,13 @@ public partial class Control_CSGOWinningTeamLayer
 
     private void ColorPicker_CT_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOWinningTeamLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOWinningTeamLayerHandler).Properties._CTColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is CSGOWinningTeamLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
+            layerHandler.Properties.CtColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
     }
 
     private void ColorPicker_T_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOWinningTeamLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOWinningTeamLayerHandler).Properties._TColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is CSGOWinningTeamLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
+            layerHandler.Properties.CtColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
     }
 }

@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.RocketLeague.Layers;
 
-public class RocketLeagueGoalExplosionProperties : LayerHandlerProperties<RocketLeagueGoalExplosionProperties>
+public partial class RocketLeagueGoalExplosionProperties : LayerHandlerProperties<RocketLeagueGoalExplosionProperties>
 {
     private bool? _showFriendlyGoalExplosion;
 

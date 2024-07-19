@@ -9,22 +9,27 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Payday_2.Layers
 {
-    public class PD2FlashbangLayerHandlerProperties : LayerHandlerProperties2Color<PD2FlashbangLayerHandlerProperties>
+    public partial class PD2FlashbangLayerHandlerProperties : LayerHandlerProperties2Color<PD2FlashbangLayerHandlerProperties>
     {
-        public Color? _FlashbangColor { get; set; }
+        private Color? _flashbangColor;
 
-        [JsonIgnore]
-        public Color FlashbangColor { get { return Logic?._FlashbangColor ?? _FlashbangColor ?? Color.Empty; } }
+        [JsonProperty("_FlashbangColor")]
+        public Color FlashbangColor
+        {
+            get => Logic?._FlashbangColor ?? _flashbangColor ?? Color.Empty;
+            set => _flashbangColor = value;
+        }
 
-        public PD2FlashbangLayerHandlerProperties() : base() { }
+        public PD2FlashbangLayerHandlerProperties()
+        { }
 
-        public PD2FlashbangLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+        public PD2FlashbangLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
         public override void Default()
         {
             base.Default();
 
-            this._FlashbangColor = Color.FromArgb(255, 255, 255);
+            _flashbangColor = Color.FromArgb(255, 255, 255);
         }
 
     }
@@ -38,22 +43,16 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
 
         public override EffectLayer Render(IGameState state)
         {
-            EffectLayer flashed_layer = new EffectLayer("Payday 2 - Flashed");
+            var flashedLayer = new EffectLayer("Payday 2 - Flashed");
 
-            if (state is GameState_PD2)
-            {
-                GameState_PD2 pd2state = state as GameState_PD2;
+            if (state is not GameState_PD2 pd2State) return flashedLayer;
+            //Update Flashed
+            if (pd2State.Game.State != GameStates.Ingame || !(pd2State.LocalPlayer.FlashAmount > 0)) return flashedLayer;
+            var flashColor = ColorUtils.MultiplyColorByScalar(Properties.FlashbangColor, pd2State.LocalPlayer.FlashAmount);
 
-                //Update Flashed
-                if (pd2state.Game.State == GameStates.Ingame && pd2state.LocalPlayer.FlashAmount > 0)
-                {
-                    Color flash_color = ColorUtils.MultiplyColorByScalar(Properties.FlashbangColor, pd2state.LocalPlayer.FlashAmount);
+            flashedLayer.FillOver(flashColor);
 
-                    flashed_layer.FillOver(flash_color);
-                }
-            }
-
-            return flashed_layer;
+            return flashedLayer;
         }
     }
 }

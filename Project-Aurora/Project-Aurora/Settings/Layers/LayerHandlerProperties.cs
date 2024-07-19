@@ -1,27 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using AuroraRgb.Profiles;
+using AuroraRgb.Settings.Layers.Exceptions;
 using AuroraRgb.Settings.Overrides;
 using Common.Utils;
-using FastMember;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
+public interface LogicHolder<T> where T : LayerHandlerPropertiesLogic {
+    [GameStateIgnore, JsonIgnore]
+    public T? Logic { get; set; }
+}
+
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithInheritors)]
-public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INotifyPropertyChanged, IDisposable
+public abstract partial class LayerHandlerProperties<TProperty> : IValueOverridable, INotifyPropertyChanged, IDisposable
     where TProperty : LayerHandlerProperties<TProperty>
 {
-    private static readonly Lazy<TypeAccessor> Accessor = new(() => TypeAccessor.Create(typeof(TProperty), false));
-
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    [GameStateIgnore, JsonIgnore] public TProperty? Logic { get; private set; }
+    [GameStateIgnore, JsonIgnore] public virtual LayerHandlerPropertiesLogic? Logic { get; set; }
 
     [JsonIgnore] private Color? _primaryColor;
 
@@ -36,7 +38,11 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
         }
     }
 
-    [JsonIgnore] public Color PrimaryColor => Logic?._PrimaryColor ?? _PrimaryColor ?? Color.Empty;
+    [JsonIgnore] public Color PrimaryColor
+    {
+        get => Logic?._PrimaryColor ?? _PrimaryColor ?? Color.Empty;
+        set => _primaryColor = value;
+    }
 
     [JsonIgnore] private KeySequence _sequence;
 
@@ -47,10 +53,11 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
         set => SetFieldAndRaisePropertyChanged(out _sequence, value);
     }
 
-    [JsonIgnore] public KeySequence Sequence => Logic?._Sequence ?? _Sequence;
-
-    [JsonIgnore]
-    public virtual IReadOnlyDictionary<string, Action<IValueOverridable, object?>> SetterMap { get; } = new Dictionary<string, Action<IValueOverridable, object?>>();
+    [JsonIgnore] public KeySequence Sequence
+    {
+        get => Logic?._Sequence ?? _Sequence;
+        set => _Sequence = value;
+    }
 
     #region Override Special Properties
 
@@ -89,7 +96,7 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
             Logic.PropertyChanged -= OnPropertiesChanged;
         }
 
-        Logic = (TProperty)Activator.CreateInstance(typeof(TProperty), new object[] { true })!;
+        Logic = GeneratedLogics.LogicMap[GetType().Name]();
         Logic.PropertyChanged += OnPropertiesChanged;
         _PrimaryColor = CommonColorUtils.GenerateRandomColor();
         if (_Sequence != null)
@@ -103,38 +110,19 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
 
     public void SetOverride(string propertyName, object? value)
     {
-        if (SetterMap.TryGetValue(propertyName, out var setter))
+        if (Logic == null)
         {
-            setter(Logic!, value);
             return;
         }
-        
-        try
+        if (Logic.SetterMap.TryGetValue(propertyName, out var setter))
         {
-            if (Accessor.Value[Logic, propertyName] == value)
-            {
-                return;
-            }
-
-            if (value != null && value.Equals(Accessor.Value[Logic, propertyName])) return;
-            if (value == null)
-            {
-                try
-                {
-                    Accessor.Value[Logic, propertyName] = value;
-                }
-                catch (NullReferenceException)
-                {
-                    //handle primitive type unboxing
-                }
-
-                return;
-            }
-
-            Accessor.Value[Logic, propertyName] = value;
+            setter(Logic, value);
+            return;
         }
-        catch (ArgumentOutOfRangeException)
+
+        if (propertyName.StartsWith('_') && Logic.SetterMap.TryGetValue(propertyName[1..], out _))
         {
+            throw new OverrideNameRefactoredException();
         }
     }
 
@@ -171,7 +159,7 @@ public abstract class LayerHandlerProperties<TProperty> : IValueOverridable, INo
     }
 }
 
-public class LayerHandlerProperties : LayerHandlerProperties<LayerHandlerProperties>
+public partial class LayerHandlerProperties : LayerHandlerProperties<LayerHandlerProperties>
 {
     public LayerHandlerProperties()
     {

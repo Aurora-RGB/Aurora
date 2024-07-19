@@ -3,35 +3,66 @@ using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Witcher3.GSI;
 using AuroraRgb.Settings.Layers;
+using Newtonsoft.Json;
 using Witcher3Gsi;
 
 namespace AuroraRgb.Profiles.Witcher3.Layers;
 
-public class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Witcher3BackgroundLayerHandlerProperties>
+public partial class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Witcher3BackgroundLayerHandlerProperties>
 {
-    public Color? _DefaultColor { get; set; }
+    private Color? _defaultColor;
 
-    public Color DefaultColor => Logic?._DefaultColor ?? _DefaultColor ?? Color.Empty;
+    [JsonProperty("_DefaultColor")]
+    public Color DefaultColor
+    {
+        get => Logic?._DefaultColor ?? _defaultColor ?? Color.Empty;
+        set => _defaultColor = value;
+    }
 
-    public Color? _QuenColor { get; set; }
+    private Color? _quenColor;
 
-    public Color QuenColor => Logic?._QuenColor ?? _QuenColor ?? Color.Empty;
+    [JsonProperty("_QuenColor")]
+    public Color QuenColor
+    {
+        get => Logic?._QuenColor ?? _quenColor ?? Color.Empty;
+        set => _quenColor = value;
+    }
 
-    public Color? _IgniColor { get; set; }
+    private Color? _igniColor;
 
-    public Color IgniColor => Logic?._IgniColor ?? _IgniColor ?? Color.Empty;
+    [JsonProperty("_IgniColor")]
+    public Color IgniColor
+    {
+        get => Logic?._IgniColor ?? _igniColor ?? Color.Empty;
+        set => _igniColor = value;
+    }
 
-    public Color? _AardColor { get; set; }
+    private Color? _aardColor;
 
-    public Color AardColor => Logic?._AardColor ?? _AardColor ?? Color.Empty;
+    [JsonProperty("_AardColor")]
+    public Color AardColor
+    {
+        get => Logic?._AardColor ?? _aardColor ?? Color.Empty;
+        set => _aardColor = value;
+    }
 
-    public Color? _YrdenColor { get; set; }
+    private Color? _yrdenColor;
 
-    public Color YrdenColor => Logic?._YrdenColor ?? _YrdenColor ?? Color.Empty;
+    [JsonProperty("_YrdenColor")]
+    public Color YrdenColor
+    {
+        get => Logic?._YrdenColor ?? _yrdenColor ?? Color.Empty;
+        set => _yrdenColor = value;
+    }
 
-    public Color? _AxiiColor { get; set; }
+    private Color? _axiiColor;
 
-    public Color AxiiColor => Logic?._AxiiColor ?? _AxiiColor ?? Color.Empty;
+    [JsonProperty("_AxiiColor")]
+    public Color AxiiColor
+    {
+        get => Logic?._AxiiColor ?? _axiiColor ?? Color.Empty;
+        set => _axiiColor = value;
+    }
 
 
     public Witcher3BackgroundLayerHandlerProperties()
@@ -42,22 +73,18 @@ public class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProperties2C
     public override void Default()
     {
         base.Default();
-        _DefaultColor = Color.Gray;
-        _QuenColor = Color.Yellow;
-        _IgniColor = Color.Red;
-        _AardColor = Color.Blue;
-        _YrdenColor = Color.Purple;
-        _AxiiColor = Color.Green;
+        _defaultColor = Color.Gray;
+        _quenColor = Color.Yellow;
+        _igniColor = Color.Red;
+        _aardColor = Color.Blue;
+        _yrdenColor = Color.Purple;
+        _axiiColor = Color.Green;
     }
 }
 
-public class Witcher3BackgroundLayerHandler : LayerHandler<Witcher3BackgroundLayerHandlerProperties>
+public class Witcher3BackgroundLayerHandler() : LayerHandler<Witcher3BackgroundLayerHandlerProperties>("Witcher3 - Background")
 {
     private readonly SolidBrush _currentColor = new(Color.White);
-    
-    public Witcher3BackgroundLayerHandler() : base("Witcher3 - Background")
-    {
-    }
 
     protected override UserControl CreateControl()
     {
@@ -68,7 +95,7 @@ public class Witcher3BackgroundLayerHandler : LayerHandler<Witcher3BackgroundLay
     {
         if (gameState is not GameStateWitcher3 witcher3State) return EffectLayer.EmptyLayer;
 
-        Color bgColor = witcher3State.Player.ActiveSign switch
+        var bgColor = witcher3State.Player.ActiveSign switch
         {
             WitcherSign.Aard => Properties.AardColor,
             WitcherSign.Igni => Properties.IgniColor,

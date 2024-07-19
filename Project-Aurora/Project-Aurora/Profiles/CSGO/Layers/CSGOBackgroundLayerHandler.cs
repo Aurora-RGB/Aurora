@@ -10,37 +10,61 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBackgroundLayerHandlerProperties>
+public partial class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBackgroundLayerHandlerProperties>
 {
-    public Color? _DefaultColor { get; set; }
+    private Color? _defaultColor;
 
-    [JsonIgnore]
-    public Color DefaultColor => Logic?._DefaultColor ?? _DefaultColor ?? Color.Empty;
+    [JsonProperty("_DefaultColor")]
+    public Color DefaultColor
+    {
+        get => Logic?._DefaultColor ?? _defaultColor ?? Color.Empty;
+        set => _defaultColor = value;
+    }
 
-    public Color? _CTColor { get; set; }
+    private Color? _ctColor;
 
-    [JsonIgnore]
-    public Color CTColor => Logic?._CTColor ?? _CTColor ?? Color.Empty;
+    [JsonProperty("_CTColor")]
+    public Color CtColor
+    {
+        get => Logic?.CtColor ?? _ctColor ?? Color.Empty;
+        set => _ctColor = value;
+    }
 
-    public Color? _TColor { get; set; }
+    private Color? _tColor;
 
-    [JsonIgnore]
-    public Color TColor => Logic?._TColor ?? _TColor ?? Color.Empty;
+    [JsonProperty("_TColor")]
+    public Color TColor
+    {
+        get => Logic?._TColor ?? _tColor ?? Color.Empty;
+        set => _tColor = value;
+    }
 
-    public bool? _DimEnabled { get; set; }
+    private bool? _dimEnabled;
 
-    [JsonIgnore]
-    public bool DimEnabled => Logic?._DimEnabled ?? _DimEnabled ?? false;
+    [JsonProperty("_DimEnabled")]
+    public bool DimEnabled
+    {
+        get => Logic?._DimEnabled ?? _dimEnabled ?? false;
+        set => _dimEnabled = value;
+    }
 
-    public double? _DimDelay { get; set; }
+    private double? _dimDelay;
 
-    [JsonIgnore]
-    public double DimDelay => Logic?._DimDelay ?? _DimDelay ?? 0.0;
+    [JsonProperty("_DimDelay")]
+    public double DimDelay
+    {
+        get => Logic?._DimDelay ?? _dimDelay ?? 0.0;
+        set => _dimDelay = value;
+    }
 
-    public int? _DimAmount { get; set; }
+    private int? _dimAmount;
 
-    [JsonIgnore]
-    public int DimAmount => Logic?._DimAmount ?? _DimAmount ?? 100;
+    [JsonProperty("_DimAmount")]
+    public int DimAmount
+    {
+        get => Logic?._DimAmount ?? _dimAmount ?? 100;
+        set => _dimAmount = value;
+    }
 
     public CSGOBackgroundLayerHandlerProperties()
     { }
@@ -51,14 +75,13 @@ public class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color
     {
         base.Default();
 
-        _DefaultColor = Color.FromArgb(158, 205, 255);
-        _CTColor = Color.FromArgb(33, 155, 221);
-        _TColor = Color.FromArgb(221, 99, 33);
-        _DimEnabled = true;
-        _DimDelay = 15;
-        _DimAmount = 20;
+        _defaultColor = Color.FromArgb(158, 205, 255);
+        _ctColor = Color.FromArgb(33, 155, 221);
+        _tColor = Color.FromArgb(221, 99, 33);
+        _dimEnabled = true;
+        _dimDelay = 15;
+        _dimAmount = 20;
     }
-
 }
 
 public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHandlerProperties>("CSGO - Background")
@@ -89,7 +112,7 @@ public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHand
         var bgColor = csgostate.Player.Team switch
         {
             PlayerTeam.T => Properties.TColor,
-            PlayerTeam.CT => Properties.CTColor,
+            PlayerTeam.CT => Properties.CtColor,
             _ => Properties.DefaultColor
         };
 

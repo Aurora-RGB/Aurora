@@ -9,30 +9,30 @@ namespace AuroraRgb.Profiles.CSGO.Layers;
 /// </summary>
 public partial class Control_CSGODeathLayer
 {
-    private bool settingsset;
+    private bool _settingsSet;
 
     public Control_CSGODeathLayer()
     {
         InitializeComponent();
     }
 
-    public Control_CSGODeathLayer(CSGODeathLayerHandler datacontext)
+    public Control_CSGODeathLayer(CSGODeathLayerHandler dataContext)
     {
         InitializeComponent();
 
-        DataContext = datacontext;
+        DataContext = dataContext;
     }
 
     public void SetSettings()
     {
-        if (DataContext is CSGODeathLayerHandler && !settingsset)
+        if (DataContext is CSGODeathLayerHandler layerHandler && !_settingsSet)
         {
-            CSGODeathLayerHandlerProperties properties = (DataContext as CSGODeathLayerHandler).Properties;
+            CSGODeathLayerHandlerProperties properties = layerHandler.Properties;
 
-            ColorPicker_DeathColor.SelectedColor = ColorUtils.DrawingColorToMediaColor(properties._DeathColor ?? System.Drawing.Color.Empty);
+            ColorPicker_DeathColor.SelectedColor = ColorUtils.DrawingColorToMediaColor(properties.DeathColor);
             IntegerUpDown_FadeOutAfter.Value = properties.FadeOutAfter;
 
-            settingsset = true;
+            _settingsSet = true;
         }
     }
 
@@ -45,13 +45,13 @@ public partial class Control_CSGODeathLayer
 
     private void ColorPicker_DeathColor_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGODeathLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGODeathLayerHandler).Properties._DeathColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGODeathLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.DeathColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void IntegerUpDown_FadeOutAfter_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGODeathLayerHandler && sender is Xceed.Wpf.Toolkit.IntegerUpDown && (sender as Xceed.Wpf.Toolkit.IntegerUpDown).Value.HasValue)
-            (DataContext as CSGODeathLayerHandler).Properties._FadeOutAfter = (sender as Xceed.Wpf.Toolkit.IntegerUpDown).Value;
+        if (IsLoaded && _settingsSet && DataContext is CSGODeathLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.IntegerUpDown { Value: not null } down)
+            layerHandler.Properties.FadeOutAfter = down.Value ?? 0;
     }
 }

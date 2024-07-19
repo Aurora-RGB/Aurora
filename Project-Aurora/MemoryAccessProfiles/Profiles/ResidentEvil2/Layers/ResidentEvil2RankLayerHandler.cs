@@ -10,7 +10,7 @@ using MemoryAccessProfiles.Profiles.ResidentEvil2.GSI.Nodes;
 
 namespace MemoryAccessProfiles.Profiles.ResidentEvil2.Layers;
 
-public class ResidentEvil2RankLayerHandlerProperties : LayerHandlerProperties2Color<ResidentEvil2RankLayerHandlerProperties>
+public partial class ResidentEvil2RankLayerHandlerProperties : LayerHandlerProperties2Color<ResidentEvil2RankLayerHandlerProperties>
 {
     public ResidentEvil2RankLayerHandlerProperties()
     { }

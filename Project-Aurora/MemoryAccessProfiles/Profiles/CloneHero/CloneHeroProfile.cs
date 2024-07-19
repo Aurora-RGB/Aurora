@@ -28,7 +28,7 @@ public class CloneHeroProfile : ApplicationProfile
                         InteractiveEffect = InteractiveEffects.KeyPress,
                         EffectWidth = 1,
                         UsePressBuffer = null,
-                        _SecondaryColor = Color.FromArgb(0, 9, 43, 83),
+                        SecondaryColor = Color.FromArgb(0, 9, 43, 83),
                         _PrimaryColor = Color.FromArgb(243, 244, 2)
                     }
                 }, new OverrideLogicBuilder()
@@ -72,7 +72,7 @@ public class CloneHeroProfile : ApplicationProfile
                                 },
                             }
                         },
-                        _SecondaryColor = Color.FromArgb(76, 143, 247),
+                        SecondaryColor = Color.FromArgb(76, 143, 247),
                         _PrimaryColor = Color.FromArgb(156, 65, 212),
                         _Sequence = new KeySequence(new FreeFormObject(-26.54f, -10.15f, 1008.21f, 257.18f))
 
@@ -179,7 +179,7 @@ public class CloneHeroProfile : ApplicationProfile
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new FreeFormObject(646.37f, 41.39f, 195f, 148.65f, -90)),
                     _PrimaryColor = Color.FromArgb(0, 227, 255),
-                    _SecondaryColor = Color.Black,
+                    SecondaryColor = Color.Black,
                     BlinkThreshold = 0.0,
                     BlinkDirection = false,
                     VariablePath = new VariablePath("Player/StarPowerPercent"),
@@ -243,7 +243,7 @@ public class CloneHeroProfile : ApplicationProfile
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new FreeFormObject((float)-2.75, (float)-2.61, (float)553.3, 36)),
                         _PrimaryColor = Color.FromArgb(199, 0, 255),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         BlinkThreshold = 0.0,
                         BlinkDirection = false,
                         VariablePath = new VariablePath("Player/NoteStreak4x"),
@@ -261,7 +261,7 @@ public class CloneHeroProfile : ApplicationProfile
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new FreeFormObject((float)-2.75, (float)-2.61, (float)553.3, 36)),
                         _PrimaryColor = Color.FromArgb(0, 255, 59),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         BlinkThreshold = 0.0,
                         BlinkDirection = false,
                         VariablePath = new VariablePath("Player/NoteStreak3x"),
@@ -279,7 +279,7 @@ public class CloneHeroProfile : ApplicationProfile
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new FreeFormObject((float)-2.75, (float)-2.61, (float)553.3, 36)),
                         _PrimaryColor = Color.FromArgb(255, 146, 0),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         BlinkThreshold = 0.0,
                         BlinkDirection = false,
                         VariablePath = new VariablePath("Player/NoteStreak2x"),
@@ -297,7 +297,7 @@ public class CloneHeroProfile : ApplicationProfile
                         PercentType = PercentEffectType.Progressive_Gradual,
                         _Sequence = new KeySequence(new FreeFormObject((float)-2.75, (float)-2.61, (float)553.3, 36)),
                         _PrimaryColor = Color.FromArgb(255, 247, 44),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         BlinkThreshold = 0.0,
                         BlinkDirection = false,
                         VariablePath = new VariablePath("Player/NoteStreak1x"),

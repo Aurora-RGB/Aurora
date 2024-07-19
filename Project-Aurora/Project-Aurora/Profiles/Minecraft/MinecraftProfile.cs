@@ -4,7 +4,6 @@ using AuroraRgb.Profiles.Minecraft.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
 using AuroraRgb.Utils;
 using DK = Common.Devices.DeviceKeys;
 
@@ -31,7 +30,7 @@ public class MinecraftProfile : ApplicationProfile
                         VariablePath = new VariablePath("Player/Health"),
                         MaxVariablePath = new VariablePath("Player/HealthMax"),
                         _PrimaryColor = Color.Red,
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         _Sequence = new KeySequence(new[]
                         {
                             DK.Z, DK.X, DK.C, DK.V, DK.B, DK.N, DK.M, DK.COMMA, DK.PERIOD, DK.FORWARD_SLASH
@@ -55,7 +54,7 @@ public class MinecraftProfile : ApplicationProfile
                         VariablePath = new VariablePath("Player/Experience"),
                         MaxVariablePath = new VariablePath("Player/ExperienceMax"),
                         _PrimaryColor = Color.FromArgb(255, 255, 0),
-                        _SecondaryColor = Color.Transparent,
+                        SecondaryColor = Color.Transparent,
                         _Sequence = new KeySequence(new[]
                         {
                             DK.F1, DK.F2, DK.F3, DK.F4, DK.F5, DK.F6, DK.F7, DK.F8, DK.F9, DK.F10, DK.F11, DK.F12
@@ -71,7 +70,7 @@ public class MinecraftProfile : ApplicationProfile
                     Properties = new ToolbarLayerHandlerProperties
                     {
                         _PrimaryColor = Color.Transparent,
-                        _SecondaryColor = Color.White,
+                        SecondaryColor = Color.White,
                         EnableScroll = true,
                         ScrollLoop = true,
                         _Sequence = new KeySequence(new[]
@@ -144,28 +143,28 @@ public class MinecraftProfile : ApplicationProfile
                 {
                     Properties = new SimpleParticleLayerProperties
                     {
-                        _SpawnLocation = ParticleSpawnLocations.BottomEdge,
-                        _ParticleColorStops = new ColorStopCollection
+                        SpawnLocation = ParticleSpawnLocations.BottomEdge,
+                        ParticleColorStops = new ColorStopCollection
                         {
                             { 0f, Color.Orange },
                             { 0.6f, Color.Red },
                             { 1f, Color.Black }
                         },
-                        _MinSpawnTime = 0.05f,
-                        _MaxSpawnTime = 0.05f,
-                        _MinSpawnAmount = 8,
-                        _MaxSpawnAmount = 10,
-                        _MinLifetime = 0.5f,
-                        _MaxLifetime = 2f,
-                        _MinInitialVelocityX = 0,
-                        _MaxInitialVelocityX = 0,
-                        _MinInitialVelocityY = -5f,
-                        _MaxInitialVelocityY = -0.8f,
-                        _AccelerationX = 0f,
-                        _AccelerationY = 0.5f,
-                        _MinSize = 8,
-                        _MaxSize = 12,
-                        _DeltaSize = -4,
+                        MinSpawnTime = 0.05f,
+                        MaxSpawnTime = 0.05f,
+                        MinSpawnAmount = 8,
+                        MaxSpawnAmount = 10,
+                        MinLifetime = 0.5f,
+                        MaxLifetime = 2f,
+                        MinInitialVelocityX = 0,
+                        MaxInitialVelocityX = 0,
+                        MinInitialVelocityY = -5f,
+                        MaxInitialVelocityY = -0.8f,
+                        AccelerationX = 0f,
+                        AccelerationY = 0.5f,
+                        MinSize = 8,
+                        MaxSize = 12,
+                        DeltaSize = -4,
                     }
                 },
                 new OverrideLogicBuilder()
@@ -176,27 +175,27 @@ public class MinecraftProfile : ApplicationProfile
                 {
                     Properties = new SimpleParticleLayerProperties
                     {
-                        _SpawnLocation = ParticleSpawnLocations.TopEdge,
-                        _ParticleColorStops = new ColorStopCollection
+                        SpawnLocation = ParticleSpawnLocations.TopEdge,
+                        ParticleColorStops = new ColorStopCollection
                         {
                             { 0f, Color.Cyan },
                             { 1f, Color.Cyan }
                         },
-                        _MinSpawnTime = .1f,
-                        _MaxSpawnTime = .2f,
-                        _MinSpawnAmount = 1,
-                        _MaxSpawnAmount = 2,
-                        _MinLifetime = 1,
-                        _MaxLifetime = 1,
-                        _MinInitialVelocityX = 0,
-                        _MaxInitialVelocityX = 0,
-                        _MinInitialVelocityY = 3,
-                        _MaxInitialVelocityY = 3,
-                        _AccelerationX = 0,
-                        _AccelerationY = 0,
-                        _MinSize = 2,
-                        _MaxSize = 4,
-                        _DeltaSize = 0,
+                        MinSpawnTime = .1f,
+                        MaxSpawnTime = .2f,
+                        MinSpawnAmount = 1,
+                        MaxSpawnAmount = 2,
+                        MinLifetime = 1,
+                        MaxLifetime = 1,
+                        MinInitialVelocityX = 0,
+                        MaxInitialVelocityX = 0,
+                        MinInitialVelocityY = 3,
+                        MaxInitialVelocityY = 3,
+                        AccelerationX = 0,
+                        AccelerationY = 0,
+                        MinSize = 2,
+                        MaxSize = 4,
+                        DeltaSize = 0,
                     }
                 },
                 new OverrideLogicBuilder()
@@ -208,7 +207,7 @@ public class MinecraftProfile : ApplicationProfile
                     Properties = new MinecraftBackgroundLayerHandlerProperties
                     {
                         _PrimaryColor = Color.FromArgb(44, 168, 32),
-                        _SecondaryColor = Color.FromArgb(30, 80, 25),
+                        SecondaryColor = Color.FromArgb(30, 80, 25),
                         _Sequence = new KeySequence(new FreeFormObject(0, -60, 900, 128))
                     }
                 },
@@ -225,7 +224,7 @@ public class MinecraftProfile : ApplicationProfile
                                 new BooleanGSIBoolean("Player/InGame")
                             })) //The Nether
                     )
-                    .SetLookupTable("_SecondaryColor", new OverrideLookupTableBuilder<Color>()
+                    .SetLookupTable("SecondaryColor", new OverrideLookupTableBuilder<Color>()
                             .AddEntry(Color.FromArgb(49, 0, 59), new BooleanAnd(new Evaluatable<bool>[]
                             {
                                 new BooleanGSINumeric("World/DimensionID", 1),
@@ -244,7 +243,7 @@ public class MinecraftProfile : ApplicationProfile
                     Properties = new MinecraftBackgroundLayerHandlerProperties
                     {
                         _PrimaryColor = Color.FromArgb(125, 70, 15), //(102, 59, 20),
-                        _SecondaryColor = Color.FromArgb(80, 50, 25)
+                        SecondaryColor = Color.FromArgb(80, 50, 25)
                     }
                 },
                 new OverrideLogicBuilder()
@@ -260,7 +259,7 @@ public class MinecraftProfile : ApplicationProfile
                                 new BooleanGSIBoolean("Player/InGame")
                             })) //The Nether
                     )
-                    .SetLookupTable("_SecondaryColor", new OverrideLookupTableBuilder<Color>()
+                    .SetLookupTable("SecondaryColor", new OverrideLookupTableBuilder<Color>()
                             .AddEntry(Color.FromArgb(107, 102, 49), new BooleanAnd(new Evaluatable<bool>[]
                             {
                                 new BooleanGSINumeric("World/DimensionID", 1),

@@ -9,29 +9,37 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBurningLayerHandlerProperties>
+public partial class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBurningLayerHandlerProperties>
 {
-    public Color? _BurningColor { get; set; }
+    private Color? _burningColor;
 
-    [JsonIgnore]
-    public Color BurningColor => Logic?._BurningColor ?? _BurningColor ?? Color.Empty;
+    [JsonProperty("_BurningColor")]
+    public Color BurningColor
+    {
+        get => Logic?._BurningColor ?? _burningColor ?? Color.Empty;
+        set => _burningColor = value;
+    }
 
-    public bool? _Animated { get; set; }
+    private bool? _animated;
 
-    [JsonIgnore]
-    public bool Animated => Logic?._Animated ?? _Animated ?? false;
+    [JsonProperty("_Animated")]
+    public bool Animated
+    {
+        get => Logic?._Animated ?? _animated ?? false;
+        set => _animated = value;
+    }
 
     public CSGOBurningLayerHandlerProperties()
     { }
 
-    public CSGOBurningLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGOBurningLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
         base.Default();
 
-        _BurningColor = Color.FromArgb(255, 70, 0);
-        _Animated = true;
+        _burningColor = Color.FromArgb(255, 70, 0);
+        _animated = true;
     }
 }
 

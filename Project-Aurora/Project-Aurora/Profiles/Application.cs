@@ -91,6 +91,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             ObjectCreationHandling = ObjectCreationHandling.Replace,
             TypeNameHandling = TypeNameHandling.Auto,
             FloatParseHandling = FloatParseHandling.Double,
+            NullValueHandling = NullValueHandling.Ignore,
             SerializationBinder = _binder,
             TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,
             Error = LoadProfilesError,

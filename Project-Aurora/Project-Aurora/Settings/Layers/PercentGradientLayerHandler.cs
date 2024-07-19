@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties<PercentGradientLayerHandlerProperties>
+public partial class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties<PercentGradientLayerHandlerProperties>
 {
     public PercentGradientLayerHandlerProperties() { }
     public PercentGradientLayerHandlerProperties(bool empty = false) : base(empty) { }
@@ -29,7 +29,7 @@ public class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperti
 }
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
-[LogicOverrideIgnoreProperty("_SecondaryColor")]
+[LogicOverrideIgnoreProperty("SecondaryColor")]
 [LayerHandlerMeta(Name = "Percent (Gradient)", IsDefault = true)]
 public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLayerHandlerProperties>
 {

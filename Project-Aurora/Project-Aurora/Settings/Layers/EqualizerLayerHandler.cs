@@ -73,14 +73,14 @@ public enum DeviceFlow
     Input,
 }
 
-public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerLayerHandlerProperties>
+public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerLayerHandlerProperties>
 {
     private Color? _secondaryColor;
     [JsonProperty("_SecondaryColor")]
     [LogicOverridable("Secondary Color")]
     public Color SecondaryColor
     {
-        get => Logic?._secondaryColor ?? _secondaryColor ?? Color.Empty;
+        get => Logic?.SecondaryColor ?? _secondaryColor ?? Color.Empty;
         set => _secondaryColor = value;
     }
 
@@ -181,7 +181,7 @@ public class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerL
         base.Default();
         _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm);
         _PrimaryColor = CommonColorUtils.GenerateRandomColor();
-        _secondaryColor = CommonColorUtils.GenerateRandomColor();
+        SecondaryColor = CommonColorUtils.GenerateRandomColor();
         _gradient = new EffectBrush(ColorSpectrum.RainbowLoop);
         _eqType = EqualizerType.PowerBars;
         _viewType = EqualizerPresentationType.SolidColor;

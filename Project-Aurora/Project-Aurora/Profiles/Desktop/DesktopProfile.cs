@@ -186,7 +186,7 @@ public class DesktopProfile : ApplicationProfile
                 {
                     _ToggledKey = Keys.NumLock,
                     _PrimaryColor = CommonColorUtils.FastColor(108, 20, 255),
-                    _SecondaryColor = CommonColorUtils.FastColor(255, 0, 4, 120),
+                    SecondaryColor = CommonColorUtils.FastColor(255, 0, 4, 120),
                     _Sequence = new KeySequence(new[] { DeviceKeys.NUM_LOCK }),
                 }
             }),
@@ -196,7 +196,7 @@ public class DesktopProfile : ApplicationProfile
                 {
                     _ToggledKey = Keys.Capital,
                     _PrimaryColor = CommonColorUtils.FastColor(164, 45, 69),
-                    _SecondaryColor = CommonColorUtils.FastColor(0, 0, 0, 0),
+                    SecondaryColor = CommonColorUtils.FastColor(0, 0, 0, 0),
                     _Sequence = new KeySequence(new[] { DeviceKeys.CAPS_LOCK }),
                 }
             }),
@@ -309,7 +309,7 @@ public class DesktopProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.FromArgb(0, 205, 255),
-                    _SecondaryColor = Color.FromArgb(0, 65, 80),
+                    SecondaryColor = Color.FromArgb(0, 65, 80),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[]
                     {
@@ -332,7 +332,7 @@ public class DesktopProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.FromArgb(255, 80, 0),
-                    _SecondaryColor = Color.FromArgb(90, 30, 0),
+                    SecondaryColor = Color.FromArgb(90, 30, 0),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[]
                     {
@@ -356,7 +356,7 @@ public class DesktopProfile : ApplicationProfile
                 {
                     InteractiveEffect = InteractiveEffects.KeyPress,
                     _PrimaryColor = Color.FromArgb(127, 0, 255, 0),
-                    _SecondaryColor = Color.FromArgb(127, 255, 0, 0),
+                    SecondaryColor = Color.FromArgb(127, 255, 0, 0),
                     EffectSpeed = 32.5f,
                     EffectWidth = 4
                 }

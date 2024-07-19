@@ -1,141 +1,140 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using AuroraRgb.Utils;
+using Xceed.Wpf.Toolkit;
 
-namespace AuroraRgb.Profiles.EliteDangerous.Layers
+namespace AuroraRgb.Profiles.EliteDangerous.Layers;
+
+/// <summary>
+/// Interaction logic for Control_EliteDangerousKeyBindsLayer.xaml
+/// </summary>
+public partial class Control_EliteDangerousKeyBindsLayer
 {
-    /// <summary>
-    /// Interaction logic for Control_EliteDangerousKeyBindsLayer.xaml
-    /// </summary>
-    public partial class Control_EliteDangerousKeyBindsLayer : UserControl
+    private bool _settingsset;
+
+    public Control_EliteDangerousKeyBindsLayer()
     {
-        private bool settingsset = false;
+        InitializeComponent();
+    }
 
-        public Control_EliteDangerousKeyBindsLayer()
+    public Control_EliteDangerousKeyBindsLayer(EliteDangerousKeyBindsLayerHandler datacontext)
+    {
+        InitializeComponent();
+
+        DataContext = datacontext;
+    }
+
+    public void SetSettings()
+    {
+        if (DataContext is EliteDangerousKeyBindsLayerHandler dataContext && !_settingsset)
         {
-            InitializeComponent();
+            ColorPicker_HudModeCombat.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.HudModeCombatColor);
+            ColorPicker_HudModeDiscovery.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.HudModeDiscoveryColor);
+            ColorPicker_Ui.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.UiColor);
+            ColorPicker_UiAlt.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.UiAltColor);
+            ColorPicker_ShipStuff.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.ShipStuffColor);
+            ColorPicker_Camera.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.CameraColor);
+            ColorPicker_Defence.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.DefenceColor);
+            ColorPicker_Offence.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.OffenceColor);
+            ColorPicker_MovementSpeed.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.MovementSpeedColor);
+            ColorPicker_MovementSecondary.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.MovementSecondaryColor);
+            ColorPicker_Wing.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.WingColor);
+            ColorPicker_Navigation.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.NavigationColor);
+            ColorPicker_ModeEnable.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.ModeEnableColor);
+            ColorPicker_ModeDisable.SelectedColor = ColorUtils.DrawingColorToMediaColor(dataContext.Properties.ModeDisableColor);
+
+            _settingsset = true;
         }
+    }
 
-        public Control_EliteDangerousKeyBindsLayer(EliteDangerousKeyBindsLayerHandler datacontext)
-        {
-            InitializeComponent();
+    private void UserControl_Loaded(object? sender, RoutedEventArgs e)
+    {
+        SetSettings();
 
-            this.DataContext = datacontext;
-        }
+        Loaded -= UserControl_Loaded;
+    }
 
-        public void SetSettings()
-        {
-            if (DataContext is EliteDangerousKeyBindsLayerHandler && !settingsset)
-            {
-                ColorPicker_HudModeCombat.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._HudModeCombatColor ?? System.Drawing.Color.Empty);
-                ColorPicker_HudModeDiscovery.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._HudModeDiscoveryColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Ui.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._UiColor ?? System.Drawing.Color.Empty);
-                ColorPicker_UiAlt.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._UiAltColor ?? System.Drawing.Color.Empty);
-                ColorPicker_ShipStuff.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ShipStuffColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Camera.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._CameraColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Defence.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._DefenceColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Offence.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._OffenceColor ?? System.Drawing.Color.Empty);
-                ColorPicker_MovementSpeed.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._MovementSpeedColor ?? System.Drawing.Color.Empty);
-                ColorPicker_MovementSecondary.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._MovementSecondaryColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Wing.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._WingColor ?? System.Drawing.Color.Empty);
-                ColorPicker_Navigation.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._NavigationColor ?? System.Drawing.Color.Empty);
-                ColorPicker_ModeEnable.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ModeEnableColor ?? System.Drawing.Color.Empty);
-                ColorPicker_ModeDisable.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ModeDisableColor ?? System.Drawing.Color.Empty);
+    private void ColorPicker_HudModeCombat_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.HudModeCombatColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-                settingsset = true;
-            }
-        }
+    private void ColorPicker_HudModeDiscovery_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.HudModeDiscoveryColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void UserControl_Loaded(object? sender, RoutedEventArgs e)
-        {
-            SetSettings();
+    private void ColorPicker_Ui_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.UiColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-            this.Loaded -= UserControl_Loaded;
-        }
+    private void ColorPicker_UiAlt_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.UiAltColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_HudModeCombat_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._HudModeCombatColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_ShipStuff_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.ShipStuffColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_HudModeDiscovery_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._HudModeDiscoveryColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Camera_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.CameraColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_Ui_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._UiColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Defence_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.DefenceColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_UiAlt_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._UiAltColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Offence_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.OffenceColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_ShipStuff_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ShipStuffColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_MovementSpeed_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.MovementSpeedColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_Camera_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._CameraColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_MovementSecondary_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.MovementSecondaryColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_Defence_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._DefenceColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Wing_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.WingColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_Offence_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._OffenceColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_Navigation_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.NavigationColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_MovementSpeed_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._MovementSpeedColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_ModeEnable_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.ModeEnableColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
+    }
 
-        private void ColorPicker_MovementSecondary_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._MovementSecondaryColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
-
-        private void ColorPicker_Wing_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._WingColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
-
-        private void ColorPicker_Navigation_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._NavigationColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
-
-        private void ColorPicker_ModeEnable_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ModeEnableColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
-
-        private void ColorPicker_ModeDisable_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
-        {
-            if (IsLoaded && settingsset && this.DataContext is EliteDangerousKeyBindsLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-                (this.DataContext as EliteDangerousKeyBindsLayerHandler).Properties._ModeDisableColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
-        }
+    private void ColorPicker_ModeDisable_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    {
+        if (IsLoaded && _settingsset && DataContext is EliteDangerousKeyBindsLayerHandler dataContext && sender is ColorPicker { SelectedColor: not null } picker)
+            dataContext.Properties.ModeDisableColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 }

@@ -19,7 +19,7 @@ public enum EliteAnimation
     HyperspaceExit,
 }
     
-public class EliteDangerousAnimationHandlerProperties : LayerHandlerProperties2Color<EliteDangerousAnimationHandlerProperties>
+public partial class EliteDangerousAnimationHandlerProperties : LayerHandlerProperties2Color<EliteDangerousAnimationHandlerProperties>
 {
     public EliteDangerousAnimationHandlerProperties()
     { }

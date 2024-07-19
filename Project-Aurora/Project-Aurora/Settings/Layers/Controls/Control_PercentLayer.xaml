@@ -24,7 +24,7 @@
         <xctk:ColorPicker SelectedColor="{Binding Properties._PrimaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="85,56,0,0"  Width="182" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top"/>
         
         <Label HorizontalAlignment="Left" Content="Background Color:" VerticalAlignment="Top" Margin="0,89,0,0" Padding="0"/>
-        <xctk:ColorPicker SelectedColor="{Binding Properties._SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="103,85,0,0" Width="164" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <xctk:ColorPicker SelectedColor="{Binding Properties.SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="103,85,0,0" Width="164" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
         <Label HorizontalAlignment="Left" Margin="0,117,0,0" Padding="0" Content="Effect Type:" VerticalAlignment="Top"/>
         <ComboBox SelectedValue="{Binding Properties._PercentType}" ItemsSource="{utils:EnumToItemsSource {x:Type settings:PercentEffectType}}" DisplayMemberPath="Text" SelectedValuePath="Value" Margin="67,114,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" />

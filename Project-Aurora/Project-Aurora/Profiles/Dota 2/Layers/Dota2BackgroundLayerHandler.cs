@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
-public class Dota2BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Dota2BackgroundLayerHandlerProperties>
+public partial class Dota2BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Dota2BackgroundLayerHandlerProperties>
 {
     private Color? _defaultColor;
 

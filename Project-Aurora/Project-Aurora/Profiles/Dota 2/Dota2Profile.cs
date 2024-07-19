@@ -19,7 +19,7 @@ public class Dota2Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.FromArgb(0, 255, 0),
-                    _SecondaryColor = Color.FromArgb(0, 60, 0),
+                    SecondaryColor = Color.FromArgb(0, 60, 0),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[]
                     {
@@ -38,7 +38,7 @@ public class Dota2Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.FromArgb(0, 125, 255),
-                    _SecondaryColor = Color.FromArgb(0, 0, 60),
+                    SecondaryColor = Color.FromArgb(0, 0, 60),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[]
                     {

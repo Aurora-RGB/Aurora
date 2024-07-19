@@ -11,17 +11,25 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOKillIndicatorLayerHandlerProperties>
+public partial class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOKillIndicatorLayerHandlerProperties>
 {
-    public Color? _RegularKillColor { get; set; }
+    private Color? _regularKillColor;
 
-    [JsonIgnore]
-    public Color RegularKillColor => Logic?._RegularKillColor ?? _RegularKillColor ?? Color.Empty;
+    [JsonProperty("_RegularKillColor")]
+    public Color RegularKillColor
+    {
+        get => Logic?._RegularKillColor ?? _regularKillColor ?? Color.Empty;
+        set => _regularKillColor = value;
+    }
 
-    public Color? _HeadshotKillColor { get; set; }
+    private Color? _headshotKillColor;
 
-    [JsonIgnore]
-    public Color HeadshotKillColor => Logic?._HeadshotKillColor ?? _HeadshotKillColor ?? Color.Empty;
+    [JsonProperty("_HeadshotKillColor")]
+    public Color HeadshotKillColor
+    {
+        get => Logic?._HeadshotKillColor ?? _headshotKillColor ?? Color.Empty;
+        set => _headshotKillColor = value;
+    }
 
     public CSGOKillIndicatorLayerHandlerProperties()
     { }
@@ -33,8 +41,8 @@ public class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Co
         base.Default();
 
         _Sequence = new KeySequence(new[] { DeviceKeys.G1, DeviceKeys.G2, DeviceKeys.G3, DeviceKeys.G4, DeviceKeys.G5 });
-        _RegularKillColor = Color.FromArgb(255, 204, 0);
-        _HeadshotKillColor = Color.FromArgb(255, 0, 0);
+        _regularKillColor = Color.FromArgb(255, 204, 0);
+        _headshotKillColor = Color.FromArgb(255, 0, 0);
     }
 
 }

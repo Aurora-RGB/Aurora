@@ -23,7 +23,7 @@ public class OsuProfile : ApplicationProfile
                 {
                     InteractiveEffect = Desktop.InteractiveEffects.KeyPress,
                     _PrimaryColor = Color.FromArgb(255, 0, 240),
-                    _SecondaryColor = Color.Black,
+                    SecondaryColor = Color.Black,
                     EffectSpeed = 20,
                     EffectWidth = 5
                 }
@@ -49,7 +49,7 @@ public class OsuProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.Lime,
-                    _SecondaryColor = Color.Red,
+                    SecondaryColor = Color.Red,
                     VariablePath = new VariablePath("Game/Accuracy"),
                     MaxVariablePath = new VariablePath("100"),
                     _Sequence = new KeySequence(new[]
@@ -99,7 +99,7 @@ public class OsuProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor = Color.FromArgb(0, 160, 255),
-                    _SecondaryColor = Color.Black,
+                    SecondaryColor = Color.Black,
                     VariablePath = new VariablePath("Game/HP"),
                     MaxVariablePath = new VariablePath("200"),
                     _Sequence = new KeySequence(new[]

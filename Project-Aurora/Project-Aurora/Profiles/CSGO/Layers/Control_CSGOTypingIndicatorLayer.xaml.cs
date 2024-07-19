@@ -26,10 +26,10 @@ public partial class Control_CSGOTypingIndicatorLayer
 
     public void SetSettings()
     {
-        if (DataContext is CSGOTypingIndicatorLayerHandler && !settingsset)
+        if (DataContext is CSGOTypingIndicatorLayerHandler layerHandler && !settingsset)
         {
-            ColorPicker_TypingKeys.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOTypingIndicatorLayerHandler).Properties._TypingKeysColor ?? System.Drawing.Color.Empty);
-            KeySequence_keys.Sequence = (DataContext as CSGOTypingIndicatorLayerHandler).Properties._Sequence;
+            ColorPicker_TypingKeys.SelectedColor = ColorUtils.DrawingColorToMediaColor(layerHandler.Properties.TypingKeysColor);
+            KeySequence_keys.Sequence =  layerHandler.Properties.Sequence;
 
             settingsset = true;
         }
@@ -44,15 +44,18 @@ public partial class Control_CSGOTypingIndicatorLayer
 
     private void ColorPicker_CT_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOTypingIndicatorLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOTypingIndicatorLayerHandler).Properties._TypingKeysColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && settingsset && DataContext is CSGOTypingIndicatorLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker
+            {
+                SelectedColor: not null
+            } picker)
+             layerHandler.Properties.TypingKeysColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void KeySequence_keys_SequenceUpdated(object? sender, RoutedPropertyChangedEventArgs<KeySequence> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOTypingIndicatorLayerHandler)
+        if (IsLoaded && settingsset && DataContext is CSGOTypingIndicatorLayerHandler layerHandler)
         {
-            (DataContext as CSGOTypingIndicatorLayerHandler).Properties._Sequence = e.NewValue;
+             layerHandler.Properties.Sequence = e.NewValue;
         }
     }
 }

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 namespace AuroraRgb.Profiles.Minecraft.Layers;
 
 [Obsolete("This layer is obselete and has been replaced by the Overrides system.")]
-public class MinecraftRainLayerHandlerProperties : LayerHandlerProperties<MinecraftRainLayerHandlerProperties> {
+public partial class MinecraftRainLayerHandlerProperties : LayerHandlerProperties<MinecraftRainLayerHandlerProperties> {
 
     [JsonIgnore]
     public int MinimumInterval => _MinimumInterval ?? 30;

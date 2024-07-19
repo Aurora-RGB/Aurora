@@ -18,118 +18,220 @@ namespace AuroraRgb.Settings.Layers {
     /// acceleration and drag and whose alive state is determined by their life span.<para />
     /// This class can be overriden and the subclass should pass itself as the <typeparamref name="TSelf"/> parameter.
     /// </summary>
-    public class SimpleParticleLayerProperties<TSelf> : ParticleLayerPropertiesBase<TSelf> where TSelf : SimpleParticleLayerProperties<TSelf> {
+    public partial class SimpleParticleLayerProperties<TSelf> : ParticleLayerPropertiesBase<TSelf> where TSelf : SimpleParticleLayerProperties<TSelf> {
 
         // Override the default key sequence property so that we can make it trigger a property change notification
-        [LogicOverridable("Spawn region")] public override KeySequence _Sequence { get; set; }
+        [LogicOverridable("Spawn region")]
+        public override KeySequence _Sequence { get; set; }
 
-        // The shortest time (in seconds) between particles spawning. A random time between this value and "MaxSpawnTime" will be chosen.
-        [LogicOverridable] public float? _MinSpawnTime { get; set; }
-        [JsonIgnore] public float MinSpawnTime => Logic?._MinSpawnTime ?? _MinSpawnTime ?? .5f;
+        private float? _minSpawnTime;
+        [JsonProperty("_MinSpawnTime")]
+        [LogicOverridable]
+        public float MinSpawnTime
+        {
+            get => Logic?._MinSpawnTime ?? _minSpawnTime ?? .5f;
+            set => _minSpawnTime = value;
+        }
 
-        // The longest time (in seconds) between particles spawning. A random time from "MinSpawnTime" up to this value will be chosen.
-        [LogicOverridable] public float? _MaxSpawnTime { get; set; }
-        [JsonIgnore] public float MaxSpawnTime => Logic?._MaxSpawnTime ?? _MaxSpawnTime ?? 1f;
+        private float? _maxSpawnTime;
+        [JsonProperty("_MaxSpawnTime")]
+        [LogicOverridable] 
+        public float MaxSpawnTime
+        {
+            get => Logic?._MaxSpawnTime ?? _maxSpawnTime ?? 1f;
+            set => _maxSpawnTime = value;
+        }
 
-        // The smallest quantity of particles that will spawn at a time. A random value between this value and "MaxSpawnAmount" will be chosen.
-        [LogicOverridable] public int? _MinSpawnAmount { get; set; }
-        [JsonIgnore] public int MinSpawnAmount => Logic?._MinSpawnAmount ?? _MinSpawnAmount ?? 1;
+        private int? _minSpawnAmount;
+        [JsonProperty("_MinSpawnAmount")]
+        [LogicOverridable] 
+        public int MinSpawnAmount
+        {
+            get => Logic?._MinSpawnAmount ?? _minSpawnAmount ?? 1;
+            set => _minSpawnAmount = value;
+        }
 
-        // The largest quantity of particles that will spawn at a time. A random value between "MinSpawnAmount" and this value will be chosen.
-        [LogicOverridable] public int? _MaxSpawnAmount { get; set; }
-        [JsonIgnore] public int MaxSpawnAmount => Logic?._MaxSpawnAmount ?? _MaxSpawnAmount ?? 1;
+        private int? _maxSpawnAmount;
+        [JsonProperty("_MaxSpawnAmount")]
+        [LogicOverridable] 
+        public int MaxSpawnAmount
+        {
+            get => Logic?._MaxSpawnAmount ?? _maxSpawnAmount ?? 1;
+            set => _maxSpawnAmount = value;
+        }
 
-        // The smallest possible initial horizontal velocity of the spawned particles. A random value between this value and "MaxInitialVelocityX" will be chosen for each particle.
-        [LogicOverridable] public float? _MinInitialVelocityX { get; set; }
-        [JsonIgnore] public float MinInitialVelocityX => Logic?._MinInitialVelocityX ?? _MinInitialVelocityX ?? 0f;
+        private float? _minInitialVelocityX;
+        [JsonProperty("_MinInitialVelocityX")]
+        [LogicOverridable] 
+        public float MinInitialVelocityX
+        {
+            get => Logic?._MinInitialVelocityX ?? _minInitialVelocityX ?? 0f;
+            set => _minInitialVelocityX = value;
+        }
 
-        // The largest possible initial horizontal velocity of the spawned particles. A random value between "MinInitialVelocityX" and this value will be chosen for each particle.
-        [LogicOverridable] public float? _MaxInitialVelocityX { get; set; }
-        [JsonIgnore] public float MaxInitialVelocityX => Logic?._MaxInitialVelocityX ?? _MaxInitialVelocityX ?? 0f;
+        private float? _maxInitialVelocityX;
+        [JsonProperty("_MaxInitialVelocityX")]
+        [LogicOverridable] 
+        public float MaxInitialVelocityX
+        {
+            get => Logic?._MaxInitialVelocityX ?? _maxInitialVelocityX ?? 0f;
+            set => _maxInitialVelocityX = value;
+        }
 
-        // The smallest possible initial vertical velocity of the spawned particles. A random value between this value and "MaxInitialVelocityY" will be chosen for each particle.
-        [LogicOverridable] public float? _MinInitialVelocityY { get; set; }
-        [JsonIgnore] public float MinInitialVelocityY => Logic?._MinInitialVelocityY ?? _MinInitialVelocityY ?? 0f;
+        private float? _minInitialVelocityY;
+        [JsonProperty("_MinInitialVelocityY")]
+        [LogicOverridable] 
+        public float MinInitialVelocityY
+        {
+            get => Logic?._MinInitialVelocityY ?? _minInitialVelocityY ?? 0f;
+            set => _minInitialVelocityY = value;
+        }
 
-        // The largest possible initial vertical velocity of the spawned particles. A random value between "MinInitialVelocityY" and this value will be chosen for each particle.
-        [LogicOverridable] public float? _MaxInitialVelocityY { get; set; }
-        [JsonIgnore] public float MaxInitialVelocityY => Logic?._MaxInitialVelocityY ?? _MaxInitialVelocityY ?? 0f;
+        private float? _maxInitialVelocityY;
+        [JsonProperty("_MaxInitialVelocityY")]
+        [LogicOverridable] 
+        public float MaxInitialVelocityY
+        {
+            get => Logic?._MaxInitialVelocityY ?? _maxInitialVelocityY ?? 0f;
+            set => _maxInitialVelocityY = value;
+        }
 
-        // The minimum possible lifetime of the particles (in seconds). A random lifetime between this number and "MaxLifetime" will be chosen.
-        [LogicOverridable] public float? _MinLifetime { get; set; }
-        [JsonIgnore] public float MinLifetime => Logic?._MinLifetime ?? _MinLifetime ?? 3f;
+        private float? _minLifetime;
+        [JsonProperty("_MinLifetime")]
+        [LogicOverridable] 
+        public float MinLifetime
+        {
+            get => Logic?._MinLifetime ?? _minLifetime ?? 3f;
+            set => _minLifetime = value;
+        }
 
-        // The maximum possible lifetime of the particles (in seconds). A random lifetime between from "MinLifetime" up to this number will be chosen.
-        [LogicOverridable] public float? _MaxLifetime { get; set; }
-        [JsonIgnore] public float MaxLifetime => Logic?._MaxLifetime ?? _MaxLifetime ?? 3f;
+        private float? _maxLifetime;
+        [JsonProperty("_MaxLifetime")]
+        [LogicOverridable] 
+        public float MaxLifetime
+        {
+            get => Logic?._MaxLifetime ?? _maxLifetime ?? 3f;
+            set => _maxLifetime = value;
+        }
 
-        // The amount the speed of the particle in the horizontal direction will change per second.
-        [LogicOverridable] public float? _AccelerationX { get; set; }
-        [JsonIgnore] public float AccelerationX => Logic?._AccelerationX ?? _AccelerationX ?? 0f;
+        private float? _accelerationX;
+        [JsonProperty("_AccelerationX")]
+        [LogicOverridable] 
+        public float AccelerationX
+        {
+            get => Logic?._AccelerationX ?? _accelerationX ?? 0f;
+            set => _accelerationX = value;
+        }
 
-        // The amount the speed of the particle in the vertical direction will change per second.
-        [LogicOverridable] public float? _AccelerationY { get; set; }
-        [JsonIgnore] public float AccelerationY => Logic?._AccelerationY ?? _AccelerationY ?? -1f;
+        private float? _accelerationY;
+        [JsonProperty("_AccelerationY")]
+        [LogicOverridable] 
+        public float AccelerationY
+        {
+            get => Logic?._AccelerationY ?? _accelerationY ?? -1f;
+            set => _accelerationY = value;
+        }
 
-        // The amount of velocity per second the particle loses in the horizontal direction as a percentage of its current velocity
-        [LogicOverridable] public float? _DragX { get; set; }
-        [JsonIgnore] public float DragX => Logic?._DragX ?? _DragX ?? 0;
+        private float? _dragX;
+        [JsonProperty("_DragX")]
+        [LogicOverridable] 
+        public float DragX
+        {
+            get => Logic?._DragX ?? _dragX ?? 0;
+            set => _dragX = value;
+        }
 
-        // The amount of velocity per second the particle loses in the vertical direction as a percentage of its current velocity
-        [LogicOverridable] public float? _DragY { get; set; }
-        [JsonIgnore] public float DragY => Logic?._DragY ?? _DragY ?? 0;
+        private float? _dragY;
+        [JsonProperty("_DragY")]
+        [LogicOverridable] 
+        public float DragY
+        {
+            get => Logic?._DragY ?? _dragY ?? 0;
+            set => _dragY = value;
+        }
 
-        // The smallest initial size of the particles
-        [LogicOverridable] public float? _MinSize { get; set; }
-        [JsonIgnore] public float MinSize => Logic?._MinSize ?? _MinSize ?? 6;
+        private float? _minSize;
+        // The smallest initial size of the particlespublic float? _MinSize { get; set; }
+        [JsonProperty("_MinSize")]
+        [LogicOverridable] 
+        public float MinSize
+        {
+            get => Logic?._MinSize ?? _minSize ?? 6;
+            set => _minSize = value;
+        }
 
-        // The largest initial size of the particles
-        [LogicOverridable] public float? _MaxSize { get; set; }
-        [JsonIgnore] public float MaxSize => Logic?._MaxSize ?? _MaxSize ?? 6;
+        private float? _maxSize;
+        // The largest initial size of the particlespublic float? _MaxSize { get; set; }
+        [JsonProperty("_MaxSize")]
+        [LogicOverridable] 
+        public float MaxSize
+        {
+            get => Logic?._MaxSize ?? _maxSize ?? 6;
+            set => _maxSize = value;
+        }
 
-        // The initial size of the particles
-        [LogicOverridable] public float? _DeltaSize { get; set; }
-        [JsonIgnore] public float DeltaSize => Logic?._DeltaSize ?? _DeltaSize ?? 0;
+        private float? _deltaSize;
+        [JsonProperty("_DeltaSize")]
+        [LogicOverridable] 
+        public float DeltaSize
+        {
+            get => Logic?._DeltaSize ?? _deltaSize ?? 0;
+            set => _deltaSize = value;
+        }
 
         // Where the particles will spawn from
-        public ParticleSpawnLocations? _SpawnLocation { get; set; }
-        [JsonIgnore] public ParticleSpawnLocations SpawnLocation => Logic?._SpawnLocation ?? _SpawnLocation ?? ParticleSpawnLocations.BottomEdge;
+        private ParticleSpawnLocations? _spawnLocation;
+        [JsonProperty("_SpawnLocation")]
+        [LogicOverridable] 
+        public ParticleSpawnLocations SpawnLocation
+        {
+            get => Logic?._SpawnLocation ?? _spawnLocation ?? ParticleSpawnLocations.BottomEdge;
+            set => _spawnLocation = value;
+        }
 
         // The color gradient stops for the particle. Note this is sorted by offset when set using _ParticleColorStops. Not using a linear brush here because:
         //   1) there are multithreading issues when trying to access a Media brush's gradient collection since it belongs to the UI thread
         //   2) We don't actually need the gradient as a brush since we're not drawing particles as gradients, only a solid color based on their lifetime, so we only need to access the color stops
-        public ColorStopCollection _ParticleColorStops { get; set; }
-        [JsonIgnore] public ColorStopCollection ParticleColorStops => Logic?._ParticleColorStops ?? _ParticleColorStops ?? defaultParticleColor;
-
-        // An override proxy for setting the particle color stops
-        [JsonIgnore, LogicOverridable("Color over time")] public EffectBrush _ParticleBrush {
-            get => new EffectBrush(_ParticleColorStops.ToMediaBrush());
-            set => _ParticleColorStops = value == null ? null : ColorStopCollection.FromMediaBrush(value.GetMediaBrush());
+        private ColorStopCollection? _particleColorStops;
+        [JsonProperty("_ParticleColorStops")]
+        [LogicOverridable] 
+        public ColorStopCollection ParticleColorStops
+        {
+            get => Logic?._ParticleColorStops ?? _particleColorStops ?? DefaultParticleColor;
+            set => _particleColorStops = value;
         }
 
-        private static readonly ColorStopCollection defaultParticleColor = new ColorStopCollection {
+        // An override proxy for setting the particle color stops
+        [JsonIgnore, LogicOverridable("Color over time")] public EffectBrush ParticleBrush {
+            get => new EffectBrush(_particleColorStops.ToMediaBrush());
+            set => _particleColorStops = value == null ? null : ColorStopCollection.FromMediaBrush(value.GetMediaBrush());
+        }
+
+        private static readonly ColorStopCollection DefaultParticleColor = new()
+        {
             {0f, Color.White },
             {1f,  Color.FromArgb(0, Color.White) }
         };
 
-        public SimpleParticleLayerProperties() : base() { }
+        public SimpleParticleLayerProperties()
+        { }
         public SimpleParticleLayerProperties(bool empty = false) : base(empty) { }
 
         public override void Default() {
             base.Default();
-            _SpawnLocation = ParticleSpawnLocations.BottomEdge;
-            _ParticleColorStops = defaultParticleColor;
-            _MinSpawnTime = _MaxSpawnTime = .1f;
-            _MinSpawnAmount = _MaxSpawnAmount = 1;
-            _MinLifetime = 0; _MaxLifetime = 2;
-            _MinInitialVelocityX = _MaxInitialVelocityX = 0;
-            _MinInitialVelocityY = _MaxInitialVelocityY = -1;
-            _AccelerationX = 0;
-            _AccelerationY = .5f;
-            _DragX = 0;
-            _DragY = 0;
-            _MinSize = 6; _MaxSize = 6;
-            _DeltaSize = 0;
+            _spawnLocation = ParticleSpawnLocations.BottomEdge;
+            _particleColorStops = DefaultParticleColor;
+            _minSpawnTime = _maxSpawnTime = .1f;
+            _minSpawnAmount = _maxSpawnAmount = 1;
+            _minLifetime = 0; _maxLifetime = 2;
+            _minInitialVelocityX = _maxInitialVelocityX = 0;
+            _minInitialVelocityY = _maxInitialVelocityY = -1;
+            _accelerationX = 0;
+            _accelerationY = .5f;
+            _dragX = 0;
+            _dragY = 0;
+            _minSize = 6; _maxSize = 6;
+            _deltaSize = 0;
             _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm);
         }
     }
@@ -139,7 +241,7 @@ namespace AuroraRgb.Settings.Layers {
     /// Properties for the particle layer handler that handles "simple" particles. Simple particles are ones that just support velocity,
     /// acceleration and drag and whose alive state is determined by their life span.
     /// </summary>
-    public class SimpleParticleLayerProperties : SimpleParticleLayerProperties<SimpleParticleLayerProperties> {
+    public partial class SimpleParticleLayerProperties : SimpleParticleLayerProperties<SimpleParticleLayerProperties> {
         public SimpleParticleLayerProperties()
         { }
         public SimpleParticleLayerProperties(bool empty = false) : base(empty) { }
@@ -278,54 +380,54 @@ namespace AuroraRgb.Settings.Layers {
         public static ReadOnlyDictionary<string, Action<SimpleParticleLayerProperties>> Presets { get; } = new ReadOnlyDictionary<string, Action<SimpleParticleLayerProperties>>(
             new Dictionary<string, Action<SimpleParticleLayerProperties>> {
                 { "Fire", p => {
-                    p._SpawnLocation = ParticleSpawnLocations.BottomEdge;
-                    p._ParticleColorStops = new ColorStopCollection {
+                    p.SpawnLocation = ParticleSpawnLocations.BottomEdge;
+                    p.ParticleColorStops = new ColorStopCollection {
                         { 0f, Color.Yellow },
                         { 0.6f, Color.FromArgb(128, Color.Red) },
                         { 1f, Color.FromArgb(0, Color.Black) }
                     };
-                    p._MinSpawnTime = p._MaxSpawnTime = .05f;
-                    p._MinSpawnAmount = 4; p._MaxSpawnAmount = 6;
-                    p._MinLifetime = .5f; p._MaxLifetime = 2;
-                    p._MinInitialVelocityX = p._MaxInitialVelocityX = 0;
-                    p._MinInitialVelocityY = -1.3f; p._MaxInitialVelocityY = -0.8f;
-                    p._AccelerationX = 0;
-                    p._AccelerationY = 0.5f;
-                    p._MinSize = 8; p._MaxSize = 12;
-                    p._DeltaSize = -4;
+                    p.MinSpawnTime = p.MaxSpawnTime = .05f;
+                    p.MinSpawnAmount = 4; p.MaxSpawnAmount = 6;
+                    p.MinLifetime = .5f; p.MaxLifetime = 2;
+                    p.MinInitialVelocityX = p.MaxInitialVelocityX = 0;
+                    p.MinInitialVelocityY = -1.3f; p.MaxInitialVelocityY = -0.8f;
+                    p.AccelerationX = 0;
+                    p.AccelerationY = 0.5f;
+                    p.MinSize = 8; p.MaxSize = 12;
+                    p.DeltaSize = -4;
                 } },
                 { "Matrix", p => {
-                    p._SpawnLocation = ParticleSpawnLocations.TopEdge;
-                    p._ParticleColorStops = new ColorStopCollection {
+                    p.SpawnLocation = ParticleSpawnLocations.TopEdge;
+                    p.ParticleColorStops = new ColorStopCollection {
                         { 0f, Color.FromArgb(0,255,0) },
                         { 1f, Color.FromArgb(0,255,0) }
                     };
-                    p._MinSpawnTime = .1f; p._MaxSpawnTime = .2f;
-                    p._MinSpawnAmount = 1; p._MaxSpawnAmount = 2;
-                    p._MinLifetime = p._MaxLifetime = 1;
-                    p._MinInitialVelocityX = p._MaxInitialVelocityX = 0;
-                    p._MinInitialVelocityY = p._MaxInitialVelocityY = 3;
-                    p._AccelerationX = 0;
-                    p._AccelerationY = 0;
-                    p._MinSize = 6; p._MaxSize = 6;
-                    p._DeltaSize = 0;
+                    p.MinSpawnTime = .1f; p.MaxSpawnTime = .2f;
+                    p.MinSpawnAmount = 1; p.MaxSpawnAmount = 2;
+                    p.MinLifetime = p.MaxLifetime = 1;
+                    p.MinInitialVelocityX = p.MaxInitialVelocityX = 0;
+                    p.MinInitialVelocityY = p.MaxInitialVelocityY = 3;
+                    p.AccelerationX = 0;
+                    p.AccelerationY = 0;
+                    p.MinSize = 6; p.MaxSize = 6;
+                    p.DeltaSize = 0;
                 } },
                 { "Rain", p => {
-                    p._SpawnLocation = ParticleSpawnLocations.TopEdge;
-                    p._ParticleColorStops = new ColorStopCollection {
+                    p.SpawnLocation = ParticleSpawnLocations.TopEdge;
+                    p.ParticleColorStops = new ColorStopCollection {
                         { 0f, Color.Cyan },
                         { 1f, Color.Cyan }
                     };
-                    p._MinSpawnTime = .1f; p._MaxSpawnTime = .2f;
-                    p._MinSpawnAmount = 1; p._MaxSpawnAmount = 2;
-                    p._MinLifetime = p._MaxLifetime = 1;
-                    p._MinInitialVelocityX = p._MaxInitialVelocityX = 0;
-                    p._MinInitialVelocityY = p._MaxInitialVelocityY = 3;
-                    p._AccelerationX = 0;
-                    p._AccelerationY = 0;
-                    p._MinSize = 2;
-                    p._MaxSize = 4;
-                    p._DeltaSize = 0;
+                    p.MinSpawnTime = .1f; p.MaxSpawnTime = .2f;
+                    p.MinSpawnAmount = 1; p.MaxSpawnAmount = 2;
+                    p.MinLifetime = p.MaxLifetime = 1;
+                    p.MinInitialVelocityX = p.MaxInitialVelocityX = 0;
+                    p.MinInitialVelocityY = p.MaxInitialVelocityY = 3;
+                    p.AccelerationX = 0;
+                    p.AccelerationY = 0;
+                    p.MinSize = 2;
+                    p.MaxSize = 4;
+                    p.DeltaSize = 0;
                 } }
             }
         );

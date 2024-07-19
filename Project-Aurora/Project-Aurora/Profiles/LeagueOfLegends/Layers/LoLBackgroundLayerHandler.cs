@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.LeagueOfLegends.Layers;
 
-public class LoLBackgroundLayerHandlerProperties : LayerHandlerProperties<LoLBackgroundLayerHandlerProperties>
+public partial class LoLBackgroundLayerHandlerProperties : LayerHandlerProperties<LoLBackgroundLayerHandlerProperties>
 {
     private Dictionary<Champion, Color>? _championColors;
 

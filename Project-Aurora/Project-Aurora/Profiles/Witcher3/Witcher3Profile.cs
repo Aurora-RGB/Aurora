@@ -20,7 +20,7 @@ public class Witcher3Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor =  Color.Red,
-                    _SecondaryColor = Color.DarkRed,
+                    SecondaryColor = Color.DarkRed,
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[] {
                         DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4,
@@ -38,7 +38,7 @@ public class Witcher3Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor =  Color.Olive,
-                    _SecondaryColor = Color.DarkOliveGreen,
+                    SecondaryColor = Color.DarkOliveGreen,
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[] {
                         DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR,
@@ -56,7 +56,7 @@ public class Witcher3Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties
                 {
                     _PrimaryColor =  Color.Orange,
-                    _SecondaryColor = Color.DarkOrange,
+                    SecondaryColor = Color.DarkOrange,
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new[] {
                         DeviceKeys.NUM_ONE, DeviceKeys.NUM_TWO, DeviceKeys.NUM_THREE, DeviceKeys.NUM_FOUR,

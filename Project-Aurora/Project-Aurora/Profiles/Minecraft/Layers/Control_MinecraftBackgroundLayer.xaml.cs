@@ -26,7 +26,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         public void SetSettings() {
             if (DataContext is MinecraftBackgroundLayerHandler && !settingsSet) {
                 ColorPicker_DayTime.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties._PrimaryColor ?? System.Drawing.Color.Empty);
-                ColorPicker_NightTime.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties._SecondaryColor ?? System.Drawing.Color.Empty);
+                ColorPicker_NightTime.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties.SecondaryColor);
                 KeySequence_Keys.Sequence = Context.Properties._Sequence;
                 settingsSet = true;
             }
@@ -44,7 +44,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
 
         private void ColorPicker_NightTime_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e) {
             if (IsLoaded && settingsSet && DataContext is MinecraftBackgroundLayerHandler && e.NewValue.HasValue)
-                Context.Properties._SecondaryColor = ColorUtils.MediaColorToDrawingColor(e.NewValue.Value);
+                Context.Properties.SecondaryColor = ColorUtils.MediaColorToDrawingColor(e.NewValue.Value);
         }
 
         private void KeySequence_Keys_SequenceUpdated(object sender, RoutedPropertyChangedEventArgs<KeySequence> e) {

@@ -4,7 +4,6 @@ using AuroraRgb.EffectsEngine.Animations;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Settings.Overrides.Logic.Boolean;
 using DK = Common.Devices.DeviceKeys;
 
 namespace AuroraRgb.Profiles.Subnautica;
@@ -69,7 +68,7 @@ public class SubnauticaProfile : ApplicationProfile {
                     VariablePath = new VariablePath("Player/Health"),
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(255, 0, 0),
-                    _SecondaryColor = Color.Transparent,
+                    SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]
                     {
                         DK.F1, DK.F2, DK.F3, DK.F4, DK.F5, DK.F6, DK.F7, DK.F8, DK.F9, DK.F10, DK.F11, DK.F12
@@ -84,7 +83,7 @@ public class SubnauticaProfile : ApplicationProfile {
                     VariablePath = new VariablePath("Player/Food"),
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(139, 69, 19),
-                    _SecondaryColor = Color.Transparent,
+                    SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]
                     {
                         DK.Q, DK.W, DK.E, DK.R, DK.T, DK.Y, DK.U, DK.I, DK.O, DK.P
@@ -99,7 +98,7 @@ public class SubnauticaProfile : ApplicationProfile {
                     VariablePath = new VariablePath("Player/Water"),
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(0, 0, 255),
-                    _SecondaryColor = Color.Transparent,
+                    SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]
                     {
                         DK.A, DK.S, DK.D, DK.F, DK.G, DK.H, DK.J, DK.K, DK.L
@@ -114,7 +113,7 @@ public class SubnauticaProfile : ApplicationProfile {
                     VariablePath = new VariablePath("Player/OxygenAvailable"),
                     MaxVariablePath = new VariablePath("Player/OxygenCapacity"),
                     _PrimaryColor = Color.FromArgb(0, 170, 65),
-                    _SecondaryColor = Color.Transparent,
+                    SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]
                     {
                         DK.ONE, DK.TWO, DK.THREE, DK.FOUR, DK.FIVE, DK.SIX, DK.SEVEN, DK.EIGHT, DK.NINE, DK.ZERO, DK.MINUS, DK.EQUALS
@@ -134,7 +133,7 @@ public class SubnauticaProfile : ApplicationProfile {
                     VariablePath = new VariablePath("Player/DepthLevel"),
                     MaxVariablePath = new VariablePath("-40"),
                     _PrimaryColor = Color.FromArgb(29, 131, 176),
-                    _SecondaryColor = Color.Transparent,
+                    SecondaryColor = Color.Transparent,
                     PercentType = PercentEffectType.AllAtOnce,
                     _Sequence = new KeySequence(new FreeFormObject(0, -36, 980, 265))
                 }

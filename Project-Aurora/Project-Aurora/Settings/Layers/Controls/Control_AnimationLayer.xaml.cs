@@ -71,17 +71,14 @@ namespace AuroraRgb.Settings.Layers.Controls
 
         public void SetProfile(Application profile)
         {
-            Dispatcher.Invoke(() =>
-            {
-                if (profile != null && !profileset) {
-                    this.profile = profile;
-                    AttachedApplication.SetApplication(triggerEvaluatable, profile);
-                    UpdatePathCombobox();
-                    profileset = true;
-                }
-                settingsset = false;
-                SetSettings();
-            });
+            if (profile != null && !profileset) {
+                this.profile = profile;
+                AttachedApplication.SetApplication(triggerEvaluatable, profile);
+                UpdatePathCombobox();
+                profileset = true;
+            }
+            settingsset = false;
+            SetSettings();
         }
 
         private void UpdatePathCombobox() {

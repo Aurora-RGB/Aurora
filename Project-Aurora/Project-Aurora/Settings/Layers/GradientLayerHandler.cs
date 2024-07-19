@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class GradientLayerHandlerProperties : LayerHandlerProperties2Color<GradientLayerHandlerProperties>
+public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Color<GradientLayerHandlerProperties>
 {
     private LayerEffectConfig? _gradientConfig;
 
@@ -39,7 +39,7 @@ public class GradientLayerHandlerProperties : LayerHandlerProperties2Color<Gradi
 }
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
-[LogicOverrideIgnoreProperty("_SecondaryColor")]
+[LogicOverrideIgnoreProperty("SecondaryColor")]
 public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
 {
     private readonly EffectLayer _tempLayerBitmap = new("GradientLayer - Colors", true);

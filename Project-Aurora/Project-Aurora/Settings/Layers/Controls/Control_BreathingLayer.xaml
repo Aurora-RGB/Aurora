@@ -18,14 +18,14 @@
 
             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                 <TextBlock Text="Secondary Color:" Margin="0,4,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <xctk:ColorPicker SelectedColor="{Binding Properties._SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}"
+                <xctk:ColorPicker SelectedColor="{Binding Properties.SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}"
                                   ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="3,3,0,0" Width="148" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
             </StackPanel>
             <CheckBox Content="Use a random secondary color" IsChecked="{Binding Properties._RandomSecondaryColor}" Margin="0,3,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                 <TextBlock Text="Effect Speed:" Margin="0,4,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <xctk:SingleUpDown Value="{Binding Properties._EffectSpeed}" Minimum="1" Increment="0.1" Margin="0,3,0,0" Width="140" HorizontalAlignment="Left" VerticalAlignment="Top" />
+                <xctk:SingleUpDown Value="{Binding Properties.EffectSpeed}" Minimum="1" Increment="0.1" Margin="0,3,0,0" Width="140" HorizontalAlignment="Left" VerticalAlignment="Top" />
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Margin="0,6,0,0">

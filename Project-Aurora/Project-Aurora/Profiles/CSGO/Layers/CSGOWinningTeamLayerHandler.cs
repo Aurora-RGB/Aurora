@@ -8,39 +8,40 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGOWinningTeamLayerHandlerProperties : LayerHandlerProperties2Color<CSGOWinningTeamLayerHandlerProperties>
+public partial class CSGOWinningTeamLayerHandlerProperties : LayerHandlerProperties2Color<CSGOWinningTeamLayerHandlerProperties>
 {
-    public Color? _CTColor { get; set; }
+    private Color? _ctColor;
 
-    [JsonIgnore]
-    public Color CTColor => Logic?._CTColor ?? _CTColor ?? Color.Empty;
+    [JsonProperty("_CTColor")]
+    public Color CtColor
+    {
+        get => Logic?.CtColor ?? _ctColor ?? Color.Empty;
+        set => _ctColor  = value;
+    }
 
-    public Color? _TColor { get; set; }
+    private Color? _tColor;
 
-    [JsonIgnore]
-    public Color TColor => Logic?._TColor ?? _TColor ?? Color.Empty;
+    [JsonProperty("_TColor")]
+    public Color TColor => Logic?._TColor ?? _tColor ?? Color.Empty;
 
-    public CSGOWinningTeamLayerHandlerProperties() : base() { }
+    public CSGOWinningTeamLayerHandlerProperties()
+    { }
 
-    public CSGOWinningTeamLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGOWinningTeamLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
         base.Default();
 
-        _CTColor = Color.FromArgb(33, 155, 221);
-        _TColor = Color.FromArgb(221, 99, 33);
+        _ctColor = Color.FromArgb(33, 155, 221);
+        _tColor = Color.FromArgb(221, 99, 33);
     }
 
 }
 
-public class CSGOWinningTeamLayerHandler : LayerHandler<CSGOWinningTeamLayerHandlerProperties>
+public class CSGOWinningTeamLayerHandler() : LayerHandler<CSGOWinningTeamLayerHandlerProperties>("CSGO - Winning Team Effect")
 {
     private readonly SolidBrush _solidBrush = new(Color.Empty);
-
-    public CSGOWinningTeamLayerHandler(): base("CSGO - Winning Team Effect")
-    {
-    }
 
     protected override UserControl CreateControl()
     {
@@ -75,7 +76,7 @@ public class CSGOWinningTeamLayerHandler : LayerHandler<CSGOWinningTeamLayerHand
                 }
                 else if (ctScore > tScore)
                 {
-                    _solidBrush.Color = Properties.CTColor;
+                    _solidBrush.Color = Properties.CtColor;
                 }
             }
             else
@@ -84,7 +85,7 @@ public class CSGOWinningTeamLayerHandler : LayerHandler<CSGOWinningTeamLayerHand
                 {
                     // End of round
                     RoundWinTeam.T => Properties.TColor,
-                    RoundWinTeam.CT => Properties.CTColor,
+                    RoundWinTeam.CT => Properties.CtColor,
                     _ => _solidBrush.Color
                 };
             }

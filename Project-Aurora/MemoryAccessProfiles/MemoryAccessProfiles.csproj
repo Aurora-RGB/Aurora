@@ -22,6 +22,9 @@
     <ItemGroup>
         <ProjectReference Include="..\ColorBox\ColorBox.csproj" Private="false" />
         <ProjectReference Include="..\Project-Aurora\Project-Aurora.csproj" Private="false" />
+        <ProjectReference Include="..\AuroraSourceGenerator\AuroraSourceGenerator\AuroraSourceGenerator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 </Project>

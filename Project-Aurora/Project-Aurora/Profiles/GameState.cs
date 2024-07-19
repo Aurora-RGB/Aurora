@@ -64,9 +64,9 @@ public abstract class GameState : IGameState
     /// <param name="value">The current value of the resulting property or field on this instance.</param>
     private bool TryResolveGsPath(VariablePath path, GSIPropertyType type, out object? value) {
         value = null;
-        return !string.IsNullOrEmpty(path.GsiPath)
-               && (value = this.ResolvePropertyPath(path.GsiPath)) != null
-               && GSIPropertyTypeConverter.IsTypePropertyType(value?.GetType(), type);
+        if (string.IsNullOrEmpty(path.GsiPath)) return false;
+        value = this.ResolvePropertyPath(path.GsiPath);
+        return value != null && GSIPropertyTypeConverter.IsTypePropertyType(value.GetType(), type);
     }
 
     public double GetNumber(VariablePath path) {

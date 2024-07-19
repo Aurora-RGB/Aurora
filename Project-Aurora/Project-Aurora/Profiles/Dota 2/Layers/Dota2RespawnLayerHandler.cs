@@ -9,83 +9,89 @@ using AuroraRgb.Utils;
 using Common.Devices;
 using Newtonsoft.Json;
 
-namespace AuroraRgb.Profiles.Dota_2.Layers
+namespace AuroraRgb.Profiles.Dota_2.Layers;
+
+public partial class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties2Color<Dota2RespawnLayerHandlerProperties>
 {
-    public class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties2Color<Dota2RespawnLayerHandlerProperties>
+    private Color? _respawnColor;
+
+    [JsonProperty("_RespawnColor")]
+    public Color RespawnColor
     {
-        public Color? _RespawnColor { get; set; }
-
-        [JsonIgnore]
-        public Color RespawnColor => Logic?._RespawnColor ?? _RespawnColor ?? Color.Empty;
-
-        public Color? _RespawningColor { get; set; }
-
-        [JsonIgnore]
-        public Color RespawningColor => Logic?._RespawningColor ?? _RespawningColor ?? Color.Empty;
-
-        public Color? _BackgroundColor { get; set; }
-
-        [JsonIgnore]
-        public Color BackgroundColor => Logic?._BackgroundColor ?? _BackgroundColor ?? Color.Empty;
-
-        public Dota2RespawnLayerHandlerProperties() : base() { }
-
-        public Dota2RespawnLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
-        public override void Default()
-        {
-            base.Default();
-
-            _RespawnColor = Color.FromArgb(255, 0, 0);
-            _RespawningColor = Color.FromArgb(255, 170, 0);
-            _BackgroundColor = Color.FromArgb(255, 255, 255);
-            _Sequence = new KeySequence(
-                new[] {
-                    DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4, DeviceKeys.F5, DeviceKeys.F6, DeviceKeys.F7, DeviceKeys.F8, DeviceKeys.F9, DeviceKeys.F10, DeviceKeys.F11, DeviceKeys.F12,
-                    DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR, DeviceKeys.FIVE, DeviceKeys.SIX, DeviceKeys.SEVEN, DeviceKeys.EIGHT, DeviceKeys.NINE, DeviceKeys.ZERO, DeviceKeys.MINUS, DeviceKeys.EQUALS
-                }
-                );
-        }
-
+        get => Logic?._RespawnColor ?? _respawnColor ?? Color.Empty;
+        set => _respawnColor = value;
     }
 
-    public class Dota2RespawnLayerHandler : LayerHandler<Dota2RespawnLayerHandlerProperties>
+    private Color? _respawningColor;
+
+    [JsonProperty("_RespawningColor")]
+    public Color RespawningColor
     {
-        private readonly SolidBrush _solidBrush = new(Color.Empty);
+        get => Logic?._RespawningColor ?? _respawningColor ?? Color.Empty;
+        set => _respawningColor = value;
+    }
 
-        public Dota2RespawnLayerHandler(): base("Dota 2 - Respawn")
-        {
-        }
+    private Color? _backgroundColor;
 
-        protected override UserControl CreateControl()
-        {
-            return new Control_Dota2RespawnLayer(this);
-        }
+    [JsonProperty("_BackgroundColor")]
+    public Color BackgroundColor
+    {
+        get => Logic?._BackgroundColor ?? _backgroundColor ?? Color.Empty;
+        set => _backgroundColor = value;
+    }
 
-        private bool _empty;
-        public override EffectLayer Render(IGameState state)
-        {
-            if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+    public Dota2RespawnLayerHandlerProperties()
+    { }
 
-            if (dota2State.Player.Team is DotaPlayerTeam.Undefined or DotaPlayerTeam.None ||
-                dota2State.Hero.IsAlive) return EffectLayer.EmptyLayer;
-            var percent = dota2State.Hero.SecondsToRespawn > 5 ? 0.0 : 1.0 - dota2State.Hero.SecondsToRespawn / 5.0;
-            if (!(percent > 0)) return EffectLayer.EmptyLayer;
+    public Dota2RespawnLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
-            _empty = false;
-            _solidBrush.Color = ColorUtils.BlendColors(Color.Transparent, Properties.BackgroundColor, percent);
-            EffectLayer.Fill(_solidBrush);
+    public override void Default()
+    {
+        base.Default();
 
-            EffectLayer.PercentEffect(
-                Properties.RespawningColor,
-                Properties.RespawnColor,
-                Properties.Sequence,
-                percent,
-                1.0,
-                PercentEffectType.AllAtOnce);
+        _respawnColor = Color.FromArgb(255, 0, 0);
+        _respawningColor = Color.FromArgb(255, 170, 0);
+        _backgroundColor = Color.FromArgb(255, 255, 255);
+        _Sequence = new KeySequence(
+            new[] {
+                DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4, DeviceKeys.F5, DeviceKeys.F6, DeviceKeys.F7, DeviceKeys.F8, DeviceKeys.F9, DeviceKeys.F10, DeviceKeys.F11, DeviceKeys.F12,
+                DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR, DeviceKeys.FIVE, DeviceKeys.SIX, DeviceKeys.SEVEN, DeviceKeys.EIGHT, DeviceKeys.NINE, DeviceKeys.ZERO, DeviceKeys.MINUS, DeviceKeys.EQUALS
+            }
+        );
+    }
+
+}
+
+public class Dota2RespawnLayerHandler() : LayerHandler<Dota2RespawnLayerHandlerProperties>("Dota 2 - Respawn")
+{
+    private readonly SolidBrush _solidBrush = new(Color.Empty);
+
+    protected override UserControl CreateControl()
+    {
+        return new Control_Dota2RespawnLayer(this);
+    }
+
+    public override EffectLayer Render(IGameState state)
+    {
+        if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+
+        if (dota2State.Player.Team is DotaPlayerTeam.Undefined or DotaPlayerTeam.None ||
+            dota2State.Hero.IsAlive) return EffectLayer.EmptyLayer;
+        var percent = dota2State.Hero.SecondsToRespawn > 5 ? 0.0 : 1.0 - dota2State.Hero.SecondsToRespawn / 5.0;
+        if (percent <= 0) return EffectLayer.EmptyLayer;
+
+        _solidBrush.Color = ColorUtils.BlendColors(Color.Transparent, Properties.BackgroundColor, percent);
+        EffectLayer.Fill(_solidBrush);
+
+        EffectLayer.PercentEffect(
+            Properties.RespawningColor,
+            Properties.RespawnColor,
+            Properties.Sequence,
+            percent,
+            1.0,
+            PercentEffectType.AllAtOnce);
                     
-            return EffectLayer;
+        return EffectLayer;
 
-        }
     }
 }

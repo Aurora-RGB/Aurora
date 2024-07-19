@@ -23,7 +23,7 @@ public class DishonoredProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor = Color.Red,
-                    _SecondaryColor = Color.FromArgb(255,70,0,0),
+                    SecondaryColor = Color.FromArgb(255,70,0,0),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR, DeviceKeys.FIVE,
@@ -41,7 +41,7 @@ public class DishonoredProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor =  Color.Blue,
-                    _SecondaryColor = Color.FromArgb(255,0,0,70),
+                    SecondaryColor = Color.FromArgb(255,0,0,70),
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4,
@@ -59,7 +59,7 @@ public class DishonoredProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor =  Color.Blue,
-                    _SecondaryColor = Color.FromArgb(255,0,0,70),
+                    SecondaryColor = Color.FromArgb(255,0,0,70),
                     PercentType = PercentEffectType.Progressive,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.DELETE, DeviceKeys.END, DeviceKeys.PAGE_DOWN,
@@ -77,7 +77,7 @@ public class DishonoredProfile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor =  Color.Red,
-                    _SecondaryColor = Color.FromArgb(255,70,0,0),
+                    SecondaryColor = Color.FromArgb(255,70,0,0),
                     PercentType = PercentEffectType.Progressive,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.NUM_ONE, DeviceKeys.NUM_TWO, DeviceKeys.NUM_THREE, DeviceKeys.NUM_FOUR,

@@ -5,28 +5,22 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class LayerHandlerProperties2Color<TProperty>(bool assignDefault = false) : LayerHandlerProperties<TProperty>(assignDefault)
+public partial class LayerHandlerProperties2Color<TProperty>(bool assignDefault = false) : LayerHandlerProperties<TProperty>(assignDefault)
     where TProperty : LayerHandlerProperties2Color<TProperty>
 {
     private Color? _secondaryColor;
 
+    [JsonProperty("_SecondaryColor")]
     [LogicOverridable("Secondary Color")]
-    public Color? _SecondaryColor
+    public Color SecondaryColor
     {
-        get => _secondaryColor;
-        set
-        {
-            _secondaryColor = value;
-            OnPropertiesChanged(null);
-        }
+        get => Logic?.SecondaryColor ?? _secondaryColor ?? Color.Empty;
+        set => _secondaryColor = value;
     }
-
-    [JsonIgnore]
-    public Color SecondaryColor => Logic?._SecondaryColor ?? _SecondaryColor ?? Color.Empty;
 
     public override void Default()
     {
         base.Default();
-        _SecondaryColor = CommonColorUtils.GenerateRandomColor();
+        SecondaryColor = CommonColorUtils.GenerateRandomColor();
     }
 }

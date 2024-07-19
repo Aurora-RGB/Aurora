@@ -202,7 +202,7 @@ public class ETS2Profile : ApplicationProfile {
             {
                 Properties = new ETS2BeaconLayerProperties
                 {
-                    _BeaconStyle = ETS2_BeaconStyle.Fancy_Flash,
+                    BeaconStyle = ETS2_BeaconStyle.Fancy_Flash,
                     _PrimaryColor = hazardColor,
                     _Sequence = new KeySequence(new[] { DeviceKeys.F5, DeviceKeys.F6, DeviceKeys.F7, DeviceKeys.F8 })
                 }

@@ -25,7 +25,7 @@ public enum ShortcutAssistantPresentationType
     ProgressiveSuggestion = 1
 }
 
-public class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<ShortcutAssistantLayerHandlerProperties>
+public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<ShortcutAssistantLayerHandlerProperties>
 {
     [JsonIgnore]
     private bool? _dimBackground;

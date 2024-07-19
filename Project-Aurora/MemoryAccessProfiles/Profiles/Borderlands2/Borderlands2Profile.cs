@@ -18,7 +18,7 @@ public class Borderlands2Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor = Color.Red,
-                    _SecondaryColor = Color.DarkRed,
+                    SecondaryColor = Color.DarkRed,
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.ONE, DeviceKeys.TWO, DeviceKeys.THREE, DeviceKeys.FOUR, DeviceKeys.FIVE,
@@ -36,7 +36,7 @@ public class Borderlands2Profile : ApplicationProfile
                 Properties = new PercentLayerHandlerProperties()
                 {
                     _PrimaryColor =  Color.Cyan,
-                    _SecondaryColor = Color.DarkCyan,
+                    SecondaryColor = Color.DarkCyan,
                     PercentType = PercentEffectType.Progressive_Gradual,
                     _Sequence = new KeySequence(new DeviceKeys[] {
                         DeviceKeys.F1, DeviceKeys.F2, DeviceKeys.F3, DeviceKeys.F4,

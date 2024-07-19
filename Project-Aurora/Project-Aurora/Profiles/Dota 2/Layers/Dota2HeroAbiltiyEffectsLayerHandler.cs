@@ -11,7 +11,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers
 {
-    public class Dota2HeroAbilityEffectsLayerHandlerProperties : LayerHandlerProperties2Color<Dota2HeroAbilityEffectsLayerHandlerProperties>
+    public partial class Dota2HeroAbilityEffectsLayerHandlerProperties : LayerHandlerProperties2Color<Dota2HeroAbilityEffectsLayerHandlerProperties>
     {
         public Dota2HeroAbilityEffectsLayerHandlerProperties() : base() { }
 

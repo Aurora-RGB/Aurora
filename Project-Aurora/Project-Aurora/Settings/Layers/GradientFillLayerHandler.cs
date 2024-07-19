@@ -9,18 +9,22 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public class GradientFillLayerHandlerProperties : LayerHandlerProperties2Color<GradientFillLayerHandlerProperties>
+    public partial class GradientFillLayerHandlerProperties : LayerHandlerProperties2Color<GradientFillLayerHandlerProperties>
     {
-        [LogicOverridable("Gradient")]
-        public LayerEffectConfig _GradientConfig { get; set; }
+        private LayerEffectConfig _gradientConfig;
 
-        [JsonIgnore]
-        public LayerEffectConfig GradientConfig { get { return Logic?._GradientConfig ?? _GradientConfig; } }
+        [JsonProperty("_GradientConfig")]
+        [LogicOverridable("Gradient")]
+        public LayerEffectConfig GradientConfig
+        {
+            get => Logic?._GradientConfig ?? _gradientConfig;
+            set => _gradientConfig = value;
+        }
 
         public bool? _FillEntireKeyboard { get; set; }
 
         [JsonIgnore]
-        public bool FillEntireKeyboard { get { return Logic?._FillEntireKeyboard ?? _FillEntireKeyboard ?? false; } }
+        public bool FillEntireKeyboard => Logic?._FillEntireKeyboard ?? _FillEntireKeyboard ?? false;
 
         public GradientFillLayerHandlerProperties()
         { }
@@ -30,13 +34,13 @@ namespace AuroraRgb.Settings.Layers
         public override void Default()
         {
             base.Default();
-            _GradientConfig = new LayerEffectConfig(CommonColorUtils.GenerateRandomColor(), CommonColorUtils.GenerateRandomColor()) { AnimationType = AnimationType.None };
+            _gradientConfig = new LayerEffectConfig(CommonColorUtils.GenerateRandomColor(), CommonColorUtils.GenerateRandomColor()) { AnimationType = AnimationType.None };
             _FillEntireKeyboard = false;
         }
     }
 
     [LogicOverrideIgnoreProperty("_PrimaryColor")]
-    [LogicOverrideIgnoreProperty("_SecondaryColor")]
+    [LogicOverrideIgnoreProperty("SecondaryColor")]
     public class GradientFillLayerHandler : LayerHandler<GradientFillLayerHandlerProperties>
     {
         public GradientFillLayerHandler() : base("GradientFillLayer")

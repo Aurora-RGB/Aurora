@@ -18,6 +18,7 @@ public static class CurveFunctions
 {
     private static readonly Dictionary<CurveFunction, Func<double, double>> Funcs = new()
     {
+        { CurveFunction.Unset , Unset },
         { CurveFunction.Linear, Linear },
         { CurveFunction.Squared, Squared },
         { CurveFunction.Cubed, Cubed },
@@ -27,6 +28,11 @@ public static class CurveFunctions
     };
 
     public static readonly IReadOnlyDictionary<CurveFunction, Func<double, double>> Functions = Funcs;
+
+    private static double Unset(double x)
+    {
+        return 0;
+    }
 
     private static double Linear(double x)
     {

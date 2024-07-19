@@ -10,7 +10,7 @@ using UserControl = System.Windows.Controls.UserControl;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public class LockColourLayerHandlerProperties : LayerHandlerProperties2Color<LockColourLayerHandlerProperties>
+    public partial class LockColourLayerHandlerProperties : LayerHandlerProperties2Color<LockColourLayerHandlerProperties>
     {
         public LockColourLayerHandlerProperties()
         { }
@@ -32,7 +32,7 @@ namespace AuroraRgb.Settings.Layers
             base.Default();
             _ToggledKey = Keys.CapsLock;
             _Pulse = false;
-            _SecondaryColor = Color.FromArgb(0, 0, 0, 0);
+            SecondaryColor = Color.FromArgb(0, 0, 0, 0);
         }
     }
 

@@ -91,7 +91,7 @@ public class RocketLeagueBMProfile : ApplicationProfile
                         VariablePath = new VariablePath("YourTeam/Goals"),
                         MaxVariablePath = new VariablePath("Match/TotalGoals"),
                         _PrimaryColor = Color.Transparent,
-                        _SecondaryColor = Color.Transparent
+                        SecondaryColor = Color.Transparent
                     }
                 },
                 new OverrideLogicBuilder()
@@ -117,7 +117,7 @@ public class RocketLeagueBMProfile : ApplicationProfile
                         new NumberGSINumeric("YourTeam/Red"),
                         new NumberGSINumeric("YourTeam/Green"),
                         new NumberGSINumeric("YourTeam/Blue"))
-                    .SetDynamicColor("_SecondaryColor", new NumberConstant(1),
+                    .SetDynamicColor("SecondaryColor", new NumberConstant(1),
                         new NumberGSINumeric("OpponentTeam/Red"),
                         new NumberGSINumeric("OpponentTeam/Green"),
                         new NumberGSINumeric("OpponentTeam/Blue"))

@@ -69,7 +69,7 @@ public enum AmbilightFpsChoice
 
 #endregion
 
-public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<AmbilightLayerHandlerProperties>
+public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<AmbilightLayerHandlerProperties>
 {
     private AmbilightType? _ambilightType;
     [JsonProperty("_AmbilightType")]
@@ -211,7 +211,7 @@ public class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<Ambi
 }
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
-[LogicOverrideIgnoreProperty("_SecondaryColor")]
+[LogicOverrideIgnoreProperty("SecondaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [DoNotNotify]
 public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>

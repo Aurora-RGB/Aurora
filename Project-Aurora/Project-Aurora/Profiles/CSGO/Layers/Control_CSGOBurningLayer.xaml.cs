@@ -10,29 +10,27 @@ namespace AuroraRgb.Profiles.CSGO.Layers;
 /// </summary>
 public partial class Control_CSGOBurningLayer
 {
-    private bool settingsset;
+    private bool _settingsSet;
 
     public Control_CSGOBurningLayer()
     {
         InitializeComponent();
     }
 
-    public Control_CSGOBurningLayer(CSGOBurningLayerHandler datacontext)
+    public Control_CSGOBurningLayer(CSGOBurningLayerHandler dataContext)
     {
         InitializeComponent();
 
-        DataContext = datacontext;
+        DataContext = dataContext;
     }
 
     public void SetSettings()
     {
-        if (DataContext is CSGOBurningLayerHandler && !settingsset)
-        {
-            ColorPicker_Burning.SelectedColor = ColorUtils.DrawingColorToMediaColor((DataContext as CSGOBurningLayerHandler).Properties._BurningColor ?? System.Drawing.Color.Empty);
-            checkBox_Animated.IsChecked = (DataContext as CSGOBurningLayerHandler).Properties._Animated;
+        if (DataContext is not CSGOBurningLayerHandler layerHandler || _settingsSet) return;
+        ColorPicker_Burning.SelectedColor = ColorUtils.DrawingColorToMediaColor(layerHandler.Properties.BurningColor);
+        checkBox_Animated.IsChecked = layerHandler.Properties.Animated;
 
-            settingsset = true;
-        }
+        _settingsSet = true;
     }
 
     private void UserControl_Loaded(object? sender, RoutedEventArgs e)
@@ -44,13 +42,13 @@ public partial class Control_CSGOBurningLayer
 
     private void ColorPicker_Burning_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBurningLayerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker && (sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.HasValue)
-            (DataContext as CSGOBurningLayerHandler).Properties._BurningColor = ColorUtils.MediaColorToDrawingColor((sender as Xceed.Wpf.Toolkit.ColorPicker).SelectedColor.Value);
+        if (IsLoaded && _settingsSet && DataContext is CSGOBurningLayerHandler layerHandler && sender is Xceed.Wpf.Toolkit.ColorPicker { SelectedColor: not null } picker)
+            layerHandler.Properties.BurningColor = ColorUtils.MediaColorToDrawingColor(picker.SelectedColor.Value);
     }
 
     private void checkBox_Animated_Checked(object? sender, RoutedEventArgs e)
     {
-        if (IsLoaded && settingsset && DataContext is CSGOBurningLayerHandler && sender is CheckBox && (sender as CheckBox).IsChecked.HasValue)
-            (DataContext as CSGOBurningLayerHandler).Properties._Animated = (sender as CheckBox).IsChecked.Value;
+        if (IsLoaded && _settingsSet && DataContext is CSGOBurningLayerHandler layerHandler && sender is CheckBox { IsChecked: not null } box)
+            layerHandler.Properties.Animated = box.IsChecked.Value;
     }
 }

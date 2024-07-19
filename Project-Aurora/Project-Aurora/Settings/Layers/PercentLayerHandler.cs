@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2Color<TProperty> where TProperty : PercentLayerHandlerProperties<TProperty>
+public partial class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2Color<TProperty> where TProperty : PercentLayerHandlerProperties<TProperty>
 {
     private PercentEffectType? _percentType;
     [JsonProperty("_PercentType")]
@@ -81,7 +81,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     {
         base.Default();
         _PrimaryColor = CommonColorUtils.GenerateRandomColor();
-        _SecondaryColor = CommonColorUtils.GenerateRandomColor();
+        SecondaryColor = CommonColorUtils.GenerateRandomColor();
         _percentType = PercentEffectType.Progressive_Gradual;
         _blinkThreshold = 0.0;
         _blinkDirection = false;
@@ -89,7 +89,7 @@ public class PercentLayerHandlerProperties<TProperty> : LayerHandlerProperties2C
     }
 }
 
-public class PercentLayerHandlerProperties : PercentLayerHandlerProperties<PercentLayerHandlerProperties>
+public partial class PercentLayerHandlerProperties : PercentLayerHandlerProperties<PercentLayerHandlerProperties>
 {
     public PercentLayerHandlerProperties()
     { }

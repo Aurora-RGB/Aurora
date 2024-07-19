@@ -10,29 +10,37 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color<CSGODeathLayerHandlerProperties>
+public partial class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color<CSGODeathLayerHandlerProperties>
 {
-    public Color? _DeathColor { get; set; }
+    private Color? _deathColor;
 
-    [JsonIgnore]
-    public Color DeathColor => Logic?._DeathColor ?? _DeathColor ?? Color.Empty;
+    [JsonProperty("_DeathColor")]
+    public Color DeathColor
+    {
+        get => Logic?._DeathColor ?? _deathColor ?? Color.Empty;
+        set => _deathColor = value;
+    }
 
-    public int? _FadeOutAfter { get; set; }
+    private int? _fadeOutAfter;
 
-    [JsonIgnore]
-    public int FadeOutAfter => Logic?._FadeOutAfter ?? _FadeOutAfter ?? 5;
+    [JsonProperty("_FadeOutAfter")]
+    public int FadeOutAfter
+    {
+        get => Logic?._FadeOutAfter ?? _fadeOutAfter ?? 5;
+        set => _fadeOutAfter = value;
+    }
 
     public CSGODeathLayerHandlerProperties()
     { }
 
-    public CSGODeathLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
+    public CSGODeathLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
 
     public override void Default()
     {
         base.Default();
 
-        _DeathColor = Color.Red;
-        _FadeOutAfter = 3;
+        _deathColor = Color.Red;
+        _fadeOutAfter = 3;
     }
 
 }
