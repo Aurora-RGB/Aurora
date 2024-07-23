@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
 using AuroraRgb.EffectsEngine;
@@ -70,6 +71,14 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
         }
         EffectLayer.Set(Properties.Sequence, _state ? _primaryBrush : _secondaryBrush);
         return EffectLayer;
+    }
+
+    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        base.PropertiesChanged(sender, args);
+ 
+        _primaryBrush.Color = Properties.PrimaryColor;
+        _secondaryBrush.Color = Properties.SecondaryColor;
     }
 
     private void InputEvents_KeyDown(object? sender, EventArgs e)
