@@ -109,6 +109,7 @@ public partial class Control_DefaultKeycap
     {
         if (sender is Border)
             OnKeySelected();
+        e.Handled = true;
     }
 
     private void keyBorder_MouseEnter(object? sender, MouseEventArgs e)

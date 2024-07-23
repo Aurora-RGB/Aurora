@@ -97,6 +97,7 @@ public partial class Control_DefaultKeycapBackglowOnly
     {
         if (sender is Border)
             OnKeySelected();
+        e.Handled = true;
     }
 
     private void keyBorder_MouseEnter(object? sender, MouseEventArgs e)
