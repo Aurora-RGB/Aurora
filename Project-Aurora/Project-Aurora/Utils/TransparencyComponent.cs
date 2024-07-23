@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
@@ -41,6 +42,17 @@ public sealed class TransparencyComponent : IDisposable
         _window.TintOpacity = 1;
         _window.NoiseOpacity = 0;
         _window.FallbackColor = Color.FromArgb(64, 0, 0, 0);
+
+        _window.MouseDown += Window_MouseDown;
+    }
+    
+    private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            _window.DragMove();
+            e.Handled = false;
+        }
     }
 
     private void WindowOnLoaded(object sender, RoutedEventArgs e)
