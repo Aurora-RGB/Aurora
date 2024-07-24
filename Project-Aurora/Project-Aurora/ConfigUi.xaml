@@ -30,10 +30,8 @@
             UseAeroCaptionButtons="True" />
     </WindowChrome.WindowChrome>
     <DockPanel x:Name="bg_grid" Background="#AA660000" IsHitTestVisible="True">
-        <Grid Width="Auto" Height="25" Background="#10000000" DockPanel.Dock="Top"></Grid>
-        <Grid Name="ProfileStackGrid" HorizontalAlignment="Left" Width="56" Background="#3F000000" DockPanel.Dock="Left">
-            
-        </Grid>
+        <Grid Width="Auto" Height="25" Background="#10000000" DockPanel.Dock="Top" />
+        <Grid Name="ProfileStackGrid" HorizontalAlignment="Left" Width="56" Background="#3F000000" DockPanel.Dock="Left" />
 
         <Grid x:Name="gridManagers" Margin="5,5,0,5" HorizontalAlignment="Left" Width="200" DockPanel.Dock="Left">
             <StackPanel x:Name="stackPanelManagers">
@@ -76,7 +74,10 @@
                             </Grid.CacheMode>
                         </Grid>
                         <Label x:Name="KeyboardRecordMessage" Content="Please select key(s) you want to assign"
-                               HorizontalAlignment="Right" Foreground="Red" Height="26" VerticalAlignment="Top" Margin="0,0,10,0" Grid.Column="1" Padding="0" IsHitTestVisible="False"  />
+                               HorizontalAlignment="Right" Foreground="Red" Height="26" VerticalAlignment="Top" Margin="0,0,10,0" Padding="0" IsHitTestVisible="False"  />
+                        <Border Name="RenderPauseNotice" Background="#66888888" PreviewMouseDown="RenderPauseNotice_OnPreviewMouseDown">
+                            <Label Background="#AA000000" HorizontalContentAlignment="Center" VerticalAlignment="Center">Rendering paused</Label>
+                        </Border>
                     </Grid>
                 </Border>
             </Viewbox>

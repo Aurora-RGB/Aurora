@@ -72,6 +72,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     private readonly UpdateModule _updateModule;
     private static bool _changelogsShown;
+    private bool _renderPauseNoticeVisible = true;
     
     public Application? FocusedApplication
     {
@@ -161,7 +162,24 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     {
         if (DateTime.UtcNow - _lastActivated > _renderTimeout)
         {
+            if (!_renderPauseNoticeVisible)
+            {
+                Dispatcher.InvokeAsync(() =>
+                {
+                    _renderPauseNoticeVisible = true;
+                    RenderPauseNotice.Visibility = Visibility.Visible;
+                });
+            }
             return;
+        }
+
+        if (_renderPauseNoticeVisible)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                _renderPauseNoticeVisible = false;
+                RenderPauseNotice.Visibility = Visibility.Collapsed;
+            });
         }
 
         _transitionAmount += _keyboardTimer.Elapsed.TotalSeconds;
@@ -463,7 +481,6 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     private void brdOverview_PreviewMouseDown(object? sender, MouseButtonEventArgs e)
     {
         _selectedManager = SelectedControl = FocusedApplication.Control;
-
     }
 
     private void Window_SizeChanged(object? sender, SizeChangedEventArgs e) {
@@ -527,5 +544,10 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     {
         _runKeyboardUpdate = false;
         _virtualKeyboardTimer.Dispose(50);
+    }
+
+    private void RenderPauseNotice_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _lastActivated = DateTime.UtcNow;
     }
 }
