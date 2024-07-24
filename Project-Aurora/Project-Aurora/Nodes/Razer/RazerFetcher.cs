@@ -23,6 +23,11 @@ internal abstract class RazerFetcher : IDisposable
 
     private readonly Mutex _mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
 
+    static RazerFetcher()
+    {
+        UsbDevice.ForceLibUsbWinBack = true;
+    }
+
     protected RazerFetcher()
     {
         var rule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), 
@@ -37,12 +42,6 @@ internal abstract class RazerFetcher : IDisposable
 
     protected byte[]? Update()
     {
-        var usbDevice = GetUsbDevice(out var mouseHidInfo);
-        if (usbDevice == null)
-        {
-            return null;
-        }
-
         try
         {
             if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
@@ -55,28 +54,43 @@ internal abstract class RazerFetcher : IDisposable
             //continue
         }
 
+        var usbDevice = GetUsbDevice();
+        if (usbDevice == null)
+        {
+            _mutex.ReleaseMutex();
+            return null;
+        }
+   
+        var productKeyString = GetDeviceProductKeyString(usbDevice);
+        var mouseHidInfo = OnlineSettings.RazerDeviceInfo.MouseHidInfos[productKeyString];
+        var message = GetMessage(mouseHidInfo);
+
         usbDevice.Open();
-        var report = GetReport(usbDevice, GetMessage(mouseHidInfo));
-        _mutex.ReleaseMutex();
+        var report = GetReport(usbDevice, message);
         usbDevice.Close();
+        _mutex.ReleaseMutex();
 
         return report;
     }
 
     protected abstract byte[] GetMessage(RazerMouseHidInfo mouseHidInfo);
 
-    private static UsbDevice? GetUsbDevice(out RazerMouseHidInfo mouseHidInfo)
+    private static UsbDevice? GetUsbDevice()
     {
         const int vendorId = 0x1532;
         var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
 
-        UsbDevice.ForceLibUsbWinBack = true;
         var usbDevice = UsbDevice.OpenUsbDevice(d =>
             d.Vid == vendorId &&
             mouseDictionary.ContainsKey(GetDeviceProductKeyString(d)));
-   
-        var productKeyString = GetDeviceProductKeyString(usbDevice);
-        mouseHidInfo = mouseDictionary[productKeyString];
+        if (usbDevice == null)
+        {
+            return null;
+        }
+        if (!usbDevice.IsOpen)
+        {
+            usbDevice.Open();
+        }
         return usbDevice;
     }
 
