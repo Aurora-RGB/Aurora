@@ -13,27 +13,24 @@ public partial class Control_AnimationFrameItem
 {
     public delegate void DragAdjust(object? sender, double delta);
 
-    public event DragAdjust LeftSplitterDrag;
+    public event DragAdjust? LeftSplitterDrag;
 
-    public event DragAdjust RightSplitterDrag;
+    public event DragAdjust? RightSplitterDrag;
 
-    public event DragAdjust ContentSplitterDrag;
+    public event DragAdjust? ContentSplitterDrag;
 
-    public event DragAdjust CompletedDrag;
+    public event DragAdjust? CompletedDrag;
 
-    public delegate void AnimationFrameItemArgs(object? sender, AnimationFrame track);
+    public delegate void AnimationFrameItemArgs(object? sender, AnimationFrame? track);
 
-    public event AnimationFrameItemArgs AnimationFrameItemUpdated;
+    public event AnimationFrameItemArgs? AnimationFrameItemUpdated;
 
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-    public static readonly DependencyProperty ContextFrameProperty = DependencyProperty.Register("ContextFrame", typeof(AnimationFrame), typeof(Control_AnimationFrameItem));
+    public static readonly DependencyProperty ContextFrameProperty = DependencyProperty.Register(nameof(ContextFrame), typeof(AnimationFrame), typeof(Control_AnimationFrameItem));
 
-    public AnimationFrame ContextFrame
+    public AnimationFrame? ContextFrame
     {
-        get
-        {
-            return (AnimationFrame)GetValue(ContextFrameProperty);
-        }
+        get => (AnimationFrame)GetValue(ContextFrameProperty);
         set
         {
             SetValue(ContextFrameProperty, value);
@@ -43,25 +40,25 @@ public partial class Control_AnimationFrameItem
                 Brush bgBrush = new LinearGradientBrush(ColorUtils.DrawingColorToMediaColor(value.Color), Color.FromArgb(0, 0, 0, 0), new Point(0.5, 0), new Point(0.5, 1));
                 Brush splitterBrush = new SolidColorBrush(ColorUtils.DrawingColorToMediaColor(value.Color));
 
-                if (value is AnimationGradientCircle)
+                switch (value)
                 {
-                    bgBrush = (value as AnimationGradientCircle).GradientBrush.GetMediaBrush();
-                    splitterBrush = (value as AnimationGradientCircle).GradientBrush.GetMediaBrush();
-                }
-                else if (value is AnimationFilledGradientRectangle)
-                {
-                    bgBrush = (value as AnimationFilledGradientRectangle).GradientBrush.GetMediaBrush();
-                    splitterBrush = (value as AnimationFilledGradientRectangle).GradientBrush.GetMediaBrush();
-                }
-                else if (value is AnimationManualColorFrame)
-                {
-                    bgBrush = new LinearGradientBrush(Color.FromArgb(255, 100, 100, 100), Color.FromArgb(0, 0, 0, 0), new Point(0.5, 0), new Point(0.5, 1));
-                    splitterBrush = Brushes.Black;
+                    case AnimationGradientCircle gradientCircle:
+                        bgBrush = gradientCircle.GradientBrush.GetMediaBrush();
+                        splitterBrush = gradientCircle.GradientBrush.GetMediaBrush();
+                        break;
+                    case AnimationFilledGradientRectangle filledGradientRectangle:
+                        bgBrush = filledGradientRectangle.GradientBrush.GetMediaBrush();
+                        splitterBrush = filledGradientRectangle.GradientBrush.GetMediaBrush();
+                        break;
+                    case AnimationManualColorFrame:
+                        bgBrush = new LinearGradientBrush(Color.FromArgb(255, 100, 100, 100), Color.FromArgb(0, 0, 0, 0), new Point(0.5, 0), new Point(0.5, 1));
+                        splitterBrush = Brushes.Black;
+                        break;
                 }
 
-                rectDisplay.Fill = bgBrush;
-                grdSplitterLeft.Background = splitterBrush;
-                grdSplitterRight.Background = splitterBrush;
+                DisplayRect.Fill = bgBrush;
+                SplitterLeftGrd.Background = splitterBrush;
+                SplitterRightGrd.Background = splitterBrush;
             }
 
             AnimationFrameItemUpdated?.Invoke(this, value);
@@ -97,9 +94,9 @@ public partial class Control_AnimationFrameItem
     {
         //Is selected!
         if (value)
-            rectSelected.Visibility = Visibility.Visible;
+            SelectedRect.Visibility = Visibility.Visible;
         //Deselect
         else
-            rectSelected.Visibility = Visibility.Collapsed;
+            SelectedRect.Visibility = Visibility.Collapsed;
     }
 }

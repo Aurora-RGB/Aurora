@@ -43,15 +43,13 @@ public sealed class AnimationMix: IEquatable<AnimationMix>
         return this;
     }
 
-    public AnimationMix AddTrack(AnimationTrack track)
+    public AnimationMix AddTrack(AnimationTrack? track)
     {
-        if (track != null)
-        {
-            if (_tracks.ContainsKey(track.GetName()))
-                _tracks[track.GetName()] = track;
-            else
-                _tracks.TryAdd(track.GetName(), track);
-        }
+        if (track == null) return this;
+        if (_tracks.ContainsKey(track.GetName()))
+            _tracks[track.GetName()] = track;
+        else
+            _tracks.TryAdd(track.GetName(), track);
 
         return this;
     }
@@ -85,11 +83,11 @@ public sealed class AnimationMix: IEquatable<AnimationMix>
 
     public void Draw(Graphics g, float time, PointF offset = default)
     {
-        foreach (KeyValuePair<string, AnimationTrack> track in _tracks)
+        foreach (var track in _tracks)
         {
             if (track.Value.ContainsAnimationAt(time))
             {
-                AnimationFrame frame = track.Value.GetFrame(time);
+                var frame = track.Value.GetFrame(time);
                 frame.SetOffset(offset);
                 frame.Draw(g);
             }
@@ -105,16 +103,17 @@ public sealed class AnimationMix: IEquatable<AnimationMix>
         _tracks.Clear();
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
         return obj.GetType() == GetType() && Equals((AnimationMix) obj);
     }
 
-    public bool Equals(AnimationMix p)
+    public bool Equals(AnimationMix? p)
     {
-        return _tracks.Equals(p._tracks) &&
+        return p != null &&
+               _tracks.Equals(p._tracks) &&
                _automaticallyRemoveComplete == p._automaticallyRemoveComplete;
     }
 
@@ -122,7 +121,7 @@ public sealed class AnimationMix: IEquatable<AnimationMix>
     {
         unchecked
         {
-            int hash = 17;
+            var hash = 17;
             hash = hash * 23 + _tracks.GetHashCode();
             return hash;
         }

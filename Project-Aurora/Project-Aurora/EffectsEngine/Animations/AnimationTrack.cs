@@ -4,255 +4,257 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace AuroraRgb.EffectsEngine.Animations
+namespace AuroraRgb.EffectsEngine.Animations;
+
+public sealed class AnimationTrack
 {
-    public class AnimationTrack
+    [JsonProperty("_animations")]
+    private readonly IDictionary<float, AnimationFrame> _animations;
+
+    [JsonProperty("_animationDuration")]
+    private float _animationDuration;
+
+    [JsonProperty("_track_name")]
+    private string _trackName;
+
+    [JsonProperty("_shift")]
+    private float _shift;
+
+    private bool _supportedTypeIdentified;
+    private Type _supportedAnimationType = typeof(AnimationFrame);
+
+    [JsonIgnore]
+    private readonly Dictionary<int, AnimationFrame> _blendCache = new();
+
+    public Type SupportedAnimationType
     {
-        [JsonProperty]
-        private readonly IDictionary<float, AnimationFrame> _animations;
-        [JsonProperty]
-        private float _animationDuration;
-        [JsonProperty]
-        private string _track_name;
-        [JsonProperty]
-        private float _shift;
-
-        private bool _SupportedTypeIdentified;
-        private Type _SupportedAnimationType = typeof(AnimationFrame);
-
-        [JsonIgnore]
-        private readonly Dictionary<int, AnimationFrame> _blendCache = new();
-        
-        public Type SupportedAnimationType
+        get
         {
-            get
+            if (!_supportedTypeIdentified)
             {
-                if (!_SupportedTypeIdentified)
+                if (_animations.Count > 0)
                 {
-                    if (_animations.Count > 0)
-                    {
-                        _SupportedAnimationType = _animations.Values.ToArray()[0].GetType();
-                        _SupportedTypeIdentified = true;
-                    }
-                }
-
-                return _SupportedAnimationType;
-            }
-        }
-
-        public float AnimationDuration => _animationDuration;
-
-        [JsonConstructor]
-        public AnimationTrack(IDictionary<float, AnimationFrame>? animations, float animationDuration, string trackName, float shift)
-        {
-            _animations = new ConcurrentDictionary<float, AnimationFrame>(animations ?? new Dictionary<float, AnimationFrame>());
-            _animationDuration = animationDuration;
-            _track_name = trackName;
-            _shift = shift;
-        }
-
-        public AnimationTrack(string trackName, float animationDuration, float shift = 0.0f)
-        {
-            _animations = new ConcurrentDictionary<float, AnimationFrame>();
-            _track_name = trackName;
-            _animationDuration = animationDuration;
-            _shift = shift;
-        }
-
-        public AnimationTrack SetName(string name)
-        {
-            _track_name = name;
-
-            return this;
-        }
-
-        public string GetName()
-        {
-            return _track_name;
-        }
-
-        public AnimationTrack SetShift(float shift)
-        {
-            _shift = shift;
-
-            return this;
-        }
-
-        public float GetShift()
-        {
-            return _shift;
-        }
-
-        private float NormalizeTime(float time)
-        {
-            //Shift
-            return time - _shift;
-        }
-
-        public bool ContainsAnimationAt(float time)
-        {
-            time = NormalizeTime(time);
-
-            return time <= _animationDuration && _animations.Count != 0;
-        }
-
-        public AnimationTrack SetFrame(float time, AnimationFrame animframe)
-        {
-            //One can retype the animation track by removing all frames
-            if (_animations.Count == 0)
-            {
-                _SupportedAnimationType = animframe.GetType();
-                _SupportedTypeIdentified = true;
-            }
-
-            if (_SupportedAnimationType == animframe.GetType())
-            {
-                if (_animations.Count != 0)
-                {
-                    Tuple<float, float> closeValues = GetCloseValues(time);
-
-                    if (closeValues.Item1 + _animations[closeValues.Item1]._duration > time && time > closeValues.Item1)
-                        _animations[closeValues.Item1].SetDuration(time - closeValues.Item1);
-                }
-
-                _animations[time] = animframe;
-            }
-
-            UpdateDuration();
-
-            return this;
-        }
-
-        public AnimationTrack RemoveFrame(float time)
-        {
-            foreach (KeyValuePair<float, AnimationFrame> kvp in _animations)
-            {
-                if (kvp.Key == time)
-                {
-                    _animations.Remove(kvp.Key, out _);
-                    break;
+                    _supportedAnimationType = _animations.Values.ToArray()[0].GetType();
+                    _supportedTypeIdentified = true;
                 }
             }
 
-            UpdateDuration();
-            return this;
+            return _supportedAnimationType;
+        }
+    }
+
+    public float AnimationDuration => _animationDuration;
+
+    [JsonConstructor]
+    public AnimationTrack(IDictionary<float, AnimationFrame>? animations, float animationDuration, string trackName, float shift)
+    {
+        _animations = new ConcurrentDictionary<float, AnimationFrame>(animations ?? new Dictionary<float, AnimationFrame>());
+        _animationDuration = animationDuration;
+        _trackName = trackName;
+        _shift = shift;
+    }
+
+    public AnimationTrack(string trackName, float animationDuration, float shift = 0.0f)
+    {
+        _animations = new ConcurrentDictionary<float, AnimationFrame>();
+        _trackName = trackName;
+        _animationDuration = animationDuration;
+        _shift = shift;
+    }
+
+    public AnimationTrack SetName(string name)
+    {
+        _trackName = name;
+
+        return this;
+    }
+
+    public string GetName()
+    {
+        return _trackName;
+    }
+
+    public AnimationTrack SetShift(float shift)
+    {
+        _shift = shift;
+
+        return this;
+    }
+
+    public float GetShift()
+    {
+        return _shift;
+    }
+
+    private float NormalizeTime(float time)
+    {
+        //Shift
+        return time - _shift;
+    }
+
+    public bool ContainsAnimationAt(float time)
+    {
+        time = NormalizeTime(time);
+
+        return time <= _animationDuration && _animations.Count != 0;
+    }
+
+    public AnimationTrack SetFrame(float time, AnimationFrame animframe)
+    {
+        //One can retype the animation track by removing all frames
+        if (_animations.Count == 0)
+        {
+            _supportedAnimationType = animframe.GetType();
+            _supportedTypeIdentified = true;
         }
 
-        public AnimationTrack Clear()
+        if (_supportedAnimationType == animframe.GetType())
         {
-            _animations.Clear();
-            _blendCache.Clear();
-
-            UpdateDuration();
-            return this;
-        }
-        public AnimationFrame GetFrame(float time)
-        {
-            if (!ContainsAnimationAt(time))
-                return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
-
-            time = NormalizeTime(time);
-
-            if (time > _animationDuration || _animations.Count == 0)
-                return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
-
-            Tuple<float, float> closeValues = GetCloseValues(time);
-
-            if (!_animations.ContainsKey(closeValues.Item1) || closeValues.Item1 > time)
-                return new AnimationFrame();
-
-            //The time value is exact
-            if (Math.Abs(closeValues.Item1 - closeValues.Item2) < 0.1)
-                return _animations[closeValues.Item1];
-            if (closeValues.Item1 + _animations[closeValues.Item1]._duration > time)
-                return _animations[closeValues.Item1];
-            if (_animations.ContainsKey(closeValues.Item1) && _animations.ContainsKey(closeValues.Item2))
+            if (_animations.Count != 0)
             {
-                int roundedTime = (int)Math.Round(time * 100);
-                AnimationFrame blend;
-                if (_blendCache.TryGetValue(roundedTime, out blend))
-                {
-                    return blend;
-                }
-                var blendAmount = (time - (closeValues.Item1 + _animations[closeValues.Item1]._duration)) /
-                                  (double)(closeValues.Item2 - (closeValues.Item1 + _animations[closeValues.Item1]._duration));
-                blend = _animations[closeValues.Item1].BlendWith(_animations[closeValues.Item2], blendAmount);
-                _blendCache.Add(roundedTime, blend);
+                var closeValues = GetCloseValues(time);
+
+                if (closeValues.Item1 + _animations[closeValues.Item1]._duration > time && time > closeValues.Item1)
+                    _animations[closeValues.Item1].SetDuration(time - closeValues.Item1);
+            }
+
+            _animations[time] = animframe;
+        }
+
+        UpdateDuration();
+
+        return this;
+    }
+
+    public AnimationTrack RemoveFrame(float time)
+    {
+        foreach (var kvp in _animations)
+        {
+            if (kvp.Key == time)
+            {
+                _animations.Remove(kvp.Key, out _);
+                break;
+            }
+        }
+
+        UpdateDuration();
+        return this;
+    }
+
+    public AnimationTrack Clear()
+    {
+        _animations.Clear();
+        _blendCache.Clear();
+
+        UpdateDuration();
+        return this;
+    }
+
+    public AnimationFrame GetFrame(float time)
+    {
+        if (!ContainsAnimationAt(time))
+            return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
+
+        time = NormalizeTime(time);
+
+        if (time > _animationDuration || _animations.Count == 0)
+            return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
+
+        var (lower, higher) = GetCloseValues(time);
+
+        if (!_animations.ContainsKey(lower) || lower > time)
+            return new AnimationFrame();
+
+        //The time value is exact
+        if (Math.Abs(lower - higher) < 0.1)
+            return _animations[lower];
+        if (lower + _animations[lower]._duration > time)
+            return _animations[lower];
+        if (_animations.TryGetValue(lower, out var value) && _animations.TryGetValue(higher, out var animation))
+        {
+            var roundedTime = (int)Math.Round(time * 100);
+            if (_blendCache.TryGetValue(roundedTime, out var blend))
+            {
                 return blend;
             }
 
-            return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
+            var blendAmount = (time - (lower + value._duration)) / (double)(higher - (lower + value._duration));
+            blend = value.BlendWith(animation, blendAmount);
+            _blendCache.Add(roundedTime, blend);
+            return blend;
         }
 
-        public ConcurrentDictionary<float, AnimationFrame> GetAnimations()
+        return (AnimationFrame)Activator.CreateInstance(SupportedAnimationType);
+    }
+
+    public ConcurrentDictionary<float, AnimationFrame> GetAnimations()
+    {
+        return (ConcurrentDictionary<float, AnimationFrame>)_animations;
+    }
+
+    private Tuple<float, float> GetCloseValues(float time)
+    {
+        var closestLower = _animations.Keys.Min();
+        var closestHigher = _animationDuration;
+
+        foreach (var kvp in _animations)
         {
-            return (ConcurrentDictionary<float, AnimationFrame>)_animations;
+            if (Math.Abs(kvp.Key - time) < 0.001)
+                return new Tuple<float, float>(time, time);
+
+            if (kvp.Key > time && kvp.Key < closestHigher)
+                closestHigher = kvp.Key;
+
+            if (kvp.Key < time && kvp.Key > closestLower)
+                closestLower = kvp.Key;
         }
 
-        private Tuple<float, float> GetCloseValues(float time)
+        return new Tuple<float, float>(closestLower, closestHigher);
+    }
+
+    private void UpdateDuration()
+    {
+        _blendCache.Clear();
+        if (_animations.Count > 0)
         {
-            float closest_lower = _animations.Keys.Min();
-            float closest_higher = _animationDuration;
-
-            foreach (KeyValuePair<float, AnimationFrame> kvp in _animations)
-            {
-                if (kvp.Key == time)
-                    return new Tuple<float, float>(time, time);
-
-                if (kvp.Key > time && kvp.Key < closest_higher)
-                    closest_higher = kvp.Key;
-
-                if (kvp.Key < time && kvp.Key > closest_lower)
-                    closest_lower = kvp.Key;
-            }
-
-            return new Tuple<float, float>(closest_lower, closest_higher);
+            var max = _animations.Keys.Max();
+            _animationDuration = max + _animations[max].Duration;
         }
+        else
+            _animationDuration = 0;
+    }
 
-        private void UpdateDuration()
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != GetType()) return false;
+        return Equals((AnimationTrack)obj);
+    }
+
+    public bool Equals(AnimationTrack p)
+    {
+        return _trackName.Equals(p._trackName) &&
+               _animationDuration == p._animationDuration &&
+               _shift == p._shift &&
+               _animations.Equals(p._animations);
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
         {
-            _blendCache.Clear();
-            if (_animations.Count > 0)
-            {
-                float max = _animations.Keys.Max();
-                _animationDuration = max + _animations[max].Duration;
-            }
-            else
-                _animationDuration = 0;
+            var hash = 17;
+            hash = hash * 23 + _trackName.GetHashCode();
+            hash = hash * 23 + _animationDuration.GetHashCode();
+            hash = hash * 23 + _shift.GetHashCode();
+            hash = hash * 23 + _animations.GetHashCode();
+            return hash;
         }
+    }
 
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((AnimationTrack)obj);
-        }
-
-        public bool Equals(AnimationTrack p)
-        {
-            return _track_name.Equals(p._track_name) &&
-                _animationDuration == p._animationDuration &&
-                _shift == p._shift &&
-                _animations.Equals(p._animations);
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 23 + _track_name.GetHashCode();
-                hash = hash * 23 + _animationDuration.GetHashCode();
-                hash = hash * 23 + _shift.GetHashCode();
-                hash = hash * 23 + _animations.GetHashCode();
-                return hash;
-            }
-        }
-
-        public override string ToString()
-        {
-            return "AnimationTrack: " + _track_name + " { Frames: " + _animations.Count + " Duration: " + _animationDuration + " sec. Shift: " + _shift + " sec. }";
-        }
+    public override string ToString()
+    {
+        return "AnimationTrack: " + _trackName + " { Frames: " + _animations.Count + " Duration: " + _animationDuration + " sec. Shift: " + _shift + " sec. }";
     }
 }

@@ -1,312 +1,312 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
-using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.EffectsEngine.Animations;
+using AuroraRgb.Modules;
+using Common.Utils;
+using TypeExtensions = AuroraRgb.Utils.TypeExtensions;
 
-namespace AuroraRgb.Controls
+namespace AuroraRgb.Controls;
+
+/// <summary>
+/// Interaction logic for Control_AnimationMixPresenter.xaml
+/// </summary>
+public partial class Control_AnimationMixPresenter
 {
-    /// <summary>
-    /// Interaction logic for Control_AnimationMixPresenter.xaml
-    /// </summary>
-    public partial class Control_AnimationMixPresenter : UserControl
+    [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+    public static readonly DependencyProperty ContextMixProperty = DependencyProperty.Register(nameof(ContextMix), typeof(AnimationMix), typeof(Control_AnimationMixPresenter));
+
+    public AnimationMix ContextMix
     {
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
-        public static readonly DependencyProperty ContextMixProperty = DependencyProperty.Register("ContextMix", typeof(AnimationMix), typeof(Control_AnimationMixPresenter));
-
-        public AnimationMix ContextMix
+        get => (AnimationMix)GetValue(ContextMixProperty);
+        set
         {
-            get => (AnimationMix)GetValue(ContextMixProperty);
-            set
+            SetValue(ContextMixProperty, value);
+
+            TracksPanel.Children.Clear();
+
+            foreach (var track in value.GetTracks())
             {
-                SetValue(ContextMixProperty, value);
+                var newTrack = new Control_AnimationTrackPresenter { ContextTrack = (AnimationTrack)TypeExtensions.TryClone(track.Value) };
+                newTrack.AnimationTrackUpdated += NewTrack_AnimationTrackUpdated;
+                newTrack.AnimationFrameItemSelected += NewTrack_AnimationFrameItemSelected;
 
-                stkPanelTracks.Children.Clear();
-
-                foreach (var track in value.GetTracks())
-                {
-                    Control_AnimationTrackPresenter newTrack = new Control_AnimationTrackPresenter() { ContextTrack = track.Value };
-                    newTrack.AnimationTrackUpdated += NewTrack_AnimationTrackUpdated;
-                    newTrack.AnimationFrameItemSelected += NewTrack_AnimationFrameItemSelected;
-
-                    stkPanelTracks.Children.Add(newTrack);
-                    //stkPanelTracks.Children.Add(new Separator());
-                }
-                AnimationMixUpdated?.Invoke(this, ContextMix);
+                TracksPanel.Children.Add(newTrack);
+                TracksPanel.Children.Add(new Separator());
             }
-        }
-
-        public event Control_AnimationFrameItem.AnimationFrameItemArgs AnimationFrameItemSelected;
-
-        private void NewTrack_AnimationFrameItemSelected(object? sender, AnimationFrame track)
-        {
-            AnimationFrameItemSelected?.Invoke(sender, track);
-        }
-
-        private void NewTrack_AnimationTrackUpdated(object? sender, AnimationTrack track)
-        {
-            if (track == null)
-                stkPanelTracks.Children.Remove(sender as Control_AnimationTrackPresenter);
-
-            ContextMix.Clear();
-
-            foreach (var child in stkPanelTracks.Children)
-            {
-                if (child is Control_AnimationTrackPresenter)
-                {
-                    Control_AnimationTrackPresenter item = (child as Control_AnimationTrackPresenter);
-
-                    ContextMix.AddTrack(item.ContextTrack);
-                }
-            }
-
             AnimationMixUpdated?.Invoke(this, ContextMix);
-
-            UpdatePlaybackTime();
         }
+    }
 
-        public delegate void AnimationMixRenderedDelegate(object? sender);
+    public event Control_AnimationFrameItem.AnimationFrameItemArgs? AnimationFrameItemSelected;
 
-        public event AnimationMixRenderedDelegate AnimationMixRendered;
+    public delegate void AnimationMixRenderedDelegate(object? sender);
 
-        public delegate void AnimationMixArgs(object? sender, AnimationMix mix);
+    public event AnimationMixRenderedDelegate? AnimationMixRendered;
 
-        public event AnimationMixArgs AnimationMixUpdated;
+    public delegate void AnimationMixArgs(object? sender, AnimationMix mix);
 
-        public Bitmap RenderedBitmap;
+    public event AnimationMixArgs? AnimationMixUpdated;
 
-        public float AnimationScale { get; set; } = 1.0f;
+    public Bitmap? RenderedBitmap { get; private set; }
 
-        private float _currentPlaybackTime;
+    public float AnimationScale { get; set; } = 1.0f;
 
-        private readonly Timer _playbackTimer = new(Global.Configuration.UpdateDelay);
+    private float _currentPlaybackTime;
 
-        public Control_AnimationMixPresenter()
+    private bool _updateEnabled;
+
+    private readonly SingleConcurrentThread _playbackTimeUpdater;
+    private readonly Bitmap _newBitmap = new(Effects.Canvas.Width, Effects.Canvas.Height);
+
+    public Control_AnimationMixPresenter()
+    {
+        _playbackTimeUpdater = new("AnimationMixPresenter UpdatePlaybackTime", UpdatePlaybackTime);
+
+        InitializeComponent();
+    }
+
+    private void NewTrack_AnimationFrameItemSelected(object? sender, AnimationFrame? track)
+    {
+        AnimationFrameItemSelected?.Invoke(sender, track);
+    }
+
+    private void NewTrack_AnimationTrackUpdated(object? sender, AnimationTrack? track)
+    {
+        if (track == null)
+            TracksPanel.Children.Remove(sender as Control_AnimationTrackPresenter);
+
+        ContextMix.Clear();
+
+        foreach (var child in TracksPanel.Children)
         {
-            InitializeComponent();
-
-            _playbackTimer.Elapsed += _playbackTimer_Elapsed;
-        }
-
-        private void _playbackTimer_Elapsed(object? sender, ElapsedEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
+            if (child is Control_AnimationTrackPresenter trackPresenter)
             {
-                var cm = ContextMix;
-                Task.Run(() =>
+                ContextMix.AddTrack(trackPresenter.ContextTrack);
+            }
+        }
+
+        _playbackTimeUpdater.Trigger();
+    }
+
+    private void RenderAnimation()
+    {
+        Dispatcher.InvokeAsync(() =>
+        {
+            _currentPlaybackTime += (float)Global.Configuration.UpdateDelay / 1000;
+            ScrubberGrid.Margin = new Thickness(ConvertToLocation(_currentPlaybackTime) + 100.0, 0, 0, 0);
+
+            _playbackTimeUpdater.Trigger();
+        });
+    }
+
+    private async void btnPlayStop_Click(object? sender, RoutedEventArgs e)
+    {
+        if (_updateEnabled)
+            await StopUpdate();
+        else
+            await StartUpdate();
+    }
+
+    private void grdsplitrScrubber_DragDelta(object? sender, DragDeltaEventArgs e)
+    {
+        var oldMargin = ScrubberGrid.Margin.Left;
+        var newMargin = oldMargin + e.HorizontalChange;
+
+        if (newMargin >= 100)
+        {
+            ScrubberGrid.Margin = new Thickness(newMargin, 0, 0, 0);
+            _currentPlaybackTime = ConvertToTime(newMargin - 100);
+        }
+        else
+        {
+            ScrubberGrid.Margin = new Thickness(100, 0, 0, 0);
+            _currentPlaybackTime = ConvertToTime(0);
+        }
+
+        _playbackTimeUpdater.Trigger();
+    }
+
+    public void TriggerUpdate()
+    {
+        _playbackTimeUpdater.Trigger();
+    }
+
+    private void UpdatePlaybackTime()
+    {
+        var seconds = (int)_currentPlaybackTime;
+        var milliseconds = (int)((_currentPlaybackTime - seconds) * 1000.0);
+
+        Dispatcher.Invoke(async () =>
+        {
+            CurrentTimeText.Text = $"{seconds};{milliseconds}";
+            var cm = ContextMix;
+
+            await Task.Run(() =>
+            {
+                using (var g = Graphics.FromImage(_newBitmap))
                 {
-                    _currentPlaybackTime += (float)Global.Configuration.UpdateDelay / 1000;
+                    g.Clear(Color.Black);
 
-                    if (!cm.AnyActiveTracksAt(_currentPlaybackTime))
-                    {
-                        _currentPlaybackTime = 0.0f;
-                        _playbackTimer.Stop();
-                    }
-
-                    Bitmap newBitmap = new Bitmap((int)(Effects.Canvas.Width * AnimationScale), (int)(Effects.Canvas.Height * AnimationScale));
-                    RenderedBitmap = newBitmap;
-
-                    using (Graphics g = Graphics.FromImage(newBitmap))
-                    {
-                        g.Clear(System.Drawing.Color.Black);
-                        cm.Draw(g, _currentPlaybackTime);
-                    }
-
-                    Dispatcher.Invoke(() =>
-                    {
-
-                        if (chkbxDrawToDevices.IsChecked.Value)
-                            Global.effengine.ForceImageRender(newBitmap);
-
-                        AnimationMixRendered?.Invoke(this);
-
-                        UpdatePlaybackTime();
-                    });
-                });
-            });
-        }
-
-        private void btnPlayStop_Click(object? sender, RoutedEventArgs e)
-        {
-            if (_playbackTimer.Enabled)
-                _playbackTimer.Stop();
-            else
-                _playbackTimer.Start();
-        }
-
-        private void grdsplitrScrubber_DragDelta(object? sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
-        {
-            double oldMargin = gridScrubber.Margin.Left;
-            double newMargin = oldMargin + e.HorizontalChange;
-
-            if (newMargin >= 100)
-            {
-                gridScrubber.Margin = new Thickness(newMargin, 0, 0, 0);
-                _currentPlaybackTime = ConvertToTime(newMargin - 100);
-            }
-            else
-            {
-                gridScrubber.Margin = new Thickness(100, 0, 0, 0);
-                _currentPlaybackTime = ConvertToTime(0);
-            }
-
-            UpdatePlaybackTime();
-        }
-
-        public void UpdatePlaybackTime()
-        {
-
-            int seconds = (int)_currentPlaybackTime;
-            int milliseconds = (int)((_currentPlaybackTime - seconds) * 1000.0);
-
-            this.txtblkCurrentTime.Text = $"{seconds};{milliseconds}";
-
-            Bitmap newBitmap = new Bitmap((int)(Effects.Canvas.Width / AnimationScale), (int)(Effects.Canvas.Height / AnimationScale));
-
-            using (Graphics g = Graphics.FromImage(newBitmap))
-            {
-                g.Clear(System.Drawing.Color.Black);
-
-                ContextMix.Draw(g, _currentPlaybackTime, new PointF(AnimationScale, AnimationScale));
-            }
-
-            RenderedBitmap = newBitmap;
-
-            if (chkbxDrawToDevices.IsChecked.Value)
-                Global.effengine.ForceImageRender(RenderedBitmap);
-
-            AnimationMixRendered?.Invoke(this);
-        }
-
-        private double ConvertToLocation(float time)
-        {
-            return time * 50.0;
-        }
-
-        private float ConvertToTime(double loc)
-        {
-            return (float)(loc / 50.0f);
-        }
-
-        private void chkbxDrawToDevices_Checked(object? sender, RoutedEventArgs e)
-        {
-            if (!(sender as CheckBox).IsChecked.Value)
-                Global.effengine.ForceImageRender(null);
-        }
-
-        private void btnAddTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            (sender as Button).ContextMenu.IsEnabled = true;
-            (sender as Button).ContextMenu.PlacementTarget = (sender as Button);
-            (sender as Button).ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-            (sender as Button).ContextMenu.IsOpen = true;
-        }
-
-        private string GetAvailableTrackName(string DefaultTrackName)
-        {
-            int trackCopy = 1;
-            string trackName = DefaultTrackName;
-
-            if (ContextMix.ContainsTrack(trackName))
-            {
-                while (ContextMix.ContainsTrack($"{trackName} ({trackCopy})"))
-                {
-                    trackCopy++;
+                    cm.Draw(g, _currentPlaybackTime, new PointF(AnimationScale, AnimationScale));
                 }
 
-                trackName = $"{trackName} ({trackCopy})";
-            }
+                RenderedBitmap = _newBitmap;
 
-            return trackName;
+                AnimationMixRendered?.Invoke(this);
+            });
+        });
+    }
+
+    private double ConvertToLocation(float time)
+    {
+        return time * 50.0;
+    }
+
+    private float ConvertToTime(double loc)
+    {
+        return (float)(loc / 50.0f);
+    }
+
+    private void btnAddTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button button)
+            return;
+        button.ContextMenu!.IsEnabled = true;
+        button.ContextMenu.PlacementTarget = button;
+        button.ContextMenu.Placement = PlacementMode.Bottom;
+        button.ContextMenu.IsOpen = true;
+    }
+
+    private string GetAvailableTrackName(string defaultTrackName)
+    {
+        var trackCopy = 1;
+        var trackName = defaultTrackName;
+
+        if (!ContextMix.ContainsTrack(trackName)) return trackName;
+        while (ContextMix.ContainsTrack($"{trackName} ({trackCopy})"))
+        {
+            trackCopy++;
         }
 
-        private void menuitemAddCircleTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            AnimationTrack newCircleTrack = new AnimationTrack(GetAvailableTrackName("Circle Track"), 0.0f);
-            newCircleTrack.SetFrame(0.0f, new AnimationCircle());
+        trackName = $"{trackName} ({trackCopy})";
 
-            ContextMix = ContextMix.AddTrack(newCircleTrack);
+        return trackName;
+    }
+
+    private void menuitemAddCircleTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newCircleTrack = new AnimationTrack(GetAvailableTrackName("Circle Track"), 0.0f);
+        newCircleTrack.SetFrame(0.0f, new AnimationCircle());
+
+        ContextMix = ContextMix.AddTrack(newCircleTrack);
+    }
+
+    private void menuitemAddFilledCircleTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newFilledCircleTrack = new AnimationTrack(GetAvailableTrackName("Filled Circle Track"), 0.0f);
+        newFilledCircleTrack.SetFrame(0.0f, new AnimationFilledCircle());
+
+        ContextMix = ContextMix.AddTrack(newFilledCircleTrack);
+    }
+
+    private void menuitemAddRectangleTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newRectangleTrack = new AnimationTrack(GetAvailableTrackName("Rectangle Track"), 0.0f);
+        newRectangleTrack.SetFrame(0.0f, new AnimationRectangle());
+
+        ContextMix = ContextMix.AddTrack(newRectangleTrack);
+    }
+
+    private void menuitemAddFilledRectangleTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newFilledRectangleTrack = new AnimationTrack(GetAvailableTrackName("Filled Rectangle Track"), 0.0f);
+        newFilledRectangleTrack.SetFrame(0.0f, new AnimationFilledRectangle());
+
+        ContextMix = ContextMix.AddTrack(newFilledRectangleTrack);
+    }
+
+    private void menuitemAddLineTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newLineTrack = new AnimationTrack(GetAvailableTrackName("Line Track"), 0.0f);
+        newLineTrack.SetFrame(0.0f, new AnimationLine());
+
+        ContextMix = ContextMix.AddTrack(newLineTrack);
+    }
+
+    private void menuitemAddManualColorTrack_Click(object? sender, RoutedEventArgs e)
+    {
+        var newManualColorTrack = new AnimationTrack(GetAvailableTrackName("Manual Color Track"), 0.0f);
+        newManualColorTrack.SetFrame(0.0f, new AnimationManualColorFrame());
+
+        ContextMix = ContextMix.AddTrack(newManualColorTrack);
+    }
+
+    private async void UserControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        await StartUpdate();
+    }
+
+    private async Task StartUpdate()
+    {
+        var lsm = await LightingStateManagerModule.LightningStateManager;
+        lsm.PostUpdate += LsmOnPostUpdate;
+        _updateEnabled = true;
+    }
+
+    private async void UserControl_Unloaded(object? sender, RoutedEventArgs e)
+    {
+        await StopUpdate();
+        Global.effengine.ForceImageRender(null);
+    }
+
+    private async Task StopUpdate()
+    {
+        var lsm = await LightingStateManagerModule.LightningStateManager;
+        lsm.PostUpdate -= LsmOnPostUpdate;
+        _updateEnabled = false;
+    }
+
+    private void LsmOnPostUpdate(object? sender, EventArgs e)
+    {
+        RenderAnimation();
+    }
+
+    private void UserControl_PreviewKeyDown(object? sender, KeyEventArgs e)
+    {
+        var deltaT = 0.001f;
+
+        if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+            deltaT = 0.01f;
+
+        if (e.Key == Key.Left)
+        {
+            e.Handled = true;
+
+            if (_currentPlaybackTime - deltaT < 0)
+                _currentPlaybackTime = 0.0f;
+            else
+                _currentPlaybackTime -= deltaT;
+
+            ScrubberGrid.Margin = new Thickness(ConvertToLocation(_currentPlaybackTime) + 100, 0, 0, 0);
+
+            _playbackTimeUpdater.Trigger();
         }
-
-        private void menuitemAddFilledCircleTrack_Click(object? sender, RoutedEventArgs e)
+        else if (e.Key == Key.Right)
         {
-            AnimationTrack newFilledCircleTrack = new AnimationTrack(GetAvailableTrackName("Filled Circle Track"), 0.0f);
-            newFilledCircleTrack.SetFrame(0.0f, new AnimationFilledCircle());
+            e.Handled = true;
 
-            ContextMix = ContextMix.AddTrack(newFilledCircleTrack);
-        }
+            _currentPlaybackTime += deltaT;
 
-        private void menuitemAddRectangleTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            AnimationTrack newRectangleTrack = new AnimationTrack(GetAvailableTrackName("Rectangle Track"), 0.0f);
-            newRectangleTrack.SetFrame(0.0f, new AnimationRectangle());
+            ScrubberGrid.Margin = new Thickness(ConvertToLocation(_currentPlaybackTime) + 100, 0, 0, 0);
 
-            ContextMix = ContextMix.AddTrack(newRectangleTrack);
-        }
-
-        private void menuitemAddFilledRectangleTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            AnimationTrack newFilledRectangleTrack = new AnimationTrack(GetAvailableTrackName("Filled Rectangle Track"), 0.0f);
-            newFilledRectangleTrack.SetFrame(0.0f, new AnimationFilledRectangle());
-
-            ContextMix = ContextMix.AddTrack(newFilledRectangleTrack);
-        }
-
-        private void menuitemAddLineTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            AnimationTrack newLineTrack = new AnimationTrack(GetAvailableTrackName("Line Track"), 0.0f);
-            newLineTrack.SetFrame(0.0f, new AnimationLine());
-
-            ContextMix = ContextMix.AddTrack(newLineTrack);
-        }
-
-        private void menuitemAddManualColorTrack_Click(object? sender, RoutedEventArgs e)
-        {
-            AnimationTrack newManualColorTrack = new AnimationTrack(GetAvailableTrackName("Manual Color Track"), 0.0f);
-            newManualColorTrack.SetFrame(0.0f, new AnimationManualColorFrame());
-
-            ContextMix = ContextMix.AddTrack(newManualColorTrack);
-        }
-
-        private void UserControl_Unloaded(object? sender, RoutedEventArgs e)
-        {
-            Global.effengine.ForceImageRender(null);
-        }
-
-        private void UserControl_PreviewKeyDown(object? sender, KeyEventArgs e)
-        {
-            float deltaT = 0.001f;
-
-            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-                deltaT = 0.01f;
-
-            if (e.Key == Key.Left)
-            {
-                e.Handled = true;
-
-                if (_currentPlaybackTime - deltaT < 0)
-                    _currentPlaybackTime = 0.0f;
-                else
-                    _currentPlaybackTime -= deltaT;
-
-                gridScrubber.Margin = new Thickness(ConvertToLocation(_currentPlaybackTime) + 100, 0, 0, 0);
-
-                UpdatePlaybackTime();
-            }
-            else if (e.Key == Key.Right)
-            {
-                e.Handled = true;
-
-                _currentPlaybackTime += deltaT;
-
-                gridScrubber.Margin = new Thickness(ConvertToLocation(_currentPlaybackTime) + 100, 0, 0, 0);
-
-                UpdatePlaybackTime();
-            }
+            _playbackTimeUpdater.Trigger();
         }
     }
 }
