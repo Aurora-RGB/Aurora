@@ -553,6 +553,10 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     private void ConfigUi_OnClosed(object? sender, EventArgs e)
     {
-        PerformanceModeModule.UpdatePriority();
+        Task.Run(async () =>
+        {
+            await Task.Delay(2000);
+            PerformanceModeModule.UpdatePriority();
+        });
     }
 }

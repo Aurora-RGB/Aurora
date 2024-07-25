@@ -43,8 +43,8 @@ public sealed partial class PerformanceModeModule : AuroraModule
         var ecoQoS = new ProcessPowerThrottlingState
         {
             Version = ProcessPowerThrottlingCurrentVersion,
-            ControlMask = ProcessPowerThrottlingExecutionStateEcoQos,
-            StateMask = ProcessPowerThrottlingExecutionStateEcoQos
+            ControlMask = ProcessPowerThrottlingExecutionStateEcoQos | ProcessPowerThrottlingValidFlags,
+            StateMask = ProcessPowerThrottlingExecutionStateEcoQos | ProcessPowerThrottlingValidFlags,
         };
 
         var success = SetProcessInformation(currentProcess.Handle, ProcessPowerThrottling, ref ecoQoS, (uint)Marshal.SizeOf(ecoQoS));
@@ -61,7 +61,10 @@ public sealed partial class PerformanceModeModule : AuroraModule
     private const int ProcessPowerThrottling = 9; // PROCESS_INFORMATION_CLASS value for ProcessPowerThrottling
 
     private const uint ProcessPowerThrottlingCurrentVersion = 1;
-    private const uint ProcessPowerThrottlingExecutionStateEcoQos = 0x00000008;
+    private const uint ProcessPowerThrottlingExecutionState = 0b1;
+    private const uint ProcessPowerThrottlingIgnoreTimerResolution = 0b10;
+    private const uint ProcessPowerThrottlingValidFlags = ProcessPowerThrottlingExecutionState | ProcessPowerThrottlingIgnoreTimerResolution;
+    private const uint ProcessPowerThrottlingExecutionStateEcoQos = 0b1000;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct ProcessPowerThrottlingState
