@@ -48,15 +48,22 @@ public sealed class TransparencyComponent : IDisposable
     
     private void Window_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Left)
+        if (e.ChangedButton != MouseButton.Left) return;
+        try
         {
             _window.DragMove();
-            e.Handled = false;
+            e.Handled = true;
+        }
+        catch
+        {
+            //ignore
         }
     }
 
     private void WindowOnLoaded(object sender, RoutedEventArgs e)
     {
+        AcrylicWindow.SetAcrylicAccentState(_window, AcrylicAccentState.Disabled);
+
         // Get PresentationSource
         var presentationSource = PresentationSource.FromVisual((Visual)sender);
 
@@ -96,8 +103,6 @@ public sealed class TransparencyComponent : IDisposable
         {
             var trueValue = 0x01;
             var falseValue = 0x00;
-
-            AcrylicWindow.SetAcrylicAccentState(_window, AcrylicAccentState.Disabled);
 
             // Set dark mode before applying the material, otherwise you'll get an ugly flash when displaying the window.
             if (darkThemeEnabled)
