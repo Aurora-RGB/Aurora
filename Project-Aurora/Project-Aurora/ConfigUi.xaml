@@ -17,7 +17,7 @@
              Top="{Binding Source={x:Static auroraRgb:Global.Configuration}, Path=Top, Mode=TwoWay}"
              WindowState="{Binding Source={x:Static auroraRgb:Global.Configuration}, Path=WindowState, Mode=TwoWay}"
              mc:Ignorable="d" Title="Aurora" Loaded="Window_Loaded" Unloaded="Window_Unloaded"
-             Closing="Window_Closing" Activated="Window_Activated" HorizontalContentAlignment="Stretch"
+             Closing="Window_Closing" Closed="ConfigUi_OnClosed" Activated="Window_Activated" HorizontalContentAlignment="Stretch"
              MinWidth="800" MinHeight="500" 
              DataContext="{Binding RelativeSource={RelativeSource Self}}" SizeChanged="Window_SizeChanged"
              >

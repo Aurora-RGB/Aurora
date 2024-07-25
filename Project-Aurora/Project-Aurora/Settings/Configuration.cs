@@ -13,6 +13,13 @@ using Serilog.Events;
 
 namespace AuroraRgb.Settings;
 
+public enum AuroraProcessPriority
+{
+    EfficiencyMode,
+    Normal,
+    High,
+}
+
 [JsonObject]
 public class Configuration : INotifyPropertyChanged, IAuroraConfig
 {
@@ -44,7 +51,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
 
     public bool GetDevReleases { get; set; }
     public bool GetPointerUpdates { get; set; } = true;
-    public bool HighPriority { get; set; }
+    public AuroraProcessPriority ProcessPriority { get; set; } = AuroraProcessPriority.EfficiencyMode;
     public BitmapAccuracy BitmapAccuracy { get; set; } = BitmapAccuracy.Good;
     public bool EnableAudioCapture2 { get; set; } = true;
     public bool EnableMediaInfo { get; set; } = true;
@@ -184,7 +191,9 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
 
     public ObservableConcurrentDictionary<string, IEvaluatable> EvaluatableTemplates { get; set; } = new();
 
-    public List<string> ProfileOrder { get; set; } = [];
+    public List<string> ProfileOrder { get; set; } = [
+        "discord", "chroma", "logitech"
+    ];
 
     [JsonProperty("GSIAudioRenderDevice", NullValueHandling = NullValueHandling.Ignore)]
     public string GsiAudioRenderDevice { get; set; } = AudioDevices.DefaultDeviceId;

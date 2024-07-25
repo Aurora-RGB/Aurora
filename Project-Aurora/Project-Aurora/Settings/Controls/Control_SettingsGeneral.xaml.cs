@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using AuroraRgb.Modules;
 using AuroraRgb.Utils;
 using AuroraRgb.Utils.IpApi;
 using Xceed.Wpf.Toolkit;
@@ -50,10 +50,10 @@ public partial class Control_SettingsGeneral
         AutoStartUtils.SetEnabled(checkBox.IsChecked.GetValueOrDefault());
     }
 
-    private void HighPriorityCheckbox_Checked(object? sender, RoutedEventArgs e)
+    private void HighPriorityCheckbox_Checked(object? sender, EventArgs e)
     {
         if (!IsLoaded) return;
-        Process.GetCurrentProcess().PriorityClass = Global.Configuration.HighPriority ? ProcessPriorityClass.High : ProcessPriorityClass.Normal;
+        PerformanceModeModule.UpdatePriority();
     }
 
     private void StartDelayAmount_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)

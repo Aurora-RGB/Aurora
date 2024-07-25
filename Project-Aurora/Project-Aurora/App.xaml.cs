@@ -139,6 +139,8 @@ public partial class App
         if (Global.SensitiveData != null)
             ConfigManager.SaveSensitiveData();
 
+        PreventShutdown.Release();
+
         var auroraShutdownTask = AuroraApp!.Shutdown();
         AuroraApp.Dispose();
         await auroraShutdownTask;
@@ -147,8 +149,6 @@ public partial class App
 
         Mutex.ReleaseMutex();
         Mutex.Dispose();
-
-        PreventShutdown.Release();
     }
 
     private static Thread StartForceExitTimer()

@@ -48,6 +48,7 @@ public sealed class AuroraApp : IDisposable
         [
             UpdateModule,
             new UpdateCleanup(),
+            new PerformanceModeModule(),
             _devicesModule,
             new InputsModule(),
             new MediaInfoModule(),
@@ -80,11 +81,6 @@ public sealed class AuroraApp : IDisposable
         Global.logger.Information("Loading Configuration");
         Global.Configuration = await ConfigManager.Load();
         Global.SensitiveData = await ConfigManager.LoadSensitiveData();
-
-        if (Global.Configuration.HighPriority)
-        {
-            Process.GetCurrentProcess().PriorityClass = ProcessPriorityClass.High;
-        }
 
         WindowListener.Instance = new WindowListener();
         var initModules = _modules.Select(async m => await m.InitializeAsync())

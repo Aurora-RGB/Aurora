@@ -550,4 +550,9 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     {
         _lastActivated = DateTime.UtcNow;
     }
+
+    private void ConfigUi_OnClosed(object? sender, EventArgs e)
+    {
+        PerformanceModeModule.UpdatePriority();
+    }
 }

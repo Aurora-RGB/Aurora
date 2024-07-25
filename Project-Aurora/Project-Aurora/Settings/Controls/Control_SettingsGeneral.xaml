@@ -26,9 +26,11 @@
                 <CheckBox x:Name="RunAtWinStartup" Content="Start with Windows" HorizontalAlignment="Left"
                           Margin="12,10,0,0"
                           VerticalAlignment="Top" Checked="RunAtWinStartup_Checked" Unchecked="RunAtWinStartup_Checked" />
-                <CheckBox Content="High priority" IsChecked="{Binding HighPriority}"
-                          Checked="HighPriorityCheckbox_Checked"
-                          Unchecked="HighPriorityCheckbox_Checked" Margin="158,10,0,0" HorizontalAlignment="Left"
+                
+                <ComboBox SelectedValue="{Binding ProcessPriority}"
+                          ItemsSource="{utils1:EnumToItemsSource {x:Type settings:AuroraProcessPriority}}" DisplayMemberPath="Text"
+                          SelectedValuePath="Value" Margin="158,10,0,0" HorizontalAlignment="Left"
+                          SelectionChanged="HighPriorityCheckbox_Checked"
                           VerticalAlignment="Top" />
                 <!-- Startup delay -->
                 <TextBlock Text="Delay:" Margin="278,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
