@@ -100,7 +100,7 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0"/>
-        <PackageReference Include="OpenRGB.NET" Version="2.2.0"/>
+        <PackageReference Include="OpenRGB.NET" Version="3.1.1"/>
         <!--
         Waiting for #338 and #339 on rgb.net
         <PackageReference Include="RGB.NET.Core" Version="2.0.0-prerelease.83" />
