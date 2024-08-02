@@ -91,6 +91,11 @@
             <HintPath>.\RGB.NET.YeeLightStates.dll</HintPath>
             <Private>true</Private>
         </Reference>
+        
+        <Reference Include="OpenRGB.NET">
+            <HintPath>.\OpenRGB.NET.dll</HintPath>
+            <Private>true</Private>
+        </Reference>
     </ItemGroup>
 
     <ItemGroup>
@@ -100,7 +105,10 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.Win32.SystemEvents" Version="8.0.0"/>
+        <!--
+        wait published 3.1.2 with fixed DevicesUpdated event
         <PackageReference Include="OpenRGB.NET" Version="3.1.1"/>
+        -->
         <!--
         Waiting for #338 and #339 on rgb.net
         <PackageReference Include="RGB.NET.Core" Version="2.0.0-prerelease.83" />
