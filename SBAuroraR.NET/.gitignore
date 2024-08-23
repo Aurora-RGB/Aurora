@@ -1,0 +1,8 @@
+/Out/
+obj/
+bin/
+.*/
+*.sdf
+*.opensdf
+*.suo
+*.aps
