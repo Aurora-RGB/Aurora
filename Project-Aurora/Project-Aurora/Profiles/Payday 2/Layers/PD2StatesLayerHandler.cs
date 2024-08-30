@@ -16,27 +16,47 @@ public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Co
     private Color? _downedColor;
 
     [JsonProperty("_DownedColor")]
-    public Color DownedColor => Logic?._DownedColor ?? _downedColor ?? Color.Empty;
+    public Color DownedColor
+    {
+        get => Logic?._DownedColor ?? _downedColor ?? Color.Empty;
+        set => _downedColor = value;
+    }
 
     private Color? _arrestedColor;
 
     [JsonProperty("_ArrestedColor")]
-    public Color ArrestedColor => Logic?._ArrestedColor ?? _arrestedColor ?? Color.Empty;
+    public Color ArrestedColor
+    {
+        get => Logic?._ArrestedColor ?? _arrestedColor ?? Color.Empty;
+        set => _arrestedColor = value;
+    }
 
     private Color? _swanSongColor;
 
     [JsonProperty("_SwanSongColor")]
-    public Color SwanSongColor => Logic?._SwanSongColor ?? _swanSongColor ?? Color.Empty;
+    public Color SwanSongColor
+    {
+        get => Logic?._SwanSongColor ?? _swanSongColor ?? Color.Empty;
+        set => _swanSongColor = value;
+    }
 
     private bool? _showSwanSong;
 
     [JsonProperty("_ShowSwanSong")]
-    public bool ShowSwanSong => Logic?._ShowSwanSong ?? _showSwanSong ?? false;
+    public bool ShowSwanSong
+    {
+        get => Logic?._ShowSwanSong ?? _showSwanSong ?? false;
+        set => _showSwanSong = value;
+    }
 
     private float? _swanSongSpeedMultiplier;
 
     [JsonProperty("_SwanSongSpeedMultiplier")]
-    public float SwanSongSpeedMultiplier => Logic?._SwanSongSpeedMultiplier ?? _swanSongSpeedMultiplier ?? 0.0F;
+    public float SwanSongSpeedMultiplier
+    {
+        get => Logic?._SwanSongSpeedMultiplier ?? _swanSongSpeedMultiplier ?? 0.0F;
+        set => _swanSongSpeedMultiplier = value;
+    }
 
     public PD2StatesLayerHandlerProperties()
     { }

@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
-             mc:Ignorable="d" Loaded="UserControl_Loaded">
+             mc:Ignorable="d">
     
     <Grid>
         <Label HorizontalAlignment="Left" Padding="0" Content="Downed Color:" VerticalAlignment="Top" Margin="0,3,0,0"/>
