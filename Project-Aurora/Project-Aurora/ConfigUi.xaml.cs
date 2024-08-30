@@ -466,7 +466,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     }
 
     private void ctrlOverlayLayerManager_PreviewMouseDown(object? sender, MouseButtonEventArgs e) {
-        if (_selectedManager != sender)
+        if (_selectedManager != sender && FocusedApplication != null)
             SelectedControl = FocusedApplication.Profile.OverlayLayers.Count > 0 ? _layerPresenter : FocusedApplication.Control;
         UpdateManagerStackFocus(sender);
     }
