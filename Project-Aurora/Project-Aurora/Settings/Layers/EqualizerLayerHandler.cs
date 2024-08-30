@@ -121,10 +121,10 @@ public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties<Eq
         set => _backgroundMode = value;
     }
 
-    private float? _maxAmplitude;
+    private double? _maxAmplitude;
     [JsonProperty("_MaxAmplitude")]
     [LogicOverridable("Max Amplitude")]
-    public float MaxAmplitude
+    public double MaxAmplitude
     {
         get => Logic?._maxAmplitude ?? _maxAmplitude ?? 20.0f;
         set => _maxAmplitude = value;
@@ -345,7 +345,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fi = x * waveStepAmount;
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
-                        var yOff = Math.Max(Math.Min(fftVal / scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
+                        var yOff = Math.Max(Math.Min(fftVal / (float)scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
                         g.FillRectangle(brush, x, halfHeight - yOff, 1, yOff * 2);
                     }
                     break;
@@ -355,7 +355,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fi = x * waveStepAmount;
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
-                        var yOff = Math.Min(Math.Abs(fftVal / scaledMaxAmplitude) * 1000.0f, SourceRect.Height);
+                        var yOff = Math.Min(Math.Abs(fftVal / (float)scaledMaxAmplitude) * 1000.0f, SourceRect.Height);
                         g.FillRectangle(brush, x, SourceRect.Height - yOff, 1, yOff * 2);
                     }
                     break;
@@ -389,7 +389,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                     var barWidth = SourceRect.Width / (freqs.Length - 1);
                     for (var fX = 0; fX < freqResults.Length - 1; fX++)
                     {
-                        var fftVal = _fluxArray[fX] / scaledMaxAmplitude;
+                        var fftVal = _fluxArray[fX] / (float)scaledMaxAmplitude;
                         fftVal = Math.Min(1.0f, fftVal);
 
                         if (_previousFreqResults[fX] - fftVal > 0.10)
