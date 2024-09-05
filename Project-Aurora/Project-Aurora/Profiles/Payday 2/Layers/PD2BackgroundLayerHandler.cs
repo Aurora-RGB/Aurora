@@ -190,7 +190,7 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
         {
             if (Properties.ShowSuspicion)
             {
-                var percentSuspicious = ((double)pd2.Players.LocalPlayer.SuspicionAmount / (double)1.0);
+                var percentSuspicious = pd2.Players.LocalPlayer.SuspicionAmount / 1.0;
 
                 var suspicionSpec = new ColorSpectrum(Properties.LowSuspicionColor, Properties.HighSuspicionColor);
                 suspicionSpec.SetColorAt(0.5f, Properties.MediumSuspicionColor);

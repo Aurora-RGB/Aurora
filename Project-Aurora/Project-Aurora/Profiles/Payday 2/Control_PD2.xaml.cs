@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
+using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using AuroraRgb.Profiles.Payday_2.GSI;
 using AuroraRgb.Profiles.Payday_2.GSI.Nodes;
 using AuroraRgb.Utils.Steam;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace AuroraRgb.Profiles.Payday_2;
 
@@ -25,7 +26,7 @@ public partial class Pd2
 
     private void get_hook_button_Click(object? sender, RoutedEventArgs e)
     {
-        Process.Start("explorer", @"http://paydaymods.com/download/");
+        Process.Start("explorer", @"https://superblt.znix.xyz/");
     }
 
     private void install_mod_button_Click(object? sender, RoutedEventArgs e)
@@ -50,14 +51,30 @@ public partial class Pd2
             return;
         }
 
-        using var gsiPd2Ms = new MemoryStream(Properties.Resources.PD2_GSI);
-        using (var zip = new ZipArchive(gsiPd2Ms))
+        //copy gsi config file
+        using var gsiConfigFile = new MemoryStream(Properties.Resources.PD2_GSI);
+        File.WriteAllBytes(Path.Combine(pd2Path, "GSI", "Aurora.xml"), gsiConfigFile.ToArray());
+        
+        var modFolder = Path.Combine(pd2Path, "mods", "GSI");
+
+        const string zipUrl = "https://github.com/Aurora-RGB/Payday2-GSI/archive/refs/heads/main.zip";
+        using var webClient = new WebClient();
+        using var zipStream = new MemoryStream(webClient.DownloadData(zipUrl));
+        using var zipInputStream = new ZipInputStream(zipStream);
+        while (zipInputStream.GetNextEntry() is { } entry)
         {
-            foreach (var entry in zip.Entries)
-            {
-                entry.ExtractToFile(pd2Path, true);
-            }
+            if (!entry.IsFile)
+                continue;
+
+            var entryName = entry.Name;
+            var fullPath = Path.Combine(modFolder, entryName).Replace("\\Payday2-GSI-main", "");
+
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            using var entryFileStream = File.Create(fullPath);
+            zipInputStream.CopyTo(entryFileStream);
         }
+
         MessageBox.Show("GSI for Payday 2 installed.");
     }
 
@@ -93,8 +110,8 @@ public partial class Pd2
         var ammoVal = (int)preview_ammo_slider.Value;
         if (preview_ammo_amount is not Label) return;
         preview_ammo_amount.Content = ammoVal + "%";
-        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Current_Clip = ammoVal;
-        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.Weapons.SelectedWeapon.Max_Clip = 100;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.SelectedWeapon.Current_Clip = ammoVal;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.SelectedWeapon.Max_Clip = 100;
     }
 
     private void preview_suspicion_slider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
@@ -116,7 +133,7 @@ public partial class Pd2
     private void preview_swansong_Checked(object? sender, RoutedEventArgs e)
     {
         if (!IsLoaded || sender is not CheckBox { IsChecked: not null } checkBox) return;
-        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.IsSwanSong = checkBox.IsChecked.Value;
+        (_profileManager.Config.Event.GameState as GameState_PD2).Players.LocalPlayer.SwanSong = checkBox.IsChecked.Value;
     }
 
     private void get_lib_button_Click(object? sender, RoutedEventArgs e)

@@ -12,19 +12,19 @@ public class RoundNode
     /// <summary>
     /// Current round phase
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<RoundPhase>))]
     public RoundPhase Phase { get; set; }
 
     /// <summary>
     /// Current bomb state
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<BombState>))]
     public BombState Bomb { get; set; }
 
     /// <summary>
     /// Round winning team
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<RoundWinTeam>))]
     public RoundWinTeam WinTeam { get; set; }
 }
 

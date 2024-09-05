@@ -132,14 +132,14 @@ public class Map_Dota2
     /// <summary>
     /// Current game state
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<DOTA_GameState>))]
     public DOTA_GameState GameState { get; set; }
 
     /// <summary>
     /// The winning team
     /// </summary>
     [JsonPropertyName("win_team")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<DotaPlayerTeam>))]
     public DotaPlayerTeam Win_team { get; set; }
 
     /// <summary>

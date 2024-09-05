@@ -40,21 +40,21 @@ public class WeaponsNode(Dictionary<string, WeaponNode> weaponNodes)
 
     public Dictionary<string, WeaponNode> WeaponNodes => weaponNodes;
 
-    public bool HasPrimary => _weapons.Exists(w => w.Type is WeaponType.Rifle or WeaponType.MachineGun or WeaponType.SniperRifle or WeaponType.SubmachineGun or WeaponType.Shotgun);
-    public bool HasRifle => _weapons.Exists(w => w.Type == WeaponType.Rifle);
-    public bool HasMachineGun => _weapons.Exists(w => w.Type == WeaponType.MachineGun);
-    public bool HasShotgun => _weapons.Exists(w => w.Type == WeaponType.Shotgun);
-    public bool HasSniper => _weapons.Exists(w => w.Type == WeaponType.SniperRifle);
-    public bool HasKnife => _weapons.Exists(w => w.Type == WeaponType.Knife);
+    public bool HasPrimary => _weapons.Exists(w => w.Type is WeaponTypeCs.Rifle or WeaponTypeCs.MachineGun or WeaponTypeCs.SniperRifle or WeaponTypeCs.SubmachineGun or WeaponTypeCs.Shotgun);
+    public bool HasRifle => _weapons.Exists(w => w.Type == WeaponTypeCs.Rifle);
+    public bool HasMachineGun => _weapons.Exists(w => w.Type == WeaponTypeCs.MachineGun);
+    public bool HasShotgun => _weapons.Exists(w => w.Type == WeaponTypeCs.Shotgun);
+    public bool HasSniper => _weapons.Exists(w => w.Type == WeaponTypeCs.SniperRifle);
+    public bool HasKnife => _weapons.Exists(w => w.Type == WeaponTypeCs.Knife);
     public bool HasTaser => _weapons.Exists(w => w.Name == WeaponTaser);
-    public bool HasSMG => _weapons.Exists(w => w.Type == WeaponType.SubmachineGun);
-    public bool HasPistol => _weapons.Exists(w => w.Type == WeaponType.Pistol);
-    public bool HasC4 => _weapons.Exists(w => w.Type == WeaponType.C4);
-    public bool HasGrenade => _weapons.Exists(w => w.Type == WeaponType.Grenade);
+    public bool HasSMG => _weapons.Exists(w => w.Type == WeaponTypeCs.SubmachineGun);
+    public bool HasPistol => _weapons.Exists(w => w.Type == WeaponTypeCs.Pistol);
+    public bool HasC4 => _weapons.Exists(w => w.Type == WeaponTypeCs.C4);
+    public bool HasGrenade => _weapons.Exists(w => w.Type == WeaponTypeCs.Grenade);
     public bool HasHegrenade => _weapons.Exists(w => w.Name == WeaponHegrenade);
     public bool HasFlashbang => _weapons.Exists(w => w.Name == WeaponFlashbang);
     public bool HasSmoke => _weapons.Exists(w => w.Name == WeaponSmokegrenade);
     public bool HasDecoy => _weapons.Exists(w => w.Name == WeaponDecoy);
     public bool HasIncendiary => _weapons.Exists(w => w.Name == WeaponMolotov);
-    public int GrenadeCount => _weapons.Sum(w => w.Type == WeaponType.Grenade ? 1 : 0);
+    public int GrenadeCount => _weapons.Sum(w => w.Type == WeaponTypeCs.Grenade ? 1 : 0);
 }

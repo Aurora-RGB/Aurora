@@ -47,8 +47,8 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
 
             if (state is not GameState_PD2 pd2State) return flashedLayer;
             //Update Flashed
-            if (pd2State.Game.State != GameStates.Ingame || !(pd2State.LocalPlayer.FlashAmount > 0)) return flashedLayer;
-            var flashColor = ColorUtils.MultiplyColorByScalar(Properties.FlashbangColor, pd2State.LocalPlayer.FlashAmount);
+            if (pd2State.Game.State != GameStates.Ingame || !(pd2State.Players.LocalPlayer.FlashAmount > 0)) return flashedLayer;
+            var flashColor = ColorUtils.MultiplyColorByScalar(Properties.FlashbangColor, pd2State.Players.LocalPlayer.FlashAmount);
 
             flashedLayer.FillOver(flashColor);
 

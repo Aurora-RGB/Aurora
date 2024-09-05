@@ -12,7 +12,7 @@ public class MapNode
     /// <summary>
     /// Current gamemode
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<MapMode>))]
     public MapMode Mode { get; set; } = MapMode.Undefined;
 
     /// <summary>
@@ -23,7 +23,7 @@ public class MapNode
     /// <summary>
     /// Current phase of the map
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<MapPhase>))]
     public MapPhase Phase { get; set; } = MapPhase.Undefined;
 
     /// <summary>

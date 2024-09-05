@@ -113,7 +113,7 @@ public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerPropertie
                 break;
         }
 
-        if (!pd2State.LocalPlayer.IsSwanSong || !Properties.ShowSwanSong) return statesLayer;
+        if (!pd2State.LocalPlayer.SwanSong || !Properties.ShowSwanSong) return statesLayer;
         var blendPercent = Math.Pow(Math.Cos((Time.GetMillisecondsSinceEpoch() % 1300L) / 1300.0D * Properties.SwanSongSpeedMultiplier * 2.0D * Math.PI), 2.0D);
 
         var swansongColor = ColorUtils.MultiplyColorByScalar(Properties.SwanSongColor, blendPercent);

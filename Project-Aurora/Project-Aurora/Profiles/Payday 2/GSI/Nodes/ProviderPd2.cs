@@ -1,13 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AuroraRgb.Profiles.Dota_2.GSI.Nodes;
+namespace AuroraRgb.Profiles.Payday_2.GSI.Nodes;
 
-/// <summary>
-/// Information about the provider of this GameState
-/// </summary>
-public class ProviderValve
+public class ProviderPd2
 {
-    public static readonly ProviderValve Default = new();
+    public static readonly ProviderPd2 Default = new();
 
     /// <summary>
     /// Game name
@@ -23,7 +20,7 @@ public class ProviderValve
     /// <summary>
     /// Game's version
     /// </summary>
-    public long Version { get; set; }
+    public string Version { get; set; }
 
     /// <summary>
     /// Local player's Steam ID

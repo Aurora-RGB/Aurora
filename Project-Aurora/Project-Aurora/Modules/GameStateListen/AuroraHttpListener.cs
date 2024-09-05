@@ -47,7 +47,7 @@ public sealed partial class AuroraHttpListener
 
     public event EventHandler<JsonGameStateEventArgs>? NewJsonGameState;
 
-    /// <summary>
+     /// <summary>
     /// A GameStateListener that listens for connections on http://127.0.0.1:port/
     /// </summary>
     /// <param name="port"></param>
@@ -128,7 +128,7 @@ public sealed partial class AuroraHttpListener
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "[NetworkListener] ReceiveGameState error:");
+            Global.logger.Error(e, "[NetworkListener] ReceiveGameState error on: {Path}", path);
             Global.logger.Debug("JSON: {Json}", json);
         }
     }

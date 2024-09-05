@@ -44,7 +44,7 @@ public class PlayerDota2
     /// <summary>
     /// Player's current activity state
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<DotaPlayerActivity>))]
     public DotaPlayerActivity Activity { get; set; }
 
     /// <summary>
@@ -81,7 +81,7 @@ public class PlayerDota2
     /// Player's team
     /// </summary>
     [JsonPropertyName("team_name")]
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<DotaPlayerTeam>))]
     public DotaPlayerTeam Team { get; set; }
 
     /// <summary>

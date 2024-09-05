@@ -1,122 +1,48 @@
-﻿using AuroraRgb.Profiles.Payday_2.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+using AuroraRgb.Profiles.Payday_2.GSI.Nodes;
 
 namespace AuroraRgb.Profiles.Payday_2.GSI;
 
 /// <summary>
 /// A class representing various information retaining to Payday 2
 /// </summary>
-public class GameState_PD2 : NewtonsoftGameState
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
+public partial class GameState_PD2 : GameState
 {
-    private ProviderNode _Provider;
-    private LobbyNode _Lobby;
-    private LevelNode _Level;
-    private PlayersNode _Players;
-    private GameNode _Game;
-    private GameState_PD2 _Previously;
-
     /// <summary>
     /// Information about the provider of this GameState
     /// </summary>
-    public ProviderNode Provider
-    {
-        get
-        {
-            if (_Provider == null)
-                _Provider = new ProviderNode(ParsedData["provider"]?.ToString() ?? "");
-
-            return _Provider;
-        }
-    }
+    public ProviderPd2 Provider { get; set; } = ProviderPd2.Default;
 
     /// <summary>
     /// Information about the game lobby
     /// </summary>
-    public LobbyNode Lobby
-    {
-        get
-        {
-            if (_Lobby == null)
-                _Lobby = new LobbyNode(ParsedData["lobby"]?.ToString() ?? "");
-
-            return _Lobby;
-        }
-    }
+    public LobbyNodePd2 Lobby { get; set; } = LobbyNodePd2.Default;
 
     /// <summary>
     /// Information about the game level
     /// </summary>
-    public LevelNode Level
-    {
-        get
-        {
-            if (_Level == null)
-                _Level = new LevelNode(ParsedData["level"]?.ToString() ?? "");
-
-            return _Level;
-        }
-    }
+    public LevelNodePd2 Level { get; set; } = LevelNodePd2.Default;
 
     /// <summary>
     /// Information about the local player
     /// </summary>
-    public PlayerNode LocalPlayer
-    {
-        get
-        {
-            if (_Players == null)
-                _Players = new PlayersNode(ParsedData["players"]?.ToString() ?? "");
-
-            return _Players.LocalPlayer;
-        }
-    }
+    public PlayerNodePd2 LocalPlayer => Players.LocalPlayer;
 
     /// <summary>
     /// Information about players in the lobby
     /// </summary>
     [Range(0, 3)]
-    public PlayersNode Players
-    {
-        get
-        {
-            if (_Players == null)
-                _Players = new PlayersNode(ParsedData["players"]?.ToString() ?? "");
-
-            return _Players;
-        }
-    }
+    public PlayersNodePd2 Players { get; set; } = PlayersNodePd2.Default;
 
     /// <summary>
     /// Information about the game
     /// </summary>
-    public GameNode Game
-    {
-        get
-        {
-            if (_Game == null)
-                _Game = new GameNode(ParsedData["game"]?.ToString() ?? "");
-
-            return _Game;
-        }
-    }
+    public GameNodePd2 Game { get; set; } = GameNodePd2.Default;
 
     /// <summary>
     ///  A previous GameState
     /// </summary>
-    public GameState_PD2 Previously
-    {
-        get
-        {
-            if (_Previously == null)
-            {
-                _Previously = new GameState_PD2(ParsedData["previous"]?.ToString() ?? "");
-            }
-
-            return _Previously;
-        }
-    }
-
-
-
-    public GameState_PD2() { }
-    public GameState_PD2(string json) : base(json) { }
+    [JsonPropertyName("previous")]
+    public GameState_PD2? Previously { get; set; }
 }

@@ -142,7 +142,7 @@
         <Resource Include="Profiles\ETS2\GSI\ets2-telemetry-server-x64.dll"/>
         <Resource Include="Profiles\ETS2\GSI\ets2-telemetry-server-x86.dll"/>
         <Resource Include="Profiles\Osu\GSI\OsuSyncAuroraPlugin.dll"/>
-        <Resource Include="Profiles\Payday 2\GSI\PD2_GSI.zip"/>
+        <Resource Include="Profiles\Payday 2\GSI\mod\Aurora.xml"/>
         <Resource Include="Profiles\Witcher3\GSI\Resources\witcher3-mod.zip"/>
     </ItemGroup>
 

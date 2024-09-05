@@ -23,8 +23,8 @@ public class WeaponNode
     /// <summary>
     /// Weapon type
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
-    public WeaponType Type { get; set; }
+    [JsonConverter(typeof(JsonStringEnumConverter<WeaponTypeCs>))]
+    public WeaponTypeCs Type { get; set; }
 
     /// <summary>
     /// Curren amount of ammo in the clip
@@ -44,14 +44,14 @@ public class WeaponNode
     /// <summary>
     /// Weapon's state
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<WeaponState>))]
     public WeaponState State { get; set; }
 }
 
 /// <summary>
 /// Enum list for all types of weapons
 /// </summary>
-public enum WeaponType
+public enum WeaponTypeCs
 {
     /// <summary>
     /// Undefined

@@ -29,7 +29,7 @@ public class PlayerNode
     /// <summary>
     /// Player's team
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<PlayerTeam>))]
     public PlayerTeam Team { get; set; }
 
     /// <summary>
@@ -40,7 +40,7 @@ public class PlayerNode
     /// <summary>
     /// Player's current activity state
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter<PlayerActivity>))]
     public PlayerActivity Activity { get; set; }
 
     /// <summary>
