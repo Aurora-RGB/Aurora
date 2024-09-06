@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 using VdfParser;
@@ -12,6 +13,8 @@ namespace AuroraRgb.Utils.Steam;
 public static class SteamUtils
 {
     private static readonly VdfDeserializer VdfDeserializer = new();
+    
+    private static readonly SemaphoreSlim SteamReadLock = new(1, 1);
 
     public static async Task<bool> InstallGsiFile(int gameId, string gameRelativeFilePath, byte[] gsiFile)
     {
@@ -74,6 +77,7 @@ public static class SteamUtils
                 if (Directory.Exists(appIdPath))
                     return appIdPath;
             }
+
             return null;
         }
         catch (Exception exc)
@@ -90,6 +94,7 @@ public static class SteamUtils
     /// <returns>Path to the location of AppID's install</returns>
     public static async Task<string?> GetGamePathAsync(int gameId)
     {
+        await SteamReadLock.WaitAsync();
         Global.logger.Debug("Trying to get game path for: {GameId}", gameId);
 
         try
@@ -128,6 +133,10 @@ public static class SteamUtils
         {
             Global.logger.Error(exc, "SteamUtils: GetGamePath({GameId})", gameId);
             return null;
+        }
+        finally
+        {
+            SteamReadLock.Release();
         }
     }
 

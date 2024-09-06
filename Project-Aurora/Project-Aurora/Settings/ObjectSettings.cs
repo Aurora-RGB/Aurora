@@ -59,19 +59,12 @@ public class ObjectSettings<T>
             try
             {
                 var json = await File.ReadAllTextAsync(SettingsSavePath);
-                Settings = (T)JsonConvert.DeserializeObject(json, settingsType, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
-                if (Settings == null)
-                {
-                    await SaveSettings(settingsType);
-                }
+                Settings = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
             }
             catch (Exception exc)
             {
                 Global.logger.Error(exc, "Exception occured while loading \\\"{Name}\\\" Settings", GetType().Name);
-                await SaveSettings(settingsType);
             }
         }
-        else
-            await SaveSettings(settingsType);
     }
 }
