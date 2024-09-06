@@ -1,12 +1,8 @@
 ﻿using System.Diagnostics;
-using System.IO;
-using System.Net;
 using System.Windows;
 using System.Windows.Controls;
 using AuroraRgb.Profiles.Payday_2.GSI;
 using AuroraRgb.Profiles.Payday_2.GSI.Nodes;
-using AuroraRgb.Utils.Steam;
-using ICSharpCode.SharpZipLib.Zip;
 
 namespace AuroraRgb.Profiles.Payday_2;
 
@@ -29,53 +25,19 @@ public partial class Pd2
         Process.Start("explorer", @"https://superblt.znix.xyz/");
     }
 
-    private void install_mod_button_Click(object? sender, RoutedEventArgs e)
+    private async void install_mod_button_Click(object? sender, RoutedEventArgs e)
     {
-        var pd2Path = SteamUtils.GetGamePath(218620);
-
-        if (string.IsNullOrWhiteSpace(pd2Path))
+        InstallModButton.IsEnabled = false;
+        var errorMessage = await Pd2GsiUtils.InstallMod();
+        if (errorMessage != null)
         {
-            MessageBox.Show("Payday 2 is not installed through Steam.\r\nCould not install the GSI mod.");
-            return;
+            MessageBox.Show(errorMessage);
         }
-
-        if (!Directory.Exists(pd2Path))
+        else
         {
-            MessageBox.Show("Payday 2 directory is not found.\r\nCould not install the GSI mod.");
-            return;
+            MessageBox.Show("GSI for Payday 2 installed.");
         }
-
-        if (!Directory.Exists(Path.Combine(pd2Path, "mods")))
-        {
-            MessageBox.Show("BLT Hook was not found.\r\nCould not install the GSI mod.");
-            return;
-        }
-
-        //copy gsi config file
-        using var gsiConfigFile = new MemoryStream(Properties.Resources.PD2_GSI);
-        File.WriteAllBytes(Path.Combine(pd2Path, "GSI", "Aurora.xml"), gsiConfigFile.ToArray());
-        
-        var modFolder = Path.Combine(pd2Path, "mods", "GSI");
-
-        const string zipUrl = "https://github.com/Aurora-RGB/Payday2-GSI/archive/refs/heads/main.zip";
-        using var webClient = new WebClient();
-        using var zipStream = new MemoryStream(webClient.DownloadData(zipUrl));
-        using var zipInputStream = new ZipInputStream(zipStream);
-        while (zipInputStream.GetNextEntry() is { } entry)
-        {
-            if (!entry.IsFile)
-                continue;
-
-            var entryName = entry.Name;
-            var fullPath = Path.Combine(modFolder, entryName).Replace("\\Payday2-GSI-main", "");
-
-            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
-
-            using var entryFileStream = File.Create(fullPath);
-            zipInputStream.CopyTo(entryFileStream);
-        }
-
-        MessageBox.Show("GSI for Payday 2 installed.");
+        InstallModButton.IsEnabled = true;
     }
 
     private void preview_gamestate_SelectionChanged(object? sender, SelectionChangedEventArgs e)
