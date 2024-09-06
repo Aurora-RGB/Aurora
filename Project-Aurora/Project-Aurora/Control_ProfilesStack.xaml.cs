@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -17,6 +18,8 @@ using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
 using Application = AuroraRgb.Profiles.Application;
+using Color = System.Windows.Media.Color;
+using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 
 namespace AuroraRgb;
@@ -88,7 +91,7 @@ public partial class Control_ProfilesStack
         var lightingStateManager = await _lightingStateManager;
         var profileLoadTasks = Global.Configuration.ProfileOrder
             .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
-            .Select(profileName => (Application)lightingStateManager.Events[profileName])
+            .Select(profileName => lightingStateManager.Events[profileName])
             .OrderBy(item => item.Settings is { Hidden: false } ? 0 : 1)
             .Select(application => InsertApplicationImage(focusedKey, application, focusedSetTaskCompletion, cancellationToken))
             .Select(x => x.Task);
@@ -141,13 +144,13 @@ public partial class Control_ProfilesStack
         var applicationSettings = application.Settings;
 
         profileGrid.Children.Add(profileImage);
-        if (isGeneric && (!applicationSettings?.Hidden ?? ShowHidden is true or true))
+        if (isGeneric && (!applicationSettings?.Hidden ?? ShowHidden))
         {
             AddProfileRemoveButton(application, profileGrid);
         }
 
         var profileDisabled = !applicationSettings?.IsEnabled ?? ShowHidden;
-        if (profileDisabled && (!applicationSettings?.Hidden ?? ShowHidden is true or true))
+        if (profileDisabled && (!applicationSettings?.Hidden ?? ShowHidden))
         {
             AddProfileDisabledImage(application, profileGrid);
         }
@@ -238,13 +241,15 @@ public partial class Control_ProfilesStack
 
     private FrameworkElement GenerateProfileImage(Application application)
     {
+        var setHidden = application.Settings?.Hidden ?? false;
         var profileImage = new Image
         {
             Tag = application,
             Source = application.Icon,
             ToolTip = application.Config.Name + " Settings\n\nRight click to enable/disable the profile",
             Margin = new Thickness(0, 5, 0, 0),
-            Visibility = application.Settings is { Hidden: false } ? Visibility.Visible : Visibility.Collapsed,
+            Opacity = application.Settings?.Hidden ?? false ? 0.5 : 1,
+            Visibility = setHidden && !ShowHidden ? Visibility.Collapsed : Visibility.Visible,
         };
         
         profileImage.MouseDown += ProfileImage_MouseDown;
@@ -270,7 +275,7 @@ public partial class Control_ProfilesStack
         var genAppPm = new GenericApplication(filename);
         await genAppPm.Initialize(CancellationToken.None);
 
-        var ico = System.Drawing.Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
+        var ico = Icon.ExtractAssociatedIcon(dialog.ChosenExecutablePath.ToLowerInvariant());
 
         if (!Directory.Exists(genAppPm.GetProfileFolderPath()))
             Directory.CreateDirectory(genAppPm.GetProfileFolderPath());
