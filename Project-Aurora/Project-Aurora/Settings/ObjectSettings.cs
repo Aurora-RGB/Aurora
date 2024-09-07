@@ -66,5 +66,9 @@ public class ObjectSettings<T>
                 Global.logger.Error(exc, "Exception occured while loading \\\"{Name}\\\" Settings", GetType().Name);
             }
         }
+        if (Equals(Settings, default(T)))
+        {
+            Settings = (T)Activator.CreateInstance(settingsType);
+        }
     }
 }
