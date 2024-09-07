@@ -124,7 +124,9 @@ public sealed class AuroraApp : IDisposable
         {
             try
             {
+                Global.logger.Debug("Shutting down {Module}", m.GetType().Name);
                 await m.DisposeAsync();
+                Global.logger.Debug("Shut down {Module}!", m.GetType().Name);
             }
             catch (Exception moduleException)
             {

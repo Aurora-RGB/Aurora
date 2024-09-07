@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using AuroraRgb.Modules.OnlineConfigs.Model;
@@ -17,7 +18,7 @@ sealed class RazerBatteryStatusFetcher : RazerFetcher
 
     protected override byte[] GetMessage(RazerMouseHidInfo mouseHidInfo)
     {
-        var tid = byte.Parse(mouseHidInfo.TransactionId.Split('x')[1], System.Globalization.NumberStyles.HexNumber);
+        var tid = byte.Parse(mouseHidInfo.TransactionId.Split('x')[1], NumberStyles.HexNumber);
         var header = new byte[] { 0x00, tid, 0x00, 0x00, 0x00, 0x02, 0x07, 0x84 };
 
         var crc = 0;
@@ -34,6 +35,10 @@ sealed class RazerBatteryStatusFetcher : RazerFetcher
 
     private void TimerUpdate()
     {
+        if (App.Closing)
+        {
+            return;
+        }
         try
         {
             UpdateBatteryStatus();

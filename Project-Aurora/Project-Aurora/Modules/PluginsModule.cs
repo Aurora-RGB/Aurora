@@ -23,7 +23,6 @@ public sealed class PluginsModule : AuroraModule
 
     public override ValueTask DisposeAsync()
     {
-        _pluginManager?.SaveSettings();
         return ValueTask.CompletedTask;
     }
 }

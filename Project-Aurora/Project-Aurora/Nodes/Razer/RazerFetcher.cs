@@ -68,6 +68,7 @@ internal abstract class RazerFetcher : IDisposable
         usbDevice.Open();
         var report = GetReport(usbDevice, message);
         usbDevice.Close();
+        UsbDevice.Exit();
         _mutex.ReleaseMutex();
 
         return report;

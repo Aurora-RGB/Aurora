@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using AuroraRgb.Modules;
 using AuroraRgb.Settings;
 using Serilog.Core;
 using Constants = Common.Constants;
@@ -106,6 +107,10 @@ public partial class App
                     try
                     {
                         var previousAuroraProcess = Process.GetProcessById(pid);
+                        if (previousAuroraProcess.HasExited)
+                        {
+                            break;
+                        }
                         previousAuroraProcess.WaitForExit();
                     }
                     catch (ArgumentException) { /* process doesn't exist */ }
@@ -123,7 +128,7 @@ public partial class App
         }
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    protected override void OnExit(ExitEventArgs e)
     {
         if (Closing)
         {
@@ -141,14 +146,16 @@ public partial class App
 
         PreventShutdown.Release();
 
-        var auroraShutdownTask = AuroraApp!.Shutdown();
+        AuroraApp!.Shutdown().Wait();
         AuroraApp.Dispose();
-        await auroraShutdownTask;
+        AuroraModule.DisposeStatic();
+        Global.logger.Information("All modules closed successfully");
         (Global.logger as Logger)?.Dispose();
         forceExitTimer.GetApartmentState(); //statement just to keep referenced
 
         Mutex.ReleaseMutex();
         Mutex.Dispose();
+        ForceShutdownApp(0);
     }
 
     private static Thread StartForceExitTimer()
@@ -157,8 +164,8 @@ public partial class App
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
-            Thread.Sleep(6000);
-            if (stopwatch.ElapsedMilliseconds > 5000)
+            Thread.Sleep(2000);
+            if (stopwatch.ElapsedMilliseconds > 1500)
             {
                 ForceShutdownApp(0);
             }

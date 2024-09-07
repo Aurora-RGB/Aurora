@@ -219,11 +219,10 @@ public static class ConfigManager
         return new SensitiveData();
     }
 
-    public static async Task SaveSensitiveData()
+    public static void SaveSensitiveData()
     {
         var content = JsonSerializer.Serialize(Global.SensitiveData);
         var encryptedContent = Encryption.Encrypt(content);
-        await File.WriteAllBytesAsync(SensitiveData.ConfigFile, encryptedContent);
-        File.Encrypt(SensitiveData.ConfigFile);
+        File.WriteAllBytes(SensitiveData.ConfigFile, encryptedContent);
     }
 }

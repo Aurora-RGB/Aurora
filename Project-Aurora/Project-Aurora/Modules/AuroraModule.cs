@@ -21,6 +21,11 @@ public abstract class AuroraModule : IAsyncDisposable
 
     private TaskCompletionSource? _taskSource;
 
+    public static void DisposeStatic()
+    {
+        ModuleThreadPool.Dispose();
+    }
+
     private Task QueueInit(Func<Task> action)
     {
         _taskSource = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
