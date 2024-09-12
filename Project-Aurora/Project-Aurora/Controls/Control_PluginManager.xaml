@@ -18,8 +18,8 @@
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"></RowDefinition>
-            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="1*" />
         </Grid.RowDefinitions>
         
         <Grid Margin="7,7,7,7" DataContext="{x:Static auroraRgb:Global.Configuration}">
@@ -35,7 +35,7 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Orientation="Vertical">
-                    <TextBlock Text="Hardware Info"></TextBlock>
+                    <TextBlock Text="Hardware Info" />
                     <CheckBox Content="Enabled" IsChecked="{Binding EnableHardwareInfo}" />
                     <CheckBox Name="AmdMonitorToggle" Content="Enable CPU and GPU monitoring on AMD systems" IsChecked="{Binding EnableAmdCpuMonitor}" />
                     <TextBlock>
@@ -85,26 +85,29 @@
                 
                 <Grid Grid.Row="0" Grid.Column="2">
                     <StackPanel>
-                        <TextBlock Text="Other modules (these changes need restart of Aurora)"></TextBlock>
+                        <TextBlock Text="Other modules (these changes need restart of Aurora)" />
+                        <CheckBox Content="Enable Audio Device Detection*"
+                                  IsChecked="{Binding EnableAudioEnumeration}"
+                                  HorizontalAlignment="Left" VerticalAlignment="Top" />
                         <CheckBox Content="Enable Audio Capture"
                                   IsChecked="{Binding EnableAudioCapture2}"
                                   ToolTip="Aurora only measures the activity level from your microphone for use with the 'LocalPCInfo' game state. None of this data is stored or transmitted elsewhere."
                                   HorizontalAlignment="Left" VerticalAlignment="Top" />
-                        <CheckBox Content="Input Capture*" IsChecked="{Binding EnableInputCapture}"></CheckBox>
-                        <CheckBox Content="Media Info" IsChecked="{Binding EnableMediaInfo}"></CheckBox>
+                        <CheckBox Content="Input Capture*" IsChecked="{Binding EnableInputCapture}" />
+                        <CheckBox Content="Media Info" IsChecked="{Binding EnableMediaInfo}" />
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="HTTP listener*" IsChecked="{Binding EnableHttpListener}"></CheckBox>
+                            <CheckBox Content="HTTP listener*" IsChecked="{Binding EnableHttpListener}" />
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for most GSI games"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="IPC listener*" IsChecked="{Binding EnableIpcListener}"></CheckBox>
+                            <CheckBox Content="IPC listener*" IsChecked="{Binding EnableIpcListener}" />
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for wrappers"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal">
-                            <CheckBox Content="Shutdown Aurora On Conflict*" IsChecked="{Binding EnableShutdownOnConflict}"></CheckBox>
+                            <CheckBox Content="Shutdown Aurora On Conflict*" IsChecked="{Binding EnableShutdownOnConflict}" />
                             <TextBlock Text="?" TextDecorations="Underline" ToolTip="Shuts down Aurora when non-compatible software is opened, like games that don't start with Aurora open"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>

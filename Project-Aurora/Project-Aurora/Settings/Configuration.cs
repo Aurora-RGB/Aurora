@@ -54,6 +54,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public AuroraProcessPriority ProcessPriority { get; set; } = AuroraProcessPriority.EfficiencyMode;
     public BitmapAccuracy BitmapAccuracy { get; set; } = BitmapAccuracy.Good;
     public bool EnableAudioCapture2 { get; set; } = true;
+    public bool EnableAudioEnumeration { get; set; } = true;
     public bool EnableMediaInfo { get; set; } = true;
     public bool EnableInputCapture { get; set; } = true;
     public bool EnableHttpListener { get; set; } = true;

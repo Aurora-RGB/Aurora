@@ -16,36 +16,14 @@ public sealed class AudioCaptureModule : AuroraModule
 
     protected override async Task Initialize()
     {
-        await Application.Current.Dispatcher.BeginInvoke(InitializeLocalInfoProxies);
-
         Global.Configuration.PropertyChanged += ConfigurationOnAudioCaptureChanged;
+
+        await InitializeLocalInfoProxies();
     }
 
-    private void ConfigurationOnAudioCaptureChanged(object? sender, PropertyChangedEventArgs e)
+    private async Task InitializeLocalInfoProxies()
     {
-        if (e.PropertyName != nameof(Global.Configuration.EnableAudioCapture2))
-        {
-            return;
-        }
-
-        if (Global.Configuration.EnableAudioCapture2)
-        {
-            InitCapture();
-        }
-        else
-        {
-            DisposeCapture();
-        }
-    }
-
-    private void InitializeDeviceListProxy()
-    {
-        _audioDevices = new AudioDevices();
-    }
-
-    private void InitializeLocalInfoProxies()
-    {
-        InitializeDeviceListProxy();
+        await UpdateEnumerationStateOnMain();
         try
         {
             InitRender();
@@ -71,6 +49,46 @@ public sealed class AudioCaptureModule : AuroraModule
                             "Cause of this could be bad drivers or bad implementation",
                 "Aurora - Warning");
             Global.logger.Error(e, "AudioCapture error");
+        }
+    }
+
+    private void ConfigurationOnAudioCaptureChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(Global.Configuration.EnableAudioCapture2))
+        {
+            return;
+        }
+
+        UpdateCaptureState();
+    }
+
+    private void UpdateEnumerationState()
+    {
+        if (Global.Configuration.EnableAudioEnumeration)
+        {
+            _audioDevices ??= new AudioDevices();
+        }
+        else
+        {
+            _audioDevices?.Dispose();
+            _audioDevices = null;
+        }
+    }
+
+    private async Task UpdateEnumerationStateOnMain()
+    {
+        await Application.Current.Dispatcher.InvokeAsync(UpdateEnumerationState);
+    }
+
+    private void UpdateCaptureState()
+    {
+        if (Global.Configuration.EnableAudioCapture2)
+        {
+            InitCapture();
+        }
+        else
+        {
+            DisposeCapture();
         }
     }
 
