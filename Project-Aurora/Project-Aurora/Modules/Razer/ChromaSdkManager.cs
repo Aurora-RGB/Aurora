@@ -36,7 +36,7 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
         }
         catch (Exception exc)
         {
-            Global.logger.Fatal(exc, "RazerSdkManager failed to load!");
+            Global.logger.Error(exc, "RazerSdkManager failed to load!");
         }
     }
 
