@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using NAudio.CoreAudioApi;
+using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
 
 namespace AuroraRgb.Modules.AudioCapture;
@@ -14,7 +15,7 @@ namespace AuroraRgb.Modules.AudioCapture;
 /// Will handle the creation of devices if required. If another AudioDevice is using that device, they will share the same reference.
 /// Can be hot-swapped to a different device, moving all events to the newly selected device.
 /// </summary>
-public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfaces.IMMNotificationClient
+public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
 {
     private static readonly BlockingCollection<Action> ThreadTasks = new();
 
@@ -108,6 +109,8 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
 
     public bool IsMuted { get; private set; }
     public float Volume { get; private set; }
+
+    public float MasterPeakValue { get; private set; }
 
     /// <summary>Gets the currently assigned direction of this device.</summary>
     public DataFlow Flow { get; set; }
@@ -209,7 +212,8 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
             IsMuted = Device.AudioEndpointVolume.Mute;
             Volume = Device.AudioEndpointVolume.MasterVolumeLevelScalar;
             Device.AudioEndpointVolume.OnVolumeNotification += AudioEndpointVolumeOnOnVolumeNotification;
-            
+            MasterPeakValue = Device.AudioMeterInformation.MasterPeakValue;
+
             DeviceChanged?.Invoke(this, EventArgs.Empty);
         }
         catch (Exception e)
@@ -230,6 +234,7 @@ public sealed class AudioDeviceProxy : IDisposable, NAudio.CoreAudioApi.Interfac
     {
         IsMuted = data.Muted;
         Volume = data.MasterVolume;
+        MasterPeakValue = Device?.AudioMeterInformation.MasterPeakValue ?? 0;
     }
 
     private void WaveInOnRecordingStopped(object? sender, StoppedEventArgs e)
