@@ -9,12 +9,9 @@
              Height="22" MinWidth="60">
 
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisConv" />
+        <controls:PropertyEntryToValueConverter x:Key="EntryToValueConverter" />
         <DataTemplate x:Key="ListItemTemplate">
-            <Grid>
-                <TextBlock Text="{Binding DisplayName}" Padding="4,1" Margin="0,0,16,0" />
-                <Image Source="/AuroraRgb;component/Resources/icons8-folder-30.png" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisConv}}" />
-            </Grid>
+            <controls:GameStateParameterItem Converter="{StaticResource EntryToValueConverter}" DataContext="{Binding }" />
         </DataTemplate>
         <controls:IsStringNotNullOrWhitespaceConverter x:Key="IsStringNotNullConv" />
         <controls:PropertyTypeToGridLengthConverter x:Key="PropTypeToHeightConv" />
@@ -28,7 +25,7 @@
 
         <!-- Dropdown content -->
         <Popup StaysOpen="False" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
-            <Grid x:Name="popupContent" Background="#1A1A1A" Height="280" Width="200">
+            <Grid x:Name="popupContent" Background="#1A1A1A" Height="280" Width="450">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="1*" />

@@ -6,16 +6,16 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using AuroraRgb.Profiles;
 using AuroraRgb.Utils;
-using PropertyChanged;
+using Xceed.Wpf.Toolkit;
 using Application = AuroraRgb.Profiles.Application;
 
 namespace AuroraRgb.Controls;
 
-[DoNotNotify]
 public partial class GameStateParameterPicker : INotifyPropertyChanged {
 
     public event EventHandler<SelectedPathChangedEventArgs> SelectedPathChanged;
@@ -43,6 +43,19 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
             return Application.ParameterLookup.Children(WorkingPath.GsiPath, PropertyType).OrderBy(p => !p.IsFolder).ThenBy(p => p.DisplayName);
         }
     }
+    #endregion
+
+    #region Time Dependency Property
+    /// <summary>
+    /// Whether or not the dropdown for this picker is open.
+    /// </summary>
+    public string Time {
+        get => (string)GetValue(TimeProperty);
+        set => SetValue(TimeProperty, value);
+    }
+
+    public static readonly DependencyProperty TimeProperty =
+        DependencyProperty.Register(nameof(Time), typeof(string), typeof(GameStateParameterPicker), new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.AffectsRender));
     #endregion
 
     #region IsOpen Dependency Property
@@ -106,9 +119,15 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     /// <summary>
     /// The current application whose context this picker is for. Determines the available variables.
     /// </summary>
-    public Application Application {
+    public Application Application
+    {
         get => (Application)GetValue(ApplicationProperty);
-        set => SetValue(ApplicationProperty, value);
+        set
+        {
+            SetValue(ApplicationProperty, value);
+            var propertyEntryToValueConverter = (PropertyEntryToValueConverter)Resources["EntryToValueConverter"];
+            propertyEntryToValueConverter.App = value;
+        }
     }
 
     public static readonly DependencyProperty ApplicationProperty =
@@ -202,7 +221,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
         }
     }
 
-    private void MainListBox_PreviewMouseLeftButtonDown(object? sender, System.Windows.Input.MouseButtonEventArgs e) {
+    private void MainListBox_PreviewMouseLeftButtonDown(object? sender, MouseButtonEventArgs e) {
         /* The reason this is a PreviewMouseLeftButtonDown event rather than using a SelectionChanged event is because I was having issues where when the next items
          * were loaded it was immediately selecting the first item and then selecting a path the user didn't click. There is no click event available for the ListBox
          * so that was out of the question. Next I tried double click but it was counter-intuitive as items were being selected by not actually chosen, which could
@@ -238,7 +257,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     }
 
     private void NumericEntry_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e) {
-        var v = (sender as Xceed.Wpf.Toolkit.DoubleUpDown).Value;
+        var v = (sender as DoubleUpDown).Value;
 
         // If there is no value, then this will have been set programmatically, so do nothing since we don't want to end up in a change event handler loop
         if (!v.HasValue) return;
@@ -264,6 +283,11 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     private void NotifyChanged(params string[] propNames) {
         foreach (var prop in propNames)
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+    }
+
+    private void FrameworkElement_OnSourceUpdated(object? sender, DataTransferEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }
 
@@ -298,6 +322,48 @@ public class IsStringNotNullOrWhitespaceConverter : IValueConverter {
 /// </summary>
 public class PropertyTypeToGridLengthConverter : IValueConverter {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => new GridLength(0, (GSIPropertyType)value == GSIPropertyType.Number ? GridUnitType.Auto : GridUnitType.Pixel);
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new NotImplementedException();
+}
+
+public class PropertyEntryToValueConverter : IValueConverter
+{
+    public Application? App { get; set; }
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not GameStateParameterLookupEntry entry)
+        {
+            return "value is not GameStateParameterLookupEntry";
+        }
+
+        if (App is not { } application)
+        {
+            return "param is not Application";
+        }
+
+        return GetValue(entry, application);
+    }
+
+    private string GetValue(GameStateParameterLookupEntry entry, Application application)
+    {
+        if (entry.IsFolder)
+        {
+            return string.Empty;
+        }
+
+        if (application?.ParameterLookup == null)
+        {
+            return "unknown";
+        }
+
+        var gameState = application.Config.Event.GameState;
+        if (!gameState.PropertyMap.TryGetValue(entry.Path, out var getter))
+        {
+            return "???";
+        }
+        return getter(gameState)?.ToString() ?? string.Empty;
+    }
+
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new NotImplementedException();
 }
 

@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="AuroraRgb.Controls.GameStateParameterItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             Loaded="GameStateParameterItem_OnLoaded"
+             Unloaded="GameStateParameterItem_OnUnloaded"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConv" />
+    </UserControl.Resources>
+    <Grid>
+        <TextBlock Text="{Binding DisplayName}" Padding="4,1" Margin="0,0,16,0" />
+        <TextBlock Name="ValueText" Width="60" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        <Image Source="/AuroraRgb;component/Resources/icons8-folder-30.png" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center"
+               Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisConv}}" />
+    </Grid>
+</UserControl>

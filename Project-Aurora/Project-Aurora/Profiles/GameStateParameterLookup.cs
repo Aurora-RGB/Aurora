@@ -106,9 +106,8 @@ public sealed class GameStateParameterLookupEntry {
 
     public string DisplayName => Name.CamelCaseToSpaceCase();
 
-    private GameStateParameterLookupEntry() { }
-
-    internal static GameStateParameterLookupEntry Folder(string name, string path) => new GameStateParameterLookupEntry {
+    internal static GameStateParameterLookupEntry Folder(string name, string path) => new()
+    {
         Name = name,
         Path = path,
         IsFolder = true,
@@ -116,7 +115,8 @@ public sealed class GameStateParameterLookupEntry {
         Type = GSIPropertyType.None
     };
 
-    internal static GameStateParameterLookupEntry Property(string name, string path, Type type) => new GameStateParameterLookupEntry {
+    internal static GameStateParameterLookupEntry Property(string name, string path, Type type) => new()
+    {
         Name = name,
         Path = path,
         IsFolder = false,
