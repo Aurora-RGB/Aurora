@@ -7,18 +7,18 @@ namespace AuroraRgb.Controls;
 
 public partial class GameStateParameterItem
 {
-    private DispatcherTimer _timer;
+    private DispatcherTimer? _timer;
 
     public GameStateParameterItem()
     {
         InitializeComponent();
     }
 
-    public PropertyEntryToValueConverter Converter { get; set; }
+    public PropertyEntryToValueConverter Converter { get; set; } = new();
 
     private void GameStateParameterItem_OnLoaded(object sender, RoutedEventArgs e)
     {
-        _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(200), DispatcherPriority.Background, TimerTick, Dispatcher);
+        _timer = new DispatcherTimer(TimeSpan.FromMilliseconds(50), DispatcherPriority.Background, TimerTick, Dispatcher);
         _timer.Start();
     }
 
@@ -29,6 +29,6 @@ public partial class GameStateParameterItem
 
     private void GameStateParameterItem_OnUnloaded(object sender, RoutedEventArgs e)
     {
-        _timer.Stop();
+        _timer?.Stop();
     }
 }

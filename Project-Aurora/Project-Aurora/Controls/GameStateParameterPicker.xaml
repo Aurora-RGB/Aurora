@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:controls="clr-namespace:AuroraRgb.Controls"
+             Loaded="GameStateParameterPicker_OnLoaded"
              mc:Ignorable="d"
              Height="22" MinWidth="60">
 
@@ -25,7 +26,7 @@
 
         <!-- Dropdown content -->
         <Popup StaysOpen="False" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
-            <Grid x:Name="popupContent" Background="#1A1A1A" Height="280" Width="450">
+            <Grid x:Name="PopupContent" Background="#1A1A1A" Height="280" Width="450">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="1*" />
@@ -40,21 +41,21 @@
                 </StackPanel>
 
                 <!-- List boxes (aux is for animation) -->
-                <ListBox x:Name="mainListBox" Grid.Row="1"
+                <ListBox x:Name="MainListBox" Grid.Row="1"
                          ItemsSource="{Binding CurrentParameterListItems, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}"
-                         ItemTemplate="{StaticResource ListItemTemplate}" SelectedValuePath="Path" Width="{Binding ActualWidth, ElementName=popupContent}" HorizontalAlignment="Left"
+                         ItemTemplate="{StaticResource ListItemTemplate}" SelectedValuePath="Path" Width="{Binding ActualWidth, ElementName=PopupContent}" HorizontalAlignment="Left"
                          controls:GameStateParameterPicker.TransformRelativeOffset="0" RenderTransform="{controls:DoubleToRelativeTransformOffset}" PreviewMouseLeftButtonDown="MainListBox_PreviewMouseLeftButtonDown" />
-                <ListBox x:Name="auxillaryListbox" Grid.Row="1" ItemTemplate="{StaticResource ListItemTemplate}" Width="{Binding ActualWidth, ElementName=popupContent}"
+                <ListBox x:Name="AuxillaryListbox" Grid.Row="1" ItemTemplate="{StaticResource ListItemTemplate}" Width="{Binding ActualWidth, ElementName=PopupContent}"
                          SelectedValuePath="Path" HorizontalAlignment="Left" controls:GameStateParameterPicker.TransformRelativeOffset="-1" RenderTransform="{controls:DoubleToRelativeTransformOffset}" />
 
                 <!-- Numeric input for numeric types -->
                 <DockPanel Grid.Row="2" LastChildFill="True">
                     <TextBlock Text="Or enter number:" VerticalAlignment="Center" Margin="6,4,0,6" DockPanel.Dock="Left" />
-                    <xctk:DoubleUpDown x:Name="numericEntry" Margin="6" ValueChanged="NumericEntry_ValueChanged" />
+                    <xctk:DoubleUpDown x:Name="NumericEntry" Margin="6" ValueChanged="NumericEntry_ValueChanged" />
                 </DockPanel>
 
                 <!-- Border around all popup content -->
-                <Border BorderBrush="#454545" BorderThickness="1" Grid.RowSpan="999" />
+                <Border Grid.Row="0" BorderBrush="#454545" BorderThickness="1" Grid.RowSpan="2" />
             </Grid>
         </Popup>
     </Grid>

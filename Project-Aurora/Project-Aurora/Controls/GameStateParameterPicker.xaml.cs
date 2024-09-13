@@ -18,8 +18,8 @@ namespace AuroraRgb.Controls;
 
 public partial class GameStateParameterPicker : INotifyPropertyChanged {
 
-    public event EventHandler<SelectedPathChangedEventArgs> SelectedPathChanged;
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event EventHandler<SelectedPathChangedEventArgs>? SelectedPathChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public GameStateParameterPicker() {
         InitializeComponent();
@@ -100,14 +100,14 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
 
         if (double.TryParse(e.NewValue.ToString(), CultureInfo.InvariantCulture, out var val)) {
             // If a raw number has been entered, fill in the numeric stepper
-            picker.numericEntry.Value = val;
+            picker.NumericEntry.Value = val;
         } else {
             // Else if an actual path has been given, split it up into it's ""directories""
             // For the path to be valid (and to be passed as a param to this method) it will be a path to a variable, not a "directory". We use this assumption.
             picker.WorkingPath = (VariablePath)e.NewValue;
             picker.GoUp(); // Remove the last one, since the working path should not include the actual var name
             picker.NotifyChanged(nameof(WorkingPath), nameof(CurrentParameterListItems)); // All these things will be different now, so trigger an update of anything requiring them
-            picker.mainListBox.SelectedValue = e.NewValue.ToString().Split('/').Last(); // The selected item in the list will be the last part of the path
+            picker.MainListBox.SelectedValue = e.NewValue.ToString().Split('/').Last(); // The selected item in the list will be the last part of the path
         }
 
         // Raise an event informing subscribers
@@ -125,9 +125,14 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
         set
         {
             SetValue(ApplicationProperty, value);
-            var propertyEntryToValueConverter = (PropertyEntryToValueConverter)Resources["EntryToValueConverter"];
-            propertyEntryToValueConverter.App = value;
+            UpdateConverterApp();
         }
+    }
+
+    private void UpdateConverterApp()
+    {
+        var propertyEntryToValueConverter = (PropertyEntryToValueConverter)Resources["EntryToValueConverter"];
+        propertyEntryToValueConverter.App = Application;
     }
 
     public static readonly DependencyProperty ApplicationProperty =
@@ -173,17 +178,17 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     /// <summary>Animates the list boxes.</summary>
     /// <param name="dx">Direction of animation. -1 for previous, 1 for next.</param>
     private void Animate(int dx) {
-        var auxillaryScrollViewer = auxillaryListbox.FindChildOfType<ScrollViewer>();
-        var mainScrollViewer = mainListBox.FindChildOfType<ScrollViewer>();
+        var auxillaryScrollViewer = AuxillaryListbox.FindChildOfType<ScrollViewer>();
+        var mainScrollViewer = MainListBox.FindChildOfType<ScrollViewer>();
         auxillaryScrollViewer.ScrollToVerticalOffset(mainScrollViewer.VerticalOffset);
 
         // Move the aux to the centre and move the main to the side of it
-        SetTransformRelativeOffset(mainListBox, dx);
-        SetTransformRelativeOffset(mainListBox, 0);
+        SetTransformRelativeOffset(MainListBox, dx);
+        SetTransformRelativeOffset(MainListBox, 0);
 
         // Animate the aux moving away and the main moving in
-        CreateStoryboard(dx, 0, mainListBox).Begin();
-        CreateStoryboard(0, -dx, auxillaryListbox).Begin();
+        CreateStoryboard(dx, 0, MainListBox).Begin();
+        CreateStoryboard(0, -dx, AuxillaryListbox).Begin();
     }
 
     /// <summary>Creates a storyboard animation that changes the TransformRelativeOffsetProperty property from `fromX` to `toX` for the given target.</summary>
@@ -213,7 +218,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     private void BackBtn_Click(object? sender, RoutedEventArgs e) {
         if (!string.IsNullOrEmpty(WorkingPath.GsiPath)) {
             // Make the aux list box take on the same items as the current one so that when animated (since the aux is moved to the middle first) it looks natural
-            auxillaryListbox.ItemsSource = CurrentParameterListItems;
+            AuxillaryListbox.ItemsSource = CurrentParameterListItems;
 
             Animate(-1);
             GoUp(); // Remove the last "directory" off the working path
@@ -231,15 +236,15 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
          * Side note: THIS PICKER HAS TAKEN ME SO DAMN LONG TO MAKE. Probably longer than the actual GSI plugin system itself.... But hey, I'm proud of it. */
 
         // Element selection code is adapted from http://kevin-berridge.blogspot.com/2008/06/wpf-listboxitem-double-click.html
-        var el = (UIElement)mainListBox.InputHitTest(e.GetPosition(mainListBox));
-        while (el != null && el != mainListBox) {
+        var el = (UIElement)MainListBox.InputHitTest(e.GetPosition(MainListBox));
+        while (el != null && el != MainListBox) {
             if (el is ListBoxItem item && item.DataContext is GameStateParameterLookupEntry itemContext) {
 
                 // Since the user has picked an item on the list, we want to clear the numeric box so it is obvious to the user that the number is having no effect.
-                numericEntry.Value = null;
+                NumericEntry.Value = null;
 
                 // Copy the current list items to the aux list box incase the list box is animated later. This must be done BEFORE changing workingpath
-                auxillaryListbox.ItemsSource = CurrentParameterListItems;
+                AuxillaryListbox.ItemsSource = CurrentParameterListItems;
 
                 if (itemContext.IsFolder) {
                     // If the user selected a directory, animate the box.
@@ -262,7 +267,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
         // If there is no value, then this will have been set programmatically, so do nothing since we don't want to end up in a change event handler loop
         if (!v.HasValue) return;
 
-        mainListBox.SelectedItem = null; // Clear the selection on the list box (to emphasise to the user it is now irrelevant)
+        MainListBox.SelectedItem = null; // Clear the selection on the list box (to emphasise to the user it is now irrelevant)
         SelectedPath = new VariablePath(v.ToString()); // Set the selectedpath to be the value of this numeric stepper
         NotifyChanged(nameof(SelectedPath));
     }
@@ -285,9 +290,9 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
     }
 
-    private void FrameworkElement_OnSourceUpdated(object? sender, DataTransferEventArgs e)
+    private void GameStateParameterPicker_OnLoaded(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        UpdateConverterApp();
     }
 }
 
@@ -328,6 +333,10 @@ public class PropertyTypeToGridLengthConverter : IValueConverter {
 public class PropertyEntryToValueConverter : IValueConverter
 {
     public Application? App { get; set; }
+
+    public PropertyEntryToValueConverter()
+    {
+    }
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

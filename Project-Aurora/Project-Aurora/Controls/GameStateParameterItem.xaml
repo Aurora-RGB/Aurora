@@ -12,7 +12,7 @@
     </UserControl.Resources>
     <Grid>
         <TextBlock Text="{Binding DisplayName}" Padding="4,1" Margin="0,0,16,0" />
-        <TextBlock Name="ValueText" Width="60" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center" />
+        <TextBlock Name="ValueText" MinWidth="160" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center" />
         <Image Source="/AuroraRgb;component/Resources/icons8-folder-30.png" Width="16" Height="16" HorizontalAlignment="Right" VerticalAlignment="Center"
                Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisConv}}" />
     </Grid>
