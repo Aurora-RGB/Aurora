@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace AuroraRgb.Modules;
 
-public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMonitor)
+public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProcessMonitor)
     : AuroraModule
 {
     public static Dictionary<string, DeviceTooltips> DeviceTooltips { get; private set; } = new();
@@ -35,15 +35,14 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
             // means online settings already exists, loading can continue immediately
             _layoutUpdateTaskSource.TrySetResult();
         }
-        
-        // reload settings as user unlocks
-        SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
 
         await DownloadAndExtract();
         _layoutUpdateTaskSource.TrySetResult();
         //TODO update layouts
         await Refresh();
 
+        // reload settings as user unlocks
+        SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         (await runningProcessMonitor).ProcessStarted += OnRunningProcessesChanged;
 
         if (Global.SensitiveData.Lat == 0 && Global.SensitiveData.Lon == 0)
@@ -56,7 +55,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
             }
             catch (Exception e)
             {
-                Global.logger.Error(e, "Failed getting geographic data");
+                Global.logger.Error(e, "[OnlineConfiguration] Failed getting geographic data");
             }
         }
     }
@@ -65,11 +64,12 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
     {
         try
         {
+            Global.logger.Information("[OnlineConfiguration] Waiting for internet access...");
             await WaitGithubAccess(TimeSpan.FromSeconds(60));
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Skipped Online Settings update because of internet problem");
+            Global.logger.Error(e, "[OnlineConfiguration] Skipped Online Settings update because of internet problem");
             return;
         }
 
@@ -81,7 +81,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Error fetching online settings");
+            Global.logger.Error(e, "[OnlineConfiguration] Error fetching online settings");
             return;
         }
 
@@ -94,7 +94,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
             return;
         }
 
-        Global.logger.Information("Updating Online Settings");
+        Global.logger.Information("[OnlineConfiguration] Updating Online Settings");
 
         try
         {
@@ -102,7 +102,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Error extracting online settings");
+            Global.logger.Error(e, "[OnlineConfiguration] Error extracting online settings");
         }
     }
 
@@ -114,7 +114,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Failed to update conflicts");
+            Global.logger.Error(e, "[OnlineConfiguration] Failed to update conflicts");
         }
 
         try
@@ -123,7 +123,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Failed to update device infos");
+            Global.logger.Error(e, "[OnlineConfiguration] Failed to update device infos");
         }
 
         try
@@ -132,7 +132,7 @@ public sealed class OnlineSettings(Task<RunningProcessMonitor> runningProcessMon
         }
         catch (Exception e)
         {
-            Global.logger.Error(e, "Failed to update razer mice info");
+            Global.logger.Error(e, "[OnlineConfiguration] Failed to update razer mice info");
         }
     }
 

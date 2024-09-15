@@ -62,13 +62,12 @@ internal abstract class RazerFetcher : IDisposable
         }
    
         var productKeyString = GetDeviceProductKeyString(usbDevice);
-        var mouseHidInfo = OnlineSettings.RazerDeviceInfo.MouseHidInfos[productKeyString];
+        var mouseHidInfo = OnlineConfiguration.RazerDeviceInfo.MouseHidInfos[productKeyString];
         var message = GetMessage(mouseHidInfo);
 
         usbDevice.Open();
         var report = GetReport(usbDevice, message);
         usbDevice.Close();
-        UsbDevice.Exit();
         _mutex.ReleaseMutex();
 
         return report;
@@ -79,7 +78,7 @@ internal abstract class RazerFetcher : IDisposable
     private static UsbDevice? GetUsbDevice()
     {
         const int vendorId = 0x1532;
-        var mouseDictionary = OnlineSettings.RazerDeviceInfo.MouseHidInfos;
+        var mouseDictionary = OnlineConfiguration.RazerDeviceInfo.MouseHidInfos;
 
         var usbDevice = UsbDevice.OpenUsbDevice(d =>
             d.Vid == vendorId &&

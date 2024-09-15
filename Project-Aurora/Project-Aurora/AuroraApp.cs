@@ -9,6 +9,7 @@ using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
 using AuroraRgb.Utils;
+using LibUsbDotNet;
 
 namespace AuroraRgb;
 
@@ -41,7 +42,7 @@ public sealed class AuroraApp : IDisposable
             _devicesModule.DeviceManager, ProcessesModule.ActiveProcessMonitor, ProcessesModule.RunningProcessMonitor,
             _devicesModule
         );
-        var onlineSettings = new OnlineSettings(ProcessesModule.RunningProcessMonitor);
+        var onlineSettings = new OnlineConfiguration(ProcessesModule.RunningProcessMonitor);
         _layoutsModule = new LayoutsModule(RazerSdkModule.RzSdkManager, onlineSettings.LayoutsUpdate);
         
         _modules =
@@ -133,6 +134,7 @@ public sealed class AuroraApp : IDisposable
                 Global.logger.Fatal(moduleException,"Failed closing module {@Module}", m);
             }
         });
+        UsbDevice.Exit();
         return Task.WhenAll(tasks);
     }
 

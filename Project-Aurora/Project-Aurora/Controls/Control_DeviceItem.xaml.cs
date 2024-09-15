@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
@@ -144,7 +145,7 @@ public partial class Control_DeviceItem
         DeviceName.Text = _device.Device.DeviceName;
         BtnOptions.IsEnabled = _device.Device.RegisteredVariables.Count != 0;
 
-        if (!OnlineSettings.DeviceTooltips.TryGetValue(_device.Device.DeviceName, out var tooltips))
+        if (!OnlineConfiguration.DeviceTooltips.TryGetValue(_device.Device.DeviceName, out var tooltips))
         {
             return;
         }
@@ -220,7 +221,7 @@ public partial class Control_DeviceItem
     {
         if (_sdkLink != null)
         {
-            System.Diagnostics.Process.Start("explorer", _sdkLink);
+            Process.Start("explorer", _sdkLink);
         }
     }
 
