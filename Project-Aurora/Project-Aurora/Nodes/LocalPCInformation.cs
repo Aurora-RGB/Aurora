@@ -1,4 +1,5 @@
-﻿using AuroraRgb.Modules;
+﻿using System.Collections.Generic;
+using AuroraRgb.Modules;
 using AuroraRgb.Modules.HardwareMonitor;
 
 namespace AuroraRgb.Nodes;
@@ -67,4 +68,6 @@ public class LocalPcInformation : Node
 
     private DesktopNode? _desktop;
     public DesktopNode Desktop => _desktop ??= new DesktopNode();
+
+    public static List<string> NetworkAdapters => HardwareMonitor.NetworkAdapters;
 }

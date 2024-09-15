@@ -8,6 +8,7 @@
              xmlns:auroraRgb="clr-namespace:AuroraRgb"
              xmlns:settings="clr-namespace:AuroraRgb.Settings"
              xmlns:audioCapture="clr-namespace:AuroraRgb.Modules.AudioCapture"
+             xmlns:nodes="clr-namespace:AuroraRgb.Nodes"
              Loaded="Control_SettingsGeneral_OnLoaded"
              mc:Ignorable="d">
     <UserControl.Resources>
@@ -158,21 +159,29 @@
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
-                    
+
                     <TextBlock Margin="0,1,0,1" Text="GSI Playback Device:" />
                     <ComboBox Grid.Row="0" Grid.Column="1" Margin="0,1,0,1" SelectedValue="{Binding Path=GsiAudioRenderDevice, Mode=TwoWay}"
                               ItemsSource="{x:Static audioCapture:AudioDevices.PlaybackDevices}" DisplayMemberPath="Value"
                               SelectedValuePath="Key" Width="185" />
                     <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,1,0,1" Text="GSI Recording Device:" />
+
                     <ComboBox Grid.Row="1" Grid.Column="1" Margin="0,1,0,1" SelectedValue="{Binding Path=GsiAudioCaptureDevice, Mode=TwoWay}"
                               ItemsSource="{x:Static audioCapture:AudioDevices.RecordingDevices}" DisplayMemberPath="Value"
                               SelectedValuePath="Key" Width="185" />
                     <TextBlock Grid.Row="1" Grid.Column="2" Text="?" TextDecorations="Underline"
                                ToolTip="The audio recording device that will be used for the local PC information state values. Does not affect visualizer layer."
                                ToolTipService.InitialShowDelay="0" VerticalAlignment="Center" HorizontalAlignment="Center" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Margin="0,1,0,1" Text="GSI Network Device:" />
+                    <ComboBox Grid.Row="2" Grid.Column="1" Margin="0,1,0,1" SelectedValue="{Binding Path=GsiNetworkDevice, Mode=TwoWay}"
+                              ItemsSource="{x:Static nodes:LocalPcInformation.NetworkAdapters}"
+                              Width="185" />
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,1,0,1" Text="GSI Recording Device:" />
                 </Grid>
-                
+
                 <!-- Location -->
                 <TextBlock Margin="0,1,0,1">Location:</TextBlock>
                 <Canvas Height="20">

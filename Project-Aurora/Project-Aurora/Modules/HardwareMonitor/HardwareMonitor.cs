@@ -13,6 +13,8 @@ public interface IHardwareMonitor : IDisposable
     HardwareMonitor.CpuUpdater Cpu { get; }
     HardwareMonitor.RamUpdater Ram { get; }
     HardwareMonitor.NetUpdater Net { get; }
+    
+    List<string> NetworkAdapters { get; }
 }
 
 public sealed class NoopHardwareMonitor : IHardwareMonitor
@@ -29,6 +31,9 @@ public sealed class NoopHardwareMonitor : IHardwareMonitor
     public HardwareMonitor.RamUpdater Ram => _ram.Value;
 
     public HardwareMonitor.NetUpdater Net => _net.Value;
+
+    public List<string> NetworkAdapters => [];
+
     public void Dispose()
     {
     }
@@ -50,6 +55,8 @@ public sealed partial class HardwareMonitor: IHardwareMonitor
     private static readonly Lazy<NetUpdater> _net = new(() => new NetUpdater(Hardware), LazyThreadSafetyMode.ExecutionAndPublication);
     private static readonly Computer _computer;
     public NetUpdater Net => _net.Value;
+
+    public List<string> NetworkAdapters => Net.GetNetworkDevices().Select(n => n.Name).ToList();
 
 #pragma warning disable CA1810 // Initialize reference type static fields inline
     static HardwareMonitor()
