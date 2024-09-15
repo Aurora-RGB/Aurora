@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
@@ -110,7 +111,25 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     public bool IsMuted { get; private set; }
     public float Volume { get; private set; }
 
-    public float MasterPeakValue { get; private set; }
+    public float MasterPeakValue
+    {
+        get
+        {
+            TaskCompletionSource<float> tcs = new();
+            ThreadTasks.Add(() =>
+            {
+                tcs.TrySetResult(Device?.AudioMeterInformation.MasterPeakValue ?? 0);
+            });
+            try
+            {
+                return tcs.Task.Result;
+            }
+            catch (OperationCanceledException)
+            {
+                return default;
+            }
+        }
+    }
 
     /// <summary>Gets the currently assigned direction of this device.</summary>
     public DataFlow Flow { get; set; }
@@ -208,11 +227,10 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
             }
             fallbackWaveIn?.Dispose();
             fallbackDevice?.Dispose();
-            
+
             IsMuted = Device.AudioEndpointVolume.Mute;
             Volume = Device.AudioEndpointVolume.MasterVolumeLevelScalar;
             Device.AudioEndpointVolume.OnVolumeNotification += AudioEndpointVolumeOnOnVolumeNotification;
-            MasterPeakValue = Device.AudioMeterInformation.MasterPeakValue;
 
             DeviceChanged?.Invoke(this, EventArgs.Empty);
         }
@@ -234,7 +252,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     {
         IsMuted = data.Muted;
         Volume = data.MasterVolume;
-        MasterPeakValue = Device?.AudioMeterInformation.MasterPeakValue ?? 0;
     }
 
     private void WaveInOnRecordingStopped(object? sender, StoppedEventArgs e)

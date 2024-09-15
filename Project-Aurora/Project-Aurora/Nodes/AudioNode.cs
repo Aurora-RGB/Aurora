@@ -22,7 +22,12 @@ public class AudioNode : Node
     /// <summary>
     /// The volume level that is being recorded by the default microphone even when muted.
     /// </summary>
-    public float MicrophoneLevel => CaptureDevice?.Volume ?? 0 * 100;
+    public float MicrophoneLevel => CaptureDevice?.MasterPeakValue ?? 0 * 100;
+
+    /// <summary>
+    /// The volume level that is being recorded by the default microphone even when muted.
+    /// </summary>
+    public float MicrophoneVolume => CaptureDevice?.Volume ?? 0 * 100;
 
     /// <summary>
     /// The volume level that is being emitted by the default speaker even when muted.
@@ -32,7 +37,7 @@ public class AudioNode : Node
     /// <summary>
     /// The volume level that is being recorded by the default microphone if not muted.
     /// </summary>
-    public float MicLevelIfNotMuted => MicrophoneIsMuted ? 0 : CaptureDevice?.Volume ?? 0 * 100;
+    public float MicLevelIfNotMuted => MicrophoneIsMuted ? 0 : CaptureDevice?.MasterPeakValue ?? 0 * 100;
 
     /// <summary>
     /// Gets whether the default microphone is muted.
