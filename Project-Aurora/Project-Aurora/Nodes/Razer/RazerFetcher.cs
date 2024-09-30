@@ -65,9 +65,7 @@ internal abstract class RazerFetcher : IDisposable
         var mouseHidInfo = OnlineConfiguration.RazerDeviceInfo.MouseHidInfos[productKeyString];
         var message = GetMessage(mouseHidInfo);
 
-        usbDevice.Open();
         var report = GetReport(usbDevice, message);
-        usbDevice.Close();
         _mutex.ReleaseMutex();
 
         return report;
