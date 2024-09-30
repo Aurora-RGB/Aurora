@@ -32,10 +32,23 @@ public class ObjectSettings<T>
         if (!Directory.Exists(dir))
             Directory.CreateDirectory(dir);
 
-        await File.WriteAllTextAsync(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings
+        var retries = 5;
+        while (retries-- > 0)
         {
-            TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented
-        }));
+            try
+            {
+                await File.WriteAllTextAsync(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings
+                {
+                    TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented
+                }));
+                return;
+            }
+            catch (IOException ioException)
+            {
+                Global.logger.Error(ioException, "Unable to save settings to {SettingsSavePath}", SettingsSavePath);
+                await Task.Delay(500);
+            }
+        }
     }
 
     /// <summary>A method that is called immediately after the settings being created. Can be overriden to provide specalized handling.</summary>
