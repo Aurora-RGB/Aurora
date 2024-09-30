@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using AuroraRgb.Controls;
+using AuroraRgb.Devices;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.ProcessMonitor;
@@ -62,7 +65,7 @@ public sealed class LightingStateManager : IDisposable
 
     private readonly Task<PluginManager> _pluginManager;
     private readonly Task<IpcListener?> _ipcListener;
-    private readonly Task<Devices.DeviceManager> _deviceManager;
+    private readonly Task<DeviceManager> _deviceManager;
     private readonly Task<ActiveProcessMonitor> _activeProcessMonitor;
     private readonly Task<RunningProcessMonitor> _runningProcessMonitor;
 
@@ -71,7 +74,7 @@ public sealed class LightingStateManager : IDisposable
     private readonly List<Task> _initTasks = [];
 
     public LightingStateManager(Task<PluginManager> pluginManager, Task<IpcListener?> ipcListener,
-        Task<Devices.DeviceManager> deviceManager, Task<ActiveProcessMonitor> activeProcessMonitor, Task<RunningProcessMonitor> runningProcessMonitor)
+        Task<DeviceManager> deviceManager, Task<ActiveProcessMonitor> activeProcessMonitor, Task<RunningProcessMonitor> runningProcessMonitor)
     {
         _pluginManager = pluginManager;
         _ipcListener = ipcListener;
@@ -125,8 +128,15 @@ public sealed class LightingStateManager : IDisposable
             // don't await on purpose, need Aurora open fast.
             var initTask = Task.Delay(200, cancellationToken).ContinueWith(async _ =>
             {
-                await profile.Initialize(cancellationToken);
-                EventAdded?.Invoke(this, new ApplicationInitializedEventArgs(profile));
+                try
+                {
+                    await profile.Initialize(cancellationToken);
+                    EventAdded?.Invoke(this, new ApplicationInitializedEventArgs(profile));
+                }
+                catch (Exception e)
+                {
+                    Global.logger.Error(e, "Error initializing profile {Profile}", profile.GetType());
+                }
             }, cancellationToken);
             _initTasks.Add(initTask);
         }
@@ -389,7 +399,7 @@ public sealed class LightingStateManager : IDisposable
         _nextProcessNameUpdate = _currentTick + 1000L;
     }
 
-    private void UpdateIdleEffects(EffectsEngine.EffectFrame newFrame)
+    private void UpdateIdleEffects(EffectFrame newFrame)
     {
         var lastInput = new User32.TagLastInputInfo();
         lastInput.cbSize = (uint)Marshal.SizeOf(lastInput);
@@ -407,13 +417,13 @@ public sealed class LightingStateManager : IDisposable
         UpdateEvent(_idleE, newFrame);
     }
 
-    private void UpdateEvent(LightEvent @event, EffectsEngine.EffectFrame frame)
+    private void UpdateEvent(LightEvent @event, EffectFrame frame)
     {
         StartEvent(@event);
         @event.UpdateLights(frame);
     }
 
-    private void UpdateEvent(Application @event, EffectsEngine.EffectFrame frame)
+    private void UpdateEvent(Application @event, EffectFrame frame)
     {
         @event.UpdateLights(frame);
     }
@@ -465,14 +475,14 @@ public sealed class LightingStateManager : IDisposable
         if (Global.Configuration.TimeBasedDimmingEnabled &&
             Time.IsCurrentTimeBetween(dimmingStartTime, dimmingEndTime))
         {
-            var blackFrame = new EffectsEngine.EffectFrame();
+            var blackFrame = new EffectFrame();
             Global.effengine.PushFrame(blackFrame);
             StopUnUpdatedEvents();
             return;
         }
 
         UpdateProcess();
-        var newFrame = new EffectsEngine.EffectFrame();
+        var newFrame = new EffectFrame();
 
         var profile = GetCurrentProfile(out var preview);
         _currentEvent = profile;
@@ -581,7 +591,7 @@ public sealed class LightingStateManager : IDisposable
         var profile = GetCurrentProfile();
 
         // Check profile is valid and do not switch profiles if the user is trying to enter a keybind
-        if (profile is not Application application || Controls.Control_Keybind._ActiveKeybind != null) return;
+        if (profile is not Application application || Control_Keybind._ActiveKeybind != null) return;
         // Find all profiles that have their keybinds pressed
         var possibleProfiles = application.Profiles
             .Where(prof => prof.TriggerKeybind.IsPressed())

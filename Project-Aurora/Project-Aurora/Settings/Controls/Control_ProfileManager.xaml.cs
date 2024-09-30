@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -142,14 +143,15 @@ public partial class Control_ProfileManager
     {
         if (FocusedApplication != null)
         {
-            System.Diagnostics.Process.Start("explorer", FocusedApplication.GetProfileFolderPath());
+            Process.Start("explorer", FocusedApplication.GetProfileFolderPath());
         }
     }
 
 
     private void btnProfileReset_Click(object? sender, RoutedEventArgs e)
     {
-        if (MessageBox.Show($"Are you sure you want to reset the \"{FocusedApplication.Profile.ProfileName}\" profile?",
+        var messageBoxText = $"Are you sure you want to reset the \"{FocusedApplication.Profile.ProfileName}\" profile?";
+        if (MessageBox.Show(messageBoxText,
                 "Are you sure?", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             FocusedApplication?.ResetProfile();
     }
@@ -169,7 +171,7 @@ public partial class Control_ProfileManager
 
     private void Hyperlink_RequestNavigate(object? sender, RequestNavigateEventArgs e)
     {
-        System.Diagnostics.Process.Start("explorer", e.Uri.AbsoluteUri);
+        Process.Start("explorer", e.Uri.AbsoluteUri);
         e.Handled = true;
     }
 

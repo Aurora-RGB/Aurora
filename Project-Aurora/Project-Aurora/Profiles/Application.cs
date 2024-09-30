@@ -363,9 +363,9 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     {
         if (e.CurrentObject != null)
         {
-            if (e.CurrentObject.GetType() == typeof(Layer) && e.ErrorContext.Member.Equals("Handler"))
+            if (e.CurrentObject.GetType() == typeof(Layer) && (e.ErrorContext.Member?.Equals("Handler") ?? false) && e.ErrorContext.OriginalObject is Layer layer)
             {
-                ((Layer)e.ErrorContext.OriginalObject).Handler = new DefaultLayerHandler();
+                layer.Handler = new DefaultLayerHandler();
                 e.ErrorContext.Handled = true;
             }
         } else if (e.ErrorContext.Path.Equals("$type") && e.ErrorContext.Member == null)

@@ -3,8 +3,17 @@ using AuroraRgb.Settings;
 
 namespace AuroraRgb.Profiles.EliteDangerous;
 
-[method: JsonConstructor]
-public class EliteDangerousSettings(bool isFirstTimeInstalled) : FirstTimeApplicationSettings(isFirstTimeInstalled)
+
+public class EliteDangerousSettings : FirstTimeApplicationSettings
 {
+    public EliteDangerousSettings()
+    {
+    }
+
+    [method: JsonConstructor]
+    public EliteDangerousSettings(bool isFirstTimeInstalled) : base(isFirstTimeInstalled)
+    {
+    }
+
     public string GamePath { get; set; } = "";
 }
