@@ -60,20 +60,15 @@ public static class OnlineConfigsRepository
     {
         var stream = await ReadOnlineJson(OnlineSettings);
 
-        return JsonSerializer.Deserialize<OnlineSettingsMeta>(stream, JsonSerializerOptions) ?? new OnlineSettingsMeta();
+        return await JsonSerializer.DeserializeAsync<OnlineSettingsMeta>(stream, JsonSerializerOptions) ?? new OnlineSettingsMeta();
     }
 
-    private static Task<T> ParseLocalJson<T>(string cachePath) where T : new()
+    private static async Task<T> ParseLocalJson<T>(string cachePath) where T : new()
     {
-        using var stream = GetJsonStream(cachePath);
+        await using var stream = GetJsonStream(cachePath);
 
-        return JsonSerializer.DeserializeAsync<T>(stream, JsonSerializerOptions)
-            .AsTask()
-            .ContinueWith(t => t.Status switch
-            {
-                TaskStatus.RanToCompletion => t.Result ?? new T(),
-                _ => new T(),
-            });
+        var deserialize = await JsonSerializer.DeserializeAsync<T>(stream, JsonSerializerOptions);
+        return deserialize ?? new T();
     }
 
     private static Stream GetJsonStream(string cachePath)
