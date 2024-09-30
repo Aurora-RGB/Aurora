@@ -8,6 +8,13 @@ namespace AuroraDeviceManager.Devices.RGBNet;
 
 public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<LedId, DeviceKeys>> deviceKeyRemap, bool needsLayout)
 {
+    private bool _flush;
+    
+    internal void Flush()
+    {
+        _flush = true;
+    }
+    
     internal void UpdateDevice(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
         if (needsLayout)
@@ -19,7 +26,8 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
             UpdateStraight(keyColors, device);
         }
 
-        device.Update();
+        device.Update(_flush);
+        _flush = false;
     }
 
     private static void UpdateReverse(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
@@ -93,7 +101,7 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
     private static void UpdateLed(Led led, SimpleColor color)
     {
-        led.Color = new RGB.NET.Core.Color(
+        led.Color = new Color(
             color.A,
             color.R,
             color.G,
@@ -103,7 +111,7 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
     private static void UpdateLedCalibrated(Led led, SimpleColor color, SimpleColor calibration)
     {
-        led.Color = new RGB.NET.Core.Color(
+        led.Color = new Color(
             (byte)(color.A * calibration.A / 255),
             (byte)(color.R * calibration.R / 255),
             (byte)(color.G * calibration.G / 255),

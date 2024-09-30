@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Common;
 using Common.Devices;
 using Common.Devices.RGBNet;
+using Microsoft.Win32;
 using RGB.NET.Core;
 
 namespace AuroraDeviceManager.Devices.RGBNet;
@@ -27,6 +28,12 @@ public abstract class RgbNetDevice : DefaultDevice
     protected RgbNetDevice()
     {
         _updater = new RgbNetDeviceUpdater(DeviceKeyRemap, false);
+        SystemEvents.SessionSwitch += (_, _) =>
+        {
+            _updater.Flush();
+            Thread.Sleep(3000);
+            _updater.Flush();
+        };
     }
 
     protected RgbNetDevice(bool needsLayout)
