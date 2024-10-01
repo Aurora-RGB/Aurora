@@ -50,8 +50,8 @@ public sealed class LightingStateManager : IDisposable
     private Application? _currentEvent;
     public Application CurrentEvent => _currentEvent ?? DesktopProfile;
 
-    private readonly List<LightEvent> _startedEvents = [];
-    private readonly List<LightEvent> _updatedEvents = [];
+    private readonly List<ILightEvent> _startedEvents = [];
+    private readonly List<ILightEvent> _updatedEvents = [];
 
     private Dictionary<string, string> EventProcesses { get; } = new();
     private Dictionary<Regex, string> EventTitles { get; } = new();
@@ -417,18 +417,13 @@ public sealed class LightingStateManager : IDisposable
         UpdateEvent(_idleE, newFrame);
     }
 
-    private void UpdateEvent(LightEvent @event, EffectFrame frame)
+    private void UpdateEvent(ILightEvent @event, EffectFrame frame)
     {
         StartEvent(@event);
         @event.UpdateLights(frame);
     }
 
-    private void UpdateEvent(Application @event, EffectFrame frame)
-    {
-        @event.UpdateLights(frame);
-    }
-
-    private void StartEvent(LightEvent @event)
+    private void StartEvent(ILightEvent @event)
     {
         _updatedEvents.Add(@event);
 
@@ -520,11 +515,17 @@ public sealed class LightingStateManager : IDisposable
             }
             
             foreach (var @event in GetOverlayActiveProfiles())
+            {
+                StartEvent(@event);
                 @event.UpdateOverlayLights(newFrame);
+            }
 
             //Add the Light event that we're previewing to be rendered as an overlay (assuming it's not already active)
             if (preview && Global.Configuration.OverlaysInPreview && !GetOverlayActiveProfiles().Contains(profile))
+            {
+                StartEvent(profile);
                 profile.UpdateOverlayLights(newFrame);
+            }
 
             if (Global.Configuration.IdleType != IdleEffects.None)
             {

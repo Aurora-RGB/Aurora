@@ -168,7 +168,7 @@ public sealed class GameEvent_LoL : LightEvent
         }
         catch (Exception e)
         {
-            //Global.logger.Error(e);
+            Global.logger.Error(e, "Error updating LoL game event");
         }
     }
 
