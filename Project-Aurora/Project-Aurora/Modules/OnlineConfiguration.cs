@@ -98,7 +98,7 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
 
         try
         {
-            await ExtractSettings();
+            await DownloadAndExtractRepository();
         }
         catch (Exception e)
         {
@@ -136,7 +136,7 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
         }
     }
 
-    private async Task ExtractSettings()
+    private async Task DownloadAndExtractRepository()
     {
         const string zipUrl = "https://github.com/Aurora-RGB/Online-Settings/archive/refs/heads/master.zip";
 

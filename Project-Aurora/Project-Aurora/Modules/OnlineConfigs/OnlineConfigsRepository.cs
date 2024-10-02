@@ -67,8 +67,16 @@ public static class OnlineConfigsRepository
     {
         await using var stream = GetJsonStream(cachePath);
 
-        var deserialize = await JsonSerializer.DeserializeAsync<T>(stream, JsonSerializerOptions);
-        return deserialize ?? new T();
+        try
+        {
+            var deserialize = await JsonSerializer.DeserializeAsync<T>(stream, JsonSerializerOptions);
+            return deserialize ?? new T();
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error($"Error parsing local json: {cachePath}", e);
+        }
+        return new T();
     }
 
     private static Stream GetJsonStream(string cachePath)
