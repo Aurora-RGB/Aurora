@@ -12,7 +12,18 @@ public sealed class GameEventWitcher3 : LightEvent
     {
         _gameStateListener = new Witcher3GameStateListener();
         _gameStateListener.GameStateChanged += GameStateListenerOnGameStateChanged;
+    }
+
+    public override void OnStart()
+    {
+        base.OnStart();
         _gameStateListener.StartReading();
+    }
+
+    public override void OnStop()
+    {
+        base.OnStop();
+        _gameStateListener.StopListening();
     }
 
     private void GameStateListenerOnGameStateChanged(object? sender, Witcher3StateEventArgs e)
@@ -38,6 +49,5 @@ public sealed class GameEventWitcher3 : LightEvent
         base.Dispose();
 
         _gameStateListener.GameStateChanged -= GameStateListenerOnGameStateChanged;
-        _gameStateListener.StopListening();
     }
 }
