@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.Utils;
 using Common.Utils;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
     public class AnimationLine : AnimationFrame
     {
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         private PointF _start_point;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         private PointF _end_point;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         private Color _end_color;
 
         public PointF StartPoint => _start_point;
@@ -113,7 +115,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             _duration = duration;
         }
 
-        public override void Draw(Graphics g)
+        public override void Draw(IAuroraBitmap g)
         {
             if (Math.Abs((int)(_start_point.X - _end_point.X)) - Math.Abs((int)(_start_point.Y - _end_point.Y)) == 0 )
                 return;
@@ -130,8 +132,8 @@ namespace AuroraRgb.EffectsEngine.Animations
                 _invalidated = false;
             }
 
-            g.ResetTransform();
-            g.Transform = _transformationMatrix;
+            g.Reset();
+            g.SetTransform(_transformationMatrix);
             g.DrawLine(_pen, _start_point, _end_point);
         }
 

@@ -2,7 +2,9 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.Utils;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
@@ -56,20 +58,20 @@ namespace AuroraRgb.EffectsEngine.Animations
 
     public class AnimationFrame
     {
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal Color _color;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal RectangleF _dimension;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal int _width;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal float _duration;
         internal Pen? _pen = null;
         internal Brush _brush;
         internal bool _invalidated = true;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal AnimationFrameTransitionType _transitionType = AnimationFrameTransitionType.Linear;
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal float _angle;
 
         protected PointF _offset;
@@ -195,7 +197,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             return this;
         }
 
-        public virtual void Draw(Graphics g) { }
+        public virtual void Draw(IAuroraBitmap g) { }
         public virtual AnimationFrame BlendWith(AnimationFrame otherAnim, double amount)
         {
             amount = GetTransitionValue(amount);

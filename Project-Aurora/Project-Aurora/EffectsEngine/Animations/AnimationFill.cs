@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.Utils;
 
 namespace AuroraRgb.EffectsEngine.Animations
@@ -14,7 +15,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
         }
 
-        public override void Draw(Graphics g)
+        public override void Draw(IAuroraBitmap g)
         {
             // Offset has no effect on this. I think.
             if (_brush == null || _invalidated)
@@ -23,8 +24,8 @@ namespace AuroraRgb.EffectsEngine.Animations
                 _brush = new SolidBrush(_color);
                 _invalidated = false;
             }
-            
-            g.FillRectangle(_brush, g.VisibleClipBounds);
+ 
+            g.Fill(_brush);
         }
 
         public override AnimationFrame BlendWith(AnimationFrame otherAnim, double amount)

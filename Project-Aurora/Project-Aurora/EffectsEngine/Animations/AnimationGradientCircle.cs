@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using AuroraRgb.Bitmaps;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations;
@@ -94,7 +95,7 @@ public class AnimationGradientCircle : AnimationCircle
         ((PathGradientBrush)_brush).ScaleTransform(_dimension.Width, _dimension.Height);
     }
 
-    public override void Draw(Graphics g)
+    public override void Draw(IAuroraBitmap g)
     {
         if (_invalidated)
         {
@@ -104,8 +105,8 @@ public class AnimationGradientCircle : AnimationCircle
 
         if(_brush is PathGradientBrush)
         {
-            g.ResetTransform();
-            g.Transform = _transformationMatrix;
+            g.Reset();
+            g.SetTransform(_transformationMatrix);
             g.FillEllipse(_brush, _dimension);
         }
     }

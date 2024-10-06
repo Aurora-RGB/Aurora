@@ -25,7 +25,7 @@
         <Path Width="10" Height="6" HorizontalAlignment="Right" Margin="0,0,9,0" Fill="#FF858585" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z " Stretch="Fill" IsHitTestVisible="False" />
 
         <!-- Dropdown content -->
-        <Popup StaysOpen="False" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
+        <Popup StaysOpen="True" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
             <Grid x:Name="PopupContent" Background="#1A1A1A" Height="280" Width="450">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

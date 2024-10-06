@@ -80,7 +80,7 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
             _ => {},
             g =>
             {
-                g.DrawImage(_loadedImage, 0, 0);
+                g.DrawImage(_loadedImage);
             },
             new RectangleF(0, 0, _loadedImage.Width, _loadedImage.Height)
         );

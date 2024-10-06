@@ -274,7 +274,7 @@ public class PingEffect : IEffectScript
 		{
 			for (int i = 0; i < Keys.Keys.Count; i++)
 			{
-				var keyColor = effectLayer.Get(Keys.Keys[i]);
+				var keyColor = Color.Transparent;
 
 				float kL = i / (Keys.Keys.Count - 1f);
 
@@ -496,84 +496,6 @@ internal class GradientCascade
 		}
 	}
 
-	public void Draw(List<DeviceKeys> keys, EffectLayer effectLayer)
-	{
-		var keyWidth = 1f / keys.Count;
-		for (var i = 0; i < keys.Count; i++)
-		{
-			var keyStart = i * keyWidth;
-			var keyEnd = (i + 1) * keyWidth;
-			var keyColor = effectLayer.Get(keys[i]);
-			foreach (var gradient in gradients)
-			{
-				var left = Math.Max(0, Math.Max(keyStart, gradient.Item3.X));
-				var right = Math.Min(1, Math.Min(keyEnd, gradient.Item3.Y));
-				var gradWidthRatio = gradient.Item3.Y - gradient.Item3.X;
-				var gr_left = (keyStart - gradient.Item3.X) / gradWidthRatio;
-				var gr_right = (keyEnd - gradient.Item3.X) / gradWidthRatio;
-				if (gr_left >= 0 && gr_left <= 1
-				    || gr_right >= 0 && gr_right <= 1)
-				{
-					if (right - left > 0)
-					{
-						var alfa = (right - left) / keyWidth;
-						var gr_cut_ratio = gradient.Item2.Y - gradient.Item2.X;
-						var gr_cut_left = (gr_left * gr_cut_ratio) + gradient.Item2.X;
-						var gr_cut_right = (gr_right * gr_cut_ratio) + gradient.Item2.X;
-						var gradColor = gradient.Item1.GetRegionAverageColor(gr_cut_left, gr_cut_right);
-						keyColor = ColorUtils.BlendColors(keyColor, gradColor, gradColor.A / 255f * alfa);
-					}
-				}
-			}
-			effectLayer.Set(keys[i], keyColor);
-		}
-	}
-
-	public void DrawBright(List<DeviceKeys> keys, EffectLayer effectLayer)
-	{
-		Func<float, float, float, float> getBlend2 = (l, pos, r) =>
-		{
-			var leftEdgePercent = (1 + pos) / keys.Count - l;
-			var rightEdgePercent = r - (pos / keys.Count);
-			leftEdgePercent /= 1f / keys.Count;
-			rightEdgePercent /= 1f / keys.Count;
-			leftEdgePercent = 1 - Math.Max(0, Math.Min(1, leftEdgePercent));
-			rightEdgePercent = 1 - Math.Max(0, Math.Min(1, rightEdgePercent));
-			return 1 - leftEdgePercent - rightEdgePercent;
-		};
-
-		var keyWidth = 1f / keys.Count;
-		for (var i = 0; i < keys.Count; i++)
-		{
-			var keyStart = i * keyWidth;
-			var keyEnd = (i + 1) * keyWidth;
-			var keyColor = effectLayer.Get(keys[i]);
-			foreach (var gradient in gradients)
-			{
-				var left = Math.Max(0, Math.Max(keyStart, gradient.Item3.X));
-				var right = Math.Min(1, Math.Min(keyEnd, gradient.Item3.Y));
-				var gradWidthRatio = gradient.Item3.Y - gradient.Item3.X;
-				var gr_left = (keyStart - gradient.Item3.X) / gradWidthRatio;
-				var gr_right = (keyEnd - gradient.Item3.X) / gradWidthRatio;
-				if (gr_left >= 0 && gr_left <= 1
-				    || gr_right >= 0 && gr_right <= 1)
-				{
-					if (right - left > 0)
-					{
-						var alfa = (right - left) / keyWidth;
-						var gr_cut_ratio = gradient.Item2.Y - gradient.Item2.X;
-						var gr_cut_left = (gr_left * gr_cut_ratio) + gradient.Item2.X;
-						var gr_cut_right = (gr_right * gr_cut_ratio) + gradient.Item2.X;
-						var middle = Math.Min(1, Math.Max(0, gr_cut_left + (gr_cut_right - gr_cut_left) / 2f));
-						var gradColor = gradient.Item1.GetColorAt(middle);
-						keyColor = ColorUtils.BlendColors(keyColor, gradColor, gradColor.A / 255f * getBlend2(gradient.Item3.X, i, gradient.Item3.Y));
-					}
-				}
-			}
-			effectLayer.Set(keys[i], keyColor);
-		}
-	}
-
 	public void Draw(FreeFormObject freeform, EffectLayer effectLayer)
 	{
 		var g = effectLayer.GetGraphics();
@@ -588,7 +510,7 @@ internal class GradientCascade
 		var rotatePoint = new PointF(xPos + (width / 2.0f), yPos + (height / 2.0f));
 		var myMatrix = new Matrix();
 		myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
-		g.Transform = myMatrix;
+		g.SetTransform(myMatrix);
 
 		foreach (var gradient in gradients)
 		{
@@ -604,7 +526,7 @@ internal class GradientCascade
 					xPosGr - (widthGr * gradient.Item2.X / (gradient.Item2.Y - gradient.Item2.X)));
 
 				brush.WrapMode = WrapMode.TileFlipX;
-				g.FillRectangle(brush, rect);
+				g.DrawRectangle(brush, rect);
 			}
 		}
 	}

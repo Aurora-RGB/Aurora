@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using AuroraRgb.Bitmaps;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations;
@@ -16,7 +16,7 @@ public class AnimationLines : AnimationFrame
         _duration = duration;
     }
 
-    public override void Draw(Graphics g)
+    public override void Draw(IAuroraBitmap g)
     {
         foreach (var line in _lines)
             line.Draw(g);

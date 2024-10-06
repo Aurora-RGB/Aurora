@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using AuroraRgb.Bitmaps;
 using Common.Utils;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
     public class AnimationCircle : AnimationFrame
     {
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         internal float _radius;
 
         public float Radius => _radius;
@@ -77,7 +79,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             _duration = duration;
         }
 
-        public override void Draw(Graphics g)
+        public override void Draw(IAuroraBitmap g)
         {
             if (_invalidated)
             {
@@ -92,8 +94,8 @@ namespace AuroraRgb.EffectsEngine.Animations
 
             if(_dimension.Width > 1 && _dimension.Height > 1)
             {
-                g.ResetTransform();
-                g.Transform = _transformationMatrix;
+                g.Reset();
+                g.SetTransform(_transformationMatrix);
                 g.DrawEllipse(_pen, _dimension);
             }
         }

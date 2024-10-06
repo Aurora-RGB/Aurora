@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using AuroraRgb.Bitmaps;
 
 namespace AuroraRgb.EffectsEngine.Animations;
 
@@ -22,7 +23,7 @@ public class AnimationFilledCircle : AnimationCircle
     {
     }
 
-    public override void Draw(Graphics g)
+    public override void Draw(IAuroraBitmap g)
     {
         if (_brush == null || _invalidated)
         {
@@ -37,7 +38,7 @@ public class AnimationFilledCircle : AnimationCircle
             _invalidated = false;
         }
 
-        g.ResetTransform();
+        g.Reset();
         g.FillEllipse(_brush, _dimension);
     }
 

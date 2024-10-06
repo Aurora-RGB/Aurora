@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
@@ -326,12 +325,10 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         {
             // Here we draw the equalizer relative to our source rectangle
             // and the DrawTransformed method handles sizing and positioning it correctly for us
-            g.CompositingMode = CompositingMode.SourceCopy;
-            g.CompositingQuality = CompositingQuality.Invalid;
             // Draw a rectangle background over the entire source rect if bg is enabled
             if (bgEnabled)
             {
-                g.FillRectangle(_backgroundBrush, SourceRect);
+                g.DrawRectangle(_backgroundBrush, SourceRect);
             }
 
             var waveStepAmount = localFft.Length / (int)SourceRect.Width;
@@ -346,7 +343,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = Math.Max(Math.Min(fftVal / (float)scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
-                        g.FillRectangle(brush, x, halfHeight - yOff, 1, yOff * 2);
+                        g.DrawRectangle(brush, new RectangleF(x, halfHeight - yOff, 1, yOff * 2));
                     }
                     break;
                 case EqualizerType.WaveformBottom:
@@ -356,7 +353,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = Math.Min(Math.Abs(fftVal / (float)scaledMaxAmplitude) * 1000.0f, SourceRect.Height);
-                        g.FillRectangle(brush, x, SourceRect.Height - yOff, 1, yOff * 2);
+                        g.DrawRectangle(brush, new RectangleF(x, SourceRect.Height - yOff, 1, yOff * 2));
                     }
                     break;
                 case EqualizerType.PowerBars:
@@ -402,16 +399,14 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         _previousFreqResults[fX] = fftVal;
 
                         var brush = GetBrush(-(fX % 2), fX, freqResults.Length - 1);
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.SmoothingMode = SmoothingMode.AntiAlias;
-                        g.FillRectangle(brush, x, y - height, barWidth, height);
+                        g.DrawRectangle(brush, new RectangleF(x, y - height, barWidth, height));
                     }
                     break;
                 default:
                     throw new InvalidOperationException(Properties.BackgroundMode + " is not implemented");
             }
         }, SourceRect);
-        
+
         NewLayerRender?.Invoke(EffectLayer.GetBitmap());
         return EffectLayer;
     }

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.EffectsEngine.Animations;
 using AuroraRgb.Modules;
@@ -54,7 +55,7 @@ public partial class Control_AnimationMixPresenter
 
     public event AnimationMixArgs? AnimationMixUpdated;
 
-    public Bitmap? RenderedBitmap { get; private set; }
+    public GdiBitmap? RenderedBitmap { get; private set; }
 
     public float AnimationScale { get; set; } = 1.0f;
 
@@ -63,7 +64,7 @@ public partial class Control_AnimationMixPresenter
     private bool _updateEnabled;
 
     private readonly SingleConcurrentThread _playbackTimeUpdater;
-    private readonly Bitmap _newBitmap = new(Effects.Canvas.Width, Effects.Canvas.Height);
+    private readonly GdiBitmap _newBitmap = new(Effects.Canvas.Width, Effects.Canvas.Height);
 
     public Control_AnimationMixPresenter()
     {
@@ -150,12 +151,9 @@ public partial class Control_AnimationMixPresenter
 
             await Task.Run(() =>
             {
-                using (var g = Graphics.FromImage(_newBitmap))
-                {
-                    g.Clear(Color.Black);
+                _newBitmap.Fill(Brushes.Black);
 
-                    cm.Draw(g, _currentPlaybackTime, new PointF(AnimationScale, AnimationScale));
-                }
+                cm.Draw(_newBitmap, _currentPlaybackTime, new PointF(AnimationScale, AnimationScale));
 
                 RenderedBitmap = _newBitmap;
 

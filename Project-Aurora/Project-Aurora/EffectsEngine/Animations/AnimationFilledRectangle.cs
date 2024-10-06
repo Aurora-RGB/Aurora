@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using AuroraRgb.Bitmaps;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
@@ -21,7 +22,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
         }
 
-        public override void Draw(Graphics g)
+        public override void Draw(IAuroraBitmap g)
         {
             if (_invalidated)
             {
@@ -32,11 +33,11 @@ namespace AuroraRgb.EffectsEngine.Animations
                 _invalidated = false;
             }
 
-            g.ResetTransform();
-            g.Transform = _transformationMatrix;
+            g.Reset();
+            g.SetTransform(_transformationMatrix);
             float drawX = _dimension.X - _dimension.Width/2;
             float drawY = _dimension.Y - _dimension.Height/2;
-            g.FillRectangle(_brush, drawX, drawY, _dimension.Width, _dimension.Height);
+            g.DrawRectangle(_brush, _dimension with { X = drawX, Y = drawY });
         }
 
         public override AnimationFrame BlendWith(AnimationFrame otherAnim, double amount)

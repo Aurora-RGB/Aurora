@@ -1,7 +1,10 @@
-﻿using System.IO;
+﻿using System.Drawing.Imaging;
+using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Settings.Layers;
 
 namespace AuroraRgb.Controls;
@@ -44,7 +47,7 @@ public partial class Control_LayerPreview
         _eventsAttached = true;
     }
 
-    // Stop listenting for when the particle layer is rendered (since you can't see the image now anyways)
+    // Stop listening for when the particle layer is rendered (since you can't see the image now anyways)
     private void UserControl_Unloaded(object? sender, RoutedEventArgs e) {
         if (TargetLayer != null)
             TargetLayer.LayerRender -= RenderLayerPreview;
@@ -52,11 +55,13 @@ public partial class Control_LayerPreview
     }
 
     // Take the bitmap from the layer and transform it into a format that can be used by WPF
-    private void RenderLayerPreview(object? sender, System.Drawing.Bitmap bitmap) =>
+    private void RenderLayerPreview(object? sender, IAuroraBitmap bitmap)
+    {
+        var gdiBitmap = GdiBitmap.GetGdiBitmap(bitmap);
         Dispatcher.Invoke(() =>
         {
             using var ms = new MemoryStream();
-            bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+            gdiBitmap.Bitmap.Save(ms, ImageFormat.Png);
             ms.Position = 0;
             var bitmapImg = new BitmapImage();
             bitmapImg.BeginInit();
@@ -65,4 +70,5 @@ public partial class Control_LayerPreview
             bitmapImg.EndInit();
             imagePreview.Source = bitmapImg;
         }, DispatcherPriority.Loaded);
+    }
 }

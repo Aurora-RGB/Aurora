@@ -36,7 +36,6 @@ public partial class Control_LayerControlPresenter
 
         ctrlLayerTypeConfig.Content = EmptyContent;
         ctrlLayerTypeConfig.Content = await layer.Control;
-        chkLayerSmoothing.IsChecked = Layer.Handler.EnableSmoothing;
         chk_ExcludeMask.IsChecked = Layer.Handler._EnableExclusionMask ?? false;
         keyseq_ExcludeMask.Sequence = Layer.Handler._ExclusionMask;
         sldr_Opacity.Value = (Layer.Handler._Opacity ?? 1d) * 100.0;
@@ -68,7 +67,6 @@ public partial class Control_LayerControlPresenter
 
         ctrlLayerTypeConfig.Content = EmptyContent;
         ctrlLayerTypeConfig.Content = await _Layer.Control;
-        chkLayerSmoothing.IsChecked = _Layer.Handler.EnableSmoothing;
         chk_ExcludeMask.IsChecked = Layer.Handler._EnableExclusionMask ?? false;
         keyseq_ExcludeMask.Sequence = Layer.Handler._ExclusionMask;
         sldr_Opacity.Value = (int)(Layer.Handler.Opacity * 100.0f);
@@ -95,12 +93,6 @@ public partial class Control_LayerControlPresenter
         grd_LayerControl.IsHitTestVisible = v;
         grd_LayerControl.Effect = v ? null : new BlurEffect();
         btnOverrides.Visibility = v ? Visibility.Visible : Visibility.Collapsed;
-    }
-
-    private void chkLayerSmoothing_Checked(object? sender, RoutedEventArgs e)
-    {
-        if (IsLoaded && !_isSettingNewLayer && sender is CheckBox checkBox)
-            Layer.Handler.EnableSmoothing = checkBox.IsChecked.Value;
     }
 
     private void chk_ExcludeMask_Checked(object? sender, RoutedEventArgs e)

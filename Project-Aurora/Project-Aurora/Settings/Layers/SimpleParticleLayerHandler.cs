@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Controls;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -329,7 +330,7 @@ namespace AuroraRgb.Settings.Layers {
         /// </summary>
         public bool IsAlive() => Lifetime < MaxLifetime;
 
-        public void Render(Graphics gfx, SimpleParticleLayerProperties properties) {
+        public void Render(IAuroraBitmap gfx, SimpleParticleLayerProperties properties) {
             var color = properties.ParticleColorStops.GetColorAt((float)(Lifetime / MaxLifetime));
             _solidBrush.Color = color;
             

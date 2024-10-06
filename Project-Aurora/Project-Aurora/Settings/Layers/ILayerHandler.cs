@@ -12,8 +12,6 @@ public interface ILayerHandler: IDisposable
 
     object Properties { get; set; }
 
-    bool EnableSmoothing { get; set; }
-
     bool EnableExclusionMask { get; }
     bool? _EnableExclusionMask { get; set; }
 

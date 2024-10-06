@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Dota_2.GSI;
@@ -8,6 +7,7 @@ using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using Common.Devices;
 using Newtonsoft.Json;
+using Color = System.Drawing.Color;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
@@ -87,7 +87,7 @@ public partial class Dota2ItemLayerHandlerProperties : LayerHandlerProperties2Co
 
 }
 
-public class Dota2ItemLayerHandler : LayerHandler<Dota2ItemLayerHandlerProperties>
+public class Dota2ItemLayerHandler() : LayerHandler<Dota2ItemLayerHandlerProperties>("Dota 2 - Items")
 {
     private static readonly Dictionary<string, Color> ItemColors = new()
     {
@@ -360,10 +360,6 @@ public class Dota2ItemLayerHandler : LayerHandler<Dota2ItemLayerHandlerPropertie
         { "regen", Color.FromArgb(146, 85, 183) }
     };
 
-    public Dota2ItemLayerHandler(): base("Dota 2 - Items")
-    {
-    }
-
     protected override UserControl CreateControl()
     {
         return new Control_Dota2ItemLayer(this);
@@ -384,25 +380,27 @@ public class Dota2ItemLayerHandler : LayerHandler<Dota2ItemLayerHandlerPropertie
                     EffectLayer.Set(key, Properties.EmptyItemColor);
                 else
                 {
-                    if (Properties.UseItemColors && ItemColors.ContainsKey(item.Name))
+                    if (Properties.UseItemColors && ItemColors.TryGetValue(item.Name, out var itemColor))
                     {
                         if (!string.IsNullOrWhiteSpace(item.ContainsRune))
-                            EffectLayer.Set(key, ColorUtils.BlendColors(ItemColors[item.Name], BottleRuneColors[item.ContainsRune], 0.8));
-                        else
-                            EffectLayer.Set(key, ItemColors[item.Name]);
+                            itemColor = ColorUtils.BlendColors(ItemColors[item.Name], BottleRuneColors[item.ContainsRune], 0.8);
                     }
                     else
-                        EffectLayer.Set(key, Properties.ItemsColor);
+                    {
+                        itemColor = Properties.ItemsColor;
+                    }
+
+                    EffectLayer.Set(key, itemColor);
 
                     //Cooldown
                     if (item.Cooldown > 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemCooldownColor, 1.0));
-                    else if (item.Cooldown > 0 && item.Cooldown <= 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemCooldownColor, item.Cooldown / 5.0));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, 1.0));
+                    else if (item.Cooldown is > 0 and <= 5)
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, item.Cooldown / 5.0));
 
                     //Charges
                     if (item.Charges == 0)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemNoChargersColor, 0.7));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemNoChargersColor, 0.7));
                 }
             }
 
@@ -417,25 +415,26 @@ public class Dota2ItemLayerHandler : LayerHandler<Dota2ItemLayerHandlerPropertie
                 }
                 else
                 {
-                    if (Properties.UseItemColors && ItemColors.ContainsKey(item.Name))
+                    if (Properties.UseItemColors && ItemColors.TryGetValue(item.Name, out var itemColor))
                     {
                         if (!string.IsNullOrWhiteSpace(item.ContainsRune))
-                            EffectLayer.Set(key, ColorUtils.BlendColors(ItemColors[item.Name], BottleRuneColors[item.ContainsRune], 0.8));
-                        else
-                            EffectLayer.Set(key, ItemColors[item.Name]);
+                            itemColor = ColorUtils.BlendColors(ItemColors[item.Name], BottleRuneColors[item.ContainsRune], 0.8);
                     }
                     else
-                        EffectLayer.Set(key, Properties.ItemsColor);
+                    {
+                        itemColor = Properties.ItemsColor;
+                    }
+                    EffectLayer.Set(key, itemColor);
 
                     //Cooldown
                     if (item.Cooldown > 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemCooldownColor, 1.0));
-                    else if (item.Cooldown > 0 && item.Cooldown <= 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemCooldownColor, item.Cooldown / 5.0));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, 1.0));
+                    else if (item.Cooldown is > 0 and <= 5)
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, item.Cooldown / 5.0));
 
                     //Charges
                     if (item.Charges == 0)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(EffectLayer.Get(key), Properties.ItemNoChargersColor, 0.7));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemNoChargersColor, 0.7));
                 }
             }
         }

@@ -1,4 +1,6 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -43,17 +45,22 @@ public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Col
 public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
 {
     private readonly EffectLayer _tempLayerBitmap = new("GradientLayer - Colors", true);
+    private readonly Action<IAuroraBitmap> _gradientRenderFunc;
 
     public GradientLayerHandler(): base("GradientLayer")
     {
         Properties.PropertyChanged += PropertiesChanged;
+        _gradientRenderFunc = g =>
+        {
+            g.DrawRectangle(_tempLayerBitmap, _tempLayerBitmap.Dimension);
+        };
     }
 
     protected override UserControl CreateControl()
     {
         return new Control_GradientLayer(this);
     }
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (Invalidated)
         {
@@ -77,10 +84,7 @@ public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
             EffectLayer.Clear();
             EffectLayer.DrawTransformed(
                 Properties.Sequence,
-                g =>
-                {
-                    g.FillRectangle(_tempLayerBitmap.TextureBrush, _tempLayerBitmap.Dimension);
-                }
+                _gradientRenderFunc
             );
         }
         return EffectLayer;

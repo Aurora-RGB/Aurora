@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.Utils;
 using Common.Devices;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
     public class AnimationManualColorFrame : AnimationFrame
     {
-        [Newtonsoft.Json.JsonProperty]
+        [JsonProperty]
         private Dictionary<DeviceKeys, Color> _BitmapColors = new Dictionary<DeviceKeys, Color>();
 
         public AnimationFrame SetKeyColor(DeviceKeys Key, Color Color)
@@ -41,7 +43,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             _duration = duration;
         }
 
-        public override void Draw(Graphics g)
+        public override void Draw(IAuroraBitmap g)
         {
             // Offset has no effect on this type of animation frame
             if (_brush == null || _invalidated)
@@ -58,7 +60,7 @@ namespace AuroraRgb.EffectsEngine.Animations
                 var region = Effects.Canvas.GetRectangle(kvp.Key);
 
                 var solidBrush = new SolidBrush(kvp.Value);
-                g.FillRectangle(solidBrush, region.Left, region.Top, region.Width, region.Height);
+                g.DrawRectangle(solidBrush, new RectangleF(region.Left, region.Top, region.Width, region.Height));
                 solidBrush.Dispose();
             }
         }

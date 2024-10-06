@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -21,6 +22,7 @@ using Common.Utils;
 using Newtonsoft.Json;
 using PropertyChanged;
 using Point = System.Drawing.Point;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace AuroraRgb.Settings.Layers;
 
@@ -308,8 +310,8 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
                 {
                     try
                     {
-                        g.Clear(Color.Transparent);
-                        g.FillRectangle(_screenBrush, 0, 0, _cropRegion.Width, _cropRegion.Height);
+                        effectLayer.Clear();
+                        g.DrawRectangle(_screenBrush, _cropRegion with{ X = 0, Y = 0});
                     }
                     catch
                     {
@@ -324,7 +326,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         return effectLayer;
     }
 
-    protected override System.Windows.Controls.UserControl CreateControl()
+    protected override UserControl CreateControl()
     {
         return new Control_AmbilightLayer(this);
     }
@@ -546,7 +548,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     /// <param name="process"></param>
     public void UpdateSpecificProcessHandle(string process)
     {
-        var processes = Process.GetProcessesByName(System.IO.Path.GetFileNameWithoutExtension(process));
+        var processes = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(process));
         try
         {
             if (processes.Length == 0)

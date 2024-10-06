@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Windows.Controls;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Overrides;
@@ -54,7 +54,7 @@ namespace AuroraRgb.Settings.Layers {
         private readonly Stopwatch _stopwatch = new(); // Stopwatch to determine time difference since last render
         private readonly List<TParticle> _particles = new(); // All the currently active "alive" particles
 
-        public event EventHandler<Bitmap> LayerRender; // Fires whenever the layer is rendered
+        public event EventHandler<IAuroraBitmap> LayerRender; // Fires whenever the layer is rendered
 
         static ParticleLayerHandlerBase()
         {
@@ -131,7 +131,7 @@ namespace AuroraRgb.Settings.Layers {
         void Update(double deltaTime, TProperties properties);
 
         /// <summary>Renders the particle to the given graphics context.</summary>
-        void Render(Graphics gfx, TProperties properties);
+        void Render(IAuroraBitmap gfx, TProperties properties);
 
         /// <summary>Determines if the particle is alive. A particle that is not alive will be removed from the canvas.</summary>
         bool IsAlive();

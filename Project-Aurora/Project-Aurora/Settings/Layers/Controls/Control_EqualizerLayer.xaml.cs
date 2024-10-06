@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
@@ -7,6 +6,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Utils;
@@ -249,15 +250,16 @@ public partial class ControlEqualizerLayer
         _previewWindowOpen = false;
     }
 
-    private void Control_EqualizerLayer_NewLayerRender(Bitmap bitmap)
+    private void Control_EqualizerLayer_NewLayerRender(IAuroraBitmap bitmap)
     {
         try
         {
+            var gdiBitmap = GdiBitmap.GetGdiBitmap(bitmap);
             Dispatcher.Invoke(
                 () =>
                 {
                     using var memory = new MemoryStream();
-                    bitmap.Save(memory, ImageFormat.Png);
+                    gdiBitmap.Bitmap.Save(memory, ImageFormat.Png);
                     memory.Position = 0;
                     var bitmapImage = new BitmapImage();
                     bitmapImage.BeginInit();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.Devices;
 using AuroraRgb.Utils;
 using Common;
@@ -10,7 +11,7 @@ using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
 
-public delegate void NewLayerRendered(Bitmap bitmap);
+public delegate void NewLayerRendered(IAuroraBitmap bitmap);
 
 internal class EnumHashGetter: IEqualityComparer<Enum>
 {
@@ -134,7 +135,7 @@ public class Effects(Task<DeviceManager> deviceManager)
 
     private readonly Dictionary<DeviceKeys, SimpleColor> _keyColors = new(MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
-    private EffectLayer Background { get; } = new("Global Background", Color.Black, true);
+    private ReadableEffectLayer Background { get; } = new("Global Background", Color.Black);
 
     private readonly SolidBrush _keyboardDarknessBrush = new(Color.Empty);
     private readonly SolidBrush _blackBrush = new(Color.Black);
@@ -173,7 +174,7 @@ public class Effects(Task<DeviceManager> deviceManager)
         if (_forcedFrame != null)
         {
             var g = Background.GetGraphics();
-            g.Clear(Color.Black);
+            g.Fill(Brushes.Black);
             g.DrawImage(_forcedFrame, 0, 0, renderCanvas.Width, renderCanvas.Height);
         }
 

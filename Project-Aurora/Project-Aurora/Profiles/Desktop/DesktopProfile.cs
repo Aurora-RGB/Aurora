@@ -322,7 +322,6 @@ public class DesktopProfile : ApplicationProfile
                     VariablePath = new VariablePath("LocalPCInfo/CPU/Usage"),
                     MaxVariablePath = new VariablePath("100")
                 },
-                EnableSmoothing = true,
             })
             {
                 Enabled = false,
@@ -345,7 +344,6 @@ public class DesktopProfile : ApplicationProfile
                     VariablePath = new VariablePath("LocalPCInfo/RAM/Used"),
                     MaxVariablePath = new VariablePath("LocalPCInfo/RAM/Total")
                 },
-                EnableSmoothing = true
             })
             {
                 Enabled = false,

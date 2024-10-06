@@ -225,10 +225,8 @@ internal class RainFall(EventIdle eventIdle) : AwayEffect
 
             _pen.Color = _dropSpec.GetColorAt(transitionValue);
             g.DrawEllipse(_pen,
-                pt.X - radius,
-                pt.Y - radius,
-                2 * radius,
-                2 * radius);
+                new RectangleF(pt.X - radius, pt.Y - radius, 2 * radius, 2 * radius)
+            );
 
             _raindrops[raindrop] -= eventIdle.GetDeltaTime().TotalSeconds * 0.05f * IdleSpeed;
         }
@@ -371,12 +369,13 @@ internal class RainFallSmooth(EventIdle eventIdle) : AwayEffect
                     + Math.Min(1, Math.Max(0, outEdgePercent)) - 1f;
 
                 if (percent <= 0) continue;
-                var bg = layer.Get(key);
+                var bg = Color.Transparent;
                 var fg = _dropSpec.GetColorAt(raindrop.Item3);
-                layer.Set(key, (Color)ColorUtils.BlendColors(
+                var blendColor = (Color)ColorUtils.BlendColors(
                     ColorUtils.DrawingToSimpleColor(bg),
                     ColorUtils.DrawingToSimpleColor(fg),
-                    percent));
+                    percent);
+                layer.Set(key, blendColor);
             }
         }
     }

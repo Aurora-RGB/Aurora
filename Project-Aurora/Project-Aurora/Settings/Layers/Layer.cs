@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using AuroraRgb.Bitmaps;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Exceptions;
@@ -101,7 +101,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             Error = false;
             return effectLayer;
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             if (++_renderErrors == 3)
             {
@@ -146,5 +146,5 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 /// To use, the layer handler should call <code>LayerRender?.Invoke(this, layer.GetBitmap());</code> at the end of their <see cref="Layer.Render(IGameState)"/> method.
 /// </summary>
 public interface INotifyRender {
-    event EventHandler<Bitmap> LayerRender;
+    event EventHandler<IAuroraBitmap> LayerRender;
 }

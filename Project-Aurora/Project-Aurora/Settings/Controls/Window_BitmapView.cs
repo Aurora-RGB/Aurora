@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
@@ -7,6 +6,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
@@ -59,18 +60,19 @@ public class Window_BitmapView : Window
         Content = imgBitmap;
     }
 
-    private void Effengine_NewLayerRender(Bitmap bitmap)
+    private void Effengine_NewLayerRender(IAuroraBitmap bitmap)
     {
         try
         {
+            var gdiBitmap = GdiBitmap.GetGdiBitmap(bitmap);
             Dispatcher.Invoke(() =>
             {
-                lock (bitmap)
+                lock (gdiBitmap)
                 {
-                    using MemoryStream memory = new MemoryStream();
-                    bitmap.Save(memory, ImageFormat.Png);
+                    using var memory = new MemoryStream();
+                    gdiBitmap.Bitmap.Save(memory, ImageFormat.Png);
                     memory.Position = 0;
-                    BitmapImage bitmapimage = new BitmapImage();
+                    var bitmapimage = new BitmapImage();
                     bitmapimage.BeginInit();
                     bitmapimage.StreamSource = memory;
                     bitmapimage.CacheOption = BitmapCacheOption.OnLoad;

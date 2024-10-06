@@ -1,8 +1,5 @@
 using System;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using System.Windows;
@@ -48,8 +45,6 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         get => Properties;
         set => Properties = value as TProperty;
     }
-        
-    public bool EnableSmoothing { get; set; }
 
     // Always return true if the user is overriding the exclusion zone (so that we don't have to present the user with another
     // option in the overrides asking if they want to enable/disable it), otherwise if there isn't an overriden value for
@@ -70,12 +65,6 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         get => Properties._LayerOpacity;
         set => Properties._LayerOpacity = value;
     }
-
-    [JsonIgnore]
-    private TextureBrush? _previousRender; //Previous layer
-
-    [JsonIgnore]
-    private TextureBrush? _previousSecondRender; //Layer before previous
 
     [JsonIgnore]
     private readonly Temporary<EffectLayer> _effectLayer;
@@ -100,19 +89,6 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 
     protected LayerHandler(string name)
     {
-        var colorMatrix1 = new ColorMatrix
-        {
-            Matrix33 = 0.6f
-        };
-        _prevImageAttributes = new();
-        _prevImageAttributes.SetColorMatrix(colorMatrix1);
-        var colorMatrix2 = new ColorMatrix
-        {
-            Matrix33 = 0.4f
-        };
-        _secondPrevImageAttributes = new();
-        _secondPrevImageAttributes.SetColorMatrix(colorMatrix2);
-
         _effectLayer = new(() => new EffectLayer(name, true));
         _ExclusionMask = new KeySequence();
         Properties.PropertyChanged += PropertiesChanged;
@@ -131,16 +107,8 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 
     }
 
-    private readonly Temporary<EffectLayer> _postfxLayer = new(() => new EffectLayer("PostFXLayer", true));
-    private readonly ImageAttributes _prevImageAttributes;
-    private readonly ImageAttributes _secondPrevImageAttributes;
-
     public EffectLayer PostRenderFX(EffectLayer renderedLayer)
     {
-        if (EnableSmoothing)
-        {
-            SmoothLayer(renderedLayer);
-        }
 
         //Last PostFX is exclusion
         renderedLayer.Exclude(EnableExclusionMask ? ExclusionMask : KeySequence.Empty);
@@ -148,48 +116,6 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         renderedLayer *= Properties.LayerOpacity;
 
         return renderedLayer;
-    }
-
-    private void SmoothLayer(EffectLayer renderedLayer)
-    {
-        var returnLayer = _postfxLayer.Value;
-        returnLayer.Clear();
-
-        var g = returnLayer.GetGraphics();
-        {
-            g.CompositingMode = CompositingMode.SourceOver;
-            g.CompositingQuality = CompositingQuality.HighSpeed;
-            g.SmoothingMode = SmoothingMode.None;
-            g.InterpolationMode = InterpolationMode.Low;
-
-            g.DrawImage(renderedLayer.TextureBrush.Image,
-                renderedLayer.Dimension, renderedLayer.Dimension,
-                GraphicsUnit.Pixel
-            );
-            if (_previousRender != null)
-            {
-                g.FillRectangle(_previousRender, renderedLayer.Dimension);
-            }
-            if (_previousSecondRender != null)
-            {
-                g.FillRectangle(_previousSecondRender, renderedLayer.Dimension);
-            }
-        }
-
-        try
-        {
-            if (_previousRender != null)
-            {
-                _previousSecondRender = new TextureBrush(_previousRender.Image, renderedLayer.Dimension, _secondPrevImageAttributes);
-            }
-            //Update previous layers
-            _previousRender = new TextureBrush(renderedLayer.TextureBrush.Image, renderedLayer.Dimension, _prevImageAttributes);
-        }
-        catch (Exception e) //canvas changes
-        {
-            _previousSecondRender = EffectLayer.EmptyLayer.TextureBrush;
-            _previousRender = EffectLayer.EmptyLayer.TextureBrush;
-        }
     }
 
     public virtual async void SetApplication(Application profile)
