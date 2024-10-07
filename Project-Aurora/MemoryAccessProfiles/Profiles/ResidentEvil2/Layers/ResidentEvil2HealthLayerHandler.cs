@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace MemoryAccessProfiles.Profiles.ResidentEvil2.Layers;
 
-public partial class ResidentEvil2HealthLayerHandlerProperties : LayerHandlerProperties2Color<ResidentEvil2HealthLayerHandlerProperties>
+public partial class ResidentEvil2HealthLayerHandlerProperties : LayerHandlerProperties2Color
 {
     public enum HealthDisplayType
     {

@@ -25,8 +25,7 @@ public class OverrideSetterSourceGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        const string layerHandlerProperties = "AuroraRgb.Settings.Layers.LayerHandlerProperties`1";
-        HashSet<string> ignore = [layerHandlerProperties];
+        const string layerHandlerProperties = "AuroraRgb.Settings.Layers.LayerHandlerProperties";
 
         var compilation = context.Compilation;
 
@@ -45,18 +44,16 @@ public class OverrideSetterSourceGenerator : ISourceGenerator
             .OfType<ClassDeclarationSyntax>()
             .Select(declaration => compilation.GetSemanticModel(declaration.SyntaxTree).GetDeclaredSymbol(declaration))
             .OfType<INamedTypeSymbol>()
-            .Where(IsSubtypeOf(handlerPropertiesInterface))
-            //.Where(NotGenericClass)
-            .Where(classSymbol => !ignore.Contains(classSymbol.ToDisplayString()));
+            .Where(IsSubtypeOf(handlerPropertiesInterface));
 
-        List<INamedTypeSymbol> generatedClasses = [];
+        List<INamedTypeSymbol> generatedClasses = [handlerPropertiesInterface];
         foreach (var classSymbol in classes)
         {
             try
             {
                 GenerateLogic(context, classSymbol);
-                GenerateLogicOverridePartial(context, classSymbol);
                 generatedClasses.Add(classSymbol);
+                GenerateLogicOverridePartial(context, classSymbol);
             }
             catch (Exception e)
             {
@@ -191,12 +188,15 @@ public class OverrideSetterSourceGenerator : ISourceGenerator
 
                        using System;
                        using System.Collections.Generic;
+                       using Newtonsoft.Json;
+                       using AuroraRgb.Profiles;
 
                        namespace {{classSymbol.ContainingNamespace}}
                        {
-                           public partial class {{classSymbol.Name}}{{genericParams}} : AuroraRgb.Settings.Layers.LogicHolder<{{logicClassName}}>
+                           public partial class {{classSymbol.Name}}{{genericParams}}
                                {{genericConstraints}}
                            {
+                                [GameStateIgnore, JsonIgnore] 
                                 public {{logicClassName}}? Logic { get; set; }
                            }
                        }

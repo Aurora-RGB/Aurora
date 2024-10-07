@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Minecraft.Layers {
     [Obsolete("This layer is obselete and has been replaced by the Overrides system.")]
-    public partial class MinecraftHealthBarLayerHandlerProperties : LayerHandlerProperties<MinecraftHealthBarLayerHandlerProperties> {
+    public partial class MinecraftHealthBarLayerHandlerProperties : LayerHandlerProperties {
 
         [JsonIgnore]
         public Color NormalHealthColor => _NormalHealthColor ?? Color.Empty;

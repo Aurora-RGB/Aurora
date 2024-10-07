@@ -71,7 +71,7 @@ public enum AmbilightFpsChoice
 
 #endregion
 
-public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color<AmbilightLayerHandlerProperties>
+public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private AmbilightType? _ambilightType;
     [JsonProperty("_AmbilightType")]

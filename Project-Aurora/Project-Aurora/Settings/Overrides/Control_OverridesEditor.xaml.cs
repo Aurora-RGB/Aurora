@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Utils;
 using PropertyChanged;
 using Application = AuroraRgb.Profiles.Application;
+using Color = System.Drawing.Color;
 
 namespace AuroraRgb.Settings.Overrides;
 
@@ -104,8 +105,7 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
             if (_selectedProperty == null || SelectedLogic?.GetType() == value) return;
             if (value == null) { // If the value is null, that means the user selected the "None" option, so remove the override for this property. Also force reset the override to null so that it doesn't persist after removing the logic.
                 Layer.OverrideLogic.Remove(_selectedProperty.Item1);
-                ((IValueOverridable)Layer.Handler.Properties).SetOverride(_selectedProperty.Item1, null);
-
+                Layer.Handler.Properties.SetOverride(_selectedProperty.Item1, null);
             }  else // Else if the user selected a non-"None" option, create a new instance of that OverrideLogic and assign it to this property
                 Layer.OverrideLogic[_selectedProperty.Item1] = (IOverrideLogic)Activator.CreateInstance(value, _selectedProperty.Item3);
             OnPropertyChanged(nameof(SelectedLogic), nameof(SelectedLogicType), nameof(SelectedLogicControl)); // Raise an event to update the control
@@ -113,7 +113,7 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     }
 
     // The control for the currently selected logic
-    public System.Windows.Media.Visual SelectedLogicControl => SelectedLogic?.GetControl();
+    public Visual SelectedLogicControl => SelectedLogic?.GetControl();
 
     // Application context for logic
     public Application? Application => Layer?.AssociatedApplication;

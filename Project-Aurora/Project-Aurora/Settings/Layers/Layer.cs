@@ -75,12 +75,12 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
                 {
                     if (overrideLogic.VarType is { IsEnum: true })
                     {
-                        ((IValueOverridable)Handler.Properties).SetOverride(key,
+                        Handler.Properties.SetOverride(key,
                             value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
                     }
                     else
                     {
-                        ((IValueOverridable)Handler.Properties).SetOverride(key, value);
+                        Handler.Properties.SetOverride(key, value);
                     }
                 }
                 catch (OverrideNameRefactoredException)
@@ -92,7 +92,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             }
         }
 
-        if (!((dynamic)Handler.Properties).Enabled)
+        if (!Handler.Properties.Enabled)
             return EffectLayer.EmptyLayer;
         try
         {

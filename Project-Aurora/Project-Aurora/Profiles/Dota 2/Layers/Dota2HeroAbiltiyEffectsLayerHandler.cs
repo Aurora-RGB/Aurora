@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,7 +12,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers
 {
-    public partial class Dota2HeroAbilityEffectsLayerHandlerProperties : LayerHandlerProperties2Color<Dota2HeroAbilityEffectsLayerHandlerProperties>
+    public partial class Dota2HeroAbilityEffectsLayerHandlerProperties : LayerHandlerProperties2Color
     {
         public Dota2HeroAbilityEffectsLayerHandlerProperties() : base() { }
 
@@ -510,7 +511,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
                         default:
                         {
                             if (Global.isDebug)
-                                System.Diagnostics.Debug.WriteLine("Unknown Ability: " + ability.Name);
+                                Debug.WriteLine("Unknown Ability: " + ability.Name);
                             break;
                         }
                     }

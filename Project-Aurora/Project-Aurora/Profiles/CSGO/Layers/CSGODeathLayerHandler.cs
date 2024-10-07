@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color<CSGODeathLayerHandlerProperties>
+public partial class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _deathColor;
 

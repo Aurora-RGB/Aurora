@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
-public partial class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties2Color<Dota2AbilityLayerHandlerProperties>
+public partial class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _canCastAbilityColor;
     [JsonProperty("_CanCastAbilityColor")]

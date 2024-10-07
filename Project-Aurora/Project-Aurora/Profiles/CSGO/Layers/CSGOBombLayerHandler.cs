@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBombLayerHandlerProperties>
+public partial class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _flashColor;
 

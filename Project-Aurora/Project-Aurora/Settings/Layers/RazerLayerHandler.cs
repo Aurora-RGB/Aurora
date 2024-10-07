@@ -14,7 +14,7 @@ using RazerSdkReader.Structures;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class RazerLayerHandlerProperties : LayerHandlerProperties<RazerLayerHandlerProperties>
+public partial class RazerLayerHandlerProperties : LayerHandlerProperties
 {
 
     [JsonIgnore]

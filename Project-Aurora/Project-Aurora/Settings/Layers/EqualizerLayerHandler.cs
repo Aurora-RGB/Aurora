@@ -72,7 +72,7 @@ public enum DeviceFlow
     Input,
 }
 
-public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties<EqualizerLayerHandlerProperties>
+public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties
 {
     private Color? _secondaryColor;
     [JsonProperty("_SecondaryColor")]

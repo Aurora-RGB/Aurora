@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Color<GradientLayerHandlerProperties>
+public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private LayerEffectConfig? _gradientConfig;
 

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class BlinkingLayerHandlerProperties : LayerHandlerProperties2Color<BlinkingLayerHandlerProperties>
+public partial class BlinkingLayerHandlerProperties : LayerHandlerProperties2Color
 {
     [JsonIgnore]
     private bool? _randomPrimaryColor;

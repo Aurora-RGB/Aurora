@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class BinaryCounterLayerHandlerProperties : LayerHandlerProperties<BinaryCounterLayerHandlerProperties> {
+public partial class BinaryCounterLayerHandlerProperties : LayerHandlerProperties {
 
     // The var path of the variable to use (set though the UI, cannot be set with overrides)
     [JsonIgnore]

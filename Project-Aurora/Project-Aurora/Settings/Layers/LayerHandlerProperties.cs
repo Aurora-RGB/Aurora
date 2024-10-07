@@ -12,18 +12,13 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public interface LogicHolder<T> where T : LayerHandlerPropertiesLogic {
-    [GameStateIgnore, JsonIgnore]
-    public T? Logic { get; set; }
-}
-
 [UsedImplicitly(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature, ImplicitUseTargetFlags.WithInheritors)]
-public abstract partial class LayerHandlerProperties<TProperty> : IValueOverridable, INotifyPropertyChanged, IDisposable
-    where TProperty : LayerHandlerProperties<TProperty>
+public class LayerHandlerProperties : IValueOverridable, INotifyPropertyChanged, IDisposable
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    [GameStateIgnore, JsonIgnore] public virtual LayerHandlerPropertiesLogic? Logic { get; set; }
+    [GameStateIgnore, JsonIgnore] 
+    public LayerHandlerPropertiesLogic? Logic { get; set; }
 
     [JsonIgnore] private Color? _primaryColor;
 
@@ -156,16 +151,5 @@ public abstract partial class LayerHandlerProperties<TProperty> : IValueOverrida
     private void OnFreeformChanged(object? sender, FreeFormChangedEventArgs e)
     {
         OnPropertiesChanged(sender, new PropertyChangedEventArgs(nameof(_Sequence.Freeform)));
-    }
-}
-
-public partial class LayerHandlerProperties : LayerHandlerProperties<LayerHandlerProperties>
-{
-    public LayerHandlerProperties()
-    {
-    }
-
-    public LayerHandlerProperties(bool assignDefault = false) : base(assignDefault)
-    {
     }
 }

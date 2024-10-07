@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Payday_2.Layers;
 
-public partial class PD2BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<PD2BackgroundLayerHandlerProperties>
+public partial class PD2BackgroundLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _ambientColor;
 

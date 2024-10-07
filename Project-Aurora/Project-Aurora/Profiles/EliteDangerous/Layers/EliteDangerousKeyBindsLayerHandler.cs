@@ -33,7 +33,7 @@ public class ColorGroup
     public const string ModeDisableColor = "ModeDisableColor";
 }
 
-public partial class EliteDangerousKeyBindsHandlerProperties : LayerHandlerProperties2Color<EliteDangerousKeyBindsHandlerProperties>
+public partial class EliteDangerousKeyBindsHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _otherColor;
 

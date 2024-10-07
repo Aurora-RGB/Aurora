@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
-public partial class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties2Color<Dota2RespawnLayerHandlerProperties>
+public partial class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _respawnColor;
 

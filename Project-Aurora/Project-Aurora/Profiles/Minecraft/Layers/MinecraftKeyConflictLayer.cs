@@ -5,16 +5,17 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Minecraft.GSI;
 using AuroraRgb.Settings.Layers;
 using Common.Devices;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Minecraft.Layers {
 
-    public partial class MinecraftKeyConflictLayerProperties : LayerHandlerProperties2Color<MinecraftKeyConflictLayerProperties> {
+    public partial class MinecraftKeyConflictLayerProperties : LayerHandlerProperties2Color {
 
         // PrimaryColor -> No conflict
         // SecondaryColor -> Hard conflict
         // TertiaryColor -> Soft conflict
 
-        [Newtonsoft.Json.JsonIgnore]
+        [JsonIgnore]
         public Color TertiaryColor => _TertiaryColor ?? Color.Empty;
         public Color? _TertiaryColor { get; set; }
 

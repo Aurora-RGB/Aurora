@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Profiles;
@@ -10,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public sealed partial class ToggleKeyLayerHandlerProperties : LayerHandlerProperties2Color<ToggleKeyLayerHandlerProperties> {
+public sealed partial class ToggleKeyLayerHandlerProperties : LayerHandlerProperties2Color {
 
     public ToggleKeyLayerHandlerProperties()
     { }
@@ -57,7 +58,7 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
         base.Dispose();
     }
 
-    protected override System.Windows.Controls.UserControl CreateControl()
+    protected override UserControl CreateControl()
     {
         return new Control_ToggleKeyLayer(this);
     }

@@ -3,11 +3,12 @@ using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
+using AuroraRgb.Settings.Overrides;
 using Common.Utils;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties<SolidFillLayerHandlerProperties>
+public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties
 {
     public SolidFillLayerHandlerProperties()
     {
@@ -24,7 +25,7 @@ public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties<So
     }
 }
 
-[Overrides.LogicOverrideIgnoreProperty("_Sequence")]
+[LogicOverrideIgnoreProperty("_Sequence")]
 public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerProperties>
 {
     private readonly SolidBrush _solidBrush = new(Color.Transparent);

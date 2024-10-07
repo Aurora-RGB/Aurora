@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBackgroundLayerHandlerProperties>
+public partial class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _defaultColor;
 

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public sealed partial class ToolbarLayerHandlerProperties : LayerHandlerProperties2Color<ToolbarLayerHandlerProperties> {
+public sealed partial class ToolbarLayerHandlerProperties : LayerHandlerProperties2Color {
 
     public ToolbarLayerHandlerProperties()
     { }

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.EliteDangerous.Layers;
 
-public partial class EliteDangerousBackgroundHandlerProperties : LayerHandlerProperties2Color<EliteDangerousBackgroundHandlerProperties>
+public partial class EliteDangerousBackgroundHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _combatModeColor;
 

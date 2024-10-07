@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOKillIndicatorLayerHandlerProperties>
+public partial class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _regularKillColor;
 

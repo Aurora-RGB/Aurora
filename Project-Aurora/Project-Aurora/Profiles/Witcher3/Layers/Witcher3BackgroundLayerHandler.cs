@@ -8,7 +8,7 @@ using Witcher3Gsi;
 
 namespace AuroraRgb.Profiles.Witcher3.Layers;
 
-public partial class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProperties2Color<Witcher3BackgroundLayerHandlerProperties>
+public partial class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _defaultColor;
 

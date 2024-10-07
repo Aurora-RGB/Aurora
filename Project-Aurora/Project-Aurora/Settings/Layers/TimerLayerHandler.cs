@@ -14,7 +14,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public sealed partial class TimerLayerHandlerProperties : LayerHandlerProperties2Color<TimerLayerHandlerProperties> {
+public sealed partial class TimerLayerHandlerProperties : LayerHandlerProperties2Color {
 
     public TimerLayerHandlerProperties()
     { }

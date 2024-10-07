@@ -5,7 +5,7 @@ using AuroraRgb.Settings.Layers;
 
 namespace Plugin_Example.Layers
 {
-    public partial class ExampleLayerHandlerProperties : LayerHandlerProperties<ExampleLayerHandlerProperties>
+    public partial class ExampleLayerHandlerProperties : LayerHandlerProperties
     {
 
     }

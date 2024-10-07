@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Payday_2.Layers
 {
-    public partial class PD2FlashbangLayerHandlerProperties : LayerHandlerProperties2Color<PD2FlashbangLayerHandlerProperties>
+    public partial class PD2FlashbangLayerHandlerProperties : LayerHandlerProperties2Color
     {
         private Color? _flashbangColor;
 

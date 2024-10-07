@@ -10,9 +10,11 @@ using AuroraRgb.Modules;
 using AuroraRgb.Modules.Inputs;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
+using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
 using Common.Devices;
 using Newtonsoft.Json;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace AuroraRgb.Settings.Layers;
 
@@ -25,13 +27,13 @@ public enum ShortcutAssistantPresentationType
     ProgressiveSuggestion = 1
 }
 
-public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties<ShortcutAssistantLayerHandlerProperties>
+public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerProperties
 {
     [JsonIgnore]
     private bool? _dimBackground;
 
     [JsonProperty("_DimBackground")]
-    [Overrides.LogicOverridable("Dim Background")]
+    [LogicOverridable("Dim Background")]
     public bool DimBackground
     {
         get => (Logic?._dimBackground ?? _dimBackground) ?? false;
@@ -61,7 +63,7 @@ public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerPrope
     private Color? _dimColor;
 
     [JsonProperty("_DimColor")]
-    [Overrides.LogicOverridable("Dim Color")]
+    [LogicOverridable("Dim Color")]
     public Color DimColor
     {
         get => (Logic?._dimColor ?? _dimColor) ?? Color.Empty;
@@ -139,7 +141,7 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
     private bool _init;
     private IReadOnlyCollection<Keys>? _heldKeys;
 
-    protected override System.Windows.Controls.UserControl CreateControl()
+    protected override UserControl CreateControl()
     {
         return new ControlShortcutAssistantLayer(this);
     }

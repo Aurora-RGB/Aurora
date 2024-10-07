@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class RadialLayerProperties : LayerHandlerProperties<RadialLayerProperties> {
+public partial class RadialLayerProperties : LayerHandlerProperties {
 
     private static readonly SegmentedRadialBrushFactory DefaultFactory = new(new ColorStopCollection(
         new[] { Color.Red, Color.Orange, Color.Yellow, Color.Lime, Color.Cyan, Color.Blue, Color.Purple, Color.Red }));

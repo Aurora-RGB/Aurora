@@ -5,8 +5,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class LayerHandlerProperties2Color<TProperty>(bool assignDefault = false) : LayerHandlerProperties<TProperty>(assignDefault)
-    where TProperty : LayerHandlerProperties2Color<TProperty>
+public partial class LayerHandlerProperties2Color(bool assignDefault = false) : LayerHandlerProperties(assignDefault)
 {
     private Color? _secondaryColor;
 

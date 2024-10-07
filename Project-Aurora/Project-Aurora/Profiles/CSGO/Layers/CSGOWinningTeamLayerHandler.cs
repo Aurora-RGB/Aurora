@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOWinningTeamLayerHandlerProperties : LayerHandlerProperties2Color<CSGOWinningTeamLayerHandlerProperties>
+public partial class CSGOWinningTeamLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _ctColor;
 

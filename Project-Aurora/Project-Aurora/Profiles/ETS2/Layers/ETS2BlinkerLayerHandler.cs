@@ -8,7 +8,7 @@ using Common.Devices;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.ETS2.Layers {
-    public partial class Ets2BlinkerLayerHandlerProperties : LayerHandlerProperties2Color<Ets2BlinkerLayerHandlerProperties> {
+    public partial class Ets2BlinkerLayerHandlerProperties : LayerHandlerProperties2Color {
         private Color? _blinkerOffColor;
 
         [JsonProperty("_BlinkerOffColor")]

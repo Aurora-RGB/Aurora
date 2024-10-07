@@ -16,7 +16,7 @@ using Application = AuroraRgb.Profiles.Application;
 namespace AuroraRgb.Settings.Layers;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : LayerHandlerProperties<TProperty>
+public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : LayerHandlerProperties
 {
     private readonly Temporary<Task<UserControl>> _control;
     
@@ -41,7 +41,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         }
     }
 
-    object ILayerHandler.Properties {
+    LayerHandlerProperties ILayerHandler.Properties {
         get => Properties;
         set => Properties = value as TProperty;
     }

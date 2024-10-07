@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
-public partial class Dota2KillstreakLayerHandlerProperties : LayerHandlerProperties2Color<Dota2KillstreakLayerHandlerProperties>
+public partial class Dota2KillstreakLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _noKillstreakColor;
 

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Color<BreathingLayerHandlerProperties>
+public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Color
 {
     public bool? _RandomPrimaryColor { get; set; }
 

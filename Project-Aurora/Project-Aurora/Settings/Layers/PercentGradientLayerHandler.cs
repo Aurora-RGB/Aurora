@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties<PercentGradientLayerHandlerProperties>
+public partial class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties
 {
     public PercentGradientLayerHandlerProperties() { }
     public PercentGradientLayerHandlerProperties(bool empty = false) : base(empty) { }

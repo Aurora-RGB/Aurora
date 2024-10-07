@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2Color<CSGOTypingIndicatorLayerHandlerProperties>
+public partial class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _typingKeysColor;
 

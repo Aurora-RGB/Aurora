@@ -15,7 +15,7 @@ namespace AuroraRgb.Settings.Layers {
     /// <summary>
     /// The base properties for the base particle layer.
     /// </summary>
-    public partial class ParticleLayerPropertiesBase<TSelf> : LayerHandlerProperties<TSelf> where TSelf : ParticleLayerPropertiesBase<TSelf> {
+    public partial class ParticleLayerPropertiesBase<TSelf> : LayerHandlerProperties where TSelf : ParticleLayerPropertiesBase<TSelf> {
         
         //This allows the particle system to be turned off without disabling it (thereby not hiding already spawned particles).
         private bool? _spawningEnabled;

@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Payday_2.Layers;
 
-public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Color<PD2StatesLayerHandlerProperties>
+public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _downedColor;
 

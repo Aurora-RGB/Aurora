@@ -10,7 +10,7 @@ using Image = System.Drawing.Image;
 
 namespace AuroraRgb.Settings.Layers;
 
-public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color<ImageLayerHandlerProperties>
+public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private string? _imagePath;
 

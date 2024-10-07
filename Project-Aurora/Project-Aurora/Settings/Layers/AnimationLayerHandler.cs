@@ -18,7 +18,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public partial class AnimationLayerHandlerProperties : LayerHandlerProperties2Color<AnimationLayerHandlerProperties>
+    public partial class AnimationLayerHandlerProperties : LayerHandlerProperties2Color
     {
         public AnimationMix _AnimationMix { get; set; }
 

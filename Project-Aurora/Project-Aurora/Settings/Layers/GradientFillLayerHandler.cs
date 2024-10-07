@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public partial class GradientFillLayerHandlerProperties : LayerHandlerProperties2Color<GradientFillLayerHandlerProperties>
+    public partial class GradientFillLayerHandlerProperties : LayerHandlerProperties2Color
     {
         private LayerEffectConfig _gradientConfig;
 

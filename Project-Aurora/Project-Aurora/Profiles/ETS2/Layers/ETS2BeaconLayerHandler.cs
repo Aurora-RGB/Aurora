@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.ETS2.Layers;
 
-public partial class ETS2BeaconLayerProperties : LayerHandlerProperties<ETS2BeaconLayerProperties>
+public partial class ETS2BeaconLayerProperties : LayerHandlerProperties
 {
     private ETS2_BeaconStyle? _beaconStyle;
 

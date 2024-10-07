@@ -56,7 +56,7 @@ public class InputItem
     }
 }
 
-public sealed partial class InteractiveLayerHandlerProperties : LayerHandlerProperties2Color<InteractiveLayerHandlerProperties>
+public sealed partial class InteractiveLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private bool? _randomPrimaryColor;
     [JsonProperty("_RandomPrimaryColor")]

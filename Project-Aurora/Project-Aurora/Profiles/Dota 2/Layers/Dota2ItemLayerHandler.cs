@@ -11,7 +11,7 @@ using Color = System.Drawing.Color;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers;
 
-public partial class Dota2ItemLayerHandlerProperties : LayerHandlerProperties2Color<Dota2ItemLayerHandlerProperties>
+public partial class Dota2ItemLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _emptyItemColor;
 

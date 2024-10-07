@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.CSGO.Layers;
 
-public partial class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color<CSGOBurningLayerHandlerProperties>
+public partial class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2Color
 {
     private Color? _burningColor;
 

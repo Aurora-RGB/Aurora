@@ -10,7 +10,7 @@ using UserControl = System.Windows.Controls.UserControl;
 
 namespace AuroraRgb.Settings.Layers
 {
-    public partial class LockColourLayerHandlerProperties : LayerHandlerProperties2Color<LockColourLayerHandlerProperties>
+    public partial class LockColourLayerHandlerProperties : LayerHandlerProperties2Color
     {
         public LockColourLayerHandlerProperties()
         { }

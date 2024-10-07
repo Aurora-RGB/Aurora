@@ -8,7 +8,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Minecraft.Layers {
 
-    public partial class MinecraftBackgroundLayerHandlerProperties : LayerHandlerProperties2Color<MinecraftBackgroundLayerHandlerProperties> {
+    public partial class MinecraftBackgroundLayerHandlerProperties : LayerHandlerProperties2Color {
 
         public MinecraftBackgroundLayerHandlerProperties() : base() { }
         public MinecraftBackgroundLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }

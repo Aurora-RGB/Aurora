@@ -10,7 +10,7 @@ public interface ILayerHandler: IDisposable
 {
     Task<UserControl> Control { get; }
 
-    object Properties { get; set; }
+    LayerHandlerProperties Properties { get; set; }
 
     bool EnableExclusionMask { get; }
     bool? _EnableExclusionMask { get; set; }
