@@ -10,13 +10,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties
 {
-    public SolidFillLayerHandlerProperties()
-    {
-    }
-
-    public SolidFillLayerHandlerProperties(bool arg = false) : base(arg)
-    {
-    }
 
     public override void Default()
     {

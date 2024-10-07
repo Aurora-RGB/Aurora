@@ -12,14 +12,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers
 {
-    public partial class Dota2HeroAbilityEffectsLayerHandlerProperties : LayerHandlerProperties2Color
-    {
-        public Dota2HeroAbilityEffectsLayerHandlerProperties() : base() { }
-
-        public Dota2HeroAbilityEffectsLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-    }
-
-    public class Dota2HeroAbilityEffectsLayerHandler : LayerHandler<Dota2HeroAbilityEffectsLayerHandlerProperties>
+    public class Dota2HeroAbilityEffectsLayerHandler : LayerHandler<LayerHandlerProperties2Color>
     {
         private enum Dota2AbilityEffects
         {

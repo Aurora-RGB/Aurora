@@ -43,11 +43,6 @@ public partial class GlitchLayerHandlerProperties : LayerHandlerProperties2Color
         }
     }
 
-    public GlitchLayerHandlerProperties()
-    { }
-
-    public GlitchLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

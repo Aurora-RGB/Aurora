@@ -38,14 +38,6 @@ public partial class RocketLeagueGoalExplosionProperties : LayerHandlerPropertie
         set => _background = value;
     }
 
-    public RocketLeagueGoalExplosionProperties()
-    {
-    }
-
-    public RocketLeagueGoalExplosionProperties(bool arg = false) : base(arg)
-    {
-    }
-
     public override void Default()
     {
         base.Default();

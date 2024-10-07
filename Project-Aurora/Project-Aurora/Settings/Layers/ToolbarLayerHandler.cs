@@ -13,10 +13,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public sealed partial class ToolbarLayerHandlerProperties : LayerHandlerProperties2Color {
 
-    public ToolbarLayerHandlerProperties()
-    { }
-    public ToolbarLayerHandlerProperties(bool assignDefault) : base(assignDefault) { }
-
     private bool? _enableScroll;
     [JsonProperty("_EnableScroll")]
     public bool EnableScroll

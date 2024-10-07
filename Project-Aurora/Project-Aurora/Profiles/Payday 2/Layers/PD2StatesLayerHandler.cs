@@ -58,11 +58,6 @@ public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Co
         set => _swanSongSpeedMultiplier = value;
     }
 
-    public PD2StatesLayerHandlerProperties()
-    { }
-
-    public PD2StatesLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

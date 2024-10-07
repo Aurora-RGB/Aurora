@@ -40,11 +40,6 @@ public partial class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties
         set => _backgroundColor = value;
     }
 
-    public Dota2RespawnLayerHandlerProperties()
-    { }
-
-    public Dota2RespawnLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

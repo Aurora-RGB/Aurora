@@ -21,11 +21,6 @@ public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color
         set => _imagePath = value;
     }
 
-    public ImageLayerHandlerProperties()
-    { }
-
-    public ImageLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
     public override void Default()
     {
         base.Default();

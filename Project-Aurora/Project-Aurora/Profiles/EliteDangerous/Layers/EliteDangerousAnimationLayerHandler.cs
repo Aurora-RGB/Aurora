@@ -18,20 +18,8 @@ public enum EliteAnimation
     Hyperspace,
     HyperspaceExit,
 }
-    
-public partial class EliteDangerousAnimationHandlerProperties : LayerHandlerProperties2Color
-{
-    public EliteDangerousAnimationHandlerProperties()
-    { }
 
-    public EliteDangerousAnimationHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
-    public override void Default()
-    {
-        base.Default();
-    }
-}
-public class EliteDangerousAnimationLayerHandler : LayerHandler<EliteDangerousAnimationHandlerProperties>
+public class EliteDangerousAnimationLayerHandler : LayerHandler<LayerHandlerProperties2Color>
 {
     private AnimationMix _fsdCountdownMix;
     private AnimationMix _hyperspaceMix;

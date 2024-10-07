@@ -28,10 +28,6 @@ namespace AuroraRgb.Settings.Layers {
             set => _spawningEnabled = value;
         }
 
-        public ParticleLayerPropertiesBase()
-        { }
-        public ParticleLayerPropertiesBase(bool empty = false) : base(empty) { }
-
         public override void Default() {
             base.Default();
             _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm);

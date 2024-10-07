@@ -51,10 +51,6 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         public bool GradualProgress => _GradualProgress ?? false;
         public bool? _GradualProgress { get; set; }
 
-
-        public MinecraftHealthBarLayerHandlerProperties() : base() { }
-        public MinecraftHealthBarLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
         public override void Default() {
             base.Default();
             _NormalHealthColor = Color.Red;

@@ -26,11 +26,6 @@ namespace AuroraRgb.Settings.Layers
         [JsonIgnore]
         public bool FillEntireKeyboard => Logic?._FillEntireKeyboard ?? _FillEntireKeyboard ?? false;
 
-        public GradientFillLayerHandlerProperties()
-        { }
-
-        public GradientFillLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
         public override void Default()
         {
             base.Default();

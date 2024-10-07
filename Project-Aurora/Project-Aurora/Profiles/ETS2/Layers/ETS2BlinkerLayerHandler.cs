@@ -42,10 +42,6 @@ namespace AuroraRgb.Profiles.ETS2.Layers {
             set => _rightBlinkerSequence = value;
         }
 
-        public Ets2BlinkerLayerHandlerProperties()
-        { }
-        public Ets2BlinkerLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
         public override void Default() {
             base.Default();
 

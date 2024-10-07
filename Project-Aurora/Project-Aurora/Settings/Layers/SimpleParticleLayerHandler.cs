@@ -214,10 +214,6 @@ namespace AuroraRgb.Settings.Layers {
             {1f,  Color.FromArgb(0, Color.White) }
         };
 
-        public SimpleParticleLayerProperties()
-        { }
-        public SimpleParticleLayerProperties(bool empty = false) : base(empty) { }
-
         public override void Default() {
             base.Default();
             _spawnLocation = ParticleSpawnLocations.BottomEdge;
@@ -237,17 +233,11 @@ namespace AuroraRgb.Settings.Layers {
         }
     }
 
-
     /// <summary>
     /// Properties for the particle layer handler that handles "simple" particles. Simple particles are ones that just support velocity,
     /// acceleration and drag and whose alive state is determined by their life span.
     /// </summary>
-    public partial class SimpleParticleLayerProperties : SimpleParticleLayerProperties<SimpleParticleLayerProperties> {
-        public SimpleParticleLayerProperties()
-        { }
-        public SimpleParticleLayerProperties(bool empty = false) : base(empty) { }
-    }
-
+    public partial class SimpleParticleLayerProperties : SimpleParticleLayerProperties<SimpleParticleLayerProperties>;
 
     /// <summary>
     /// Layer handler for the simple particles. It uses time-based spawning and despawning logic.
@@ -273,7 +263,6 @@ namespace AuroraRgb.Settings.Layers {
             _nextSpawnInterval = RandomBetween(Properties.MinSpawnTime, Properties.MaxSpawnTime);
         }
     }
-
 
     /// <summary>
     /// Particle definition that handles "simple" particles. Simple particles are ones that just support velocity,

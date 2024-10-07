@@ -122,10 +122,6 @@ public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerPrope
         set => _presentationType = value;
     }
 
-    public ShortcutAssistantLayerHandlerProperties() { }
-
-    public ShortcutAssistantLayerHandlerProperties(bool empty = false) : base(empty) { }
-
     public override void Default()
     {
         base.Default();

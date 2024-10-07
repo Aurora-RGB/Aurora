@@ -171,10 +171,6 @@ public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties
         set => _deviceId = value;
     }
 
-    public EqualizerLayerHandlerProperties() { }
-
-    public EqualizerLayerHandlerProperties(bool empty) : base(empty) { }
-
     public override void Default()
     {
         base.Default();

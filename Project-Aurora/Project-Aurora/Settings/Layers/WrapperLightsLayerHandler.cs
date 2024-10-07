@@ -68,11 +68,6 @@ public partial class WrapperLightsLayerHandlerProperties : LayerHandlerPropertie
     [JsonProperty("_CloningMap")]
     public Dictionary<DeviceKeys, KeySequence> CloningMap => Logic?._cloningMap ?? _cloningMap ?? new Dictionary<DeviceKeys, KeySequence>();
 
-    public WrapperLightsLayerHandlerProperties()
-    { }
-
-    public WrapperLightsLayerHandlerProperties(bool arg = false) : base(arg) { }
-
     public override void Default()
     {
         base.Default();

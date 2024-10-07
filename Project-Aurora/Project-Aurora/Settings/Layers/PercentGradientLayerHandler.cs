@@ -9,8 +9,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public partial class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties
 {
-    public PercentGradientLayerHandlerProperties() { }
-    public PercentGradientLayerHandlerProperties(bool empty = false) : base(empty) { }
 
     private EffectBrush? _gradient;
     [JsonProperty("_Gradient")]

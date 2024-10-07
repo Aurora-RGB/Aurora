@@ -159,12 +159,6 @@ public partial class EliteDangerousKeyBindsHandlerProperties : LayerHandlerPrope
         _movementSecondaryColor = movementSecondaryColor;
     }
 
-    public EliteDangerousKeyBindsHandlerProperties(Color? movementSpeedColor, Color? movementSecondaryColor, bool assign_default = false) : base(assign_default)
-    {
-        _movementSpeedColor = movementSpeedColor;
-        _movementSecondaryColor = movementSecondaryColor;
-    }
-
     public override void Default()
     {
         base.Default();

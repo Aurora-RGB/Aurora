@@ -81,9 +81,6 @@ namespace AuroraRgb.Settings.Layers
         public bool WhileKeyHeldTerminateRunning => Logic?._WhileKeyHeldTerminateRunning ?? _WhileKeyHeldTerminateRunning ?? false;
         public bool? _WhileKeyHeldTerminateRunning { get; set; }
 
-        public AnimationLayerHandlerProperties() : base() { }
-        public AnimationLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
         public override void Default() {
             base.Default();
             _AnimationMix = new AnimationMix();

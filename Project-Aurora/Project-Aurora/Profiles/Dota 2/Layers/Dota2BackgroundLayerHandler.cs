@@ -56,11 +56,6 @@ public partial class Dota2BackgroundLayerHandlerProperties : LayerHandlerPropert
         set => _dimDelay = value;
     }
 
-    public Dota2BackgroundLayerHandlerProperties()
-    { }
-
-    public Dota2BackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

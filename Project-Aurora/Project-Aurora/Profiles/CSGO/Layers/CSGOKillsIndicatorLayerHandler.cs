@@ -31,11 +31,6 @@ public partial class CSGOKillIndicatorLayerHandlerProperties : LayerHandlerPrope
         set => _headshotKillColor = value;
     }
 
-    public CSGOKillIndicatorLayerHandlerProperties()
-    { }
-
-    public CSGOKillIndicatorLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

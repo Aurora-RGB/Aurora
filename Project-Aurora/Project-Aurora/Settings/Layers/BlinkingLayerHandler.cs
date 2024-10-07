@@ -44,11 +44,6 @@ public partial class BlinkingLayerHandlerProperties : LayerHandlerProperties2Col
         set => _effectSpeed = value;
     }
 
-    public BlinkingLayerHandlerProperties()
-    { }
-
-    public BlinkingLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

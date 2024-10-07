@@ -41,10 +41,6 @@ public partial class ETS2BeaconLayerProperties : LayerHandlerProperties
     {
         _speed = speed;
     }
-    public ETS2BeaconLayerProperties(float? speed, bool assignDefault = false) : base(assignDefault)
-    {
-        _speed = speed;
-    }
 
     public override void Default() {
         base.Default();

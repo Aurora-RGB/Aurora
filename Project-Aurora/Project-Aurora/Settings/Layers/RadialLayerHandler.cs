@@ -29,10 +29,6 @@ public partial class RadialLayerProperties : LayerHandlerProperties {
         set => _animationSpeed = value;
     }
 
-    public RadialLayerProperties()
-    { }
-    public RadialLayerProperties(bool empty = false) : base(empty) { }
-
     public override void Default() {
         base.Default();
         _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm);

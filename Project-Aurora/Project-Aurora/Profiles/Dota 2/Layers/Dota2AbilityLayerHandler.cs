@@ -38,11 +38,6 @@ public partial class Dota2AbilityLayerHandlerProperties : LayerHandlerProperties
         set => _abilityKeys = value;
     }
 
-    public Dota2AbilityLayerHandlerProperties()
-    { }
-
-    public Dota2AbilityLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

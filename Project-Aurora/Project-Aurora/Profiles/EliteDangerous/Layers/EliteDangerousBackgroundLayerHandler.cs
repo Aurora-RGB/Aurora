@@ -28,11 +28,6 @@ public partial class EliteDangerousBackgroundHandlerProperties : LayerHandlerPro
         set => _discoveryModeColor = value;
     }
 
-    public EliteDangerousBackgroundHandlerProperties()
-    { }
-
-    public EliteDangerousBackgroundHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

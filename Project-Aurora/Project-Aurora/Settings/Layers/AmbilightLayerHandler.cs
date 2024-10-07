@@ -186,11 +186,6 @@ public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Co
         set => SetFieldAndRaisePropertyChanged(out _hueShiftAngle, value);
     }
 
-    public AmbilightLayerHandlerProperties()
-    { }
-
-    public AmbilightLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

@@ -67,10 +67,6 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
         set => _keyCloneMap = value;
     }
 
-    public RazerLayerHandlerProperties() { }
-
-    public RazerLayerHandlerProperties(bool arg = false) : base(arg) { }
-
     public override void Default()
     {
         base.Default();

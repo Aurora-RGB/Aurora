@@ -63,11 +63,6 @@ public partial class Dota2ItemLayerHandlerProperties : LayerHandlerProperties2Co
     [JsonProperty("item_keys2")]    //changed property name to reset because some update broke this setting
     public List<DeviceKeys> ItemKeys => Logic?._ItemKeys ?? _itemKeys ?? new List<DeviceKeys>();
 
-    public Dota2ItemLayerHandlerProperties()
-    { }
-
-    public Dota2ItemLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

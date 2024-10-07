@@ -74,11 +74,6 @@ public partial class PD2BackgroundLayerHandlerProperties : LayerHandlerPropertie
     [JsonProperty("_PeripheralUse")]
     public bool PeripheralUse => Logic?._PeripheralUse ?? _peripheralUse ?? false;
 
-
-    public PD2BackgroundLayerHandlerProperties() : base() { }
-
-    public PD2BackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

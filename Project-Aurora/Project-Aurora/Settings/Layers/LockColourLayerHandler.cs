@@ -12,10 +12,6 @@ namespace AuroraRgb.Settings.Layers
 {
     public partial class LockColourLayerHandlerProperties : LayerHandlerProperties2Color
     {
-        public LockColourLayerHandlerProperties()
-        { }
-
-        public LockColourLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
 
         public Keys? _ToggledKey { get; set; }
 

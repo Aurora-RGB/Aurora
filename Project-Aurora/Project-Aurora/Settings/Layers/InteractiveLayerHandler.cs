@@ -124,11 +124,6 @@ public sealed partial class InteractiveLayerHandlerProperties : LayerHandlerProp
         set => SetFieldAndRaisePropertyChanged(out _mouseEffectKey, value);
     }
 
-    public InteractiveLayerHandlerProperties()
-    { }
-
-    public InteractiveLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

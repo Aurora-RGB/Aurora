@@ -30,11 +30,6 @@ public partial class CSGODeathLayerHandlerProperties : LayerHandlerProperties2Co
         set => _fadeOutAfter = value;
     }
 
-    public CSGODeathLayerHandlerProperties()
-    { }
-
-    public CSGODeathLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

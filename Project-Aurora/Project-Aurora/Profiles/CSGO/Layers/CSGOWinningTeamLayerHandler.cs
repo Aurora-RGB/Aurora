@@ -24,11 +24,6 @@ public partial class CSGOWinningTeamLayerHandlerProperties : LayerHandlerPropert
     [JsonProperty("_TColor")]
     public Color TColor => Logic?._TColor ?? _tColor ?? Color.Empty;
 
-    public CSGOWinningTeamLayerHandlerProperties()
-    { }
-
-    public CSGOWinningTeamLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

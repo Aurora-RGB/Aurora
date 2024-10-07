@@ -64,12 +64,6 @@ public partial class Witcher3BackgroundLayerHandlerProperties : LayerHandlerProp
         set => _axiiColor = value;
     }
 
-
-    public Witcher3BackgroundLayerHandlerProperties()
-    { }
-
-    public Witcher3BackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

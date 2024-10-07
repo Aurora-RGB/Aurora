@@ -24,10 +24,6 @@ public partial class ResidentEvil2HealthLayerHandlerProperties : LayerHandlerPro
     [JsonIgnore]
     public HealthDisplayType DisplayType { get { return Logic?._DisplayType ?? _DisplayType ?? HealthDisplayType.Static; } }
 
-    public ResidentEvil2HealthLayerHandlerProperties() : base() { }
-
-    public ResidentEvil2HealthLayerHandlerProperties(bool assign_default = false) : base( assign_default ) { }
-
     public override void Default()
     {
         base.Default();

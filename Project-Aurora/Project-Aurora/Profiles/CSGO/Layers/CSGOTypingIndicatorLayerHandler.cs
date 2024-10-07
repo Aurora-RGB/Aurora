@@ -22,11 +22,6 @@ public partial class CSGOTypingIndicatorLayerHandlerProperties : LayerHandlerPro
         set => _typingKeysColor = value;
     }
 
-    public CSGOTypingIndicatorLayerHandlerProperties()
-    { }
-
-    public CSGOTypingIndicatorLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
     public override void Default()
     {
         base.Default();

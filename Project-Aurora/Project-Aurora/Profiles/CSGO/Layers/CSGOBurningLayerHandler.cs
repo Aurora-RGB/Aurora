@@ -29,11 +29,6 @@ public partial class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2
         set => _animated = value;
     }
 
-    public CSGOBurningLayerHandlerProperties()
-    { }
-
-    public CSGOBurningLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

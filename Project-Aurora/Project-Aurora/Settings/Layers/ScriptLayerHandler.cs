@@ -37,10 +37,6 @@ public partial class ScriptLayerHandlerProperties : LayerHandlerProperties
         set => _scriptProperties = value;
     }
 
-    public ScriptLayerHandlerProperties() { }
-
-    public ScriptLayerHandlerProperties(bool empty = false) : base(empty) { }
-
     public override void Default()
     {
         base.Default();

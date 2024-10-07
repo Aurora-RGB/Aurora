@@ -26,10 +26,6 @@ public partial class BinaryCounterLayerHandlerProperties : LayerHandlerPropertie
     [JsonIgnore, LogicOverridable("Value")]
     public double? _Value { get; set; }
 
-    public BinaryCounterLayerHandlerProperties()
-    { }
-    public BinaryCounterLayerHandlerProperties(bool empty) : base(empty) { }
-
     public override void Default() {
         base.Default();
         _variablePath = VariablePath.Empty;

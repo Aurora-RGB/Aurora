@@ -21,10 +21,6 @@ public partial class MinecraftRainLayerHandlerProperties : LayerHandlerPropertie
     public int MaximumInterval => _MaximumInterval ?? 30;
     public int? _MaximumInterval { get; set; }
 
-    public MinecraftRainLayerHandlerProperties()
-    { }
-    public MinecraftRainLayerHandlerProperties(bool assign_default = false) : base(assign_default) { }
-
     public override void Default() {
         base.Default();
         _PrimaryColor = Color.Cyan;

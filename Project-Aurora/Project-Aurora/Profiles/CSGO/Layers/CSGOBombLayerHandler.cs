@@ -42,11 +42,6 @@ public partial class CSGOBombLayerHandlerProperties : LayerHandlerProperties2Col
         set => _gradualEffect = value;
     }
 
-    public CSGOBombLayerHandlerProperties()
-    { }
-
-    public CSGOBombLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using AuroraRgb.Profiles.Chroma;
 using AuroraRgb.Profiles.Dota_2.Layers;
 using AuroraRgb.Profiles.Generic;
@@ -64,9 +65,9 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
         var boundType = convertedTypeName switch
         {
             "System.Windows.Forms.Keys" =>
-                typeof(System.Windows.Forms.Keys),
+                typeof(Keys),
             "System.Collections.Generic.Queue`1[[System.Windows.Forms.Keys, System.Windows.Forms]]" =>
-                typeof(List<System.Windows.Forms.Keys>),
+                typeof(List<Keys>),
             //Resolve typo'd AbilityLayerHandler type
             "Aurora.Profiles.Dota_2.Layers.Dota2AbiltiyLayerHandler" =>
                 typeof(Dota2AbilityLayerHandler),
@@ -77,7 +78,7 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
             "Aurora.Settings.Layers.ComparisonLayerProperties" =>
                 typeof(LayerHandlerProperties),
             "Aurora.Profiles.Dota_2.Layers.Dota2HeroAbiltiyEffectsLayerHandlerProperties" =>
-                typeof(Dota2HeroAbilityEffectsLayerHandlerProperties),
+                typeof(LayerHandlerProperties2Color),
             "Aurora.Profiles.TheDivision.TheDivisionSettings" =>
                 typeof(ApplicationProfile),
             "Aurora.Profiles.Overwatch.OverwatchProfile" =>

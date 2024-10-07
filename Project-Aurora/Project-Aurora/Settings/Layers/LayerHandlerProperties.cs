@@ -73,15 +73,9 @@ public class LayerHandlerProperties : IValueOverridable, INotifyPropertyChanged,
 
     #endregion
 
-    public LayerHandlerProperties() : this(false)
+    public LayerHandlerProperties()
     {
         Default();
-    }
-
-    public LayerHandlerProperties(bool empty)
-    {
-        if (!empty)
-            Default();
     }
 
     public virtual void Default()

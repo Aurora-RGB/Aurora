@@ -13,10 +13,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public sealed partial class ToggleKeyLayerHandlerProperties : LayerHandlerProperties2Color {
 
-    public ToggleKeyLayerHandlerProperties()
-    { }
-    public ToggleKeyLayerHandlerProperties(bool assignDefault) : base(assignDefault) { }
-
     private Keybind[]? _triggerKeys;
     [JsonProperty("_TriggerKeys")]
     public Keybind[] TriggerKeys

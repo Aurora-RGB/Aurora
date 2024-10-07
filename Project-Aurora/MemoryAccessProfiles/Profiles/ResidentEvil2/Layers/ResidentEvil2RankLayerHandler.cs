@@ -12,11 +12,6 @@ namespace MemoryAccessProfiles.Profiles.ResidentEvil2.Layers;
 
 public partial class ResidentEvil2RankLayerHandlerProperties : LayerHandlerProperties2Color
 {
-    public ResidentEvil2RankLayerHandlerProperties()
-    { }
-
-    public ResidentEvil2RankLayerHandlerProperties(bool assign_default = false) : base( assign_default ) { }
-
     public override void Default()
     {
         base.Default();

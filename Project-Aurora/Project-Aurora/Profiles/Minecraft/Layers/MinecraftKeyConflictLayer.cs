@@ -19,9 +19,6 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         public Color TertiaryColor => _TertiaryColor ?? Color.Empty;
         public Color? _TertiaryColor { get; set; }
 
-        public MinecraftKeyConflictLayerProperties() : base() { }
-        public MinecraftKeyConflictLayerProperties(bool assign_default = false) : base(assign_default) { }
-
         public override void Default() {
             base.Default();
             _PrimaryColor = Color.FromArgb(0, 255, 0);

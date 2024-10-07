@@ -42,14 +42,6 @@ public partial class BreathingLayerHandlerProperties : LayerHandlerProperties2Co
         set => _curveFunction = value;
     }
 
-    public BreathingLayerHandlerProperties()
-    {
-    }
-
-    public BreathingLayerHandlerProperties(bool assignDefault = false) : base(assignDefault)
-    {
-    }
-
     public override void Default()
     {
         base.Default();

@@ -16,10 +16,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public sealed partial class TimerLayerHandlerProperties : LayerHandlerProperties2Color {
 
-    public TimerLayerHandlerProperties()
-    { }
-    public TimerLayerHandlerProperties(bool assignDefault) : base(assignDefault) { }
-
     private Keybind[]? _triggerKeys;
     [JsonProperty("_TriggerKeys")]
     public Keybind[] TriggerKeys

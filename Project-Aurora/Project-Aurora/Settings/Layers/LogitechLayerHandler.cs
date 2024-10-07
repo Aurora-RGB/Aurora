@@ -56,10 +56,6 @@ public partial class LogitechLayerHandlerProperties : LayerHandlerProperties
         set => _keyCloneMap = value;
     }
 
-    public LogitechLayerHandlerProperties() { }
-
-    public LogitechLayerHandlerProperties(bool arg = false) : base(arg) { }
-
     public override void Default()
     {
         base.Default();

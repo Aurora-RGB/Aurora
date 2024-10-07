@@ -20,11 +20,6 @@ namespace AuroraRgb.Profiles.Payday_2.Layers
             set => _flashbangColor = value;
         }
 
-        public PD2FlashbangLayerHandlerProperties()
-        { }
-
-        public PD2FlashbangLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
         public override void Default()
         {
             base.Default();

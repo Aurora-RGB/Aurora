@@ -23,11 +23,6 @@ public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Col
         set => _gradientConfig = value;
     }
 
-    public GradientLayerHandlerProperties()
-    { }
-
-    public GradientLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

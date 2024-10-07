@@ -101,11 +101,6 @@ public partial class Dota2KillstreakLayerHandlerProperties : LayerHandlerPropert
         set => _decaKillstreakColor = value;
     }
 
-    public Dota2KillstreakLayerHandlerProperties()
-    { }
-
-    public Dota2KillstreakLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

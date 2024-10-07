@@ -20,11 +20,6 @@ public partial class LoLBackgroundLayerHandlerProperties : LayerHandlerPropertie
         set => _championColors = value;
     }
 
-    public LoLBackgroundLayerHandlerProperties()
-    { }
-
-    public LoLBackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

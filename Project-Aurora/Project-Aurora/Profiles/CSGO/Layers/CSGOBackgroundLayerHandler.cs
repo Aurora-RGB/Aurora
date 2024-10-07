@@ -66,11 +66,6 @@ public partial class CSGOBackgroundLayerHandlerProperties : LayerHandlerProperti
         set => _dimAmount = value;
     }
 
-    public CSGOBackgroundLayerHandlerProperties()
-    { }
-
-    public CSGOBackgroundLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();

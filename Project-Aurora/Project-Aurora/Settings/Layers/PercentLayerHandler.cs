@@ -72,11 +72,6 @@ public partial class PercentLayerHandlerProperties : LayerHandlerProperties2Colo
     [LogicOverridable("Max Value")]
     public double? _MaxValue { get; set; }
 
-
-    public PercentLayerHandlerProperties()
-    { }
-    public PercentLayerHandlerProperties(bool assignDefault = false) : base(assignDefault) { }
-
     public override void Default()
     {
         base.Default();
