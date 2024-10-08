@@ -14,6 +14,12 @@ using Point = System.Drawing.Point;
 
 namespace AuroraRgb.EffectsEngine;
 
+public enum LayerReadability
+{
+    None = 0,
+    Readable = 1,
+}
+
 /// <summary>
 /// A class representing a bitmap layer for effects
 /// </summary>
@@ -26,6 +32,7 @@ public class EffectLayer : IDisposable
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
 
     private readonly string _name;
+    private readonly bool _readable = true;
     protected IAuroraBitmap _colormap;
 
     private bool _invalidated = true;
@@ -41,20 +48,24 @@ public class EffectLayer : IDisposable
     public EffectLayer(string name, Color color)
     {
         _name = name;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, true);
         Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
 
         FillOver(color);
     }
 
-    public EffectLayer(string name, bool persistent) : this(name)
+    protected EffectLayer(string name, Color color, LayerReadability readable)
     {
-        if (!persistent)
-            return;
+        _readable = readable == LayerReadability.Readable;
+        _name = name;
+        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, true);
+        Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
+
+        FillOver(color);
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), InvalidateColorMap);
     }
 
-    public EffectLayer(string name, Color color, bool persistent) : this(name, color)
+    public EffectLayer(string name, bool persistent) : this(name)
     {
         if (!persistent)
             return;
@@ -859,7 +870,7 @@ public class EffectLayer : IDisposable
     private void InvalidateColorMap(object? sender, EventArgs args)
     {
         var oldBitmap = _colormap;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, _readable);
         oldBitmap.Dispose();
         _ksChanged = true;
         Dimension.Height = Effects.Canvas.Height;

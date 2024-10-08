@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
@@ -10,7 +11,7 @@ namespace AuroraRgb.Bitmaps.GdiPlus;
 
 public sealed class GdiBitmap : IAuroraBitmap
 {
-    private static readonly GdiBitmap EmptyBitmap = new(1, 1);
+    public static readonly GdiBitmap EmptyBitmap = new(1, 1);
 
     private TextureBrush? _textureBrush;
 
@@ -97,6 +98,28 @@ public sealed class GdiBitmap : IAuroraBitmap
     public void DrawRectangle(Pen pen, RectangleF dimension)
     {
         _graphics.DrawRectangle(pen, dimension);
+    }
+
+    public void DrawRectangle(EffectLayer brush)
+    {
+        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
+        DrawOver(gdiBitmap);
+    }
+
+    public void DrawRectangle(EffectLayer brush, Rectangle dimension)
+    {
+        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
+        DrawRectangle(gdiBitmap.TextureBrush, dimension);
+    }
+
+    public void DrawRectangle(IAuroraBrush brush, RectangleF dimension)
+    {
+        DrawRectangle(brush.GetBrush(), dimension);
+    }
+
+    public void DrawRectangle(IAuroraBrush brush, Rectangle dimension)
+    {
+        DrawRectangle(brush.GetBrush(), dimension);
     }
 
     public void ReplaceRectangle(Brush brush, Rectangle dimension)
@@ -195,12 +218,6 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public void SetTransform(Matrix value) => _graphics.Transform = value;
 
-    public void DrawRectangle(EffectLayer brush)
-    {
-        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
-        DrawOver(gdiBitmap);
-    }
-
     public static GdiBitmap GetGdiBitmap(IAuroraBitmap bitmap)
     {
         return bitmap switch
@@ -209,12 +226,6 @@ public sealed class GdiBitmap : IAuroraBitmap
             RuntimeChangingBitmap runtimeChangingBitmap => runtimeChangingBitmap.GetGdiBitmap(),
             _ => throw new NotSupportedException("Only GdiBitmaps are supported.")
         };
-    }
-
-    public void DrawRectangle(EffectLayer brush, Rectangle dimension)
-    {
-        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
-        DrawRectangle(gdiBitmap.TextureBrush, dimension);
     }
 
     public void DrawEllipse(Pen pen, RectangleF dimension)

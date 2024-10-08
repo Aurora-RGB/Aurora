@@ -25,6 +25,10 @@ internal static partial class User32
         IntPtr hInstance,
         IntPtr lpParam);
 
+    [LibraryImport("user32.dll", EntryPoint = "DestroyWindowA")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool DestroyWindow(IntPtr hWnd);
+
     [Pure]
     [LibraryImport("user32.dll")]
     internal static partial IntPtr GetForegroundWindow();

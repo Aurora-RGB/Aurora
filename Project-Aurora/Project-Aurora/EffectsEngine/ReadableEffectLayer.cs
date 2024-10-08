@@ -4,7 +4,7 @@ using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
 
-public class ReadableEffectLayer(string name, Color color) : EffectLayer(name, color, true)
+public class ReadableEffectLayer(string name, Color color) : EffectLayer(name, color, LayerReadability.Readable)
 {
     private readonly Dictionary<DeviceKeys, Color> _keyColors = new(Effects.MaxDeviceId);
 
