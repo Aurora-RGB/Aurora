@@ -20,7 +20,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
-namespace AuroraRgb.Utils;
+namespace AuroraRgb.Utils.Json;
 
 public partial class AuroraSerializationBinder : DefaultSerializationBinder
 {

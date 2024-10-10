@@ -1,4 +1,5 @@
 ﻿using System;
+using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

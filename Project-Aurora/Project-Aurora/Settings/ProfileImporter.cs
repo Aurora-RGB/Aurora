@@ -12,6 +12,7 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.EffectsEngine.Animations;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using Common.Devices;
 using Newtonsoft.Json;
 using RGB.NET.Devices.CorsairLegacy;

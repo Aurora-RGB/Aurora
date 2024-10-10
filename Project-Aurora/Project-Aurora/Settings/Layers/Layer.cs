@@ -8,7 +8,7 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Exceptions;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
 using PropertyChanged;
 

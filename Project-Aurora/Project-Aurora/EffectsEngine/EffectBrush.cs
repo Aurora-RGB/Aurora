@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Media;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
 using Brush = System.Drawing.Brush;
 using Color = System.Drawing.Color;

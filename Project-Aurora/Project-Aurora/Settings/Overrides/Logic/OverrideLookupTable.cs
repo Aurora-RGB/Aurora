@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media;
 using AuroraRgb.Profiles;
-using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Overrides.Logic;

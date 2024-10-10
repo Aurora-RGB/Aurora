@@ -17,6 +17,7 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using AuroraRgb.Vorons;
 using Common.Utils;
 using IronPython.Hosting;
@@ -25,7 +26,7 @@ using JetBrains.Annotations;
 using Microsoft.Scripting.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using EnumConverter = AuroraRgb.Utils.EnumConverter;
+using EnumConverter = AuroraRgb.Utils.Json.EnumConverter;
 using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 
 namespace AuroraRgb.Profiles;

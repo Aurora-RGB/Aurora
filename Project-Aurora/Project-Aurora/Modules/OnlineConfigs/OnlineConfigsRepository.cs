@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.OnlineConfigs.Model;
-using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 
 namespace AuroraRgb.Modules.OnlineConfigs;
 

@@ -2,8 +2,8 @@
 using System.Globalization;
 using System.Windows.Media;
 using AuroraRgb.Profiles;
-using AuroraRgb.Settings.Overrides.Logic.Number;
-using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
+using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Overrides.Logic;
 
@@ -27,7 +27,7 @@ public class BooleanGSIBoolean : Evaluatable<bool> {
 
     /// <summary>The control assigned to this condition. Stored as a reference
     /// so that the application be updated if required.</summary>
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     private Control_ConditionGSIBoolean control;
     public override Visual GetControl() => control ?? (control = new Control_ConditionGSIBoolean(this));
 
@@ -84,7 +84,7 @@ public class BooleanGSINumeric : Evaluatable<bool> {
     public ComparisonOperator Operator { get; set; } = ComparisonOperator.EQ;
 
     // Control assigned to this condition
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     private Control_ConditionGSINumeric? control;
     public override Visual GetControl() => control ?? (control = new Control_ConditionGSINumeric(this));
 
@@ -128,7 +128,7 @@ public class BooleanGSIEnum : GsiEvaluatable<bool> {
     }
 
     // The value to compare the GSI enum against.
-    [Newtonsoft.Json.JsonConverter(typeof(EnumConverter))]
+    [JsonConverter(typeof(EnumConverter))]
     public Enum EnumValue { get; set; }
 
     // Control

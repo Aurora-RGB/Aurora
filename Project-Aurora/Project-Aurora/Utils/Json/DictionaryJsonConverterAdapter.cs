@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using JsonException = System.Text.Json.JsonException;
 
-namespace AuroraRgb.Utils;
+namespace AuroraRgb.Utils.Json;
 
 public abstract class GenericDictionaryJsonConverterAdapter<K, V> : JsonConverter<IDictionary<K, V>>
     where K : notnull

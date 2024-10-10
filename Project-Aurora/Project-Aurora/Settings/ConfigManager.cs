@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Json;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
