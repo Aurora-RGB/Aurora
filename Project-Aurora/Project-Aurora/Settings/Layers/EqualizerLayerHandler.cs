@@ -229,6 +229,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
     private readonly SolidBrush _primaryBrush = new(Color.Transparent);
     private readonly SolidBrush _secondaryBrush = new(Color.Transparent);
+    private EffectBrush _verticalEffectBrush = new();
 
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
@@ -457,17 +458,21 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                 return _solidBrush;
             case EqualizerPresentationType.GradientVertical:
             {
-                var eBrush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
-                    Start = new PointF(0, SourceRect.Height),
-                    End = PointF.Empty
-                };
-
-                return eBrush.GetDrawingBrush();
+                return _verticalEffectBrush.GetDrawingBrush();
             }
             case EqualizerPresentationType.SolidColor:
             default:
                 return _primaryBrush;
         }
+    }
+
+    private EffectBrush CreateVerticalEffectBrush()
+    {
+        var eBrush = new EffectBrush(Properties.Gradient.GetColorSpectrum()) {
+            Start = new PointF(0, SourceRect.Height),
+            End = PointF.Empty
+        };
+        return eBrush;
     }
 
     protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
@@ -477,6 +482,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         _backgroundBrush.Color = Properties.DimColor;
         _primaryBrush.Color = Properties.PrimaryColor;
         _secondaryBrush.Color = Properties.SecondaryColor;
+
+        _verticalEffectBrush = CreateVerticalEffectBrush();
     }
 
     public override void Dispose()
