@@ -27,7 +27,7 @@
         <xctk:ColorPicker SelectedColor="{Binding Properties.SecondaryColor, Converter={StaticResource DrawingToMediaColorConv}}" ColorMode="ColorCanvas" UsingAlphaChannel="True" Margin="103,85,0,0" Width="164" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
         <Label HorizontalAlignment="Left" Margin="0,117,0,0" Padding="0" Content="Effect Type:" VerticalAlignment="Top"/>
-        <ComboBox SelectedValue="{Binding Properties._PercentType}" ItemsSource="{utils:EnumToItemsSource {x:Type settings:PercentEffectType}}" DisplayMemberPath="Text" SelectedValuePath="Value" Margin="67,114,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" />
+        <ComboBox SelectedValue="{Binding Properties.PercentType}" ItemsSource="{utils:EnumToItemsSource {x:Type settings:PercentEffectType}}" DisplayMemberPath="Text" SelectedValuePath="Value" Margin="67,114,0,0" Width="200" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
         <Label HorizontalAlignment="Left" Margin="0,145,0,-23" Padding="0" Content="Blink threshold: " VerticalAlignment="Top"/>
         <xctk:IntegerUpDown Value="{Binding Properties._BlinkThreshold, Converter={StaticResource PercentageConverter}}" Minimum="0" Maximum="100" Margin="90,141,0,-27" Width="50" Height="24" HorizontalAlignment="Left" VerticalAlignment="Top" />
