@@ -23,6 +23,8 @@ public interface IAuroraBitmap : IDisposable
     void DrawRectangle(IAuroraBrush brush, RectangleF dimension);
     void ReplaceRectangle(Brush brush, Rectangle dimension);
     void ReplaceRectangle(Brush brush, RectangleF dimension);
+    void ReplaceRectangle(IAuroraBrush brush, Rectangle dimension);
+    void ReplaceRectangle(IAuroraBrush brush, RectangleF dimension);
     void PerformExclude(KeySequence excludeSequence);
     void OnlyInclude(KeySequence sequence);
 
@@ -32,6 +34,8 @@ public interface IAuroraBitmap : IDisposable
 
     void DrawEllipse(Pen pen, RectangleF dimension);
     void FillEllipse(Brush brush, RectangleF dimension);
+    void FillEllipse(IAuroraBrush brush, Rectangle dimension);
+    void FillEllipse(IAuroraBrush brush, RectangleF dimension);
     void DrawImage(Image image, float x = 0, float y = 0, float width = 0, float height = 0);
     void DrawLine(Pen pen, PointF startPoint, PointF endPoint);
     void Fill(Brush brush);

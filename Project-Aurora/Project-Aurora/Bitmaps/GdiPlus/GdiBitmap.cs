@@ -136,6 +136,20 @@ public sealed class GdiBitmap : IAuroraBitmap
         _graphics.CompositingMode = CompositingMode.SourceOver;
     }
 
+    public void ReplaceRectangle(IAuroraBrush brush, Rectangle dimension)
+    {
+        _graphics.CompositingMode = CompositingMode.SourceCopy;
+        _graphics.FillRectangle(brush.GetBrush(), dimension);
+        _graphics.CompositingMode = CompositingMode.SourceOver;
+    }
+
+    public void ReplaceRectangle(IAuroraBrush brush, RectangleF dimension)
+    {
+        _graphics.CompositingMode = CompositingMode.SourceCopy;
+        _graphics.FillRectangle(brush.GetBrush(), dimension);
+        _graphics.CompositingMode = CompositingMode.SourceOver;
+    }
+
 
     public void PerformExclude(KeySequence excludeSequence)
     {
@@ -236,6 +250,16 @@ public sealed class GdiBitmap : IAuroraBitmap
     public void FillEllipse(Brush brush, RectangleF dimension)
     {
         _graphics.FillEllipse(brush, dimension);
+    }
+
+    public void FillEllipse(IAuroraBrush brush, Rectangle dimension)
+    {
+        _graphics.FillEllipse(brush.GetBrush(), dimension);
+    }
+
+    public void FillEllipse(IAuroraBrush brush, RectangleF dimension)
+    {
+        _graphics.FillEllipse(brush.GetBrush(), dimension);
     }
 
     public void DrawImage(Image image, float x = 0, float y = 0, float width = 0, float height = 0)

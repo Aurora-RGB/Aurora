@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Controls;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
+using Common;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
@@ -85,17 +87,13 @@ public partial class WrapperLightsLayerHandlerProperties : LayerHandlerPropertie
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [LayerHandlerMeta(IsDefault = false)]
-public class WrapperLightsLayerHandler : LayerHandler<WrapperLightsLayerHandlerProperties>
+public class WrapperLightsLayerHandler() : LayerHandler<WrapperLightsLayerHandlerProperties>("Aurora Wrapper")
 {
     private int[] _bitmap = new int[126];
     private readonly Dictionary<DeviceKeys, Color> _extraKeys = new();
     private Color _lastFillColor = Color.Black;
     private EntireEffect? _currentEffect;
-    private readonly SolidBrush _fillBrush = new(Color.Transparent);
-
-    public WrapperLightsLayerHandler() : base("Aurora Wrapper")
-    {
-    }
+    private readonly SingleColorBrush _fillBrush = new(SimpleColor.Transparent);
 
     protected override UserControl CreateControl()
     {
@@ -107,7 +105,7 @@ public class WrapperLightsLayerHandler : LayerHandler<WrapperLightsLayerHandlerP
         if (gamestate is not GameState_Wrapper)
             return EffectLayer.EmptyLayer;
 
-        _fillBrush.Color = GetBoostedColor(_lastFillColor);
+        _fillBrush.Color = (SimpleColor)GetBoostedColor(_lastFillColor);
         EffectLayer.Fill(_fillBrush);
 
         var allKeys = Enum.GetValues(typeof(DeviceKeys)).Cast<DeviceKeys>().ToArray();
@@ -118,8 +116,8 @@ public class WrapperLightsLayerHandler : LayerHandler<WrapperLightsLayerHandlerP
             if (Properties.CloningMap.Values.Any(sequence => sequence.Keys.Contains(key)))
                 continue;
 
-            if (!_extraKeys.ContainsKey(key)) continue;
-            EffectLayer.Set(key, GetBoostedColor(_extraKeys[key]));
+            if (!_extraKeys.TryGetValue(key, out var extraKey)) continue;
+            EffectLayer.Set(key, GetBoostedColor(extraKey));
 
             // Do the key cloning
             if (Properties.CloningMap.TryGetValue(key, out var targetKey))

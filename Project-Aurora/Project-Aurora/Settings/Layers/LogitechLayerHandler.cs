@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Controls;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
+using Common;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
@@ -69,7 +71,7 @@ public partial class LogitechLayerHandlerProperties : LayerHandlerProperties
 [LayerHandlerMeta(Name = "Logitech Lightsync", IsDefault = true)]
 public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProperties>
 {
-    private readonly SolidBrush _background = new(Color.Empty);
+    private readonly SingleColorBrush _background = new(SimpleColor.Transparent);
     
     public LogitechLayerHandler() : base("Logitech Layer")
     {

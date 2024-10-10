@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using AuroraRgb.Bitmaps;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.Devices;
 using AuroraRgb.Utils;
 using Common;
@@ -137,8 +138,8 @@ public class Effects(Task<DeviceManager> deviceManager)
 
     private ReadableEffectLayer Background { get; } = new("Global Background", Color.Black);
 
-    private readonly SolidBrush _keyboardDarknessBrush = new(Color.Empty);
-    private readonly SolidBrush _blackBrush = new(Color.Black);
+    private readonly SingleColorBrush _keyboardDarknessBrush = new();
+    private readonly SingleColorBrush _blackBrush = new(SimpleColor.Black);
 
     public void ForceImageRender(Bitmap? forcedFrame)
     {
@@ -167,7 +168,7 @@ public class Effects(Task<DeviceManager> deviceManager)
             Background.Add(layer);
 
         var keyboardDarkness = 1.0f - Global.Configuration.KeyboardBrightness * Global.Configuration.GlobalBrightness;
-        _keyboardDarknessBrush.Color = Color.FromArgb((int) (255.0f * keyboardDarkness), Color.Black);
+        _keyboardDarknessBrush.Color = SimpleColor.FromRgba( 0, 0, 0, (byte) (255.0f * keyboardDarkness));
         Background.FillOver(_keyboardDarknessBrush);
 
         var renderCanvas = Canvas; // save locally in case it changes between ref calls

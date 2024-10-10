@@ -6,8 +6,10 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows;
 using AuroraRgb.Bitmaps;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
+using Common;
 using Common.Devices;
 using Common.Utils;
 using Point = System.Drawing.Point;
@@ -29,7 +31,10 @@ public class EffectLayer : IDisposable
 
     // Yes, this is no thread-safe but Aurora isn't supposed to take up resources
     // This is done to prevent memory leaks from creating new brushes
-    private readonly SolidBrush _solidBrush = new(Color.Transparent);
+    private readonly SingleColorBrush _solidBrush = new()
+    {
+        Color = SimpleColor.Transparent,
+    };
 
     private readonly string _name;
     private readonly bool _readable = true;
@@ -260,6 +265,13 @@ public class EffectLayer : IDisposable
         Invalidate();
     }
 
+    public void Fill(IAuroraBrush brush)
+    {
+        _colormap.Reset();
+        _colormap.ReplaceRectangle(brush, Dimension);
+        Invalidate();
+    }
+
     /// <summary>
     /// Paints over the entire bitmap of the EffectLayer with a specified color.
     /// </summary>
@@ -268,7 +280,7 @@ public class EffectLayer : IDisposable
     public void FillOver(Color color)
     {
         _colormap.Reset();
-        _solidBrush.Color = color;
+        _solidBrush.Color = (SimpleColor)color;
         _colormap.DrawRectangle(_solidBrush, Dimension);
 
         Invalidate();
@@ -280,6 +292,13 @@ public class EffectLayer : IDisposable
     /// <param name="color">Color to be used during bitmap fill</param>
     /// <returns>Itself</returns>
     public void FillOver(Brush brush)
+    {
+        _colormap.Reset();
+        _colormap.DrawRectangle(brush, Dimension);
+        Invalidate();
+    }
+
+    public void FillOver(IAuroraBrush brush)
     {
         _colormap.Reset();
         _colormap.DrawRectangle(brush, Dimension);
@@ -325,7 +344,7 @@ public class EffectLayer : IDisposable
     /// <returns>Itself</returns>
     public void Set(KeySequence sequence, Color color)
     {
-        _solidBrush.Color = color;
+        _solidBrush.Color = (SimpleColor)color;
         Set(sequence, _solidBrush);
     }
 
@@ -379,6 +398,73 @@ public class EffectLayer : IDisposable
                     return;
                 }
                 _lastColor = solidBrush.Color;
+            }
+
+            var xPos = (float)Math.Round((sequence.Freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
+            var yPos = (float)Math.Round((sequence.Freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight);
+            var width = (float)Math.Round(sequence.Freeform.Width * Effects.Canvas.EditorToCanvasWidth);
+            var height = (float)Math.Round(sequence.Freeform.Height * Effects.Canvas.EditorToCanvasHeight);
+
+            if (width < 3) width = 3;
+            if (height < 3) height = 3;
+
+            var rect = new RectangleF(xPos, yPos, width, height);   //TODO dependant property? parameter?
+
+            var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
+            var myMatrix = new Matrix();
+            myMatrix.RotateAt(sequence.Freeform.Angle, rotatePoint, MatrixOrder.Append);    //TODO dependant property? parameter?
+
+            _colormap.Reset();
+            _colormap.SetTransform(myMatrix);
+            _colormap.ReplaceRectangle(brush, rect);
+            Invalidate();
+        }
+    }
+
+    public void Set(KeySequence sequence, IAuroraBrush brush)
+    {
+        if (!ReferenceEquals(sequence, _keySequence))
+        {
+            WeakEventManager<ObservableCollection<DeviceKeys>, EventArgs>.RemoveHandler(_keySequence.Keys,
+                nameof(_keySequence.Keys.CollectionChanged), FreeformOnValuesChanged);
+            _keySequence = sequence;
+            WeakEventManager<ObservableCollection<DeviceKeys>, EventArgs>.AddHandler(_keySequence.Keys,
+                nameof(_keySequence.Keys.CollectionChanged), FreeformOnValuesChanged);
+            FreeformOnValuesChanged(this, EventArgs.Empty);
+        }
+        if (_previousSequenceType != sequence.Type)
+        {
+            _previousSequenceType = sequence.Type;
+            _ksChanged = true;
+        }
+
+        if (_ksChanged && !_invalidated)
+        {
+            Clear();
+            _ksChanged = false;
+        }
+
+        if (sequence.Type == KeySequenceType.Sequence)
+        {
+            foreach (var key in sequence.Keys)
+                SetOneKey(key, brush);
+        }
+        else
+        {
+            if (!ReferenceEquals(sequence.Freeform, _lastFreeform))
+            {
+                WeakEventManager<FreeFormObject, EventArgs>.RemoveHandler(_lastFreeform, nameof(_lastFreeform.ValuesChanged), FreeformOnValuesChanged);
+                _lastFreeform = sequence.Freeform;
+                WeakEventManager<FreeFormObject, EventArgs>.AddHandler(_lastFreeform, nameof(_lastFreeform.ValuesChanged), FreeformOnValuesChanged);
+                FreeformOnValuesChanged(this, EventArgs.Empty);
+            }
+            else if (brush is SingleColorBrush solidBrush)
+            {
+                if (sequence.Freeform.Equals(_lastFreeform) && _lastColorSimple == solidBrush.Color)
+                {
+                    return;
+                }
+                _lastColorSimple = solidBrush.Color;
             }
 
             var xPos = (float)Math.Round((sequence.Freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);
@@ -507,13 +593,14 @@ public class EffectLayer : IDisposable
     /// <param name="color">Color to be used</param>
     private void SetOneKey(DeviceKeys key, Color color)
     {
-        _solidBrush.Color = color;
+        _solidBrush.Color = (SimpleColor)color;
         SetOneKey(key, _solidBrush);
     }
 
     private static readonly SolidBrush ClearingBrush = new(Color.Transparent);
     private static readonly Action<Matrix> DefaultMatrixAction = _ => { };
     private Color _lastColor = Color.Empty;
+    private SimpleColor _lastColorSimple = SimpleColor.Transparent;
 
     /// <summary>
     /// Sets one DeviceKeys key with a specific brush on the bitmap
@@ -521,6 +608,25 @@ public class EffectLayer : IDisposable
     /// <param name="key">DeviceKey to be set</param>
     /// <param name="brush">Brush to be used</param>
     protected virtual void SetOneKey(DeviceKeys key, Brush brush)
+    {
+        var keyRectangle = Effects.Canvas.GetRectangle(key);
+        _invalidated = true;
+
+        if (keyRectangle.Top < 0 || keyRectangle.Bottom > Effects.Canvas.Height ||
+            keyRectangle.Left < 0 || keyRectangle.Right > Effects.Canvas.Width)
+        {
+            Global.logger.Warning("Couldn't set key color {Key}. Key is outside canvas", key);
+            return;
+        }
+
+        try
+        {
+            _colormap.Reset();
+            _colormap.ReplaceRectangle(brush, keyRectangle.Rectangle);
+        }catch { /* ignore */}
+    }
+
+    private void SetOneKey(DeviceKeys key, IAuroraBrush brush)
     {
         var keyRectangle = Effects.Canvas.GetRectangle(key);
         _invalidated = true;
@@ -839,7 +945,7 @@ public class EffectLayer : IDisposable
 
             g.SetTransform(myMatrix);
             var color = ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal);
-            _solidBrush.Color = color;
+            _solidBrush.Color = (SimpleColor)color;
             g.DrawRectangle(_solidBrush, rect);
         }
         else
@@ -854,9 +960,9 @@ public class EffectLayer : IDisposable
             g.SetTransform(myMatrix);
 
             var rectRest = new RectangleF(xPos, yPos, width, height);
-            _solidBrush.Color = backgroundColor;
+            _solidBrush.Color = (SimpleColor)backgroundColor;
             g.DrawRectangle(_solidBrush, rectRest);
-            _solidBrush.Color = foregroundColor;
+            _solidBrush.Color = (SimpleColor)foregroundColor;
             g.DrawRectangle(_solidBrush, rect);
         }
 
@@ -928,7 +1034,7 @@ public class EffectLayer : IDisposable
 
             g.SetTransform(myMatrix);
             var color = spectrum.GetColorAt((float)progressTotal, 1.0f, flashAmount);
-            _solidBrush.Color = color;
+            _solidBrush.Color = (SimpleColor)color;
             g.DrawRectangle(_solidBrush, rect);
         }
         else

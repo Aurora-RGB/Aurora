@@ -5,11 +5,13 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Controls;
 using AuroraRgb.Bitmaps;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
+using Common;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers {
@@ -272,7 +274,7 @@ namespace AuroraRgb.Settings.Layers {
 
         private static readonly Random Rnd = new();
 
-        private readonly SolidBrush _solidBrush = new(Color.Transparent);
+        private readonly SingleColorBrush _solidBrush = new(SimpleColor.Transparent);
         
         private PointF _position;
 
@@ -321,8 +323,8 @@ namespace AuroraRgb.Settings.Layers {
 
         public void Render(IAuroraBitmap gfx, SimpleParticleLayerProperties properties) {
             var color = properties.ParticleColorStops.GetColorAt((float)(Lifetime / MaxLifetime));
-            _solidBrush.Color = color;
-            
+            _solidBrush.Color = (SimpleColor)color;
+
             var s2 = Size / 2;
             var rectangleF = new RectangleF(PositionX - s2, PositionY - s2, Size, Size);
             gfx.FillEllipse(_solidBrush, rectangleF);

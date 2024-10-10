@@ -11,6 +11,7 @@ using AuroraRgb.Modules.Logitech.Enums;
 using AuroraRgb.Modules.Logitech.Structs;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Utils;
+using Common;
 using Common.Devices;
 using Common.Utils;
 using RGB.NET.Devices.Logitech;
@@ -47,7 +48,7 @@ public sealed class LogitechSdkListener : IDisposable
     }
 
     public IReadOnlyDictionary<DeviceKeys, Color> Colors => _colors;
-    public Color BackgroundColor { get; private set; } = Color.Empty;
+    public SimpleColor BackgroundColor { get; private set; } = SimpleColor.Transparent;
 
     private LogiSetTargetDevice Device { get; set; }
 
@@ -56,7 +57,7 @@ public sealed class LogitechSdkListener : IDisposable
     private readonly HashSet<DeviceKeys> _excluded = [];
 
     private Dictionary<DeviceKeys, Color> _savedColors = new();
-    private Color _savedBackground = Color.Empty;
+    private SimpleColor _savedBackground = SimpleColor.Transparent;
 
     private readonly HashSet<string> _blockedApps = [Global.AuroraExe, DeviceManager.DeviceManagerExe];
 
@@ -388,7 +389,7 @@ public sealed class LogitechSdkListener : IDisposable
         _excluded.Clear();
         _colors.Clear();
         Device = LogiSetTargetDevice.All;
-        BackgroundColor = Color.Empty;
+        BackgroundColor = SimpleColor.Transparent;
     }
 
     public void Dispose()

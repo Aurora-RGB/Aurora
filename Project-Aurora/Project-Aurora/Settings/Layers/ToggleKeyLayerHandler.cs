@@ -1,12 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
+using Common;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Settings.Layers;
@@ -30,13 +31,13 @@ public sealed partial class ToggleKeyLayerHandlerProperties : LayerHandlerProper
 public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerProperties>
 {
     private bool _state = true;
-    private readonly SolidBrush _primaryBrush;
-    private readonly SolidBrush _secondaryBrush;
+    private readonly SingleColorBrush _primaryBrush;
+    private readonly SingleColorBrush _secondaryBrush;
 
     public ToggleKeyLayerHandler(): base("ToggleKeyLayer")
     {
-        _primaryBrush = new SolidBrush(Properties.PrimaryColor);
-        _secondaryBrush = new SolidBrush(Properties.SecondaryColor);
+        _primaryBrush = new SingleColorBrush((SimpleColor)Properties.PrimaryColor);
+        _secondaryBrush = new SingleColorBrush((SimpleColor)Properties.SecondaryColor);
     }
 
     protected override async Task Initialize()
@@ -74,8 +75,8 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
     {
         base.PropertiesChanged(sender, args);
  
-        _primaryBrush.Color = Properties.PrimaryColor;
-        _secondaryBrush.Color = Properties.SecondaryColor;
+        _primaryBrush.Color = (SimpleColor)Properties.PrimaryColor;
+        _secondaryBrush.Color = (SimpleColor)Properties.SecondaryColor;
     }
 
     private void InputEvents_KeyDown(object? sender, EventArgs e)

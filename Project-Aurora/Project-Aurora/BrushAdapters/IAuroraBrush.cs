@@ -1,9 +1,10 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using SkiaSharp;
 
 namespace AuroraRgb.BrushAdapters;
 
-public interface IAuroraBrush
+public interface IAuroraBrush : IDisposable
 {
     public Brush GetBrush();
     

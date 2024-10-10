@@ -4,12 +4,16 @@ using SkiaSharp;
 
 namespace AuroraRgb.BrushAdapters;
 
-public class SingleColor : IAuroraBrush
+public sealed class SingleColorBrush(SimpleColor color) : IAuroraBrush
 {
-    public SimpleColor Color { get; set; } = SimpleColor.Transparent;
-    
+    public SimpleColor Color { get; set; } = color;
+
     private SolidBrush? _brush;
     private SimpleColor _previousColor;
+
+    public SingleColorBrush() : this(SimpleColor.Transparent)
+    {
+    }
 
     public Brush GetBrush()
     {
@@ -29,5 +33,10 @@ public class SingleColor : IAuroraBrush
     {
         paint.Reset();
         paint.Color = new SKColor((uint)Color.ToArgb());
+    }
+
+    public void Dispose()
+    {
+        _brush?.Dispose();
     }
 }

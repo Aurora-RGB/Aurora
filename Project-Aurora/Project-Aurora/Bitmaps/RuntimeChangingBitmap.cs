@@ -78,6 +78,16 @@ public sealed class RuntimeChangingBitmap : IAuroraBitmap
         _bitmap.ReplaceRectangle(brush, dimension);
     }
 
+    public void ReplaceRectangle(IAuroraBrush brush, Rectangle dimension)
+    {
+        _bitmap.ReplaceRectangle(brush, dimension);
+    }
+
+    public void ReplaceRectangle(IAuroraBrush brush, RectangleF dimension)
+    {
+        _bitmap.ReplaceRectangle(brush, dimension);
+    }
+
     public void PerformExclude(KeySequence excludeSequence)
     {
         _bitmap.PerformExclude(excludeSequence);
@@ -100,6 +110,16 @@ public sealed class RuntimeChangingBitmap : IAuroraBitmap
     public void FillEllipse(Brush pen, RectangleF dimension)
     {
         _bitmap.FillEllipse(pen, dimension);
+    }
+
+    public void FillEllipse(IAuroraBrush brush, Rectangle dimension)
+    {
+        _bitmap.FillEllipse(brush, dimension);
+    }
+
+    public void FillEllipse(IAuroraBrush brush, RectangleF dimension)
+    {
+        _bitmap.FillEllipse(brush, dimension);
     }
 
     public void DrawImage(Image image, float x = 0, float y = 0, float width = 0, float height = 0)

@@ -4,12 +4,14 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Controls;
+using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
+using Common;
 using Common.Utils;
 using NAudio.CoreAudioApi;
 using NAudio.Dsp;
@@ -225,7 +227,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private float[]? _previousFreqResults;
     private int _freq = 48000;
-    private readonly SolidBrush _backgroundBrush = new(Color.Transparent);
+    private readonly SingleColorBrush _backgroundBrush = new(SimpleColor.Transparent);
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
     private readonly SolidBrush _primaryBrush = new(Color.Transparent);
     private readonly SolidBrush _secondaryBrush = new(Color.Transparent);
@@ -479,7 +481,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     {
         base.PropertiesChanged(sender, args);
 
-        _backgroundBrush.Color = Properties.DimColor;
+        _backgroundBrush.Color = (SimpleColor)Properties.DimColor;
         _primaryBrush.Color = Properties.PrimaryColor;
         _secondaryBrush.Color = Properties.SecondaryColor;
 

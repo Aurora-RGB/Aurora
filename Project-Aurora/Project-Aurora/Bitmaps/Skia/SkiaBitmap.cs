@@ -98,11 +98,7 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
         var skiaRectangle = SkiaRectangle(dimension);
         SetBrush(brush);
 
-        SkPaint.BlendMode = SKBlendMode.Src;
-        Canvas.DrawRect(skiaRectangle, SkPaint);
-        SkPaint.BlendMode = SKBlendMode.SrcOver;
-
-        Invalidate();
+        Replace(skiaRectangle);
     }
 
     public void ReplaceRectangle(Brush brush, RectangleF dimension)
@@ -110,6 +106,27 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
         var skiaRectangle = SkiaRectangle(dimension);
         SetBrush(brush);
 
+        Replace(skiaRectangle);
+    }
+
+    public void ReplaceRectangle(IAuroraBrush brush, Rectangle dimension)
+    {
+        var skiaRectangle = SkiaRectangle(dimension);
+        brush.SetPaint(SkPaint);
+
+        Replace(skiaRectangle);
+    }
+
+    public void ReplaceRectangle(IAuroraBrush brush, RectangleF dimension)
+    {
+        var skiaRectangle = SkiaRectangle(dimension);
+        brush.SetPaint(SkPaint);
+
+        Replace(skiaRectangle);
+    }
+
+    private void Replace(SKRect skiaRectangle)
+    {
         SkPaint.BlendMode = SKBlendMode.Src;
         Canvas.DrawRect(skiaRectangle, SkPaint);
         SkPaint.BlendMode = SKBlendMode.SrcOver;
@@ -138,6 +155,14 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
     }
 
     public void FillEllipse(Brush brush, RectangleF dimension)
+    {
+    }
+
+    public void FillEllipse(IAuroraBrush brush, Rectangle dimension)
+    {
+    }
+
+    public void FillEllipse(IAuroraBrush brush, RectangleF dimension)
     {
     }
 
