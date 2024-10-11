@@ -42,13 +42,13 @@ public class AuroraVulkanSkiaBitmap : AuroraSkiaBitmap
         _invalidated = true;
     }
 
-    public override Color GetRegionColor(Rectangle keyRectangleRectangle)
+    public override Color GetRegionColor(Rectangle rectangle)
     {
         if (_invalidated)
         {
             LoadBitmap();
         }
-        var skiaRectangle = SkiaRectangle(keyRectangleRectangle);
+        var skiaRectangle = SkiaRectangle(rectangle);
         return GetAverageColorInRectangle(_localBitmap, skiaRectangle);
     }
 

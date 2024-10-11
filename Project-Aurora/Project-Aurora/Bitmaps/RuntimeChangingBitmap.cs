@@ -23,9 +23,9 @@ public sealed class RuntimeChangingBitmap : IAuroraBitmap
         _bitmap = new GdiBitmap(canvasWidth, canvasHeight);
     }
 
-    public Color GetRegionColor(Rectangle keyRectangleRectangle)
+    public Color GetRegionColor(Rectangle rectangle)
     {
-        return _bitmap.GetRegionColor(keyRectangleRectangle);
+        return _bitmap.GetRegionColor(rectangle);
     }
 
     public void Reset()

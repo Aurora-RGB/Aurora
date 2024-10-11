@@ -16,9 +16,9 @@ public class AuroraCpuSkiaBitmap : AuroraSkiaBitmap
         Canvas = new SKCanvas(_bitmap);
     }
 
-    public override Color GetRegionColor(Rectangle keyRectangleRectangle)
+    public override Color GetRegionColor(Rectangle rectangle)
     {
-        var skiaRectangle = SkiaRectangle(keyRectangleRectangle);
+        var skiaRectangle = SkiaRectangle(rectangle);
         return GetAverageColorInRectangle(_bitmap, skiaRectangle);
     }
 
