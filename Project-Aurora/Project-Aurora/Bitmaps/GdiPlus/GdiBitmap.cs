@@ -38,7 +38,7 @@ public sealed class GdiBitmap : IAuroraBitmap
             {
                 Matrix33 = Opacity
             };
-            var imageAttributes = new ImageAttributes();
+            using var imageAttributes = new ImageAttributes();
             imageAttributes.SetColorMatrix(colorMatrix);
             imageAttributes.SetWrapMode(WrapMode.Clamp, Color.Empty);
 
@@ -82,6 +82,7 @@ public sealed class GdiBitmap : IAuroraBitmap
     {
         _graphics.ResetClip();
         _graphics.ResetTransform();
+        _textureBrush?.Dispose();
         _textureBrush = null;
     }
 
@@ -154,10 +155,11 @@ public sealed class GdiBitmap : IAuroraBitmap
     public void PerformExclude(KeySequence excludeSequence)
     {
         _excludeSequence = excludeSequence;
-        var gp = new GraphicsPath();
+        using var gp = new GraphicsPath();
         switch (excludeSequence.Type)
         {
             case KeySequenceType.Sequence:
+            {
                 if (excludeSequence.Keys.Count == 0)
                 {
                     return;
@@ -170,7 +172,9 @@ public sealed class GdiBitmap : IAuroraBitmap
                 }
 
                 break;
+            }
             case KeySequenceType.FreeForm:
+            {
                 var freeform = excludeSequence.Freeform;
                 if (freeform.Height == 0 || freeform.Width == 0)
                 {
@@ -183,12 +187,13 @@ public sealed class GdiBitmap : IAuroraBitmap
                 var height = (float)Math.Round(freeform.Height * Effects.Canvas.EditorToCanvasHeight);
 
                 var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
-                var myMatrix = new Matrix();
+                using var myMatrix = new Matrix();
                 myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
                 gp.AddRectangle(new RectangleF(xPos, yPos, width, height));
                 gp.Transform(myMatrix);
                 break;
+            }
         }
 
         _graphics.SetClip(gp);
@@ -200,7 +205,7 @@ public sealed class GdiBitmap : IAuroraBitmap
     /// </summary>
     public void OnlyInclude(KeySequence sequence)
     {
-        var exclusionPath = GetExclusionPath(sequence);
+        using var exclusionPath = GetExclusionPath(sequence);
         _graphics.SetClip(exclusionPath);
         _graphics.Clear(Color.Transparent);
     }
@@ -296,6 +301,7 @@ public sealed class GdiBitmap : IAuroraBitmap
         _disposed = true;
         _textureBrush?.Dispose();
         _textureBrush = null;
+        _graphics.Dispose();
         _bitmap.Dispose();
     }
 }

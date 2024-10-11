@@ -132,7 +132,7 @@ public class SegmentedRadialBrushFactory : ICloneable {
         // Check if the region has a 0 size. If so, just return a blank brush instead (the matrix becomes invalid with 0 size scaling).
         if (region.Width <= 0.01 || region.Height <= 0.01) return Fallback;
 
-        var mtx = new Matrix();
+        using var mtx = new Matrix();
 
         // Translate it so that the center of the texture (where all the colors meet) is at 0,0
         mtx.Translate(-TextureSize / 2f, -TextureSize / 2f, MatrixOrder.Append);

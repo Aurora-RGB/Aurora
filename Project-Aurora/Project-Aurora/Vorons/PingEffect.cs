@@ -508,7 +508,7 @@ internal class GradientCascade
 		if (height < 3) height = 3;
 
 		var rotatePoint = new PointF(xPos + (width / 2.0f), yPos + (height / 2.0f));
-		var myMatrix = new Matrix();
+		using var myMatrix = new Matrix();
 		myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 		g.SetTransform(myMatrix);
 

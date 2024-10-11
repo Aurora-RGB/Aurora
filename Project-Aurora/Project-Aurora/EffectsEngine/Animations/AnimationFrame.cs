@@ -129,6 +129,7 @@ namespace AuroraRgb.EffectsEngine.Animations
 
         void UpdateMatrices()
         {
+            _transformationMatrix.Dispose();
             _transformationMatrix = new Matrix();
             
             _transformationMatrix.RotateAt(-_angle, _dimension.Location, MatrixOrder.Append);

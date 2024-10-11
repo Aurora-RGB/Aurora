@@ -411,7 +411,7 @@ public class EffectLayer : IDisposable
             var rect = new RectangleF(xPos, yPos, width, height);   //TODO dependant property? parameter?
 
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(sequence.Freeform.Angle, rotatePoint, MatrixOrder.Append);    //TODO dependant property? parameter?
 
             _colormap.Reset();
@@ -478,7 +478,7 @@ public class EffectLayer : IDisposable
             var rect = new RectangleF(xPos, yPos, width, height);   //TODO dependant property? parameter?
 
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(sequence.Freeform.Angle, rotatePoint, MatrixOrder.Append);    //TODO dependant property? parameter?
 
             _colormap.Reset();
@@ -517,7 +517,7 @@ public class EffectLayer : IDisposable
     public void DrawTransformed(KeySequence sequence, Action<Matrix> configureMatrix, Action<IAuroraBitmap> render, RectangleF sourceRegion)
     {
         // The matrix represents the transformation that will be applied to the rendered content
-        var matrix = new Matrix();
+        using var matrix = new Matrix();
 
         // The bounds represent the target position of the render part
         var bounds = sequence.GetAffectedRegion();
@@ -940,7 +940,7 @@ public class EffectLayer : IDisposable
 
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
 
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
             g.SetTransform(myMatrix);
@@ -954,7 +954,7 @@ public class EffectLayer : IDisposable
             var rect = new RectangleF(xPos, yPos, (float)progress, height);
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
 
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
             g.SetTransform(myMatrix);
@@ -1029,7 +1029,7 @@ public class EffectLayer : IDisposable
 
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
 
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
             g.SetTransform(myMatrix);
@@ -1045,7 +1045,7 @@ public class EffectLayer : IDisposable
 
             var rotatePoint = new PointF(xPos + width / 2.0f, yPos + height / 2.0f);
 
-            var myMatrix = new Matrix();
+            using var myMatrix = new Matrix();
             myMatrix.RotateAt(freeform.Angle, rotatePoint, MatrixOrder.Append);
 
             g.SetTransform(myMatrix);
