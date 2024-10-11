@@ -780,10 +780,17 @@ public class EffectLayer : IDisposable
 
         if (percentEffectType is PercentEffectType.Highest_Key or PercentEffectType.Highest_Key_Blend && keys.Count > 0)
         {
-            var activeKey = (int)Math.Ceiling(value / (total / keys.Count)) - 1;
+            var activeKey = (int)Math.Ceiling(Math.Clamp(value, 0, 1) / (total / keys.Count)) - 1;
             var col = percentEffectType == PercentEffectType.Highest_Key ?
                 foregroundColor : ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal);
-            SetOneKey(keys[Math.Min(Math.Max(activeKey, 0), keys.Count - 1)], col);
+            for (var i = 0; i < keys.Count; i++)
+            {
+                if (i != activeKey)
+                {
+                    SetOneKey(keys[i], Color.Transparent);
+                }
+            }
+            SetOneKey(keys[activeKey], col);
 
         }
         else
