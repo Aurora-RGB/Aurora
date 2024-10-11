@@ -105,9 +105,7 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
 
     public override EffectLayer Render(IGameState state)
     {
-        var bgLayer = new EffectLayer("Payday 2 - Background");
-
-        if (state is not GameState_PD2 pd2) return bgLayer;
+        if (state is not GameState_PD2 pd2) return EffectLayer.EmptyLayer;
         var bgColor = Properties.AmbientColor;
 
         var currenttime = Time.GetMillisecondsSinceEpoch();
@@ -176,10 +174,10 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
                     */
             }
 
-            bgLayer.FillOver(bgColor);
+            EffectLayer.FillOver(bgColor);
 
             if (Properties.PeripheralUse)
-                bgLayer.Set(DeviceKeys.Peripheral, bgColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, bgColor);
         }
         else if (pd2.Level.Phase == LevelPhase.Stealth && pd2.Game.State == GameStates.Ingame)
         {
@@ -192,10 +190,10 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
 
                 var suspicionSequence = new KeySequence(new FreeFormObject(0, 0, 1.0f / (Effects.Canvas.EditorToCanvasWidth / Effects.Canvas.Width), 1.0f / (Effects.Canvas.EditorToCanvasHeight / Effects.Canvas.Height)));
 
-                bgLayer.PercentEffect(suspicionSpec, suspicionSequence, percentSuspicious, 1.0D, Properties.SuspicionEffectType);
+                EffectLayer.PercentEffect(suspicionSpec, suspicionSequence, percentSuspicious, 1.0D, Properties.SuspicionEffectType);
 
                 if (Properties.PeripheralUse)
-                    bgLayer.Set(DeviceKeys.Peripheral, suspicionSpec.GetColorAt((float)percentSuspicious));
+                    EffectLayer.Set(DeviceKeys.Peripheral, suspicionSpec.GetColorAt((float)percentSuspicious));
             }
         }
         else if (pd2.Level.Phase == LevelPhase.Point_of_no_return && pd2.Game.State == GameStates.Ingame)
@@ -213,19 +211,19 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
             if (_noReturnFlashamount < 0.0f)
                 _noReturnFlashamount = 0.0f;
 
-            bgLayer.FillOver(noReturnColor);
+            EffectLayer.FillOver(noReturnColor);
 
             if (Properties.PeripheralUse)
-                bgLayer.Set(DeviceKeys.Peripheral, noReturnColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, noReturnColor);
         }
         else
         {
-            bgLayer.FillOver(bgColor);
+            EffectLayer.FillOver(bgColor);
 
             if (Properties.PeripheralUse)
-                bgLayer.Set(DeviceKeys.Peripheral, bgColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, bgColor);
         }
 
-        return bgLayer;
+        return EffectLayer;
     }
 }

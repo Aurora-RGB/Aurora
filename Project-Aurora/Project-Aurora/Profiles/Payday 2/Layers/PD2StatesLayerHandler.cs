@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
@@ -73,23 +74,23 @@ public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Co
 
 public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerProperties>
 {
+    private readonly EffectLayer _swansongLayer = new("Payday 2 - Swansong", true);
+
     protected override UserControl CreateControl()
     {
         return new Control_PD2StatesLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        var statesLayer = new EffectLayer("Payday 2 - States");
+        if (gameState is not GameState_PD2 pd2State) return EffectLayer.EmptyLayer;
 
-        if (state is not GameState_PD2 pd2State) return statesLayer;
-
-        if (pd2State.Game.State != GameStates.Ingame) return statesLayer;
+        if (pd2State.Game.State != GameStates.Ingame) return EffectLayer.EmptyLayer;
         switch (pd2State.LocalPlayer.State)
         {
             case PlayerState.Incapacitated or PlayerState.Bleed_out or PlayerState.Fatal:
             {
-                var incapAlpha = (int)(pd2State.LocalPlayer.DownTime > 10 ? 0 : 255 * (1.0D - (double)pd2State.LocalPlayer.DownTime / 10.0D));
+                var incapAlpha = (int)(pd2State.LocalPlayer.DownTime > 10 ? 0 : 255 * (1.0D - pd2State.LocalPlayer.DownTime / 10.0D));
 
                 if (incapAlpha > 255)
                     incapAlpha = 255;
@@ -98,26 +99,30 @@ public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerPropertie
 
                 var incapColor = Color.FromArgb(incapAlpha, Properties.DownedColor);
 
-                statesLayer.FillOver(incapColor);
-                statesLayer.Set(DeviceKeys.Peripheral, incapColor);
+                EffectLayer.FillOver(incapColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, incapColor);
                 break;
             }
             case PlayerState.Arrested:
-                statesLayer.FillOver(Properties.ArrestedColor);
-                statesLayer.Set(DeviceKeys.Peripheral, Properties.ArrestedColor);
+                EffectLayer.FillOver(Properties.ArrestedColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, Properties.ArrestedColor);
                 break;
         }
 
-        if (!pd2State.LocalPlayer.SwanSong || !Properties.ShowSwanSong) return statesLayer;
-        var blendPercent = Math.Pow(Math.Cos((Time.GetMillisecondsSinceEpoch() % 1300L) / 1300.0D * Properties.SwanSongSpeedMultiplier * 2.0D * Math.PI), 2.0D);
+        if (!pd2State.LocalPlayer.SwanSong || !Properties.ShowSwanSong) return EffectLayer;
+        var blendPercent = Math.Pow(Math.Cos(Time.GetMillisecondsSinceEpoch() % 1300L / 1300.0D * Properties.SwanSongSpeedMultiplier * 2.0D * Math.PI), 2.0D);
 
         var swansongColor = ColorUtils.MultiplyColorByScalar(Properties.SwanSongColor, blendPercent);
 
-        var swansongLayer = new EffectLayer("Payday 2 - Swansong", swansongColor);
-        swansongLayer.Set(DeviceKeys.Peripheral, swansongColor);
+        _swansongLayer.Set(DeviceKeys.Peripheral, swansongColor);
 
-        statesLayer += swansongLayer;
+        return EffectLayer + _swansongLayer;
+    }
 
-        return statesLayer;
+    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        base.PropertiesChanged(sender, args);
+        
+        _swansongLayer.Set(DeviceKeys.Peripheral, Properties.SwanSongColor);
     }
 }
