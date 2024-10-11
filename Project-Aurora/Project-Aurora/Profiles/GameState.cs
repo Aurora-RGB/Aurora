@@ -1,6 +1,6 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.Json.Serialization;
 using AuroraRgb.Nodes;
@@ -30,7 +30,7 @@ public interface IGameState {
     /// <summary>Attempts to resolve the given path into a numeric value. Returns default on failure.</summary>
     TEnum GetEnum<TEnum>(VariablePath path) where TEnum : Enum;
 
-    IReadOnlyDictionary<string, Func<IGameState, object?>> PropertyMap { get; }
+    FrozenDictionary<string, Func<IGameState, object?>> PropertyMap { get; }
     
     Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 }
@@ -45,7 +45,7 @@ public abstract class GameState : IGameState
     public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 
     [JsonIgnore]
-    public virtual IReadOnlyDictionary<string, Func<IGameState, object?>> PropertyMap => ImmutableDictionary<string, Func<IGameState, object?>>.Empty;
+    public virtual FrozenDictionary<string, Func<IGameState, object?>> PropertyMap => FrozenDictionary<string, Func<IGameState, object?>>.Empty;
 
     /// <summary>
     /// Creates a default GameState instance.

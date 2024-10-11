@@ -91,16 +91,17 @@ public class NodePropertySourceGenerator : ISourceGenerator
 
                        using System;
                        using System.Collections.Generic;
+                       using System.Collections.Frozen;
 
                        namespace {{classSymbol.ContainingNamespace}}
                        {
                            public partial class {{classSymbol.Name}}
                            {
-                               private static readonly Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new()
+                               private static readonly FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>>()
                                 {
                        {{string.Join(",\n", properties.Select(Selector()))}}
-                                };
-                                public override IReadOnlyDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
+                                }.ToFrozenDictionary();
+                                public override FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
                            }
                        }
                        """;
