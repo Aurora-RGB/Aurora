@@ -52,7 +52,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
         Count = size;
 
         // Calculate the total size for the MemoryMappedFile
-        long totalSize = ElementOffset() + Count * ElementSize;
+        long totalSize = HeaderOffset() + Count * ElementSize;
 
         // Create a MemoryMappedFile
         _mmf = MemoryMappedFile.CreateOrOpen(fileName, totalSize);
@@ -87,7 +87,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
         for (var i = 0; i < Count; i++)
         {
             // Calculate the offset for the current element
-            var offset = ElementOffset() + i * ElementSize;
+            var offset = HeaderOffset() + i * ElementSize;
 
             // Write the data at the calculated offset
             WriteObject(offset, data);
@@ -103,7 +103,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
     {
         // Create a MemoryMappedViewAccessor to read data
         // Calculate the offset for the specified element
-        long offset = ElementOffset() + index * ElementSize;
+        long offset = HeaderOffset() + index * ElementSize;
 
         if (!_accessor.CanWrite || Disposed)
         {
@@ -134,7 +134,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
             {
                 return;
             }
-            _accessor.Write(ElementOffset() + offset, ref element);
+            _accessor.Write(HeaderOffset() + offset, ref element);
         }
 
         SignalUpdated();
@@ -152,13 +152,13 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
             }
 
             // Write the data at the calculated offset
-            WriteObject(ElementOffset() + offset, e);
+            WriteObject(HeaderOffset() + offset, e);
         }
 
         SignalUpdated();
     }
 
-    private static int ElementOffset()
+    private static int HeaderOffset()
     {
         return sizeof(long) + sizeof(int);
     }
