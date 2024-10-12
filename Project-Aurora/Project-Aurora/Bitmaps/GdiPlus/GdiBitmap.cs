@@ -11,35 +11,42 @@ namespace AuroraRgb.Bitmaps.GdiPlus;
 public sealed class GdiBitmap : IAuroraBitmap
 {
     public static readonly GdiBitmap EmptyBitmap = new(1, 1);
+    
+    //TODO expose SavePng method to interface and remove this
+    public Bitmap Bitmap { get; }
+
+    private float _opacity = 1;
+    public float Opacity
+    {
+        get => _opacity;
+        set
+        {
+            _opacity = value;
+            _colorMatrix.Matrix33 = value;
+            _imageAttributes.SetColorMatrix(_colorMatrix);
+        }
+    }
 
     private TextureBrush? _textureBrush;
 
-    private readonly Bitmap _bitmap;
-
-    public Bitmap Bitmap => _bitmap;
-
     private readonly Graphics _graphics;
+
+    private readonly Rectangle _dimension;
+    private KeySequence _excludeSequence = new();
+
+    private readonly ColorMatrix _colorMatrix = new()
+    {
+        Matrix33 = 1.0f,
+    };
+    private readonly ImageAttributes _imageAttributes;
 
     private bool _disposed;
 
-    internal Rectangle Dimension;
-    private KeySequence _excludeSequence = new();
-
-    public float Opacity { get; set; } = 1;
-
-    internal TextureBrush TextureBrush
+    private TextureBrush TextureBrush
     {
         get
         {
             if (_textureBrush != null) return _textureBrush;
-
-            var colorMatrix = new ColorMatrix
-            {
-                Matrix33 = Opacity
-            };
-            using var imageAttributes = new ImageAttributes();
-            imageAttributes.SetColorMatrix(colorMatrix);
-            imageAttributes.SetWrapMode(WrapMode.Clamp, Color.Empty);
 
             PerformExclude(_excludeSequence);
 
@@ -48,7 +55,7 @@ public sealed class GdiBitmap : IAuroraBitmap
                 return EmptyBitmap.TextureBrush;
             }
 
-            _textureBrush = new TextureBrush(_bitmap, Dimension, imageAttributes);
+            _textureBrush = new TextureBrush(Bitmap, _dimension, _imageAttributes);
 
             return _textureBrush;
         }
@@ -56,9 +63,13 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public GdiBitmap(int canvasWidth, int canvasHeight)
     {
-        _bitmap = new Bitmap(canvasWidth, canvasHeight);
-        _graphics = Graphics.FromImage(_bitmap);
-        Dimension = new Rectangle(0, 0, canvasWidth, canvasHeight);
+        Bitmap = new Bitmap(canvasWidth, canvasHeight);
+        _graphics = Graphics.FromImage(Bitmap);
+        _dimension = new Rectangle(0, 0, canvasWidth, canvasHeight);
+
+        _imageAttributes = new ImageAttributes();
+        _imageAttributes.SetColorMatrix(_colorMatrix);
+        _imageAttributes.SetWrapMode(WrapMode.Clamp, Color.Empty);
 
         SetGraphics();
     }
@@ -74,7 +85,7 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public IBitmapReader CreateReader()
     {
-        return new GdiPartialCopyBitmapReader(_bitmap);
+        return new GdiPartialCopyBitmapReader(Bitmap);
     }
 
     public void Reset()
@@ -149,7 +160,6 @@ public sealed class GdiBitmap : IAuroraBitmap
         _graphics.FillRectangle(brush.GetBrush(), dimension);
         _graphics.CompositingMode = CompositingMode.SourceOver;
     }
-
 
     public void PerformExclude(KeySequence excludeSequence)
     {
@@ -287,7 +297,7 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public void DrawOver(GdiBitmap gdiBitmap)
     {
-        _graphics.FillRectangle(gdiBitmap.TextureBrush, gdiBitmap.Dimension);
+        _graphics.FillRectangle(gdiBitmap.TextureBrush, gdiBitmap._dimension);
     }
 
     public void Dispose()
@@ -301,6 +311,6 @@ public sealed class GdiBitmap : IAuroraBitmap
         _textureBrush?.Dispose();
         _textureBrush = null;
         _graphics.Dispose();
-        _bitmap.Dispose();
+        Bitmap.Dispose();
     }
 }
