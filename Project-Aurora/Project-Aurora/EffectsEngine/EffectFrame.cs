@@ -8,8 +8,8 @@ namespace AuroraRgb.EffectsEngine;
 /// </summary>
 public sealed class EffectFrame : IDisposable
 {
-    private readonly Queue<EffectLayer> _overLayers = new();
-    private readonly Queue<EffectLayer> _layers = new();
+    private readonly Queue<EffectLayer> _overLayers = new(32);
+    private readonly Queue<EffectLayer> _layers = new(32);
 
     /// <summary>
     /// Adds layers into the frame
@@ -61,6 +61,12 @@ public sealed class EffectFrame : IDisposable
     public Queue<EffectLayer> GetOverlayLayers()
     {
         return _overLayers;
+    }
+
+    public void Reset()
+    {
+        _overLayers.Clear();
+        _layers.Clear();
     }
 
     public void Dispose()

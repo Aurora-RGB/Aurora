@@ -448,6 +448,7 @@ public sealed class LightingStateManager : IDisposable
     }
 
     private bool _profilesDisabled;
+    private readonly EffectFrame _drawnFrame = new();
 
     private static readonly DefaultContractResolver ContractResolver = new()
     {
@@ -477,7 +478,6 @@ public sealed class LightingStateManager : IDisposable
         }
 
         UpdateProcess();
-        var newFrame = new EffectFrame();
 
         var profile = GetCurrentProfile(out var preview);
         _currentEvent = profile;
@@ -488,7 +488,7 @@ public sealed class LightingStateManager : IDisposable
             if (!_profilesDisabled)
             {
                 StopUnUpdatedEvents();
-                Global.effengine.PushFrame(newFrame);
+                Global.effengine.PushFrame(_drawnFrame);
                 _deviceManager.Result.ShutdownDevices();
             }
 
@@ -504,36 +504,36 @@ public sealed class LightingStateManager : IDisposable
 
         //Need to do another check in case Desktop is disabled or the selected preview is disabled
         if (profile.IsEnabled)
-            UpdateEvent(profile, newFrame);
+            UpdateEvent(profile, _drawnFrame);
 
         // Overlay layers
         if (!preview || Global.Configuration.OverlaysInPreview)
         {
             if (DesktopProfile.IsOverlayEnabled)
             {
-                DesktopProfile.UpdateOverlayLights(newFrame);
+                DesktopProfile.UpdateOverlayLights(_drawnFrame);
             }
             
             foreach (var @event in GetOverlayActiveProfiles())
             {
                 StartEvent(@event);
-                @event.UpdateOverlayLights(newFrame);
+                @event.UpdateOverlayLights(_drawnFrame);
             }
 
             //Add the Light event that we're previewing to be rendered as an overlay (assuming it's not already active)
             if (preview && Global.Configuration.OverlaysInPreview && !GetOverlayActiveProfiles().Contains(profile))
             {
                 StartEvent(profile);
-                profile.UpdateOverlayLights(newFrame);
+                profile.UpdateOverlayLights(_drawnFrame);
             }
 
             if (Global.Configuration.IdleType != IdleEffects.None)
             {
-                UpdateIdleEffects(newFrame);
+                UpdateIdleEffects(_drawnFrame);
             }
         }
 
-        Global.effengine.PushFrame(newFrame);
+        Global.effengine.PushFrame(_drawnFrame);
 
         StopUnUpdatedEvents();
         PostUpdate?.Invoke(this, EventArgs.Empty);

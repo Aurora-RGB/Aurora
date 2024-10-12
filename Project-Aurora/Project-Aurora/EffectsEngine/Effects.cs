@@ -153,6 +153,8 @@ public class Effects(Task<DeviceManager> deviceManager)
         {
             PushFrameLocked(frame);
         }
+
+        frame.Reset();
     }
 
     private void PushFrameLocked(EffectFrame frame)
