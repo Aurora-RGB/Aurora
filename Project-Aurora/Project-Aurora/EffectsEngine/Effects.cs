@@ -181,6 +181,7 @@ public class Effects(Task<DeviceManager> deviceManager)
 
         foreach (var key in renderCanvas.BitmapMap.Keys)
             _keyColors[key] = (SimpleColor)Background.Get(key);
+        Background.Close();
 
         var peripheralDarkness = 1.0f - Global.Configuration.PeripheralBrightness * Global.Configuration.GlobalBrightness;
         foreach (var key in PossiblePeripheralKeys)

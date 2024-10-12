@@ -11,7 +11,7 @@ public interface IAuroraBitmap : IDisposable
 {
     float Opacity { get; set; }
 
-    Color GetRegionColor(Rectangle rectangle);
+    IBitmapReader CreateReader();
 
     void Reset();
     void DrawRectangle(Brush brush, Rectangle dimension);

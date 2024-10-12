@@ -25,7 +25,6 @@ public class AuroraVulkanSkiaBitmap : AuroraSkiaBitmap
     private readonly SKSurface _surface;
     private readonly SKBitmap _localBitmap;
     private readonly SKImageInfo _skImageInfo;
-    private bool _invalidated;
 
     public AuroraVulkanSkiaBitmap(int canvasWidth, int canvasHeight, bool readable) : base(canvasWidth, canvasHeight)
     {
@@ -35,31 +34,14 @@ public class AuroraVulkanSkiaBitmap : AuroraSkiaBitmap
         Canvas = _surface.Canvas;
     }
 
-    protected override void Invalidate()
-    {
-        base.Invalidate();
-
-        _invalidated = true;
-    }
-
-    public override Color GetRegionColor(Rectangle rectangle)
-    {
-        if (_invalidated)
-        {
-            LoadBitmap();
-        }
-        var skiaRectangle = SkiaRectangle(rectangle);
-        return GetAverageColorInRectangle(_localBitmap, skiaRectangle);
-    }
-
-    private void LoadBitmap()
+    public override IBitmapReader CreateReader()
     {
         _surface.Flush();
         // Read the pixel data from the surface into the bitmap
         if (!_surface.ReadPixels(_skImageInfo, _localBitmap.GetPixels(), _skImageInfo.RowBytes, 0, 0))
             throw new InvalidOperationException("Failed to read pixels from surface.");
 
-        _invalidated = false;
+        return new SkiaBitmapReader(_localBitmap);
     }
 
     public override void DrawRectangle(EffectLayer brush)

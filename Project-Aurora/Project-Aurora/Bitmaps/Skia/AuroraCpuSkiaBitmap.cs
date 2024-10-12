@@ -16,10 +16,9 @@ public class AuroraCpuSkiaBitmap : AuroraSkiaBitmap
         Canvas = new SKCanvas(_bitmap);
     }
 
-    public override Color GetRegionColor(Rectangle rectangle)
+    public override IBitmapReader CreateReader()
     {
-        var skiaRectangle = SkiaRectangle(rectangle);
-        return GetAverageColorInRectangle(_bitmap, skiaRectangle);
+        return new SkiaBitmapReader(_bitmap);
     }
 
     public override void DrawRectangle(EffectLayer brush)

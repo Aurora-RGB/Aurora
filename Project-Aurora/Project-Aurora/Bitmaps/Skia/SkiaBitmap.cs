@@ -13,8 +13,8 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
 
     protected SKCanvas Canvas;
 
-    protected readonly int _width;
-    protected readonly int _height;
+    private readonly int _width;
+    private readonly int _height;
 
     public AuroraSkiaBitmap(int canvasWidth, int canvasHeight)
     {
@@ -32,7 +32,8 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
     }
 
     public float Opacity { get; set; } = 1.0f;
-    public abstract Color GetRegionColor(Rectangle keyRectangleRectangle);
+
+    public abstract IBitmapReader CreateReader();
 
     public void Reset()
     {
@@ -180,50 +181,6 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
         Canvas.DrawRect(0, 0, _width, _height, SkPaint);
 
         Invalidate();
-    }
-
-    protected static Color GetAverageColorInRectangle(SKBitmap bitmap, SKRectI rect)
-    {
-        // Ensure the rectangle is within the bounds of the bitmap
-        rect = SKRectI.Intersect(rect, new SKRectI(0, 0, bitmap.Width, bitmap.Height));
-        if (rect.IsEmpty) return Color.Transparent;
-
-        // Create a subset of the bitmap based on the given rectangle
-        using var subsetBitmap = new SKBitmap(rect.Width, rect.Height, SKImageInfo.PlatformColorType, SKAlphaType.Unpremul);
-        bitmap.ExtractSubset(subsetBitmap, rect);
-
-        // Now calculate the average color from the subset
-        var pixels = subsetBitmap.Pixels;
-        long red = 0, green = 0, blue = 0, alpha = 0;
-        var totalPixels = pixels.Length;
-
-        if (totalPixels == 0)
-        {
-            return Color.Transparent;
-        }
-
-        for (var i = 0; i < totalPixels; i++)
-        {
-            var color = pixels[i];
-            red += color.Red;
-            green += color.Green;
-            blue += color.Blue;
-            alpha += color.Alpha;
-        }
-
-        // Calculate the average color components
-        var avgRed = (byte)(red / totalPixels);
-        var avgGreen = (byte)(green / totalPixels);
-        var avgBlue = (byte)(blue / totalPixels);
-        var avgAlpha = (byte)(alpha / totalPixels);
-
-        // Return the average color
-        return Color.FromArgb(avgAlpha, avgRed, avgGreen, avgBlue);
-    }
-
-    protected static SKRectI SkiaRectangle(Rectangle drawingRectangle)
-    {
-        return new SKRectI(drawingRectangle.Left, drawingRectangle.Top, drawingRectangle.Right, drawingRectangle.Bottom);
     }
 
     protected static SKRect SkiaRectangle(RectangleF drawingRectangle)
