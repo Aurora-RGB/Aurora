@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using AuroraRgb.Settings;
 using Common.Devices;
@@ -29,7 +30,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
         Width = width;
         Height = height;
         BiggestSize = Math.Max(width, height);
-        BitmapMap = bitmapMap;
+        BitmapMap = bitmapMap.ToFrozenDictionary();
         CanvasGridProperties = new(0, 0, width, height);
         
         EntireSequence = new(WholeFreeForm);
@@ -43,7 +44,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public float GridBaselineX => CanvasGridProperties.GridBaselineX;
     public float GridBaselineY => CanvasGridProperties.GridBaselineY;
 
-    public Dictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; }
+    public FrozenDictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; }
 
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
