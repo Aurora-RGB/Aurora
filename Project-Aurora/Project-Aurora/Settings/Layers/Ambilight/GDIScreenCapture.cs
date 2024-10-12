@@ -22,8 +22,9 @@ internal sealed class GdiScreenCapture : IScreenCapture
             _graphics = Graphics.FromImage(bitmap);
             _graphics.CompositingMode = CompositingMode.SourceCopy;
             _graphics.CompositingQuality = CompositingQuality.Invalid;
-            _graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            _graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
             _graphics.SmoothingMode = SmoothingMode.HighSpeed;
+            _graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 
             _bitmap = bitmap;
         }
