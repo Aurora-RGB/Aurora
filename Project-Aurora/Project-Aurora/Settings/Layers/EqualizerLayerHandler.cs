@@ -225,7 +225,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     private readonly SampleAggregator _sampleAggregator = new(FftLength);
     private Complex[] _ffts;
 
-    private float[]? _previousFreqResults;
+    private double[]? _previousFreqResults;
     private int _freq = 48000;
     private readonly SingleColorBrush _backgroundBrush = new(SimpleColor.Transparent);
     private readonly SolidBrush _solidBrush = new(Color.Transparent);
@@ -291,7 +291,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         var freqResults = new double[freqs.Length];
 
         if (_previousFreqResults == null || _previousFreqResults.Length < freqs.Length)
-            _previousFreqResults = new float[freqs.Length];
+            _previousFreqResults = new double[freqs.Length];
 
         var localFft = _ffts;
 
@@ -385,7 +385,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                     var barWidth = SourceRect.Width / (freqs.Length - 1);
                     for (var fX = 0; fX < freqResults.Length - 1; fX++)
                     {
-                        var fftVal = _fluxArray[fX] / (float)scaledMaxAmplitude;
+                        var fftVal = _fluxArray[fX] / scaledMaxAmplitude;
                         fftVal = Math.Min(1.0f, fftVal);
 
                         if (_previousFreqResults[fX] - fftVal > 0.10)
@@ -398,13 +398,14 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         _previousFreqResults[fX] = fftVal;
 
                         var brush = GetBrush(-(fX % 2), fX, freqResults.Length - 1);
-                        g.DrawRectangle(brush, new RectangleF(x, y - height, barWidth, height));
+                        g.DrawRectangle(brush, new RectangleF(x, (float)(y - height), barWidth, (float)height));
                     }
                     break;
                 default:
                     throw new InvalidOperationException(Properties.BackgroundMode + " is not implemented");
             }
         }, SourceRect);
+        _sampleAggregator.Reset();
 
         NewLayerRender?.Invoke(EffectLayer.GetBitmap());
         return EffectLayer;
@@ -412,19 +413,23 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        var buffer = e.Buffer;
-        var bytesRecorded = e.BytesRecorded;
+        var waveBuffer = new WaveBuffer(e.Buffer) { ByteBufferCount = e.BytesRecorded };
+        var bufferCount = waveBuffer.FloatBufferCount;
+        var fftIndexRatio = (double)FftLength / bufferCount;
+        var buffer = waveBuffer.FloatBuffer;
 
-        // 4 bytes per channel, bufferIncrement is numChannels * 4
-        for (var index = 0; index < bytesRecorded; index += _bufferIncrement) // Loop over the bytes, respecting the channel grouping
+        for (var freq = 0; freq < bufferCount; freq += _channels)
         {
-            var single = BitConverter.ToSingle(buffer, index);
-            _sampleAggregator.Add(_channels switch
+            var fftIndex = (int)Math.Floor(freq * fftIndexRatio);
+            
+            var max = 0d;
+            for (var c = 0; c < _channels; c++)
             {
-                2 => Math.Max(single, BitConverter.ToSingle(buffer, index + 4)),
-                _ => single
-            });
+                max = Math.Max(max, buffer[freq + c]);
+            }
+            _sampleAggregator.Add(max, fftIndex);
         }
+        _sampleAggregator.Complete();
     }
 
     private void FftCalculated(object? sender, FftEventArgs e)
@@ -515,7 +520,6 @@ public class SampleAggregator
     // This Complex is NAudio's own! 
     private readonly Complex[] _fftBuffer;
     private readonly FftEventArgs _fftArgs;
-    private int _fftPos;
     private readonly int _fftLength;
 
     public SampleAggregator(int fftLength)
@@ -535,16 +539,30 @@ public class SampleAggregator
         return (x & (x - 1)) == 0;
     }
 
-    public void Add(float value)
+    public void Add(double value, int position)
     {
         if (!PerformFft || FftCalculated == null) return;
         // Remember the window function! There are many others as well.
-        _fftBuffer[_fftPos].X = (float)(value * FastFourierTransform.HannWindow(_fftPos, _fftLength));
-        _fftBuffer[_fftPos].Y = 0; // This is always zero with audio.
-        _fftPos++;
-        if (_fftPos < _fftLength) return;
-        _fftPos = 0;
-        FftCalculated(this, _fftArgs);
+        if (float.IsNaN(_fftBuffer[position].X))
+        {
+            _fftBuffer[position].X = 0;
+        }
+        _fftBuffer[position].X = Math.Max(_fftBuffer[position].X, (float)(value * FastFourierTransform.HannWindow(position, _fftLength)));
+        _fftBuffer[position].Y = 0; // This is always zero with audio.
+    }
+
+    public void Complete()
+    {
+        FftCalculated?.Invoke(this, _fftArgs);
+    }
+
+    public void Reset()
+    {
+        for (var index = 0; index < _fftBuffer.Length; index++)
+        {
+            _fftBuffer[index].X = 0;
+            _fftBuffer[index].Y = 0;
+        }
     }
 }
 
