@@ -6,6 +6,8 @@ public class Desktop() : Application(new LightEventConfig(() => new Event_Deskto
     ID = "desktop",
     ProfileType = typeof(DesktopProfile),
     OverviewControlType = typeof(Control_Desktop),
-    GameStateType = typeof(NewtonsoftGameState),
+    GameStateType = typeof(DesktopState),
     IconURI = "Resources/desktop_icon.png"
 });
+
+public partial class DesktopState : GameState;
