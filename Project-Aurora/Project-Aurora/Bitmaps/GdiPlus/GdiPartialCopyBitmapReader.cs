@@ -58,7 +58,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
                 Scan0 = buffer
             };
             
-            Bitmaps[rectangle.Size] = buff;
+            Bitmaps[_bitmapSize] = buff;
         }
 
         var srcData = _bitmap.LockBits(
