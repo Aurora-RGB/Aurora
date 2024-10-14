@@ -10,12 +10,12 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 {
     //B, G, R, A
     private static readonly long[] ColorData = [0L, 0L, 0L, 0L];
-    private static readonly Dictionary<Size, BitmapData> Bitmaps = new();
+    private static readonly Dictionary<Size, BitmapData> Bitmaps = new(20);
     // ReSharper disable once CollectionNeverQueried.Local //to keep reference
-    private static readonly Dictionary<Size, int[]> BitmapBuffers = new();
+    private static readonly Dictionary<Size, int[]> BitmapBuffers = new(20);
 
     private readonly Bitmap _bitmap;
-    private readonly Size _bitmapSize;
+    private readonly Size _bitmapSize = Size.Empty;
     private readonly RectangleF _dimension;
 
     public GdiPartialCopyBitmapReader(Bitmap bitmap)
@@ -41,7 +41,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
         ColorData[2] = 0L;
         ColorData[3] = 0L;
 
-        if (!Bitmaps.TryGetValue(_bitmapSize, out var buff))
+        if (!Bitmaps.TryGetValue(rectangle.Size, out var buff))
         {
             var bitmapBuffer = new int[rectangle.Width * rectangle.Height];
             BitmapBuffers[rectangle.Size] = bitmapBuffer;
@@ -58,7 +58,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
                 Scan0 = buffer
             };
             
-            Bitmaps[_bitmapSize] = buff;
+            Bitmaps[rectangle.Size] = buff;
         }
 
         var srcData = _bitmap.LockBits(
