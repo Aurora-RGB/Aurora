@@ -6,6 +6,12 @@ namespace AuroraRgb.Utils;
 
 internal static partial class User32
 {
+    private static readonly TagLastInputInfo LastInput = new()
+    {
+        cbSize = (uint)Marshal.SizeOf(typeof(TagLastInputInfo)),
+        dwTime = 0,
+    };
+    
     [LibraryImport("user32.dll", EntryPoint = "CallWindowProcA")]
     public static partial nint CallWindowProc(nint lpPrevWndFunc, IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
@@ -59,6 +65,13 @@ internal static partial class User32
     [LibraryImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     internal static partial bool GetLastInputInfo(ref TagLastInputInfo plii);
+
+    [Pure]
+    internal static bool GetLastInputInfoOut(out TagLastInputInfo plii)
+    {
+        plii = LastInput;
+        return GetLastInputInfo(ref plii);
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct TagLastInputInfo

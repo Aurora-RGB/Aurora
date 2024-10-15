@@ -401,11 +401,7 @@ public sealed class LightingStateManager : IDisposable
 
     private void UpdateIdleEffects(EffectFrame newFrame)
     {
-        var lastInput = new User32.TagLastInputInfo();
-        lastInput.cbSize = (uint)Marshal.SizeOf(lastInput);
-        lastInput.dwTime = 0;
-
-        if (!User32.GetLastInputInfo(ref lastInput)) return;
+        if (!User32.GetLastInputInfoOut(out var lastInput)) return;
         var idleTime = Environment.TickCount - lastInput.dwTime;
 
         if (idleTime < Global.Configuration.IdleDelay * 60 * 1000) return;
