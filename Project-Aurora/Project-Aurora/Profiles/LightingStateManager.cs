@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -42,7 +41,7 @@ public sealed class LightingStateManager : IDisposable
         PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         TypeInfoResolverChain = { GameStateSourceGenerationContext.Default }
     };
-    
+
     public event EventHandler<ApplicationInitializedEventArgs>? EventAdded;
     public Dictionary<string, Application> Events { get; } = new() { { "desktop", new Desktop.Desktop() } };
 
@@ -50,8 +49,8 @@ public sealed class LightingStateManager : IDisposable
     private Application? _currentEvent;
     public Application CurrentEvent => _currentEvent ?? DesktopProfile;
 
-    private readonly List<ILightEvent> _startedEvents = [];
-    private readonly List<ILightEvent> _updatedEvents = [];
+    private readonly HashSet<ILightEvent> _startedEvents = [];
+    private readonly HashSet<ILightEvent> _updatedEvents = [];
 
     private Dictionary<string, string> EventProcesses { get; } = new();
     private Dictionary<Regex, string> EventTitles { get; } = new();
@@ -424,23 +423,25 @@ public sealed class LightingStateManager : IDisposable
         _updatedEvents.Add(@event);
 
         // Skip if event was already started
-        if (_startedEvents.Contains(@event)) return;
+        if (!_startedEvents.Add(@event)) return;
 
-        _startedEvents.Add(@event);
         @event.OnStart();
     }
 
     private void StopUnUpdatedEvents()
     {
         // Skip if there are no started events or started events are the same since last update
-        if (!_startedEvents.Any() || _startedEvents.SequenceEqual(_updatedEvents)) return;
+        if (_startedEvents.Count == 0 || _startedEvents.SequenceEqual(_updatedEvents)) return;
 
         var eventsToStop = _startedEvents.Except(_updatedEvents).ToList();
         foreach (var eventToStop in eventsToStop)
             eventToStop.OnStop();
 
         _startedEvents.Clear();
-        _startedEvents.AddRange(_updatedEvents);
+        foreach (var updatedEvent in _updatedEvents)
+        {
+            _startedEvents.Add(updatedEvent);
+        }
     }
 
     private bool _profilesDisabled;
