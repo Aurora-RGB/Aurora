@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.Modules;
@@ -77,6 +78,7 @@ public sealed class DeviceManager : IDisposable
         UpdateDevices();
     }
 
+    [MethodImpl(MethodImplOptions.Synchronized)]
     private void UpdateDevices()
     {
         var deviceManagerInfo = _deviceManagerInfo.ReadElement();
@@ -177,7 +179,7 @@ public sealed class DeviceManager : IDisposable
         _detached = true;
     }
 
-    public void UpdateDevices(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors)
+    public void UpdateDevices(Dictionary<DeviceKeys, SimpleColor> keyColors)
     {
         _sharedDeviceColor.WriteDictionary(keyColors);
     }
