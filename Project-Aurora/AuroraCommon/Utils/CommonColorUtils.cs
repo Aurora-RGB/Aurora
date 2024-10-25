@@ -1,14 +1,8 @@
 using System.Drawing;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace Common.Utils;
-
-public static class ColorExt
-{
-    public static Color Clone(this Color clr)
-    {
-        return CommonColorUtils.CloneColor(clr);
-    }
-}
 
 /// <summary>
 /// Various color utilities
@@ -42,7 +36,7 @@ public static class CommonColorUtils
     /// <param name="foreground">The foreground color (When percent is at 1.0D, only this color is shown)</param>
     /// <param name="percent">The blending percent value</param>
     /// <returns>The blended color</returns>
-    public static Color BlendColors(Color background, Color foreground, double percent)
+    public static Color BlendColors(in Color background, in Color foreground, double percent)
     {
         if (percent < 0.0)
             percent = 0.0;
@@ -64,7 +58,7 @@ public static class CommonColorUtils
     /// <param name="foreground">The foreground color (When percent is at 1.0D, only this color is shown)</param>
     /// <param name="percent">The blending percent value</param>
     /// <returns>The blended color</returns>
-    public static SimpleColor BlendColors(SimpleColor background, SimpleColor foreground, double percent)
+    public static SimpleColor BlendColors(in SimpleColor background, in SimpleColor foreground, double percent)
     {
         if (percent < 0.0)
             percent = 0.0;
@@ -80,32 +74,59 @@ public static class CommonColorUtils
     }
 
     /// <summary>
-    /// Adds two colors together by using the "SRC over DST" blending algorithm by Porter and Duff
+    /// Adds two colors together by using the "SRC over DST" blending
     /// </summary>
     /// <param name="background">The background color</param>
     /// <param name="foreground">The foreground color</param>
     /// <returns>The sum of two colors including combined alpha</returns>
-    public static Color AddColors(Color background, Color foreground)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Color AddColors(in Color background, in Color foreground)
     {
-        var backgroundA = 255 - background.A;
-        return FastColor(
-            (byte)(foreground.R * foreground.A / 255 + background.R * backgroundA / 255),
-            (byte)(foreground.G * foreground.A / 255 + background.G * backgroundA / 255), 
-            (byte)(foreground.B * foreground.A / 255 + background.B * backgroundA / 255),
-            (byte)((int) (1 - backgroundA / 255d * (255 - foreground.A) / 255d) * 255));
-    }
-    
-    public static SimpleColor AddColors(SimpleColor background, SimpleColor foreground)
-    {
-        var backgroundA = 255 - background.A;
-        return new SimpleColor(
-            (byte)(foreground.R * foreground.A / 255 + background.R * backgroundA / 255),
-            (byte)(foreground.G * foreground.A / 255 + background.G * backgroundA / 255), 
-            (byte)(foreground.B * foreground.A / 255 + background.B * backgroundA / 255),
-            (byte)((int) (1 - backgroundA / 255d * (255 - foreground.A) / 255d) * 255));
+        var foreA = foreground.A;
+        var backA = background.A;
+        var aDraw = foreA / 255f;
+        var aBase = backA / 255f * (1 - aDraw);
+
+        // Convert Color structs to Vector4 (R, G, B, A) representation
+        var drawVec = new Vector4(foreground.R, foreground.G, foreground.B, foreA);
+        var baseVec = new Vector4(background.R, background.G, background.B, backA);
+
+        // Multiply colors with their respective alpha values
+        var resultVec = drawVec * aDraw + baseVec * aBase;
+
+        var r = (byte)resultVec.X;
+        var g = (byte)resultVec.Y;
+        var b = (byte)resultVec.Z;
+        var a = (byte)((aDraw + aBase) * 255);
+
+        return FastColor(r, g, b, a);
     }
 
-    public static SimpleColor CorrectWithAlpha(SimpleColor color)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ref Color AddColors(in Color background, in Color foreground, ref Color resultCache)
+    {
+        var foreA = foreground.A;
+        var backA = background.A;
+        var aDraw = foreA / 255f;
+        var aBase = backA / 255f * (1 - aDraw);
+
+        // Convert Color structs to Vector4 (R, G, B, A) representation
+        var drawVec = new Vector4(foreground.R, foreground.G, foreground.B, foreA);
+        var baseVec = new Vector4(background.R, background.G, background.B, backA);
+
+        // Multiply colors with their respective alpha values
+        var resultVec = drawVec * aDraw + baseVec * aBase;
+
+        var r = (byte)resultVec.X;
+        var g = (byte)resultVec.Y;
+        var b = (byte)resultVec.Z;
+        var a = (byte)((aDraw + aBase) * 255);
+
+        resultCache = FastColor(r, g, b, a);
+        return ref resultCache;
+    }
+
+    public static SimpleColor CorrectWithAlpha(in SimpleColor color)
     {
         var scalar = color.A / 255.0f;
 
@@ -122,7 +143,7 @@ public static class CommonColorUtils
     /// <param name="color">The color to be multiplied</param>
     /// <param name="scalar">The scalar amount for multiplication</param>
     /// <returns>The multiplied Color</returns>
-    public static Color MultiplyColorByScalar(Color color, double scalar)
+    public static Color MultiplyColorByScalar(in Color color, double scalar)
     {
         var red = color.R;
         var green = color.G;
@@ -132,7 +153,7 @@ public static class CommonColorUtils
         return FastColor(red, green, blue, alpha);
     }
     
-    public static SimpleColor MultiplyColorByScalar(SimpleColor color, double scalar)
+    public static SimpleColor MultiplyColorByScalar(in SimpleColor color, double scalar)
     {
         var red = color.R;
         var green = color.G;
@@ -170,12 +191,12 @@ public static class CommonColorUtils
         return FastColor((byte)r, (byte)g, (byte)b);
     }
 
-    public static int GetIntFromColor(Color color)
+    public static int GetIntFromColor(in Color color)
     {
         return (color.R << 16) | (color.G << 8) | color.B;
     }
 
-    public static void ToHsv(Color color, out double hue, out double saturation, out double value)
+    public static void ToHsv(in Color color, out double hue, out double saturation, out double value)
     {
         ToHsv((color.R, color.G, color.B), out hue, out saturation, out value);
     }
@@ -233,7 +254,8 @@ public static class CommonColorUtils
     /// <param name="color">Color to be modified</param>
     /// <param name="offset">Hue offset in degrees</param>
     /// <returns>Color with modified hue</returns>
-    public static Color ChangeHue(Color color, double offset)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Color ChangeHue(in Color color, double offset)
     {
         if (offset == 0)
             return color;
@@ -258,7 +280,8 @@ public static class CommonColorUtils
     /// <para>Values between [-1, 0) decrease the brightness by [inf%, 0%)</para>
     /// </param>
     /// <returns>Color with modified brightness</returns>
-    public static Color ChangeBrightness(Color color, double strength)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Color ChangeBrightness(in Color color, double strength)
     {
         if (strength == 0)
             return color;
@@ -278,7 +301,8 @@ public static class CommonColorUtils
     /// <para>Values between [-1, 0) decrease the saturation by [inf%, 0%)</para>
     /// </param>
     /// <returns>Color with modified saturation</returns>
-    public static Color ChangeSaturation(Color color, double strength)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Color ChangeSaturation(in Color color, double strength)
     {
         if (strength == 0)
             return color;
@@ -311,7 +335,7 @@ public static class CommonColorUtils
         component = MathUtils.Clamp(result, 0, 1);
     }
 
-    public static Color CloneColor(Color clr)
+    public static Color CloneColor(in Color clr)
     {
         return Color.FromArgb(clr.ToArgb());
     }
@@ -323,10 +347,16 @@ public static class CommonColorUtils
         return FastColor((byte)(r * normalizer), (byte)(g * normalizer), (byte)(b * normalizer), brightness);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color FastColor(byte r, byte g, byte b, byte a = 255)
     {
         return Color.FromArgb(
             b | (g << 8) | (r << 16) | (a << 24)
         );
+    }
+
+    public static Color FastColor(int colors)
+    {
+        return Color.FromArgb(colors);
     }
 }

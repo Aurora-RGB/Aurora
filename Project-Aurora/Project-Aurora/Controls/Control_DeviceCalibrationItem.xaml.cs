@@ -26,7 +26,7 @@ public partial class Control_DeviceCalibrationItem
         _deviceKey = device.DeviceId;
         _color = color;
 
-        _worker = new SingleConcurrentThread("Device Calibration", () => { WorkerOnDoWork().Wait(); });
+        _worker = new SingleConcurrentThread("Device Calibration", WorkerOnDoWork);
 
         InitializeComponent();
 
@@ -34,7 +34,7 @@ public partial class Control_DeviceCalibrationItem
         ColorPicker.SelectedColor = MediaColor.FromArgb(_color.A, _color.R, _color.G, _color.B);
     }
 
-    private void ColorPicker_OnSelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<System.Windows.Media.Color?> e)
+    private void ColorPicker_OnSelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<MediaColor?> e)
     {
         var color = e.NewValue.GetValueOrDefault();
         _color = new SimpleColor(color.R, color.G, color.B);

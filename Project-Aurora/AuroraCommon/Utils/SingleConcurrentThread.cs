@@ -10,10 +10,10 @@ public sealed class SingleConcurrentThread
 {
     private const bool UsePool = true;
 
-    private readonly SmartThreadPool _worker = new(1000, 1)
+    private readonly SmartThreadPool _worker = new(5000, 1)
     {
         Concurrency = 1,
-        MaxQueueLength = 5
+        MaxQueueLength = 5,
     };
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -22,6 +22,10 @@ public sealed class SingleConcurrentThread
 
     private readonly Action _updateAction;
 
+    public SingleConcurrentThread(string threadName, Func<Task> updateAction) : this(threadName, () => updateAction().Wait())
+    {
+    }
+
     public SingleConcurrentThread(string threadName, Action updateAction)
     {
         _updateAction = updateAction;
@@ -29,6 +33,10 @@ public sealed class SingleConcurrentThread
 
         _thread = new Thread(() =>
         {
+            if (UsePool)
+            {
+                return;
+            }
             while (true)
             {
                 _semaphore.Wait();
@@ -43,10 +51,7 @@ public sealed class SingleConcurrentThread
         {
           Name  = threadName
         };
-        if (!UsePool)
-        {
-            _thread.Start();
-        }
+        _thread.Start();
     }
 
     public void Trigger()

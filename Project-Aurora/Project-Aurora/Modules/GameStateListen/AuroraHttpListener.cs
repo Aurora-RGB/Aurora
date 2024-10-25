@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Profiles;
+using Common.Utils;
 
 namespace AuroraRgb.Modules.GameStateListen;
 
@@ -17,18 +18,19 @@ public sealed class JsonGameStateEventArgs(string gameId, string json) : EventAr
 
 public sealed partial class AuroraHttpListener
 {
-    private bool _isRunning;
-    private readonly CancellationTokenSource _cancellationTokenSource;
-    private readonly CancellationToken _cancellationToken;
-    private IGameState _currentGameState = new NewtonsoftGameState("{}");
-    private readonly HttpListener _netListener;
-    private readonly int _port;
     private static readonly WebHeaderCollection WebHeaderCollection = new()
     {
         ["Access-Control-Allow-Origin"] = "*",
         ["Access-Control-Allow-Private-Network"] = "true",
     };
 
+    private bool _isRunning;
+    private readonly CancellationTokenSource _cancellationTokenSource;
+    private readonly CancellationToken _cancellationToken;
+    private IGameState _currentGameState = new NewtonsoftGameState("{}");
+    private readonly HttpListener _netListener;
+    private readonly int _port;
+    private readonly SingleConcurrentThread _readThread;
 
     public IGameState CurrentGameState
     {
@@ -59,6 +61,8 @@ public sealed partial class AuroraHttpListener
 
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
+        
+        _readThread = new SingleConcurrentThread("Http Read Thread", AsyncRead);
     }
 
     /// <summary>
@@ -87,19 +91,18 @@ public sealed partial class AuroraHttpListener
         }
         _isRunning = true;
 
-        StartAsyncRead();
-        StartAsyncRead();
+        _readThread.Trigger();
         return true;
     }
 
-    private void StartAsyncRead()
+    private async Task AsyncRead()
     {
-        Task.Run(async () =>
+        var context = await _netListener.GetContextAsync();
+        if (!_cancellationToken.IsCancellationRequested)
         {
-            var context = await _netListener.GetContextAsync();
-            StartAsyncRead();
-            ProcessContext(context);
-        }, _cancellationToken);
+            _readThread.Trigger();
+        }
+        ProcessContext(context);
     }
 
     /// <summary>
@@ -111,6 +114,7 @@ public sealed partial class AuroraHttpListener
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
 
+        _netListener.Abort();
         _netListener.Close();
         return Task.CompletedTask;
     }
