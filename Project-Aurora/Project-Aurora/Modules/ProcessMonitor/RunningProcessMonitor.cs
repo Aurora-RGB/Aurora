@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
 using System.Threading;
-using System.Threading.Tasks;
+using Common.Utils;
 
 namespace AuroraRgb.Modules.ProcessMonitor;
 
@@ -26,6 +27,12 @@ public class ProcessStopped(string processName) : EventArgs
 /// profile switching - only the overlay toggling.
 /// </summary>
 public sealed class RunningProcessMonitor : IDisposable {
+    private class ProcessQueue(string processName, bool add)
+    {
+        public string ProcessName { get; } = processName;
+        public bool Add { get; } = add;
+    }
+
     public event EventHandler<ProcessStarted>? ProcessStarted;
     public event EventHandler<ProcessStopped>? ProcessStopped;
 
@@ -39,6 +46,9 @@ public sealed class RunningProcessMonitor : IDisposable {
     private readonly ManagementEventWatcher _startWatcher;
     private readonly ManagementEventWatcher _shortStopWatcher;
     private readonly ManagementEventWatcher _longStopWatcher;
+    
+    private readonly BlockingCollection<ProcessQueue> _processQueue = new();
+    private readonly SingleConcurrentThread _processingThread;
 
     /// <summary>
     /// Creates a new instance of the <see cref="RunningProcessMonitor"/>, which performs an initial scan of running
@@ -85,6 +95,48 @@ public sealed class RunningProcessMonitor : IDisposable {
             Global.logger.Fatal(e, "WMI is corrupt");
             Process.Start("explorer", "https://www.project-aurora.com/Docs/diagnostics/repair-wmi/");
         }
+        
+        _processingThread = new SingleConcurrentThread("Process Add/Remove Thread", ProcessQueues);
+        _processingThread.Trigger();
+    }
+
+    private void ProcessQueues()
+    {
+        var queue = _processQueue.Take();
+        var name = queue.ProcessName;
+
+        if (queue.Add)
+        {
+            _lock.EnterWriteLock();
+            // Set the dictionary to be the existing value + 1 or simply 1 if it doesn't exist already.
+            _runningProcesses[name] = _runningProcesses.TryGetValue(name, out var i) ? i + 1 : 1;
+            _lock.ExitWriteLock();
+        
+            ProcessStarted?.Invoke(this, new ProcessStarted(name));
+        }
+        else
+        {
+            _lock.EnterWriteLock();
+            
+            // Ensure the process exists in our dictionary
+            if (_runningProcesses.TryGetValue(name, out var count))
+            {
+                if (count == 1) // If there is only 1 process currently running, remove it (since that must've been the one that terminated)
+                    _runningProcesses.Remove(name);
+                else // Else, simply decrement the process count number
+                    _runningProcesses[name]--;
+            }
+            else
+            {
+                Global.logger.Warning("Closed process {ProcessName} didn't exist in the list", name);
+            }
+
+            _lock.ExitWriteLock();
+
+            ProcessStopped?.Invoke(this, new ProcessStopped(name));
+        }
+        
+        _processingThread.Trigger();
     }
 
     private void OnProcessStarted(object? sender, EventArrivedEventArgs e)
@@ -96,16 +148,7 @@ public sealed class RunningProcessMonitor : IDisposable {
         }
 
         name = name.ToLower();
-
-        Task.Run(() =>
-        {
-            _lock.EnterWriteLock();
-            // Set the dictionary to be the existing value + 1 or simply 1 if it doesn't exist already.
-            _runningProcesses[name] = _runningProcesses.TryGetValue(name, out var i) ? i + 1 : 1;
-            _lock.ExitWriteLock();
-        
-            ProcessStarted?.Invoke(this, new ProcessStarted(name));
-        });
+        _processQueue.Add(new ProcessQueue(name, true));
     }
 
     private void ShortProcessStopped(object? sender, EventArrivedEventArgs e)
@@ -153,27 +196,7 @@ public sealed class RunningProcessMonitor : IDisposable {
 
     private void OnProcessStopped(string name)
     {
-        Task.Run(() =>
-        {
-            _lock.EnterWriteLock();
-            
-            // Ensure the process exists in our dictionary
-            if (_runningProcesses.TryGetValue(name, out var count))
-            {
-                if (count == 1) // If there is only 1 process currently running, remove it (since that must've been the one that terminated)
-                    _runningProcesses.Remove(name);
-                else // Else, simply decrement the process count number
-                    _runningProcesses[name]--;
-            }
-            else
-            {
-                Global.logger.Warning("Closed process {ProcessName} didn't exist in the list", name);
-            }
-
-            _lock.ExitWriteLock();
-
-            ProcessStopped?.Invoke(this, new ProcessStopped(name));
-        });
+        _processQueue.Add(new ProcessQueue(name, false));
     }
 
     /// <summary>
@@ -195,5 +218,8 @@ public sealed class RunningProcessMonitor : IDisposable {
         _shortStopWatcher.EventArrived -= ShortProcessStopped;
         _shortStopWatcher.Stop();
         _shortStopWatcher.Dispose();
+        _longStopWatcher.EventArrived -= LongProcessStopped;
+        _longStopWatcher.Stop();
+        _longStopWatcher.Dispose();
     }
 }
