@@ -92,11 +92,13 @@ public sealed class AuroraApp : IDisposable
         ControlInterface.DeviceManager = await _devicesModule.DeviceManager;
         await ControlInterface.Initialize();
         _trayIcon.DisplayWindow += TrayIcon_OnDisplayWindow;
-        var configUi = CreateWindow();
+        if (!_isSilent)
+        {
+            Application.Current.MainWindow = CreateWindow();
+        }
 
         Global.logger.Information("Waiting for modules...");
         await Task.WhenAll(initModules);
-        Application.Current.MainWindow = configUi;
         Global.logger.Information("Modules initiated");
         if (!_isSilent)
         {
