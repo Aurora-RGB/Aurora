@@ -9,7 +9,6 @@ public sealed class ActiveProcessMonitor : IDisposable
 {
 	private const uint WinEventOutOfContext = 0;
 	private const uint EventSystemForeground = 3;
-	private const uint EventSystemMinimizeEnd = 0x0017;
 
 	private string _processPath = string.Empty;
 	public string ProcessName {
@@ -28,7 +27,6 @@ public sealed class ActiveProcessMonitor : IDisposable
 
 	private readonly User32.WinEventDelegate _dele;
 	private readonly IntPtr _setWinEventHook;
-	private readonly IntPtr _winEventHook;
 
 	internal ActiveProcessMonitor()
 	{
@@ -39,8 +37,6 @@ public sealed class ActiveProcessMonitor : IDisposable
 		}
 
 		_setWinEventHook = User32.SetWinEventHook(EventSystemForeground, EventSystemForeground, 
-			IntPtr.Zero, _dele, 0, 0, WinEventOutOfContext);
-		_winEventHook = User32.SetWinEventHook(EventSystemMinimizeEnd, EventSystemMinimizeEnd, 
 			IntPtr.Zero, _dele, 0, 0, WinEventOutOfContext);
 	}
 
@@ -82,6 +78,5 @@ public sealed class ActiveProcessMonitor : IDisposable
 	public void Dispose()
 	{
 		User32.UnhookWinEvent(_setWinEventHook);
-		User32.UnhookWinEvent(_winEventHook);
 	}
 }
