@@ -55,7 +55,7 @@ public static class BitmapUtils
         var srcData = map.LockBits(
             rectangle,
             (ImageLockMode)5,   //ImageLockMode.UserInputBuffer | ImageLockMode.ReadOnly
-            PixelFormat.Format32bppRgb, buff);
+            PixelFormat.Format32bppArgb, buff);
         var scan0 = srcData.Scan0;
 
         var rectangleHeight = rectangle.Height;
