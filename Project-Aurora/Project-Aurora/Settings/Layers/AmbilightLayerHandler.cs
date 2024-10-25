@@ -428,15 +428,15 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
 
         var activeProcessMonitor = ProcessesModule.ActiveProcessMonitor.Result;
         activeProcessMonitor.ActiveProcessChanged -= ProcessChanged;
-        WindowListener.Instance.WindowCreated -= WindowsChanged;
-        WindowListener.Instance.WindowDestroyed -= WindowsChanged;
+        _screenCapture.Value.WindowListener.WindowCreated -= WindowsChanged;
+        _screenCapture.Value.WindowListener.WindowDestroyed -= WindowsChanged;
         switch (Properties.AmbilightCaptureType)
         {
             case AmbilightCaptureType.SpecificProcess when !string.IsNullOrWhiteSpace(Properties.SpecificProcess):
                 UpdateSpecificProcessHandle(Properties.SpecificProcess);
                 
-                WindowListener.Instance.WindowCreated += WindowsChanged;
-                WindowListener.Instance.WindowDestroyed += WindowsChanged;
+                _screenCapture.Value.WindowListener.WindowCreated += WindowsChanged;
+                _screenCapture.Value.WindowListener.WindowDestroyed += WindowsChanged;
                 break;
             case AmbilightCaptureType.ForegroundApp:
                 _specificProcessHandle = User32.GetForegroundWindow();
@@ -468,9 +468,9 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         {
             _specificProcessHandle = new IntPtr(e.WindowHandle);
         }
-        
-        if (!WindowListener.Instance.ProcessWindowsMap.TryGetValue(Properties.SpecificProcess, out var windows)) return;
-        
+
+        if (!_screenCapture.Value.WindowListener.ProcessWindowsMap.TryGetValue(Properties.SpecificProcess, out var windows)) return;
+
         var targetWindow = windows.First();
         _specificProcessHandle = new IntPtr(targetWindow.WindowHandle);
 

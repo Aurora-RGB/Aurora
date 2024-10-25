@@ -83,7 +83,7 @@ public sealed class AuroraApp : IDisposable
         Global.Configuration = await ConfigManager.Load();
         Global.SensitiveData = await ConfigManager.LoadSensitiveData();
 
-        WindowListener.Instance = new WindowListener();
+        WindowListener.Initialize();
         var initModules = _modules.Select(async m => await m.InitializeAsync())
             .Where(t => t!= null)
             .ToArray();
@@ -110,9 +110,6 @@ public sealed class AuroraApp : IDisposable
         {
             ipcListener.AuroraCommandReceived += OnAuroraCommandReceived;
         }
-
-        //move this to ProcessModule
-        WindowListener.Instance.StartListening();
 
         //Debug Windows on Startup
         if (Global.Configuration.BitmapWindowOnStartUp)

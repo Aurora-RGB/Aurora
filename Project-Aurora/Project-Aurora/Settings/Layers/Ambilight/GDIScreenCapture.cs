@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
+using AuroraRgb.Modules.ProcessMonitor;
 
 namespace AuroraRgb.Settings.Layers.Ambilight;
 
@@ -13,6 +14,9 @@ internal sealed class GdiScreenCapture : IScreenCapture
 
     private Bitmap? _bitmap;
     private Graphics _graphics = Graphics.FromImage(new Bitmap(8, 8));
+    private readonly WindowListener.WindowListenerReference _windowListenerReference = new();
+
+    public WindowListener WindowListener => _windowListenerReference.WindowListener;
 
     public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
@@ -42,5 +46,6 @@ internal sealed class GdiScreenCapture : IScreenCapture
         _graphics.Dispose();
         _bitmap?.Dispose();
         _bitmap = null;
+        WindowListener.Dispose();
     }
 }

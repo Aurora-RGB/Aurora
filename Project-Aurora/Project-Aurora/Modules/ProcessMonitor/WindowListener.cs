@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Automation;
@@ -42,7 +43,7 @@ public class WindowEventArgs(string processName, int processId, int windowHandle
 
 public sealed class WindowListener : IDisposable
 {
-    public static WindowListener Instance { get; set; }
+    private static WindowListener Instance { get; set; }
 
     // event that sends process id of new window
     public event EventHandler<WindowEventArgs>? WindowCreated;
@@ -50,10 +51,17 @@ public sealed class WindowListener : IDisposable
 
     public readonly MultiValueDictionary<string, WindowProcess> ProcessWindowsMap = new();
     private static readonly string Aurora = Assembly.GetExecutingAssembly().GetName().Name ?? "Aurora";
+    
+    public static void Initialize() => Instance = new WindowListener();
 
     public void StartListening()
     {
         Automation.AddAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, TreeScope.Descendants, WindowDetected);
+    }
+
+    public void StopListening()
+    {
+        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, WindowDetected);
     }
 
     private void WindowDetected(object? sender, AutomationEventArgs e)
@@ -89,6 +97,39 @@ public sealed class WindowListener : IDisposable
 
     public void Dispose()
     {
-        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, WindowDetected);
+        StopListening();
+    }
+
+    public sealed class WindowListenerReference : IDisposable
+    {
+        private static readonly List<WindowListenerReference> Instances = [];
+
+        public WindowListener WindowListener => Instance;
+    
+        public WindowListenerReference()
+        {
+            lock(Instances)
+            {
+                if (Instances.Count == 0)
+                {
+                    Instance.StartListening();
+                }
+                
+                Instances.Add(this);
+            }
+        }
+
+
+        public void Dispose()
+        {
+            lock(Instances)
+            {
+                Instances.Remove(this);
+                if (Instances.Count == 0)
+                {
+                    Instance.StopListening();
+                }
+            }
+        }
     }
 }

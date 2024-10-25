@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using AuroraRgb.Modules.ProcessMonitor;
 using SharpDX.DXGI;
 using SharpDX.Mathematics.Interop;
 
@@ -18,6 +19,9 @@ internal sealed class DxScreenCapture : IScreenCapture
     
     private Rectangle _currentBounds = Rectangle.Empty;
     private DesktopDuplicator? _desktopDuplicator;
+    private readonly WindowListener.WindowListenerReference _windowListenerReference = new();
+
+    public WindowListener WindowListener => _windowListenerReference.WindowListener;
 
     public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
@@ -156,5 +160,6 @@ internal sealed class DxScreenCapture : IScreenCapture
         {
             _desktopDuplicator = null;
         }
+        WindowListener.Dispose();
     }
 }
