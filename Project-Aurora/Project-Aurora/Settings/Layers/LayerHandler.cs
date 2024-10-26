@@ -150,9 +150,16 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
     [UsedImplicitly]
     private void OnDeserialized(StreamingContext context)
     {
-        PropertiesChanged(this, new PropertyChangedEventArgs(string.Empty));
+        try
+        {
+            PropertiesChanged(this, new PropertyChangedEventArgs(string.Empty));
+        }
+        catch (Exception ex)
+        {
+            Global.logger.Error(ex, "Error deserializing layer");
+        }
     }
-        
+
     protected virtual void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
         Invalidated = true;
