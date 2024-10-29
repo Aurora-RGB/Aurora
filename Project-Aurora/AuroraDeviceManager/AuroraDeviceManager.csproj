@@ -119,7 +119,7 @@
         <PackageReference Include="RGB.NET.Devices.Logitech" Version="3.0.0-prerelease.2" />
         <PackageReference Include="RGB.NET.Devices.Razer" Version="3.0.0-prerelease.2" />
         <PackageReference Include="RGB.NET.Devices.SteelSeries" Version="3.0.0-prerelease.2" />
-        <PackageReference Include="RGB.NET.Devices.Wooting" Version="3.0.0-prerelease.2" />
+        <PackageReference Include="RGB.NET.Devices.Wooting" Version="3.0.0-prerelease.3" />
         <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0"/>
         <PackageReference Include="System.Management" Version="8.0.0"/>
