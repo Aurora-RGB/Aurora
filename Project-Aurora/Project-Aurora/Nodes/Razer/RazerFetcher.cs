@@ -44,8 +44,9 @@ internal abstract class RazerFetcher : IDisposable
     {
         try
         {
-            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), true))
+            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
             {
+                _mutex.ReleaseMutex();
                 return null;
             }
         }
@@ -54,21 +55,35 @@ internal abstract class RazerFetcher : IDisposable
             //continue
         }
 
-        var usbDevice = GetUsbDevice();
-        if (usbDevice == null)
-        {
-            _mutex.ReleaseMutex();
-            return null;
-        }
-   
-        var productKeyString = GetDeviceProductKeyString(usbDevice);
-        var mouseHidInfo = OnlineConfiguration.RazerDeviceInfo.MouseHidInfos[productKeyString];
-        var message = GetMessage(mouseHidInfo);
-
-        var report = GetReport(usbDevice, message);
+        var report = UpdateLocked();
         _mutex.ReleaseMutex();
 
         return report;
+    }
+
+    private byte[]? UpdateLocked()
+    {
+        try
+        {
+            var usbDevice = GetUsbDevice();
+            if (usbDevice == null)
+            {
+                return null;
+            }
+
+            var productKeyString = GetDeviceProductKeyString(usbDevice);
+            var mouseHidInfo = OnlineConfiguration.RazerDeviceInfo.MouseHidInfos[productKeyString];
+            var message = GetMessage(mouseHidInfo);
+
+            var report = GetReport(usbDevice, message);
+
+            return report;
+        }
+        catch(Exception e)
+        {
+            Global.logger.Error(e, "Failed to update Razer device status");
+            return null;
+        }
     }
 
     protected abstract byte[] GetMessage(RazerMouseHidInfo mouseHidInfo);
