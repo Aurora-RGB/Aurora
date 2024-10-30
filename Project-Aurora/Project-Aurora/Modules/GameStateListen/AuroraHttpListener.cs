@@ -97,12 +97,19 @@ public sealed partial class AuroraHttpListener
 
     private async Task AsyncRead()
     {
-        var context = await _netListener.GetContextAsync();
-        if (!_cancellationToken.IsCancellationRequested)
+        try
         {
-            _readThread.Trigger();
+            var context = await _netListener.GetContextAsync().WaitAsync(_cancellationToken);
+            if (!_cancellationToken.IsCancellationRequested)
+            {
+                _readThread.Trigger();
+            }
+            ProcessContext(context);
         }
-        ProcessContext(context);
+        catch (TaskCanceledException)
+        {
+            // stop
+        }
     }
 
     /// <summary>
@@ -114,7 +121,6 @@ public sealed partial class AuroraHttpListener
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
 
-        _netListener.Abort();
         _netListener.Close();
         return Task.CompletedTask;
     }
