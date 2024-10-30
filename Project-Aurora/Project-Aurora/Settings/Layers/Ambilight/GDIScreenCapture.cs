@@ -12,7 +12,7 @@ internal sealed class GdiScreenCapture : IScreenCapture
 {
     public event EventHandler<Bitmap>? ScreenshotTaken;
 
-    private Bitmap? _bitmap;
+    private Bitmap? _lastBitmap;
     private Graphics _graphics = Graphics.FromImage(new Bitmap(8, 8));
     private readonly WindowListener.WindowListenerReference _windowListenerReference = new();
 
@@ -20,7 +20,7 @@ internal sealed class GdiScreenCapture : IScreenCapture
 
     public void Capture(Rectangle desktopRegion, Bitmap bitmap)
     {
-        if (_bitmap != bitmap)
+        if (_lastBitmap != bitmap)
         {
             _graphics.Dispose();
             _graphics = Graphics.FromImage(bitmap);
@@ -30,7 +30,7 @@ internal sealed class GdiScreenCapture : IScreenCapture
             _graphics.SmoothingMode = SmoothingMode.HighSpeed;
             _graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
 
-            _bitmap = bitmap;
+            _lastBitmap = bitmap;
         }
         _graphics.CopyFromScreen(desktopRegion.Location, Point.Empty, desktopRegion.Size);
 
@@ -44,8 +44,7 @@ internal sealed class GdiScreenCapture : IScreenCapture
     public void Dispose()
     {
         _graphics.Dispose();
-        _bitmap?.Dispose();
-        _bitmap = null;
-        WindowListener.Dispose();
+        _lastBitmap = null;
+        _windowListenerReference.Dispose();
     }
 }

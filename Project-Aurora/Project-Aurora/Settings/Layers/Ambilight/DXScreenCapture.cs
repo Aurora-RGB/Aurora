@@ -160,6 +160,6 @@ internal sealed class DxScreenCapture : IScreenCapture
         {
             _desktopDuplicator = null;
         }
-        WindowListener.Dispose();
+        _windowListenerReference.Dispose();
     }
 }

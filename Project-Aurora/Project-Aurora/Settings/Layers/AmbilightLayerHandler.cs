@@ -213,7 +213,7 @@ public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Co
 [DoNotNotify]
 public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
 {
-    private Temporary<IScreenCapture> _screenCapture;
+    private readonly Temporary<IScreenCapture> _screenCapture;
 
     private readonly SmartThreadPool _captureWorker;
     private readonly WorkItemCallback _screenshotWork;
@@ -426,35 +426,41 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
         _imageAttributes.SetColorMatrix(new ColorMatrix(mtx));
         _imageAttributes.SetWrapMode(WrapMode.Clamp);
 
-        var activeProcessMonitor = ProcessesModule.ActiveProcessMonitor.Result;
-        activeProcessMonitor.ActiveProcessChanged -= ProcessChanged;
-        _screenCapture.Value.WindowListener.WindowCreated -= WindowsChanged;
-        _screenCapture.Value.WindowListener.WindowDestroyed -= WindowsChanged;
-        switch (Properties.AmbilightCaptureType)
+        switch (args.PropertyName)
         {
-            case AmbilightCaptureType.SpecificProcess when !string.IsNullOrWhiteSpace(Properties.SpecificProcess):
-                UpdateSpecificProcessHandle(Properties.SpecificProcess);
+            case nameof(Properties.AmbilightCaptureType):
+            {
+                var activeProcessMonitor = ProcessesModule.ActiveProcessMonitor.Result;
+                activeProcessMonitor.ActiveProcessChanged -= ProcessChanged;
+                _screenCapture.Value.WindowListener.WindowCreated -= WindowsChanged;
+                _screenCapture.Value.WindowListener.WindowDestroyed -= WindowsChanged;
+                switch (Properties.AmbilightCaptureType)
+                {
+                    case AmbilightCaptureType.SpecificProcess when !string.IsNullOrWhiteSpace(Properties.SpecificProcess):
+                        UpdateSpecificProcessHandle(Properties.SpecificProcess);
                 
-                _screenCapture.Value.WindowListener.WindowCreated += WindowsChanged;
-                _screenCapture.Value.WindowListener.WindowDestroyed += WindowsChanged;
+                        _screenCapture.Value.WindowListener.WindowCreated += WindowsChanged;
+                        _screenCapture.Value.WindowListener.WindowDestroyed += WindowsChanged;
+                        break;
+                    case AmbilightCaptureType.ForegroundApp:
+                        _specificProcessHandle = User32.GetForegroundWindow();
+                        activeProcessMonitor.ActiveProcessChanged += ProcessChanged;
+                        break;
+                    case AmbilightCaptureType.Coordinates:
+                    case AmbilightCaptureType.EntireMonitor:
+                    default:
+                        break;
+                }
+            
+                // the instance will be recreated
+                _screenCapture.Dispose();
                 break;
-            case AmbilightCaptureType.ForegroundApp:
-                _specificProcessHandle = User32.GetForegroundWindow();
-                activeProcessMonitor.ActiveProcessChanged += ProcessChanged;
-                break;
-            case AmbilightCaptureType.Coordinates:
-            case AmbilightCaptureType.EntireMonitor:
-            default:
+            }
+            case nameof(Properties.ExperimentalMode):
+                // the instance will be recreated
+                _screenCapture.Dispose();
                 break;
         }
-        
-        _screenCapture.Dispose();
-        _screenCapture = new Temporary<IScreenCapture>(() =>
-        {
-            IScreenCapture screenCapture = Properties.ExperimentalMode ? new DxScreenCapture() : new GdiScreenCapture();
-            screenCapture.ScreenshotTaken += ScreenshotAction;
-            return screenCapture;
-        });
     }
 
     private void ProcessChanged(object? sender, EventArgs e)

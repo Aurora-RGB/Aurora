@@ -63,6 +63,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
         {
             disposable.Dispose();
         }
+        _value = null;
     }
 
     public async ValueTask DisposeAsync()
