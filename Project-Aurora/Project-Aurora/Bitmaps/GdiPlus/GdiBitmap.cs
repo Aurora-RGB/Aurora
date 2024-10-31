@@ -15,14 +15,14 @@ public sealed class GdiBitmap : IAuroraBitmap
     //TODO expose SavePng method to interface and remove this
     public Bitmap Bitmap { get; }
 
-    private float _opacity = 1;
-    public float Opacity
+    private double _opacity = 1;
+    public double Opacity
     {
         get => _opacity;
         set
         {
             _opacity = value;
-            _colorMatrix.Matrix33 = value;
+            _colorMatrix.Matrix33 = (float)value;
             _imageAttributes.SetColorMatrix(_colorMatrix);
         }
     }
@@ -56,10 +56,11 @@ public sealed class GdiBitmap : IAuroraBitmap
             }
 
             _textureBrush = new TextureBrush(Bitmap, _dimension, _imageAttributes);
-
             return _textureBrush;
         }
     }
+    
+    private static readonly SolidBrush ColorBrush = new(Color.Transparent);
 
     public GdiBitmap(int canvasWidth, int canvasHeight)
     {
@@ -85,7 +86,7 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public IBitmapReader CreateReader()
     {
-        return new GdiPartialCopyBitmapReader(Bitmap);
+        return new GdiPartialCopyBitmapReader(Bitmap, _opacity);
     }
 
     public void Reset()
@@ -113,14 +114,9 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public void DrawRectangle(EffectLayer brush)
     {
-        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
+        var bitmapEffectLayer = (BitmapEffectLayer)brush;
+        var gdiBitmap = GetGdiBitmap(bitmapEffectLayer.GetBitmap());
         DrawOver(gdiBitmap);
-    }
-
-    public void DrawRectangle(EffectLayer brush, Rectangle dimension)
-    {
-        var gdiBitmap = GetGdiBitmap(brush.GetBitmap());
-        DrawRectangle(gdiBitmap.TextureBrush, dimension);
     }
 
     public void DrawRectangle(IAuroraBrush brush, RectangleF dimension)

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace AuroraRgb.Bitmaps;
 
 public interface IBitmapReader : IDisposable
 {
-    Color GetRegionColor(Rectangle rectangle);
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    ref readonly Color GetRegionColor(Rectangle rectangle);
 }

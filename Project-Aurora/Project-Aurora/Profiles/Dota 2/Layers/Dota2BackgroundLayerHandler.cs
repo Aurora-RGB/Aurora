@@ -80,10 +80,10 @@ public class Dota2BackgroundLayerHandler() : LayerHandler<Dota2BackgroundLayerHa
         return new Control_Dota2BackgroundLayer(this);
     }
 
-    private SolidBrush _currentColor = new(Color.Empty);
+    private Color _currentColor = Color.Transparent;
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+        if (state is not GameStateDota2 dota2State) return EmptyLayer.Instance;
 
         if (dota2State.Previously?.Hero.HealthPercent == 0 && dota2State.Hero.HealthPercent == 100 && !dota2State.Previously.Hero.IsAlive && dota2State.Hero.IsAlive)
         {
@@ -113,11 +113,11 @@ public class Dota2BackgroundLayerHandler() : LayerHandler<Dota2BackgroundLayerHa
             }
         }
 
-        if (!Invalidated && _currentColor.Color == bgColor) return EffectLayer;
+        if (!Invalidated && _currentColor == bgColor) return EffectLayer;
 
-        _currentColor = new SolidBrush(bgColor);
+        _currentColor = bgColor;
         EffectLayer.Clear();
-        EffectLayer.Fill(_currentColor);
+        EffectLayer.Fill(in _currentColor);
         Invalidated = false;
 
         return EffectLayer;

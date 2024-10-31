@@ -19,7 +19,7 @@ public enum EliteAnimation
     HyperspaceExit,
 }
 
-public class EliteDangerousAnimationLayerHandler : LayerHandler<LayerHandlerProperties2Color>
+public class EliteDangerousAnimationLayerHandler : LayerHandler<LayerHandlerProperties2Color, BitmapEffectLayer>
 {
     private AnimationMix _fsdCountdownMix;
     private AnimationMix _hyperspaceMix;

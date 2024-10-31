@@ -48,7 +48,7 @@ public partial class RocketLeagueGoalExplosionProperties : LayerHandlerPropertie
     } 
 }
 
-public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeagueGoalExplosionProperties>("Goal Explosion")
+public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeagueGoalExplosionProperties, BitmapEffectLayer>("Goal Explosion")
 {
     private int _previousOwnTeamGoals;
     private int _previousOpponentGoals;
@@ -77,10 +77,10 @@ public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeague
         var goalExplosionMix = new AnimationMix();
 
         if (gameState is not GameStateRocketLeague state)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
         if (state.Game.Status == RLStatus.Undefined)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
         if (state.YourTeam.Goals == -1 || state.OpponentTeam.Goals == -1 || _previousOwnTeamGoals > state.YourTeam.Goals || _previousOpponentGoals > state.OpponentTeam.Goals)
         {

@@ -9,6 +9,7 @@ using AuroraRgb.Devices;
 using AuroraRgb.Utils;
 using Common;
 using Common.Devices;
+using Common.Utils;
 
 namespace AuroraRgb.EffectsEngine;
 
@@ -104,9 +105,27 @@ public class Effects(Task<DeviceManager> deviceManager)
         DeviceKeys.PERIPHERAL_LIGHT20
     ];
 
-    public event NewLayerRendered? NewLayerRender = delegate { };
-
-    private Bitmap? _forcedFrame;
+    private event NewLayerRendered? _newLayerRender = delegate { };
+    
+    public event NewLayerRendered? NewLayerRender
+    {
+        add
+        {
+            if (_newLayerRender?.GetInvocationList().Length < 2)
+            {
+                Background.ChangeToBitmapEffectLayer();
+            }
+            _newLayerRender += value; // Update stored event listeners
+        }
+        remove
+        {
+            _newLayerRender -= value; // Update stored event listeners
+            if (_newLayerRender?.GetInvocationList().Length < 2)
+            {
+                Background.ChangeToNoRenderLayer();
+            }
+        }
+    }
 
     public static event EventHandler? CanvasChanged;
     private static readonly object CanvasChangedLock = new();
@@ -136,16 +155,8 @@ public class Effects(Task<DeviceManager> deviceManager)
 
     private readonly Dictionary<DeviceKeys, SimpleColor> _keyColors = new(MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
-    private ReadableEffectLayer Background { get; } = new("Global Background", Color.Black);
-
-    private readonly SingleColorBrush _keyboardDarknessBrush = new();
-    private readonly SingleColorBrush _blackBrush = new(SimpleColor.Black);
-
-    public void ForceImageRender(Bitmap? forcedFrame)
-    {
-        _forcedFrame?.Dispose();
-        _forcedFrame = forcedFrame?.Clone() as Bitmap;
-    }
+    private RuntimeChangingLayer Background { get; } = new("Background Layer");
+    private readonly Color _backgroundColor = Color.Black;
 
     public void PushFrame(EffectFrame frame)
     {
@@ -159,7 +170,7 @@ public class Effects(Task<DeviceManager> deviceManager)
 
     private void PushFrameLocked(EffectFrame frame)
     {
-        Background.Fill(_blackBrush);
+        Background.Fill(in _backgroundColor);
 
         var overLayersArray = frame.GetOverlayLayers();
         var layersArray = frame.GetLayers();
@@ -169,17 +180,11 @@ public class Effects(Task<DeviceManager> deviceManager)
         foreach (var layer in overLayersArray)
             Background.Add(layer);
 
-        var keyboardDarkness = 1.0f - Global.Configuration.KeyboardBrightness * Global.Configuration.GlobalBrightness;
-        _keyboardDarknessBrush.Color = SimpleColor.FromRgba( 0, 0, 0, (byte) (255.0f * keyboardDarkness));
-        Background.FillOver(_keyboardDarknessBrush);
+        var keyboardDarknessA = 1.0f - Global.Configuration.KeyboardBrightness * Global.Configuration.GlobalBrightness;
+        var keyboardDarkness = CommonColorUtils.FastColor(0, 0, 0, (byte) (255.0f * keyboardDarknessA));
+        Background.FillOver(in keyboardDarkness);
 
         var renderCanvas = Canvas; // save locally in case it changes between ref calls
-        if (_forcedFrame != null)
-        {
-            var g = Background.GetGraphics();
-            g.Fill(Brushes.Black);
-            g.DrawImage(_forcedFrame, 0, 0, renderCanvas.Width, renderCanvas.Height);
-        }
 
         foreach (var key in renderCanvas.BitmapMap.Keys)
             _keyColors[key] = (SimpleColor)Background.Get(key);
@@ -196,7 +201,7 @@ public class Effects(Task<DeviceManager> deviceManager)
 
         deviceManager.Result.UpdateDevices(_keyColors);
 
-        NewLayerRender?.Invoke(Background.GetBitmap());
+        _newLayerRender?.Invoke(Background.GetBitmap());
 
         frame.Dispose();
     }

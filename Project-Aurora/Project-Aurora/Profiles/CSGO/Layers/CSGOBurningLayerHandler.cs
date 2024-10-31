@@ -41,7 +41,7 @@ public partial class CSGOBurningLayerHandlerProperties : LayerHandlerProperties2
 public class CSGOBurningLayerHandler() : LayerHandler<CSGOBurningLayerHandlerProperties>("CSGO - Burning")
 {
     private readonly Random _randomizer = new();
-    private readonly SolidBrush _solidBrush = new(Color.Empty);
+    private Color _currentColor = Color.Transparent;
 
     protected override UserControl CreateControl()
     {
@@ -50,11 +50,11 @@ public class CSGOBurningLayerHandler() : LayerHandler<CSGOBurningLayerHandlerPro
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
 
         //Update Burning
 
-        if (csgostate.Player.State.Burning <= 0) return EffectLayer.EmptyLayer;
+        if (csgostate.Player.State.Burning <= 0) return EmptyLayer.Instance;
         var burnColor = Properties.BurningColor;
 
         if (Properties.Animated)
@@ -89,9 +89,9 @@ public class CSGOBurningLayerHandler() : LayerHandler<CSGOBurningLayerHandlerPro
             burnColor = Color.FromArgb(csgostate.Player.State.Burning, red, green, blue);
         }
 
-        if (_solidBrush.Color == burnColor) return EffectLayer;
-        _solidBrush.Color = burnColor;
-        EffectLayer.Fill(_solidBrush);
+        if (_currentColor == burnColor) return EffectLayer;
+        _currentColor = burnColor;
+        EffectLayer.Fill(in _currentColor);
         return EffectLayer;
     }
 }

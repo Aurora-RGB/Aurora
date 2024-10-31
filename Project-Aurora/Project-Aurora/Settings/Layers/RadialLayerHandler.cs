@@ -37,7 +37,7 @@ public partial class RadialLayerProperties : LayerHandlerProperties {
     }
 }
 
-public class RadialLayerHandler() : LayerHandler<RadialLayerProperties>("RadialLayer")
+public class RadialLayerHandler() : LayerHandler<RadialLayerProperties, BitmapEffectLayer>("RadialLayer")
 {
     private readonly Stopwatch _sw = new();
     private float _angle;

@@ -46,7 +46,8 @@ public class AuroraVulkanSkiaBitmap : AuroraSkiaBitmap
 
     public override void DrawRectangle(EffectLayer brush)
     {
-        var auroraSkiaBitmap = (AuroraVulkanSkiaBitmap)GetSkiaBitmap(brush.GetBitmap());
+        var bitmapEffectLayer = (BitmapEffectLayer)brush;
+        var auroraSkiaBitmap = (AuroraVulkanSkiaBitmap)GetSkiaBitmap(bitmapEffectLayer.GetBitmap());
         SkPaint.Color = new SKColor(255, 255, 255, (byte)(auroraSkiaBitmap.Opacity * 255));
         var skiaBitmap = auroraSkiaBitmap._surface;
         Canvas.DrawSurface(skiaBitmap, 0, 0, SkPaint);
@@ -54,7 +55,8 @@ public class AuroraVulkanSkiaBitmap : AuroraSkiaBitmap
 
     public override void DrawRectangle(EffectLayer brush, Rectangle dimension)
     {
-        var auroraSkiaBitmap = (AuroraVulkanSkiaBitmap)GetSkiaBitmap(brush.GetBitmap());
+        var bitmapEffectLayer = (BitmapEffectLayer)brush;
+        var auroraSkiaBitmap = (AuroraVulkanSkiaBitmap)GetSkiaBitmap(bitmapEffectLayer.GetBitmap());
         SkPaint.Color = new SKColor(255, 255, 255, (byte)(auroraSkiaBitmap.Opacity * 255));
         var skiaBitmap = auroraSkiaBitmap._surface;
         var rectangle = SkiaRectangle(dimension);

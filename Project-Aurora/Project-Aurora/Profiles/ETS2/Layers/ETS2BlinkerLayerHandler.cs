@@ -52,22 +52,21 @@ namespace AuroraRgb.Profiles.ETS2.Layers {
         }
     }
 
-    public class ETS2BlinkerLayerHandler : LayerHandler<Ets2BlinkerLayerHandlerProperties> {
+    public class ETS2BlinkerLayerHandler() : LayerHandler<Ets2BlinkerLayerHandlerProperties>("Ets2BlinkerLayerHandler") {
         protected override UserControl CreateControl() {
             return new Control_ETS2BlinkerLayer(this);
         }
 
         public override EffectLayer Render(IGameState gamestate) {
-            var blinker_layer = new EffectLayer("ETS2 - Blinker Layer");
-            if (gamestate is not GameState_ETS2 stateEts2) return blinker_layer;
+            if (gamestate is not GameState_ETS2 stateEts2) return EmptyLayer.Instance;
             // Left blinker
             var trgColor = stateEts2.Truck.blinkerLeftOn ? Properties.BlinkerOnColor : Properties.BlinkerOffColor;
-            blinker_layer.Set(Properties.LeftBlinkerSequence, trgColor);
+            EffectLayer.Set(Properties.LeftBlinkerSequence, trgColor);
 
             // Right blinker
             trgColor = stateEts2.Truck.blinkerRightOn ? Properties.BlinkerOnColor : Properties.BlinkerOffColor;
-            blinker_layer.Set(Properties.RightBlinkerSequence, trgColor);
-            return blinker_layer;
+            EffectLayer.Set(Properties.RightBlinkerSequence, trgColor);
+            return EffectLayer;
         }
     }
 }

@@ -10,7 +10,7 @@ using AuroraRgb.Settings.Layers;
 namespace AuroraRgb.Profiles.Minecraft.Layers;
 
 [Obsolete("This layer is obselete and has been replaced by the Overrides system.")]
-public class MinecraftBurnLayerHandler : LayerHandler<LayerHandlerProperties> {
+public class MinecraftBurnLayerHandler : LayerHandler<LayerHandlerProperties, BitmapEffectLayer> {
 
     private List<FireParticle> particles = new();
     private Random rnd = new();
@@ -40,7 +40,7 @@ public class MinecraftBurnLayerHandler : LayerHandler<LayerHandlerProperties> {
     public override EffectLayer Render(IGameState gamestate) {
         // Render nothing if invalid gamestate or player isn't on fire
         if (gamestate is not GameStateMinecraft minecraft || !minecraft.Player.IsBurning)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
         // Set the background to red
         EffectLayer.FillOver(Brushes.Red);

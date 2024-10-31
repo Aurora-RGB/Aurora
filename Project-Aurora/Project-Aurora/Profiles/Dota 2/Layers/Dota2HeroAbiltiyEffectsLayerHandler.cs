@@ -12,7 +12,7 @@ using AuroraRgb.Utils;
 
 namespace AuroraRgb.Profiles.Dota_2.Layers
 {
-    public class Dota2HeroAbilityEffectsLayerHandler : LayerHandler<LayerHandlerProperties2Color>
+    public class Dota2HeroAbilityEffectsLayerHandler : LayerHandler<LayerHandlerProperties2Color, BitmapEffectLayer>
     {
         private enum Dota2AbilityEffects
         {
@@ -131,7 +131,7 @@ namespace AuroraRgb.Profiles.Dota_2.Layers
             _previousTime = _currentTime;
             _currentTime = Time.GetMillisecondsSinceEpoch();
 
-            if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+            if (state is not GameStateDota2 dota2State) return EmptyLayer.Instance;
 
             //Preparations
             if (_abilities != null && dota2State.Abilities.Count == _abilities.Count)

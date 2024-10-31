@@ -9,7 +9,7 @@ public sealed class BitmapRectangle : IEqualityComparer<BitmapRectangle>, IEquat
     public static readonly BitmapRectangle EmptyRectangle = new();
 
     private readonly Rectangle _rectangle;
-    public Rectangle Rectangle => _rectangle;
+    public ref readonly Rectangle Rectangle => ref _rectangle;
 
     public bool IsEmpty => _rectangle.IsEmpty;
 

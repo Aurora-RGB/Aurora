@@ -93,7 +93,7 @@ public partial class PD2BackgroundLayerHandlerProperties : LayerHandlerPropertie
     }
 }
 
-public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerProperties>
+public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerProperties, BitmapEffectLayer>
 {
     private float _noReturnFlashamount = 1.0f;
     private float _noReturnTimeleft;
@@ -105,7 +105,7 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameState_PD2 pd2) return EffectLayer.EmptyLayer;
+        if (state is not GameState_PD2 pd2) return EmptyLayer.Instance;
         var bgColor = Properties.AmbientColor;
 
         var currenttime = Time.GetMillisecondsSinceEpoch();
@@ -174,10 +174,10 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
                     */
             }
 
-            EffectLayer.FillOver(bgColor);
+            EffectLayer.FillOver(in bgColor);
 
             if (Properties.PeripheralUse)
-                EffectLayer.Set(DeviceKeys.Peripheral, bgColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, in bgColor);
         }
         else if (pd2.Level.Phase == LevelPhase.Stealth && pd2.Game.State == GameStates.Ingame)
         {
@@ -211,17 +211,17 @@ public class PD2BackgroundLayerHandler : LayerHandler<PD2BackgroundLayerHandlerP
             if (_noReturnFlashamount < 0.0f)
                 _noReturnFlashamount = 0.0f;
 
-            EffectLayer.FillOver(noReturnColor);
+            EffectLayer.FillOver(in noReturnColor);
 
             if (Properties.PeripheralUse)
-                EffectLayer.Set(DeviceKeys.Peripheral, noReturnColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, in noReturnColor);
         }
         else
         {
-            EffectLayer.FillOver(bgColor);
+            EffectLayer.FillOver(in bgColor);
 
             if (Properties.PeripheralUse)
-                EffectLayer.Set(DeviceKeys.Peripheral, bgColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, in bgColor);
         }
 
         return EffectLayer;

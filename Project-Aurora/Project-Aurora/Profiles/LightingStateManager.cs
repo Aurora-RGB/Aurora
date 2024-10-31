@@ -338,7 +338,7 @@ public sealed class LightingStateManager : IDisposable
         return Events[value];
     }
 
-    private SingleConcurrentThread _updateTimer;
+    private readonly SingleConcurrentThread _updateTimer;
 
     private long _nextProcessNameUpdate;
     private long _currentTick;

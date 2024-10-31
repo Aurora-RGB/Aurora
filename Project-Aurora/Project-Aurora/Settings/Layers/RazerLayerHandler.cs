@@ -95,7 +95,7 @@ public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Ch
     {
         if (!RzHelper.IsCurrentAppValid())
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
         if (RzHelper.IsStale())
             return EffectLayer;

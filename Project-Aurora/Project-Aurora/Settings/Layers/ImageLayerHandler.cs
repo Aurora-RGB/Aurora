@@ -30,7 +30,7 @@ public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("SecondaryColor")]
-public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("ImageLayer")
+public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties, BitmapEffectLayer>("ImageLayer")
 {
     private Image? _loadedImage;
     private string? _loadedImagePath = "";
@@ -42,13 +42,13 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties>("Im
 
     public override EffectLayer Render(IGameState gamestate)
     {
-        if (string.IsNullOrWhiteSpace(Properties.ImagePath)) return EffectLayer.EmptyLayer;
+        if (string.IsNullOrWhiteSpace(Properties.ImagePath)) return EmptyLayer.Instance;
         
         if (_loadedImagePath != Properties.ImagePath)
         {
             //Not loaded, load it!
             if (!File.Exists(Properties.ImagePath))
-                return EffectLayer.EmptyLayer;
+                return EmptyLayer.Instance;
 
             _loadedImage?.Dispose();
             _loadedImage = new Bitmap(Properties.ImagePath);

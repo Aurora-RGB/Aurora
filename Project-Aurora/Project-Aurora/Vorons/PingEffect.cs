@@ -95,13 +95,13 @@ public class PingEffect : IEffectScript
 		Properties.RegProp("Number of Pings in graph mode", 10L, "Amount of last pings that will be used to display graph.", 1, 50);
 
 		//Properties.RegProp("BrightMode", false);
-		_layer = new EffectLayer(ID, true);
+		_layer = new BitmapEffectLayer(ID, true);
 	}
 
 	private static readonly ConcurrentDictionary<Tuple<KeySequence, string, string>, KeyValuePair<AnimationData, Pinger>> PingAnimations = new();
 
 	private static readonly ConcurrentDictionary<string, ColorSpectrum> Gradients = new();
-	private readonly EffectLayer _layer;
+	private readonly BitmapEffectLayer _layer;
 
 	private KeySequence Keys { get; set; }
 	private EffectTypes EffectType { get; set; }
@@ -184,7 +184,7 @@ public class PingEffect : IEffectScript
 		return _layer;
 	}
 
-	public void Render(EffectLayer effectLayer)
+	public void Render(BitmapEffectLayer effectLayer)
 	{
 		// layers							|					|
 		// 0.OldReplyPingBar				|==========>		|
@@ -496,7 +496,7 @@ internal class GradientCascade
 		}
 	}
 
-	public void Draw(FreeFormObject freeform, EffectLayer effectLayer)
+	public void Draw(FreeFormObject freeform, BitmapEffectLayer effectLayer)
 	{
 		var g = effectLayer.GetGraphics();
 		var xPos = (float)Math.Round((freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth);

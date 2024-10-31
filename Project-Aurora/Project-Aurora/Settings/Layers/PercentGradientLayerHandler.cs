@@ -31,7 +31,6 @@ public partial class PercentGradientLayerHandlerProperties : PercentLayerHandler
 [LayerHandlerMeta(Name = "Percent (Gradient)", IsDefault = true)]
 public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLayerHandlerProperties>
 {
-        
     protected override UserControl CreateControl()
     {
         return new Control_PercentGradientLayer(this);

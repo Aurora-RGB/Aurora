@@ -20,10 +20,8 @@ public partial class SolidFillLayerHandlerProperties : LayerHandlerProperties
 }
 
 [LogicOverrideIgnoreProperty("_Sequence")]
-public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerProperties>
+public sealed class SolidFillLayerHandler() : LayerHandler<SolidFillLayerHandlerProperties>("SolidFillLayerHandler")
 {
-    private readonly SingleColorBrush _solidBrush = new(SimpleColor.Transparent);
-
     protected override UserControl CreateControl()
     {
         return new Control_SolidFillLayer(this);
@@ -31,8 +29,7 @@ public sealed class SolidFillLayerHandler : LayerHandler<SolidFillLayerHandlerPr
 
     public override EffectLayer Render(IGameState gameState)
     {
-        _solidBrush.Color = (SimpleColor)Properties.PrimaryColor;
-        EffectLayer.Set(Effects.Canvas.EntireSequence, _solidBrush);
+        EffectLayer.Fill(Properties.PrimaryColor);
         return EffectLayer;
     }
 }

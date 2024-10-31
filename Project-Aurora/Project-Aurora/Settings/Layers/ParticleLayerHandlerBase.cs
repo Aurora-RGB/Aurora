@@ -40,7 +40,7 @@ namespace AuroraRgb.Settings.Layers {
     /// </summary>
     /// <typeparam name="TParticle"></typeparam>
     /// <typeparam name="TProperties"></typeparam>
-    public abstract class ParticleLayerHandlerBase<TParticle, TProperties> : LayerHandler<TProperties>, INotifyRender
+    public abstract class ParticleLayerHandlerBase<TParticle, TProperties> : LayerHandler<TProperties, BitmapEffectLayer>, INotifyRender
         where TParticle : IParticle<TProperties>
         where TProperties : ParticleLayerPropertiesBase<TProperties> {
 

@@ -46,7 +46,7 @@ public partial class ScriptLayerHandlerProperties : LayerHandlerProperties
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
-public class ScriptLayerHandler : LayerHandler<ScriptLayerHandlerProperties>, INotifyPropertyChanged
+public class ScriptLayerHandler : LayerHandler<ScriptLayerHandlerProperties, BitmapEffectLayer>, INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -56,7 +56,7 @@ public class ScriptLayerHandler : LayerHandler<ScriptLayerHandlerProperties>, IN
     public override EffectLayer Render(IGameState gamestate)
     {
 
-        if (!IsScriptValid) return EffectLayer.EmptyLayer;
+        if (!IsScriptValid) return EmptyLayer.Instance;
         try
         {
             var script = Application.EffectScripts[Properties.Script];

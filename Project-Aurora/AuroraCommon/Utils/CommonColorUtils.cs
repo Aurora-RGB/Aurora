@@ -103,7 +103,7 @@ public static class CommonColorUtils
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static ref Color AddColors(in Color background, in Color foreground, ref Color resultCache)
+    public static ref Color AddColors(ref readonly Color background, ref readonly Color foreground, ref Color resultCache)
     {
         var foreA = foreground.A;
         var backA = background.A;
@@ -347,7 +347,6 @@ public static class CommonColorUtils
         return FastColor((byte)(r * normalizer), (byte)(g * normalizer), (byte)(b * normalizer), brightness);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Color FastColor(byte r, byte g, byte b, byte a = 255)
     {
         return Color.FromArgb(

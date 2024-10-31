@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
@@ -84,29 +86,45 @@ public partial class PercentLayerHandlerProperties : LayerHandlerProperties2Colo
     }
 }
 
-public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("PercentLayer")
+public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty, BitmapEffectLayer>("PercentLayer")
     where TProperty : PercentLayerHandlerProperties
 {
     private double _value;
 
-    public override EffectLayer Render(IGameState state)
+    private readonly NoRenderLayer NoRenderLayer = new();
+
+    public override EffectLayer Render(IGameState gameState)
     {
+        var keySequence = Properties.Sequence;
+        EffectLayer layer = keySequence.Type switch
+        {
+            KeySequenceType.Sequence => NoRenderLayer,
+            _ => EffectLayer,
+        };
+        
+        
         if (Invalidated)
         {
-            EffectLayer.Clear();
+            layer.Clear();
             Invalidated = false;
             _value = -1;
         }
-        var value = Properties.Logic?._Value ?? state.GetNumber(Properties.VariablePath);
+        var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
         if (MathUtils.NearlyEqual(_value, value, 0.000001))
         {
-            return EffectLayer;
+            return layer;
         }
         _value = value;
             
-        var maxvalue = Properties.Logic?._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
+        var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
-        EffectLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, Properties.Sequence, value, maxvalue,
+        if (keySequence.Type == KeySequenceType.Sequence)
+        {
+            NoRenderLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence.Keys, value, maxvalue,
+                Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);
+            return NoRenderLayer;
+        }
+        EffectLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence, value, maxvalue,
             Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);
         return EffectLayer;
     }

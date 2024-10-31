@@ -64,19 +64,15 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         }
     }
 
-    public class MinecraftHealthBarLayerHandler : LayerHandler<MinecraftHealthBarLayerHandlerProperties>
+    public class MinecraftHealthBarLayerHandler() : LayerHandler<MinecraftHealthBarLayerHandlerProperties, BitmapEffectLayer>("Minecraft Health Bar Layer")
     {
-        public MinecraftHealthBarLayerHandler() : base("Minecraft Health Bar Layer")
-        {
-        }
-
         protected override UserControl CreateControl() {
             return new Control_MinecraftHealthBarLayer(this);
         }
 
         public override EffectLayer Render(IGameState gamestate) {
             // Ensure the gamestate is for Minecraft, and store a casted reference to it
-            if (gamestate is not GameStateMinecraft minecraftState) return EffectLayer.EmptyLayer;
+            if (gamestate is not GameStateMinecraft minecraftState) return EmptyLayer.Instance;
 
             // Choose the main healthbar's color depending on whether the player is withered/poisoned/regen/normal.
             var barColor = Properties.NormalHealthColor; // Default normal color

@@ -47,8 +47,8 @@ public class CSGOTypingIndicatorLayerHandler() : LayerHandler<CSGOTypingIndicato
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
-        if (csgostate.Player.Activity != PlayerActivity.TextInput) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
+        if (csgostate.Player.Activity != PlayerActivity.TextInput) return EmptyLayer.Instance;
 
         //Update Typing Keys
         EffectLayer.Set(Properties.Sequence, Properties.TypingKeysColor);

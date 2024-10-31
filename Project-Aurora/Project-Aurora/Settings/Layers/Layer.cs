@@ -93,7 +93,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
         }
 
         if (!Handler.Properties.Enabled)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         try
         {
             var effectLayer = Handler.PostRenderFX(Handler.Render(gs));
@@ -110,12 +110,12 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
                 var controlInterface = appAuroraApp.ControlInterface;
                 
                 controlInterface.ShowErrorNotification($"Layer \'{Name}\" fails to render. Check logs for details");
-                return EffectLayer.EmptyLayer;
+                return EmptyLayer.Instance;
             }
             Global.logger.Error(e, "Layer render error");
         }
 
-        return EffectLayer.EmptyLayer;
+        return EmptyLayer.Instance;
     }
 
     public void SetProfile(Application profile) {

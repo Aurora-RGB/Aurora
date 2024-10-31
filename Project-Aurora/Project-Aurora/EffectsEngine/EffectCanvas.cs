@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Linq;
 using AuroraRgb.Settings;
 using Common.Devices;
 
@@ -23,19 +24,6 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
 {
     private CanvasGridProperties _canvasGridProperties;
 
-    public EffectCanvas(int width,
-        int height,
-        Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
-    {
-        Width = width;
-        Height = height;
-        BiggestSize = Math.Max(width, height);
-        BitmapMap = bitmapMap.ToFrozenDictionary();
-        CanvasGridProperties = new(0, 0, width, height);
-        
-        EntireSequence = new(WholeFreeForm);
-    }
-
     public int Width { get; }
     public int Height { get; }
     public int BiggestSize { get; }
@@ -45,9 +33,14 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public float GridBaselineY => CanvasGridProperties.GridBaselineY;
 
     public FrozenDictionary<DeviceKeys, BitmapRectangle> BitmapMap { get; }
+    public DeviceKeys[] Keys { get; }
 
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
+
+    private readonly BitmapRectangle[] _keyRectangles = Enumerable.Range(0, Effects.MaxDeviceId + 1)
+        .Select(_ => BitmapRectangle.EmptyRectangle)
+        .ToArray();
 
     public CanvasGridProperties CanvasGridProperties
     {
@@ -68,9 +61,27 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public FreeFormObject WholeFreeForm => new(-CanvasGridProperties.GridBaselineX, -CanvasGridProperties.GridBaselineY, CanvasGridProperties.GridWidth, CanvasGridProperties.GridHeight);
     public KeySequence EntireSequence { get; private set; }
 
-    public BitmapRectangle GetRectangle(DeviceKeys key)
+    public EffectCanvas(int width,
+        int height,
+        Dictionary<DeviceKeys, BitmapRectangle> bitmapMap)
     {
-        return BitmapMap.TryGetValue(key, out var rect) ? rect : BitmapRectangle.EmptyRectangle;
+        Width = width;
+        Height = height;
+        BiggestSize = Math.Max(width, height);
+        BitmapMap = bitmapMap.ToFrozenDictionary();
+        foreach (var (key, value) in bitmapMap)
+        {
+            _keyRectangles[(int)key] = value;
+        }
+        Keys = bitmapMap.Keys.ToArray();
+        CanvasGridProperties = new(0, 0, width, height);
+        
+        EntireSequence = new(WholeFreeForm);
+    }
+
+    public ref readonly BitmapRectangle GetRectangle(DeviceKeys key)
+    {
+        return ref _keyRectangles[(int)key];
     }
 
     public bool Equals(EffectCanvas? other)

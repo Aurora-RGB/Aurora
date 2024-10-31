@@ -31,7 +31,7 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
     {
     }
 
-    public float Opacity { get; set; } = 1.0f;
+    public double Opacity { get; set; } = 1.0;
 
     public abstract IBitmapReader CreateReader();
 

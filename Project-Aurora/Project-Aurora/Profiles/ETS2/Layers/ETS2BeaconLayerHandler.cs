@@ -52,7 +52,7 @@ public partial class ETS2BeaconLayerProperties : LayerHandlerProperties
     }
 }
 
-public class ETS2BeaconLayerHandler : LayerHandler<ETS2BeaconLayerProperties> {
+public class ETS2BeaconLayerHandler() : LayerHandler<ETS2BeaconLayerProperties>("ETS2BeaconLayerHandler") {
 
     private int _frame;
 
@@ -67,7 +67,8 @@ public class ETS2BeaconLayerHandler : LayerHandler<ETS2BeaconLayerProperties> {
     }
 
     public override EffectLayer Render(IGameState gamestate) {
-        var layer = new EffectLayer("ETS2 Beacon Layer");
+        var layer = EffectLayer;
+        layer.Clear();
 
         if (gamestate is GameState_ETS2 { Truck.lightsBeaconOn: true }) {
             switch (Properties.BeaconStyle) {

@@ -37,8 +37,6 @@ public partial class EliteDangerousBackgroundHandlerProperties : LayerHandlerPro
 }
 public class EliteDangerousBackgroundLayerHandler() : LayerHandler<EliteDangerousBackgroundHandlerProperties>("Elite: Dangerous - Background")
 {
-    private readonly SolidBrush _bg = new(Color.Transparent);
-
     protected override UserControl CreateControl()
     {
         return new Control_EliteDangerousBackgroundLayer(this);
@@ -48,8 +46,8 @@ public class EliteDangerousBackgroundLayerHandler() : LayerHandler<EliteDangerou
     {
         var gameState = state as GameState_EliteDangerous;
 
-        _bg.Color = gameState.Status.IsFlagSet(Flag.HUD_DISCOVERY_MODE) ? Properties.DiscoveryModeColor : Properties.CombatModeColor;
-        EffectLayer.FillOver(_bg);
+        var color = gameState.Status.IsFlagSet(Flag.HUD_DISCOVERY_MODE) ? Properties.DiscoveryModeColor : Properties.CombatModeColor;
+        EffectLayer.FillOver(color);
 
         return EffectLayer;
     }

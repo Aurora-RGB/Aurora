@@ -91,7 +91,6 @@ public class GlitchLayerHandler<TProperty>() : LayerHandler<TProperty>("Glitch L
     {
         base.PropertiesChanged(sender, args);
         _glitchColors.Clear();
-        EffectLayer.Invalidate();
     }
 }
 

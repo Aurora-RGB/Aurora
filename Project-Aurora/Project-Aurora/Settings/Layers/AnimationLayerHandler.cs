@@ -100,7 +100,7 @@ namespace AuroraRgb.Settings.Layers
 
     [LogicOverrideIgnoreProperty("PrimaryColor")]
     [LogicOverrideIgnoreProperty("SecondaryColor")]
-    public sealed class AnimationLayerHandler() : LayerHandler<AnimationLayerHandlerProperties>("Animation Layer")
+    public sealed class AnimationLayerHandler() : LayerHandler<AnimationLayerHandlerProperties, BitmapEffectLayer>("Animation Layer")
     {
         private readonly List<RunningAnimation> _runningAnimations = [];
         private readonly Stopwatch _animTimeStopwatch = new();
@@ -120,6 +120,11 @@ namespace AuroraRgb.Settings.Layers
 
         protected override UserControl CreateControl() {
             return new Control_AnimationLayer(this);
+        }
+
+        public override bool HighResource()
+        {
+            return true;
         }
 
         public override void Dispose()

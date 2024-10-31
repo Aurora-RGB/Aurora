@@ -72,9 +72,9 @@ public partial class PD2StatesLayerHandlerProperties : LayerHandlerProperties2Co
 
 }
 
-public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerProperties>
+public class PD2StatesLayerHandler() : LayerHandler<PD2StatesLayerHandlerProperties>("PD2StatesLayerHandler")
 {
-    private readonly EffectLayer _swansongLayer = new("Payday 2 - Swansong", true);
+    private readonly EffectLayer _swansongLayer = new BitmapEffectLayer("Payday 2 - Swansong", true);
 
     protected override UserControl CreateControl()
     {
@@ -83,9 +83,9 @@ public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerPropertie
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameState_PD2 pd2State) return EffectLayer.EmptyLayer;
+        if (gameState is not GameState_PD2 pd2State) return EmptyLayer.Instance;
 
-        if (pd2State.Game.State != GameStates.Ingame) return EffectLayer.EmptyLayer;
+        if (pd2State.Game.State != GameStates.Ingame) return EmptyLayer.Instance;
         switch (pd2State.LocalPlayer.State)
         {
             case PlayerState.Incapacitated or PlayerState.Bleed_out or PlayerState.Fatal:
@@ -99,8 +99,8 @@ public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerPropertie
 
                 var incapColor = Color.FromArgb(incapAlpha, Properties.DownedColor);
 
-                EffectLayer.FillOver(incapColor);
-                EffectLayer.Set(DeviceKeys.Peripheral, incapColor);
+                EffectLayer.FillOver(in incapColor);
+                EffectLayer.Set(DeviceKeys.Peripheral, in incapColor);
                 break;
             }
             case PlayerState.Arrested:
@@ -116,7 +116,8 @@ public class PD2StatesLayerHandler : LayerHandler<PD2StatesLayerHandlerPropertie
 
         _swansongLayer.Set(DeviceKeys.Peripheral, swansongColor);
 
-        return EffectLayer + _swansongLayer;
+        EffectLayer.Add(_swansongLayer);
+        return EffectLayer;
     }
 
     protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)

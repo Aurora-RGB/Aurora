@@ -36,24 +36,22 @@ public partial class CSGOWinningTeamLayerHandlerProperties : LayerHandlerPropert
 
 public class CSGOWinningTeamLayerHandler() : LayerHandler<CSGOWinningTeamLayerHandlerProperties>("CSGO - Winning Team Effect")
 {
-    private readonly SolidBrush _solidBrush = new(Color.Empty);
-
     protected override UserControl CreateControl()
     {
         return new Control_CSGOWinningTeamLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
 
         // Block animations after end of round
         if (csgostate.Map.Phase == MapPhase.Undefined || csgostate.Round.Phase != RoundPhase.Over)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
-        _solidBrush.Color = Color.White;
+        var color = Color.White;
 
         // Triggers directly after a team wins a round
         if (csgostate.Round.WinTeam != RoundWinTeam.Undefined && csgostate.Previously?.Round.WinTeam == RoundWinTeam.Undefined)
@@ -67,26 +65,26 @@ public class CSGOWinningTeamLayerHandler() : LayerHandler<CSGOWinningTeamLayerHa
 
                 if (tScore > ctScore)
                 {
-                    _solidBrush.Color = Properties.TColor;
+                    color = Properties.TColor;
                 }
                 else if (ctScore > tScore)
                 {
-                    _solidBrush.Color = Properties.CtColor;
+                    color = Properties.CtColor;
                 }
             }
             else
             {
-                _solidBrush.Color = csgostate.Round.WinTeam switch
+                color = csgostate.Round.WinTeam switch
                 {
                     // End of round
                     RoundWinTeam.T => Properties.TColor,
                     RoundWinTeam.CT => Properties.CtColor,
-                    _ => _solidBrush.Color
+                    _ => color
                 };
             }
         }
 
-        EffectLayer.Fill(_solidBrush);
+        EffectLayer.Fill(in color);
 
         return EffectLayer;
     }

@@ -27,4 +27,7 @@ public interface ILayerHandler: IDisposable
 
     void SetApplication(Application profile);
     void SetGameState(IGameState gamestate);
+
+    Type GetEffectLayerType();
+    bool HighResource();
 }

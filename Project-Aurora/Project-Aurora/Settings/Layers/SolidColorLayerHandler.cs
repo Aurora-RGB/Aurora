@@ -10,7 +10,6 @@ namespace AuroraRgb.Settings.Layers;
 
 public class SolidColorLayerHandler() : LayerHandler<LayerHandlerProperties>("SolidColorLayer")
 {
-    private readonly SingleColorBrush _brush = new();
     private KeySequence _propertiesSequence = new();
 
     protected override UserControl CreateControl()
@@ -20,22 +19,13 @@ public class SolidColorLayerHandler() : LayerHandler<LayerHandlerProperties>("So
 
     public override EffectLayer Render(IGameState gameState)
     {
-        EffectLayer.Set(_propertiesSequence, _brush);
+        EffectLayer.Set(_propertiesSequence, Properties.PrimaryColor);
         return EffectLayer;
     }
 
     protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
     {
         base.PropertiesChanged(sender, args);
-        _brush.Color = (SimpleColor)Properties.PrimaryColor;
         _propertiesSequence = Properties.Sequence;
-        EffectLayer.Invalidate();
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
-        
-        _brush.Dispose();
     }
 }

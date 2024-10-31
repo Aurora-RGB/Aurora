@@ -211,7 +211,7 @@ public partial class AmbilightLayerHandlerProperties : LayerHandlerProperties2Co
 [LogicOverrideIgnoreProperty("SecondaryColor")]
 [LogicOverrideIgnoreProperty("_Sequence")]
 [DoNotNotify]
-public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties>
+public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerProperties, BitmapEffectLayer>
 {
     private readonly Temporary<IScreenCapture> _screenCapture;
 
@@ -258,7 +258,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     public override EffectLayer Render(IGameState gameState)
     {
         if (Properties.Sequence.GetAffectedRegion().IsEmpty)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
         if (_captureWorker.WaitingCallbacks < 1)
         {
@@ -324,6 +324,11 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     protected override UserControl CreateControl()
     {
         return new Control_AmbilightLayer(this);
+    }
+
+    public override bool HighResource()
+    {
+        return true;
     }
 
     private object? TakeScreenshot(object? sender)

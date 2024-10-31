@@ -124,8 +124,6 @@ public class Dota2KillstreakLayerHandler() : LayerHandler<Dota2KillstreakLayerHa
 {
     private const long KsDuration = 4000;
 
-    private readonly SolidBrush _solidBrush = new(Color.Empty);
-
     private bool _isPlayingKillStreakAnimation;
     private double _ksBlendAmount;
     private long _ksEndTime;
@@ -144,7 +142,7 @@ public class Dota2KillstreakLayerHandler() : LayerHandler<Dota2KillstreakLayerHa
             _isPlayingKillStreakAnimation = false;
         }
 
-        if (gameState is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateDota2 dota2State) return EmptyLayer.Instance;
         if(_currentKillCount < dota2State.Player.Kills)
         {    //player got a kill
             _isPlayingKillStreakAnimation = true;
@@ -156,16 +154,16 @@ public class Dota2KillstreakLayerHandler() : LayerHandler<Dota2KillstreakLayerHa
         var ksEffectValue = GetKsEffectValue();
         if (ksEffectValue <= 0 && !_empty)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
-        if (dota2State.Player.KillStreak < 2) return EffectLayer.EmptyLayer;
+        if (dota2State.Player.KillStreak < 2) return EmptyLayer.Instance;
         var ksColor = GetKillStreakColor(dota2State.Player.KillStreak);
 
-        if (!(ksEffectValue > 0)) return EffectLayer.EmptyLayer;
+        if (!(ksEffectValue > 0)) return EmptyLayer.Instance;
         EffectLayer.Clear();
-        _solidBrush.Color = ColorUtils.BlendColors(Color.Transparent, ksColor, ksEffectValue);
-        EffectLayer.Fill(_solidBrush);
+        var color = ColorUtils.BlendColors(Color.Transparent, ksColor, ksEffectValue);
+        EffectLayer.Fill(in color);
         _empty = false;
 
         return EffectLayer;

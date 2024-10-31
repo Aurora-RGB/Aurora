@@ -71,8 +71,6 @@ public partial class LogitechLayerHandlerProperties : LayerHandlerProperties
 [LayerHandlerMeta(Name = "Logitech Lightsync", IsDefault = true)]
 public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProperties>
 {
-    private readonly SingleColorBrush _background = new(SimpleColor.Transparent);
-    
     public LogitechLayerHandler() : base("Logitech Layer")
     {
         LogitechSdkModule.LogitechSdkListener.ColorsUpdated += LogitechSdkListenerOnColorsUpdated;
@@ -88,12 +86,12 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
         Invalidated = true;
     }
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         var logitechSdk = LogitechSdkModule.LogitechSdkListener;
         if (logitechSdk.State != LightsyncSdkState.Connected)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         if (!Invalidated)
@@ -101,8 +99,7 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
             return EffectLayer;
         }
 
-        _background.Color = logitechSdk.BackgroundColor;
-        EffectLayer.Fill(_background);
+        EffectLayer.Fill((Color)logitechSdk.BackgroundColor);
         foreach (var kv in logitechSdk.Colors)
         {
             var color = Properties.ColorPostProcessEnabled ? PostProcessColor(kv.Value) : kv.Value;

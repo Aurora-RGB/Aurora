@@ -93,7 +93,6 @@ public class WrapperLightsLayerHandler() : LayerHandler<WrapperLightsLayerHandle
     private readonly Dictionary<DeviceKeys, Color> _extraKeys = new();
     private Color _lastFillColor = Color.Black;
     private EntireEffect? _currentEffect;
-    private readonly SingleColorBrush _fillBrush = new(SimpleColor.Transparent);
 
     protected override UserControl CreateControl()
     {
@@ -103,10 +102,9 @@ public class WrapperLightsLayerHandler() : LayerHandler<WrapperLightsLayerHandle
     public override EffectLayer Render(IGameState gamestate)
     {
         if (gamestate is not GameState_Wrapper)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
-        _fillBrush.Color = (SimpleColor)GetBoostedColor(_lastFillColor);
-        EffectLayer.Fill(_fillBrush);
+        EffectLayer.Fill(GetBoostedColor(_lastFillColor));
 
         var allKeys = Enum.GetValues(typeof(DeviceKeys)).Cast<DeviceKeys>().ToArray();
         foreach (var key in allKeys)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Common.Utils;
 
@@ -21,6 +22,9 @@ public sealed class GdiSingleCopyBitmapReader : IBitmapReader
 
     private readonly BitmapData _srcData;
     private readonly IntPtr _scan0;
+    
+    private Color _transparentColor = Color.Transparent;
+    private Color _currentColor = Color.Black;
 
     public GdiSingleCopyBitmapReader(Bitmap bitmap)
     {
@@ -41,7 +45,7 @@ public sealed class GdiSingleCopyBitmapReader : IBitmapReader
         _srcData = _bitmap.LockBits(
             rectangle,
             (ImageLockMode)5,   //ImageLockMode.UserInputBuffer | ImageLockMode.ReadOnly
-            PixelFormat.Format32bppRgb, buff);
+            PixelFormat.Format32bppArgb, buff);
         _scan0 = _srcData.Scan0;
     }
 
@@ -49,10 +53,11 @@ public sealed class GdiSingleCopyBitmapReader : IBitmapReader
      * Gets average color of region, ignoring transparency
      * NOT thread-safe
      */
-    public Color GetRegionColor(Rectangle rectangle)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref readonly Color GetRegionColor(Rectangle rectangle)
     {
         if (rectangle.Width == 0 || rectangle.Height == 0 || !_dimension.Contains(rectangle))
-            return Color.Black;
+            return ref _transparentColor;
 
         ColorData[0] = 0L;
         ColorData[1] = 0L;
@@ -91,11 +96,12 @@ public sealed class GdiSingleCopyBitmapReader : IBitmapReader
         var area = ColorData[3] / 255;
         if (area == 0)
         {
-            return Color.Transparent;
+            return ref _transparentColor;
         }
-        return CommonColorUtils.FastColor(
+        _currentColor = CommonColorUtils.FastColor(
             (byte) (ColorData[2] / area), (byte) (ColorData[1] / area), (byte) (ColorData[0] / area)
         );
+        return ref _currentColor;
     }
 
     private static BitmapData CreateBitmapData(Size size)

@@ -119,7 +119,7 @@ namespace AuroraRgb.Vorons
 
 			Properties.RegProp("Cycled Gradient Shift Full Speed", 100L, "Cycled gradient shifting speed at 100%", -1000L, 1000L);
 
-			_effectLayer = new EffectLayer(ID, true);
+			_effectLayer = new BitmapEffectLayer(ID, true);
 		}
 
 		private static readonly MathParser MathParser = new();
@@ -132,7 +132,7 @@ namespace AuroraRgb.Vorons
 		private static readonly ConcurrentDictionary<CircleGradientStateKey, CircleGradientState>
 			CircleShidtStates = new();
 
-		private readonly EffectLayer _effectLayer;
+		private readonly BitmapEffectLayer _effectLayer;
 
 		private KeySequence Keys { get; set; }
 		private EffectTypes EffectType { get; set; }

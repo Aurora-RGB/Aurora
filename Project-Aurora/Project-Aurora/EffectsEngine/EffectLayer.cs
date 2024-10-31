@@ -16,18 +16,12 @@ using Point = System.Drawing.Point;
 
 namespace AuroraRgb.EffectsEngine;
 
-public enum LayerReadability
-{
-    None = 0,
-    Readable = 1,
-}
-
 /// <summary>
 /// A class representing a bitmap layer for effects
 /// </summary>
-public class EffectLayer : IDisposable
+public sealed class BitmapEffectLayer : EffectLayer
 {
-    public static EffectLayer EmptyLayer { get; } = new("EmptyLayer", true);
+    private static readonly Color TransparentColor = Color.Transparent;
 
     // Yes, this is no thread-safe but Aurora isn't supposed to take up resources
     // This is done to prevent memory leaks from creating new brushes
@@ -37,44 +31,56 @@ public class EffectLayer : IDisposable
     };
 
     private readonly string _name;
+    //TODO set readability based on GPU or not
     private readonly bool _readable = true;
-    protected IAuroraBitmap _colormap;
+    private IAuroraBitmap _colormap;
 
     private bool _invalidated = true;
 
     internal Rectangle Dimension;
 
-    [Obsolete("This creates too much garbage memory")]
-    public EffectLayer(string name) : this(name, Color.Transparent)
-    {
-    }
+    private IBitmapReader? _bitmapReader;
+
+    public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
 
     [Obsolete("This creates too much garbage memory")]
-    public EffectLayer(string name, Color color)
+    public BitmapEffectLayer(string name)
     {
         _name = name;
         _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, true);
         Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
-
-        FillOver(color);
     }
 
-    protected EffectLayer(string name, Color color, LayerReadability readable)
-    {
-        _readable = readable == LayerReadability.Readable;
-        _name = name;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, true);
-        Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
-
-        FillOver(color);
-        WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), InvalidateColorMap);
-    }
-
-    public EffectLayer(string name, bool persistent) : this(name)
+    public BitmapEffectLayer(string name, bool persistent) : this(name)
     {
         if (!persistent)
             return;
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), InvalidateColorMap);
+    }
+
+    /// <summary>
+    /// Retrieves a color of the specified DeviceKeys key from the bitmap
+    /// </summary>
+    public Color Get(DeviceKeys key)
+    {
+        var keyRectangle = Effects.Canvas.GetRectangle(key);
+
+        if (keyRectangle.IsEmpty)
+            return TransparentColor;
+        ref readonly var color = ref GetColor(in keyRectangle.Rectangle);
+        return color;
+    }
+
+    private ref readonly Color GetColor(ref readonly Rectangle rectangle)
+    {
+        _bitmapReader ??= _colormap.CreateReader();
+        return ref _bitmapReader.GetRegionColor(rectangle);
+    }
+
+    public void Close()
+    {
+        _bitmapReader?.Dispose();
+        _bitmapReader = null;
     }
 
     /// <summary>
@@ -206,7 +212,7 @@ public class EffectLayer : IDisposable
         rainbowBrush.Dispose();
     }
 
-    public virtual void Dispose()
+    public void Dispose()
     {
         _excludeSequence = new KeySequence();
         _keySequence = new KeySequence();
@@ -254,6 +260,14 @@ public class EffectLayer : IDisposable
         return brush;
     }
 
+    public void Fill(ref readonly Color color)
+    {
+        _colormap.Reset();
+        _solidBrush.Color = (SimpleColor)color;
+        _colormap.ReplaceRectangle(_solidBrush, Dimension);
+        Invalidate();
+    }
+
     /// <summary>
     /// Fills the entire bitmap of the EffectLayer with a specified brush.
     /// </summary>
@@ -265,19 +279,8 @@ public class EffectLayer : IDisposable
         Invalidate();
     }
 
-    public void Fill(IAuroraBrush brush)
-    {
-        _colormap.Reset();
-        _colormap.ReplaceRectangle(brush, Dimension);
-        Invalidate();
-    }
-
-    /// <summary>
-    /// Paints over the entire bitmap of the EffectLayer with a specified color.
-    /// </summary>
-    /// <param name="color">Color to be used during bitmap fill</param>
-    /// <returns>Itself</returns>
-    public void FillOver(Color color)
+    /// <inheritdoc />
+    public void FillOver(ref readonly Color color)
     {
         _colormap.Reset();
         _solidBrush.Color = (SimpleColor)color;
@@ -298,13 +301,6 @@ public class EffectLayer : IDisposable
         Invalidate();
     }
 
-    public void FillOver(IAuroraBrush brush)
-    {
-        _colormap.Reset();
-        _colormap.DrawRectangle(brush, Dimension);
-        Invalidate();
-    }
-
     public void Clear()
     {
         _colormap.Fill(ClearingBrush);
@@ -314,35 +310,22 @@ public class EffectLayer : IDisposable
 
     private FreeFormObject _lastFreeform = new();
     private bool _ksChanged = true;
-    /// <summary>
-    /// Sets a specific DeviceKeys on the bitmap with a specified color.
-    /// </summary>
-    /// <param name="key">DeviceKey to be set</param>
-    /// <param name="color">Color to be used</param>
-    /// <returns>Itself</returns>
-    public void Set(DeviceKeys key, Color color)
+
+    /// <inheritdoc />
+    public void Set(DeviceKeys key, ref readonly Color color)
     {
-        SetOneKey(key, color);
+        SetOneKey(key, in color);
     }
 
-    /// <summary>
-    /// Sets a specific DeviceKeys on the bitmap with a specified color.
-    /// </summary>
-    /// <param name="keys">Array of DeviceKeys to be set</param>
-    /// <param name="color">Color to be used</param>
-    public void Set(DeviceKeys[] keys, Color color)
+    /// <inheritdoc />
+    public void Set(DeviceKeys[] keys, ref readonly Color color)
     {
         foreach (var key in keys)
-            SetOneKey(key, color);
+            SetOneKey(key, in color);
     }
 
-    /// <summary>
-    /// Sets a specific KeySequence on the bitmap with a specified color.
-    /// </summary>
-    /// <param name="sequence">KeySequence to specify what regions of the bitmap need to be changed</param>
-    /// <param name="color">Color to be used</param>
-    /// <returns>Itself</returns>
-    public void Set(KeySequence sequence, Color color)
+    /// <inheritdoc />
+    public void Set(KeySequence sequence, ref readonly Color color)
     {
         _solidBrush.Color = (SimpleColor)color;
         Set(sequence, _solidBrush);
@@ -591,7 +574,7 @@ public class EffectLayer : IDisposable
     /// </summary>
     /// <param name="key">DeviceKey to be set</param>
     /// <param name="color">Color to be used</param>
-    private void SetOneKey(DeviceKeys key, Color color)
+    private void SetOneKey(DeviceKeys key, ref readonly Color color)
     {
         _solidBrush.Color = (SimpleColor)color;
         SetOneKey(key, _solidBrush);
@@ -607,7 +590,7 @@ public class EffectLayer : IDisposable
     /// </summary>
     /// <param name="key">DeviceKey to be set</param>
     /// <param name="brush">Brush to be used</param>
-    protected virtual void SetOneKey(DeviceKeys key, Brush brush)
+    private void SetOneKey(DeviceKeys key, Brush brush)
     {
         var keyRectangle = Effects.Canvas.GetRectangle(key);
         _invalidated = true;
@@ -657,52 +640,45 @@ public class EffectLayer : IDisposable
         return _colormap;
     }
 
-    public void Add(EffectLayer other)
+    /// <inheritdoc/>
+    public EffectLayer Add(EffectLayer other)
     {
-        _ = this + other;
+        if (ReferenceEquals(other, EmptyLayer.Instance))
+        {
+            return this;
+        }
+
+        var g = GetGraphics();
+        switch (other)
+        {
+            case BitmapEffectLayer bitmapEffectLayer:
+                g.DrawRectangle(bitmapEffectLayer);
+                break;
+            case NoRenderLayer noRenderLayer:
+                var activeKeys = noRenderLayer.ActiveKeys;
+                foreach (var key in activeKeys)
+                {
+                    _solidBrush.Color = (SimpleColor)noRenderLayer.Get(key);
+                    var bitmapRectangle = Effects.Canvas.GetRectangle(key).Rectangle;
+                    g.DrawRectangle(_solidBrush, bitmapRectangle);
+                }
+                break;
+            case EmptyLayer:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(other), other, null);
+        }
+
+        Invalidate();
+        return this;
     }
 
-    /// <summary>
-    /// + Operator, sums two EffectLayer together.
-    /// </summary>
-    /// <param name="lhs">Left Hand Side EffectLayer</param>
-    /// <param name="rhs">Right Hand Side EffectLayer</param>
-    /// <returns>Left hand side EffectLayer, which is a combination of two passed EffectLayers</returns>
-    public static EffectLayer operator +(EffectLayer lhs, EffectLayer rhs)
+    /// <inheritdoc />
+    public void SetOpacity(double value)
     {
-        if (lhs == EmptyLayer)
-        {
-            return rhs;
-        }
-
-        if (rhs == EmptyLayer)
-        {
-            return lhs;
-        }
-
-        var g = lhs.GetGraphics();
-        {
-            g.DrawRectangle(rhs);
-        }
-        lhs.Invalidate();
-
-        return lhs;
-    }
-
-    /// <summary>
-    /// * Operator, Multiplies an EffectLayer by a double, adjusting opacity and color of the layer bitmap.
-    /// </summary>
-    /// <param name="layer">EffectLayer to be adjusted</param>
-    /// <param name="value">Double value that each bit in the bitmap will be multiplied by</param>
-    /// <returns>The passed instance of EffectLayer with adjustments</returns>
-    public static EffectLayer operator *(EffectLayer layer, double value)
-    {
-        if (!MathUtils.NearlyEqual(layer._colormap.Opacity,(float)value, 0.0001f))
-        {
-            layer._colormap.Opacity = (float) value;
-            layer.Invalidate();
-        }
-        return layer;
+        if (MathUtils.NearlyEqual(_colormap.Opacity, (float)value, 0.0001f)) return;
+        _colormap.Opacity = (float) value;
+        Invalidate();
     }
 
     private KeySequenceType _previousSequenceType;
@@ -714,7 +690,7 @@ public class EffectLayer : IDisposable
     /// <param name="foregroundColor">The foreground color, used as a "Progress bar color"</param>
     /// <param name="value">The current progress value</param>
     /// <param name="total">The maxiumum progress value</param>
-    public void PercentEffect(Color foregroundColor, Color backgroundColor, KeySequence sequence, double value,
+    public void PercentEffect(Color foregroundColor, ref readonly Color backgroundColor, KeySequence sequence, double value,
         double total = 1.0D, PercentEffectType percentEffectType = PercentEffectType.Progressive,
         double flashPast = 0.0, bool flashReversed = false, bool blinkBackground = false)
     {
@@ -757,7 +733,7 @@ public class EffectLayer : IDisposable
     /// <param name="foregroundColor">The foreground color, used as a "Progress bar color"</param>
     /// <param name="value">The current progress value</param>
     /// <param name="total">The maxiumum progress value</param>
-    private void PercentEffect(Color foregroundColor, Color backgroundColor, IReadOnlyList<DeviceKeys> keys, double value,
+    public void PercentEffect(Color foregroundColor, Color backgroundColor, IReadOnlyList<DeviceKeys> keys, double value,
         double total, PercentEffectType percentEffectType = PercentEffectType.Progressive, double flashPast = 0.0,
         bool flashReversed = false, bool blinkBackground = false)
     {
@@ -976,8 +952,9 @@ public class EffectLayer : IDisposable
         Invalidate();
     }
 
-    public virtual void Invalidate()
+    public void Invalidate()
     {
+        _bitmapReader = null;
         _invalidated = true;
     }
     private void InvalidateColorMap(object? sender, EventArgs args)
@@ -1065,10 +1042,7 @@ public class EffectLayer : IDisposable
 
     private KeySequence _excludeSequence = new();
 
-    /// <summary>
-    /// Excludes provided sequence from the layer (Applies a mask)
-    /// </summary>
-    /// <param name="sequence">The mask to be applied</param>
+    /// <inheritdoc />
     public void Exclude(KeySequence sequence)
     {
         if (_excludeSequence.Equals(sequence))
@@ -1085,9 +1059,7 @@ public class EffectLayer : IDisposable
         Invalidate();
     }
 
-    /// <summary>
-    /// Inlcudes provided sequence from the layer (Applies a mask)
-    /// </summary>
+    /// <inheritdoc />
     public void OnlyInclude(KeySequence sequence)
     {
         _colormap.OnlyInclude(sequence);

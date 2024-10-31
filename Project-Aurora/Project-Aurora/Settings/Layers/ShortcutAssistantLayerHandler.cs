@@ -216,7 +216,7 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
     {
         if (!IsLayerActive(out var heldKeys))
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         // The layer is active. At this point we have at least 1 key to highlight
@@ -225,7 +225,7 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
         var currentShortcutNode = Properties.ShortcutKeysTree.GetNodeByPath(heldKeysToHighlight);
         if (currentShortcutNode == null)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
         if (Properties.LeafShortcutAlwaysOn.GetValueOrDefault(false) && currentShortcutNode.IsLeaf)
         {
@@ -233,7 +233,7 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
             currentShortcutNode = Properties.ShortcutKeysTree.GetNodeByPath(heldKeysToHighlight.Take(heldKeysToHighlight.Length - 1).ToArray());
             if (currentShortcutNode == null)
             {
-                return EffectLayer.EmptyLayer;
+                return EmptyLayer.Instance;
             }
         }
 

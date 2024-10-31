@@ -7,44 +7,39 @@
              xmlns:overrides="clr-namespace:AuroraRgb.Settings.Overrides"
              x:Class="AuroraRgb.Settings.Controls.Control_LayerControlPresenter"
              mc:Ignorable="d" d:DesignWidth="602" d:DesignHeight="201.525">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <!--<ObjectDataProvider x:Key="LayerType" MethodName="GetValues" ObjectType="{x:Type System:Enum}">
-                <ObjectDataProvider.MethodParameters>
-                    <x:Type TypeName="Layers:LayerType" />
-                </ObjectDataProvider.MethodParameters>
-            </ObjectDataProvider>
-            <EnumValueConverters:LayerTypeToStringVC x:Key="LayerTypeToStringVC"/>
-            <DataTemplate x:Key="LayerTypeTemplate">
-                <TextBlock Text="{Binding Converter={StaticResource LayerTypeToStringVC}}" />
-            </DataTemplate>-->
-        </ResourceDictionary>
-    </UserControl.Resources>
     <Grid>
         <Border Background="#A5000000" CornerRadius="8" />
-        <Grid x:Name="grd_LayerControl">
-            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Layer name:" VerticalAlignment="Top" Margin="10,10,0,0"/>
-            <TextBox x:Name="txtLayerName" HorizontalAlignment="Left" Height="23" Margin="78,9,0,0" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Top" Width="200"/>
-            <TextBlock HorizontalAlignment="Left" Margin="10,38,0,0" TextWrapping="Wrap" Text="Layer type:" VerticalAlignment="Top"/>
-            <ComboBox x:Name="cmbLayerType" DisplayMemberPath="Name" SelectedValuePath="Type" HorizontalAlignment="Left" Margin="72,37,0,0" VerticalAlignment="Top" Width="206" SelectionChanged="cmbLayerType_SelectionChanged"/>
-            <UserControl x:Name="ctrlLayerTypeConfig" Margin="10,64,10,10"/>
-            <Button x:Name="btnReset" Content="Reset Layer" HorizontalAlignment="Left" Margin="283,39,0,0" VerticalAlignment="Top" Width="75" Click="btnReset_Click"/>
-        </Grid>
+        <StackPanel x:Name="GrdLayerControl">
+            <StackPanel Orientation="Horizontal" Margin="5 5 5 5">
+                <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Layer name:" VerticalAlignment="Center" Margin="5,0,5,0"/>
+                <TextBox HorizontalAlignment="Left" Height="23" VerticalAlignment="Center" Margin="5,0,5,0" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5 5 5 5">
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,0,5,0" TextWrapping="Wrap" Text="Layer type:"/>
+                <ComboBox x:Name="CmbLayerType" DisplayMemberPath="Name" SelectedValuePath="Type" VerticalAlignment="Center" Margin="5,0,5,0" Width="206" SelectionChanged="cmbLayerType_SelectionChanged"/>
+                <controls:Control_DeviceHint x:Name="PowerTooltip" Text="🍃" Visibility="Visible" CircleBackground="Green"/>
+                <controls:Control_DeviceHint x:Name="HighUsageTooltip" Text="🗲" Visibility="Visible" CircleBackground="Crimson" HintTooltip="This layer uses too much resources. Not recommended with games"/>
+                <Button Content="Reset Layer" VerticalAlignment="Center" Margin="5,0,5,0" Width="75" Click="btnReset_Click"/>
+            </StackPanel>
+        </StackPanel>
+        <UserControl x:Name="CtrlLayerTypeConfig" Margin="10,64,10,10"/>
 
-        <Grid x:Name="grdLayerConfigs" Margin="4" HorizontalAlignment="Right" Width="484" Height="188" VerticalAlignment="Top" Background="#FF323232" Visibility="Collapsed">
-            <CheckBox x:Name="chk_ExcludeMask" Content="Enable Key/Region exclusion" HorizontalAlignment="Left" Margin="213,10,0,0" VerticalAlignment="Top" Checked="chk_ExcludeMask_Checked" Unchecked="chk_ExcludeMask_Checked" IsChecked="{Binding IsEnabled, ElementName=keyseq_ExcludeMask, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-            <controls:KeySequence x:Name="keyseq_ExcludeMask" HorizontalAlignment="Left" Margin="213,30,0,10" RecordingTag="ExclusionMask" Title="Excluded Keys/Region" SequenceUpdated="keyseq_ExcludeMask_SequenceUpdated"/>
+        <Grid x:Name="GrdLayerConfigs" Margin="4" HorizontalAlignment="Right" Width="484" Height="188" VerticalAlignment="Top" Background="#FF323232" Visibility="Collapsed">
+            <CheckBox x:Name="ChkExcludeMask" Content="Enable Key/Region exclusion" HorizontalAlignment="Left" Margin="213,10,0,0" VerticalAlignment="Top"
+                      Checked="chk_ExcludeMask_Checked" Unchecked="chk_ExcludeMask_Checked" IsChecked="{Binding IsEnabled, ElementName=KeyseqExcludeMask, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <controls:KeySequence x:Name="KeyseqExcludeMask" HorizontalAlignment="Left" Margin="213,30,0,10" RecordingTag="ExclusionMask" Title="Excluded Keys/Region" SequenceUpdated="keyseq_ExcludeMask_SequenceUpdated"/>
             <TextBlock HorizontalAlignment="Left" Margin="10,30,0,0" TextWrapping="Wrap" Text="Opacity: " VerticalAlignment="Top"/>
-            <Slider x:Name="sldr_Opacity" HorizontalAlignment="Left" Margin="61,30,0,0" VerticalAlignment="Top" Width="100" Minimum="0" SmallChange="1" SelectionStart="6" IsSnapToTickEnabled="True" TickFrequency="1" Maximum="100" Value="100" ValueChanged="sldr_Opacity_ValueChanged" />
-            <TextBlock x:Name="lbl_Opacity_Text" HorizontalAlignment="Left" Margin="166,30,0,0" TextWrapping="Wrap" Text="100 %" VerticalAlignment="Top"/>
+            <Slider x:Name="SldrOpacity" HorizontalAlignment="Left" Margin="61,30,0,0" VerticalAlignment="Top" Width="100"
+                    Minimum="0" SmallChange="1" SelectionStart="6" IsSnapToTickEnabled="True" TickFrequency="1" Maximum="100" Value="100" ValueChanged="sldr_Opacity_ValueChanged" />
+            <TextBlock x:Name="LblOpacityText" HorizontalAlignment="Left" Margin="166,30,0,0" TextWrapping="Wrap" Text="100 %" VerticalAlignment="Top"/>
         </Grid>
 
-        <overrides:Control_OverridesEditor x:Name="overridesEditor" Background="#FF323232" Visibility="Collapsed" />
+        <overrides:Control_OverridesEditor x:Name="OverridesEditor" Background="#FF323232" Visibility="Collapsed" />
 
-        <Button x:Name="btnConfig" HorizontalAlignment="Right" Margin="0,9,10,0" VerticalAlignment="Top" Click="btnConfig_Click" ToolTip="Toggles the visibility of additional layer configurations">
+        <Button x:Name="BtnConfig" HorizontalAlignment="Right" Margin="0,9,10,0" VerticalAlignment="Top" Click="btnConfig_Click" ToolTip="Toggles the visibility of additional layer configurations">
             <Image Source="/AuroraRgb;component/Resources/LayerConfig_icon.png" Width="23" Height="23" Margin="2"/>
         </Button>
-        <Button x:Name="btnOverrides" HorizontalAlignment="Right" Margin="0,9,47,0" VerticalAlignment="Top" Click="btnOverrides_Click" ToolTip="Show layer conditional override settings">
+        <Button x:Name="BtnOverrides" HorizontalAlignment="Right" Margin="0,9,47,0" VerticalAlignment="Top" Click="btnOverrides_Click" ToolTip="Show layer conditional override settings">
             <Image Source="/AuroraRgb;component/Resources/LayerConditions_icon.png" Width="23" Height="23" Margin="2"/>
         </Button>
     </Grid>

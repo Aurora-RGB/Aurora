@@ -59,10 +59,10 @@ public class Dota2AbilityLayerHandler() : LayerHandler<Dota2AbilityLayerHandlerP
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+        if (state is not GameStateDota2 dota2State) return EmptyLayer.Instance;
         if (dota2State.Map.GameState != DOTA_GameState.DOTA_GAMERULES_STATE_PRE_GAME &&
             dota2State.Map.GameState != DOTA_GameState.DOTA_GAMERULES_STATE_GAME_IN_PROGRESS)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         for (var index = 0; index < dota2State.Abilities.Count; index++)
         {
             var ability = dota2State.Abilities[index];

@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Runtime.CompilerServices;
 using SkiaSharp;
 
 namespace AuroraRgb.Bitmaps.Skia;
@@ -7,18 +8,23 @@ public sealed class SkiaBitmapReader(SKBitmap bitmap) : IBitmapReader
 {
     private readonly SKColor[] _pixels = bitmap.Pixels;
 
-    public Color GetRegionColor(Rectangle rectangle)
+    private Color _transparentColor = Color.Transparent;
+    private Color _currentColor = Color.Black;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref readonly Color GetRegionColor(Rectangle rectangle)
     {
         var skiaRectangle = SkiaUtils.SkiaRectangle(rectangle);
-        return GetAverageColorInRectangle(skiaRectangle);
+        return ref GetAverageColorInRectangle(skiaRectangle);
     }
 
-    private Color GetAverageColorInRectangle(SKRectI rect)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ref Color GetAverageColorInRectangle(SKRectI rect)
     {
         // Ensure the rectangle is within the bounds of the bitmap
         var bitmapWidth = bitmap.Width;
         rect = SKRectI.Intersect(rect, new SKRectI(0, 0, bitmapWidth, bitmap.Height));
-        if (rect.IsEmpty) return Color.Transparent;
+        if (rect.IsEmpty) return ref _transparentColor;
 
         // Now calculate the average color from the subset
         long red = 0, green = 0, blue = 0, alpha = 0;
@@ -44,7 +50,8 @@ public sealed class SkiaBitmapReader(SKBitmap bitmap) : IBitmapReader
         var avgAlpha = (byte)(alpha / area);
 
         // Return the average color
-        return Color.FromArgb(avgAlpha, avgRed, avgGreen, avgBlue);
+        _currentColor = Color.FromArgb(avgAlpha, avgRed, avgGreen, avgBlue);
+        return ref _currentColor;
     }
 
     public void Dispose()

@@ -261,7 +261,6 @@ public partial class Control_AnimationMixPresenter
     private async void UserControl_Unloaded(object? sender, RoutedEventArgs e)
     {
         await StopUpdate();
-        Global.effengine.ForceImageRender(null);
     }
 
     private async Task StopUpdate()

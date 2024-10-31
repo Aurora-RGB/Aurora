@@ -17,6 +17,7 @@ using NAudio.CoreAudioApi;
 using NAudio.Dsp;
 using NAudio.Wave;
 using Newtonsoft.Json;
+using Complex = NAudio.Dsp.Complex;
 
 namespace AuroraRgb.Settings.Layers;
 
@@ -192,7 +193,7 @@ public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties
 }
 
 [LayerHandlerMeta(Name = "Audio Visualizer", IsDefault = true)]
-public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerProperties>
+public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerProperties, BitmapEffectLayer>
 {
     public event NewLayerRendered? NewLayerRender = delegate { };
 
@@ -238,7 +239,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         _ffts = new Complex[FftLength];
 
         _sampleAggregator.FftCalculated += FftCalculated;
-        _sampleAggregator.PerformFft = true;
         
         _deviceProxy = new Temporary<AudioDeviceProxy>(() =>
         {
@@ -265,7 +265,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     }
     public override EffectLayer Render(IGameState gamestate)
     {
-        if (_disposed) return EffectLayer.EmptyLayer;
+        if (_disposed) return EmptyLayer.Instance;
 
         var deviceProxy = _deviceProxy.Value;
         var deviceProxyFlow = Properties.DeviceFlow switch
@@ -277,7 +277,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         deviceProxy.DeviceId = Properties.DeviceId;
 
         if (deviceProxy.Device == null)
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
 
         // The system sound as a value between 0.0 and 1.0
         var systemSoundNormalized = deviceProxy.Device?.AudioMeterInformation?.MasterPeakValue ?? 1f;
@@ -294,6 +294,14 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
             _previousFreqResults = new double[freqs.Length];
 
         var localFft = _ffts;
+
+        // do transformations before using them
+        for (var position = 0; position < localFft.Length; position++)
+        {
+            var complex = localFft[position];
+            var val = complex.X;
+            complex.X = val * (float)FastFourierTransform.HannWindow(position, localFft.Length);
+        }
 
         var bgEnabled = false;
         switch (Properties.BackgroundMode)
@@ -418,17 +426,20 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         var fftIndexRatio = (double)FftLength / bufferCount;
         var buffer = waveBuffer.FloatBuffer;
 
-        for (var freq = 0; freq < bufferCount; freq += _channels)
+        for (var freqPlusChannel = 0; freqPlusChannel < bufferCount; freqPlusChannel += _channels)
         {
-            var fftIndex = (int)Math.Floor(freq * fftIndexRatio);
-            
-            var max = 0d;
-            for (var c = 0; c < _channels; c++)
+            var max = 0f;
+            var nextFreq = freqPlusChannel + _channels;
+
+            for (var i = freqPlusChannel; i < nextFreq; i++)
             {
-                max = Math.Max(max, buffer[freq + c]);
+                max = Math.Max(max, buffer[i]);
             }
+
+            var fftIndex = (int)Math.Floor(freqPlusChannel * fftIndexRatio);
             _sampleAggregator.Add(max, fftIndex);
         }
+        waveBuffer.Clear();
         _sampleAggregator.Complete();
     }
 
@@ -513,23 +524,23 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
 public class SampleAggregator
 {
+    private readonly int _fftLength;
+
     // FFT
     public event EventHandler<FftEventArgs>? FftCalculated;
-    public bool PerformFft { get; set; }
 
     // This Complex is NAudio's own! 
     private readonly Complex[] _fftBuffer;
     private readonly FftEventArgs _fftArgs;
-    private readonly int _fftLength;
 
     public SampleAggregator(int fftLength)
     {
+        _fftLength = fftLength;
         if (!IsPowerOfTwo(fftLength))
         {
             throw new ArgumentException("FFT Length must be a power of two");
         }
 
-        _fftLength = fftLength;
         _fftBuffer = new Complex[fftLength];
         _fftArgs = new FftEventArgs(_fftBuffer);
     }
@@ -539,16 +550,20 @@ public class SampleAggregator
         return (x & (x - 1)) == 0;
     }
 
-    public void Add(double value, int position)
+    public void Add(float value, int position)
     {
-        if (!PerformFft || FftCalculated == null) return;
+        if (FftCalculated == null) return;
         // Remember the window function! There are many others as well.
-        if (float.IsNaN(_fftBuffer[position].X))
+        var p = _fftBuffer[position];
+        if (float.IsNaN(p.X))
         {
-            _fftBuffer[position].X = 0;
+            p.X = 0;
         }
-        _fftBuffer[position].X = Math.Max(_fftBuffer[position].X, (float)(value * FastFourierTransform.HannWindow(position, _fftLength)));
-        _fftBuffer[position].Y = 0; // This is always zero with audio.
+
+        // just save the max value. Transformations will be done when they are needed
+        p.X = Math.Max(p.X, value);
+        p.Y = 0; // This is always zero with audio.
+        _fftBuffer[position] = p;
     }
 
     public void Complete()

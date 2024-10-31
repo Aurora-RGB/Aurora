@@ -29,62 +29,58 @@ public partial class MinecraftRainLayerHandlerProperties : LayerHandlerPropertie
     }
 }
 
-public class MinecraftRainLayerHandler : LayerHandler<MinecraftRainLayerHandlerProperties> {
-
-    private List<Droplet> raindrops = new();
-    private Random rnd = new();
-    private int frame;
-
-    public MinecraftRainLayerHandler() : base("Minecraft Rain Layer")
-    {
-    }
+public class MinecraftRainLayerHandler() : LayerHandler<MinecraftRainLayerHandlerProperties, BitmapEffectLayer>("Minecraft Rain Layer")
+{
+    private readonly List<Droplet> _raindrops = new();
+    private readonly Random _rnd = new();
+    private int _frame;
 
     protected override UserControl CreateControl() {
         return new Control_MinecraftRainLayer(this);
     }
 
     private void CreateRainDrop() {
-        var randomX = (float)rnd.NextDouble() * Effects.Canvas.Width;
-        raindrops.Add(new Droplet() {
-            mix = new AnimationMix(new[] {
+        var randomX = (float)_rnd.NextDouble() * Effects.Canvas.Width;
+        _raindrops.Add(new Droplet(
+            new AnimationMix([
                 new AnimationTrack("raindrop", 0)
                     .SetFrame(0, new AnimationFilledRectangle(randomX, 0, 3, 6, Properties.PrimaryColor))
                     .SetFrame(1, new AnimationFilledRectangle(randomX + 5, Effects.Canvas.Height, 2, 4, Properties.PrimaryColor))
-            }),
-            time = 0
-        });
+            ])
+        ));
     }
 
     public override EffectLayer Render(IGameState gamestate) {
-        if (!(gamestate is GameStateMinecraft)) return EffectLayer.EmptyLayer;
+        if (gamestate is not GameStateMinecraft minecraft) return EmptyLayer.Instance;
 
         // Add more droplets based on the intensity
-        float strength = (gamestate as GameStateMinecraft).World.RainStrength;
+        float strength = minecraft.World.RainStrength;
         if (strength > 0) {
-            if (frame <= 0) {
+            if (_frame <= 0) {
                 // calculate time (in frames) until next droplet is created
                 float min = Properties.MinimumInterval, max = Properties.MaximumInterval; // Store as floats so C# doesn't prematurely round numbers
-                frame = (int)Math.Round(min - (min - max) * strength); // https://www.desmos.com/calculator/uak73e5eub
+                _frame = (int)Math.Round(min - (min - max) * strength); // https://www.desmos.com/calculator/uak73e5eub
                 CreateRainDrop();
             } else
-                frame--;
+                _frame--;
         }
 
         // Render all droplets
         var graphics = EffectLayer.GetGraphics();
-        foreach (var droplet in raindrops) {
-            droplet.mix.Draw(graphics, droplet.time);
-            droplet.time += .1f;
+        foreach (var droplet in _raindrops) {
+            droplet.Mix.Draw(graphics, droplet.Time);
+            droplet.Time += .1f;
         }
 
         // Remove any expired droplets
-        raindrops.RemoveAll(droplet => droplet.time >= 1);
+        _raindrops.RemoveAll(droplet => droplet.Time >= 1);
 
         return EffectLayer;
     }
 }
 
-internal class Droplet {
-    internal AnimationMix mix;
-    internal float time;
+internal class Droplet(AnimationMix mix)
+{
+    internal AnimationMix Mix = mix;
+    internal float Time;
 }

@@ -137,7 +137,7 @@ public sealed partial class InteractiveLayerHandlerProperties : LayerHandlerProp
     }
 }
 
-public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandlerProperties>
+public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandlerProperties, BitmapEffectLayer>
 {
     private readonly Func<KeyValuePair<DeviceKeys, long>, bool> _keysToRemove;
     private readonly ConcurrentDictionary<DeviceKeys, InputItem> _inputDictionary = new(new Dictionary<DeviceKeys, InputItem>(Effects.MaxDeviceId));
@@ -349,7 +349,7 @@ public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandl
 
         if (_inputDictionary.Values.Count == 0)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         EffectLayer.Clear();

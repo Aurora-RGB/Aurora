@@ -29,7 +29,7 @@ public partial class PD2FlashbangLayerHandlerProperties : LayerHandlerProperties
 
 }
 
-public class PD2FlashbangLayerHandler : LayerHandler<PD2FlashbangLayerHandlerProperties>
+public class PD2FlashbangLayerHandler() : LayerHandler<PD2FlashbangLayerHandlerProperties>("PD2FlashbangLayerHandler")
 {
     protected override UserControl CreateControl()
     {
@@ -38,13 +38,13 @@ public class PD2FlashbangLayerHandler : LayerHandler<PD2FlashbangLayerHandlerPro
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameState_PD2 pd2State) return EffectLayer.EmptyLayer;
+        if (gameState is not GameState_PD2 pd2State) return EmptyLayer.Instance;
         //Update Flashed
-        if (pd2State.Game.State != GameStates.Ingame || pd2State.Players.LocalPlayer.FlashAmount <= 0) return EffectLayer.EmptyLayer;
+        if (pd2State.Game.State != GameStates.Ingame || pd2State.Players.LocalPlayer.FlashAmount <= 0) return EmptyLayer.Instance;
         var flashColor = ColorUtils.MultiplyColorByScalar(Properties.FlashbangColor, pd2State.Players.LocalPlayer.FlashAmount);
 
-        EffectLayer.FillOver(flashColor);
+        EffectLayer.FillOver(in flashColor);
 
-        return EffectLayer.EmptyLayer;
+        return EmptyLayer.Instance;
     }
 }

@@ -28,17 +28,9 @@ public sealed partial class ToggleKeyLayerHandlerProperties : LayerHandlerProper
     }
 }
 
-public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerProperties>
+public sealed class ToggleKeyLayerHandler() : LayerHandler<ToggleKeyLayerHandlerProperties>("ToggleKeyLayer")
 {
     private bool _state = true;
-    private readonly SingleColorBrush _primaryBrush;
-    private readonly SingleColorBrush _secondaryBrush;
-
-    public ToggleKeyLayerHandler(): base("ToggleKeyLayer")
-    {
-        _primaryBrush = new SingleColorBrush((SimpleColor)Properties.PrimaryColor);
-        _secondaryBrush = new SingleColorBrush((SimpleColor)Properties.SecondaryColor);
-    }
 
     protected override async Task Initialize()
     {
@@ -50,8 +42,6 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
     public override void Dispose()
     {
         InputsModule.InputEvents.Result.KeyDown -= InputEvents_KeyDown;
-        _primaryBrush.Dispose();
-        _secondaryBrush.Dispose();
         base.Dispose();
     }
 
@@ -67,16 +57,8 @@ public sealed class ToggleKeyLayerHandler : LayerHandler<ToggleKeyLayerHandlerPr
             EffectLayer.Clear();
             Invalidated = false;
         }
-        EffectLayer.Set(Properties.Sequence, _state ? _primaryBrush : _secondaryBrush);
+        EffectLayer.Set(Properties.Sequence, _state ? Properties.PrimaryColor : Properties.SecondaryColor);
         return EffectLayer;
-    }
-
-    protected override void PropertiesChanged(object? sender, PropertyChangedEventArgs args)
-    {
-        base.PropertiesChanged(sender, args);
- 
-        _primaryBrush.Color = (SimpleColor)Properties.PrimaryColor;
-        _secondaryBrush.Color = (SimpleColor)Properties.SecondaryColor;
     }
 
     private void InputEvents_KeyDown(object? sender, EventArgs e)

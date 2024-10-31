@@ -87,7 +87,7 @@ public class Witcher3BackgroundLayerHandler() : LayerHandler<Witcher3BackgroundL
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateWitcher3 witcher3State) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateWitcher3 witcher3State) return EmptyLayer.Instance;
 
         var bgColor = witcher3State.Player.ActiveSign switch
         {

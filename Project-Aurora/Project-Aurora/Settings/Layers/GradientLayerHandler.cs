@@ -37,9 +37,9 @@ public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Col
 
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("SecondaryColor")]
-public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
+public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties, BitmapEffectLayer>
 {
-    private readonly EffectLayer _tempLayerBitmap = new("GradientLayer - Colors", true);
+    private readonly BitmapEffectLayer _tempLayerWrapped = new("GradientLayer - Colors", true);
     private readonly Action<IAuroraBitmap> _gradientRenderFunc;
 
     public GradientLayerHandler(): base("GradientLayer")
@@ -47,7 +47,7 @@ public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
         Properties.PropertyChanged += PropertiesChanged;
         _gradientRenderFunc = g =>
         {
-            g.DrawRectangle(_tempLayerBitmap, _tempLayerBitmap.Dimension);
+            g.DrawRectangle(_tempLayerWrapped);
         };
     }
 
@@ -75,7 +75,7 @@ public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties>
         }
         else
         {
-            _tempLayerBitmap.DrawGradient(LayerEffects.GradientShift_Custom_Angle, Properties.GradientConfig);
+            _tempLayerWrapped.DrawGradient(LayerEffects.GradientShift_Custom_Angle, Properties.GradientConfig);
             EffectLayer.Clear();
             EffectLayer.DrawTransformed(
                 Properties.Sequence,

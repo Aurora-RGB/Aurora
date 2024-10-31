@@ -37,8 +37,6 @@ public static class DrawingColorExt
 /// </summary>
 public static class ColorUtils
 {
-    private static readonly Random Randomizer = new();
-
     /// <summary>
     /// Converts from System.Windows.Media.Color to System.Drawing.Color
     /// </summary>
@@ -98,7 +96,7 @@ public static class ColorUtils
         return CommonColorUtils.FastColor((byte)(red / numPixels), (byte)(green / numPixels), (byte)(blue / numPixels));
     }
 
-    public static DrawingColor BlendColors(DrawingColor background, DrawingColor foreground, double percent)
+    public static DrawingColor BlendColors(in DrawingColor background, DrawingColor foreground, double percent)
     {
         return CommonColorUtils.BlendColors(background, foreground, percent);
     }

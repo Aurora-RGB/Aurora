@@ -419,23 +419,23 @@ public class Dota2ItemLayerHandler() : LayerHandler<Dota2ItemLayerHandlerPropert
                     {
                         itemColor = Properties.ItemsColor;
                     }
-                    EffectLayer.Set(key, itemColor);
+                    EffectLayer.Set(key, in itemColor);
 
                     //Cooldown
                     if (item.Cooldown > 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, 1.0));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(in itemColor, Properties.ItemCooldownColor, 1.0));
                     else if (item.Cooldown is > 0 and <= 5)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemCooldownColor, item.Cooldown / 5.0));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(in itemColor, Properties.ItemCooldownColor, item.Cooldown / 5.0));
 
                     //Charges
                     if (item.Charges == 0)
-                        EffectLayer.Set(key, ColorUtils.BlendColors(itemColor, Properties.ItemNoChargersColor, 0.7));
+                        EffectLayer.Set(key, ColorUtils.BlendColors(in itemColor, Properties.ItemNoChargersColor, 0.7));
                 }
             }
         }
         else
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         return EffectLayer;

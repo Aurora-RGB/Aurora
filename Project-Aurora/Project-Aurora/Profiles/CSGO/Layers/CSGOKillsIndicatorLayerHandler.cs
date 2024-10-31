@@ -73,7 +73,7 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
 
         if (!csgostate.Provider.SteamID.Equals(csgostate.Player.SteamID)) return EffectLayer;
         if (csgostate.Round.Phase == RoundPhase.FreezeTime) return EffectLayer;
@@ -96,7 +96,7 @@ public class CSGOKillIndicatorLayerHandler() : LayerHandler<CSGOKillIndicatorLay
                         EffectLayer.Set(Properties.Sequence.Keys[pos], Properties.HeadshotKillColor);
                         break;
                     case RoundKillType.None:
-                        EffectLayer.Set(Properties.Sequence.Keys[pos], Color.Empty);
+                        EffectLayer.Set(Properties.Sequence.Keys[pos], in Color.Empty);
                         break;
                 }
             }

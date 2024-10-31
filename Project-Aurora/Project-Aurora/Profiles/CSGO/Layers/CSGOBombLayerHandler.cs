@@ -75,14 +75,14 @@ public class CSGOBombLayerHandler() : LayerHandler<CSGOBombLayerHandlerPropertie
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
 
         if (csgostate.Round.Bomb != BombState.Planted)
         {
-            if (!_bombTimer.IsRunning) return EffectLayer.EmptyLayer;
+            if (!_bombTimer.IsRunning) return EmptyLayer.Instance;
             Reset();
 
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
         if (!_bombTimer.IsRunning)
         {
@@ -129,12 +129,12 @@ public class CSGOBombLayerHandler() : LayerHandler<CSGOBombLayerHandlerPropertie
 
         if (flashAmount < 0.01)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         var bombColor = ColorUtils.MultiplyColorByScalar(isCritical ? Properties.PrimedColor : Properties.FlashColor, Math.Min(flashAmount, 1.0));
 
-        EffectLayer.Set(Properties.Sequence, bombColor);
+        EffectLayer.Set(Properties.Sequence, in bombColor);
 
         return EffectLayer;
     }

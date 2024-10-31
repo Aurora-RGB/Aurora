@@ -28,13 +28,8 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
     }
 
 
-    public class MinecraftKeyConflictLayerHandler : LayerHandler<MinecraftKeyConflictLayerProperties> {
-        private readonly SolidBrush _backgroundBrush = new(Color.Black);
-
-        public MinecraftKeyConflictLayerHandler() : base("Minecraft Key Conflict Layer")
-        {
-        }
-
+    public class MinecraftKeyConflictLayerHandler() : LayerHandler<MinecraftKeyConflictLayerProperties>("Minecraft Key Conflict Layer")
+    {
         protected override UserControl CreateControl() {
             return new Control_MinecraftKeyConflictLayer(this);
         }
@@ -42,10 +37,10 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
         public override EffectLayer Render(IGameState gameState) {
             if (gameState is not GameStateMinecraft minecraftState || !minecraftState.Game.ControlsGuiOpen)
             {
-                return EffectLayer.EmptyLayer;
+                return EmptyLayer.Instance;
             }
 
-            EffectLayer.Fill(_backgroundBrush); // Hide any other layers behind this one
+            EffectLayer.Fill(Color.Black); // Hide any other layers behind this one
             // Set all keys in use by any binding to be the no-conflict colour
             foreach (var kb in minecraftState.Game.KeyBindings)
                 if(kb!=null)

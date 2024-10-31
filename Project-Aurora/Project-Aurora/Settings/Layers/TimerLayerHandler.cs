@@ -60,7 +60,7 @@ public sealed partial class TimerLayerHandlerProperties : LayerHandlerProperties
     }
 }
 
-public class TimerLayerHandler : LayerHandler<TimerLayerHandlerProperties> {
+public class TimerLayerHandler : LayerHandler<TimerLayerHandlerProperties, BitmapEffectLayer> {
     private readonly CustomTimer _timer;
     private bool _isActive;
 

@@ -16,10 +16,12 @@ using Application = AuroraRgb.Profiles.Application;
 namespace AuroraRgb.Settings.Layers;
 
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : LayerHandlerProperties
+public abstract class LayerHandler<TProperty, LayerType> : ILayerHandler
+    where TProperty : LayerHandlerProperties
+    where LayerType : EffectLayer
 {
     private readonly Temporary<Task<UserControl>> _control;
-    
+
     [JsonIgnore]
     public Application Application { get; protected set; }
 
@@ -70,7 +72,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
     private readonly Temporary<EffectLayer> _effectLayer;
 
     private static readonly PropertyChangedEventArgs ConstPropertyChangedEventArgs = new("");
-    protected EffectLayer EffectLayer
+    protected LayerType EffectLayer
     {
         get
         {
@@ -79,7 +81,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
                 var _ = _effectLayer.Value;
                 PropertiesChanged(this, ConstPropertyChangedEventArgs);
             }
-            return _effectLayer.Value;
+            return (LayerType)_effectLayer.Value;
         }
     }
 
@@ -89,7 +91,7 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 
     protected LayerHandler(string name)
     {
-        _effectLayer = new(() => new EffectLayer(name, true));
+        _effectLayer = new(() => CreateLayer(name));
         _ExclusionMask = new KeySequence();
         Properties.PropertyChanged += PropertiesChanged;
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), PropertiesChanged);
@@ -97,9 +99,23 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
         _control = new Temporary<Task<UserControl>>(CreateControlOnMain, false);
     }
 
+    private EffectLayer CreateLayer(string name)
+    {
+        if (typeof(LayerType) == typeof(BitmapEffectLayer))
+        {
+            return new BitmapEffectLayer(name, true);
+        }
+        if (typeof(LayerType) == typeof(NoRenderLayer))
+        {
+            return new NoRenderLayer();
+        }
+
+        throw new NotImplementedException();
+    }
+
     public virtual EffectLayer Render(IGameState gameState)
     {
-        return EffectLayer.EmptyLayer;
+        return EmptyLayer.Instance;
     }
 
     public virtual void SetGameState(IGameState gamestate)
@@ -107,13 +123,22 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 
     }
 
+    public Type GetEffectLayerType()
+    {
+        return typeof(LayerType);
+    }
+
+    public virtual bool HighResource()
+    {
+        return false;
+    }
+
     public EffectLayer PostRenderFX(EffectLayer renderedLayer)
     {
-
         //Last PostFX is exclusion
         renderedLayer.Exclude(EnableExclusionMask ? ExclusionMask : KeySequence.Empty);
 
-        renderedLayer *= Properties.LayerOpacity;
+        renderedLayer.SetOpacity(Properties.LayerOpacity);
 
         return renderedLayer;
     }
@@ -187,4 +212,8 @@ public abstract class LayerHandler<TProperty> : ILayerHandler where TProperty : 
 }
 
 [LayerHandlerMeta(Exclude = true)]
-public abstract class LayerHandler(string name) : LayerHandler<LayerHandlerProperties>(name);
+public abstract class LayerHandler(string name) : LayerHandler<LayerHandlerProperties, NoRenderLayer>(name);
+
+[LayerHandlerMeta(Exclude = true)]
+public abstract class LayerHandler<Props>(string name) : LayerHandler<Props, NoRenderLayer>(name)
+    where Props : LayerHandlerProperties;

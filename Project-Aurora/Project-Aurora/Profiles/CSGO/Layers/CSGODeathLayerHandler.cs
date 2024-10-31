@@ -45,7 +45,6 @@ public class CSGODeathLayerHandler() : LayerHandler<CSGODeathLayerHandlerPropert
     private bool _isDead;
     private int _fadeAlpha = 255;
     private long _lastTimeMillis;
-    private readonly SolidBrush _solidBrush = new(Color.Empty);
 
     protected override UserControl CreateControl()
     {
@@ -54,11 +53,11 @@ public class CSGODeathLayerHandler() : LayerHandler<CSGODeathLayerHandlerPropert
 
     public override EffectLayer Render(IGameState state)
     {
-        if (state is not GameStateCsgo gameState) return EffectLayer.EmptyLayer;
+        if (state is not GameStateCsgo gameState) return EmptyLayer.Instance;
         var deathColor = Properties.DeathColor;
 
         // Confirm if CS:GO Player is correct
-        if (!gameState.Provider.SteamID.Equals(gameState.Player.SteamID)) return EffectLayer.EmptyLayer;
+        if (!gameState.Provider.SteamID.Equals(gameState.Player.SteamID)) return EmptyLayer.Instance;
 
         // Are they dead?
         if (!_isDead && gameState.Player.State.Health <= 0 && gameState.Previously?.Player.State.Health > 0)
@@ -70,18 +69,18 @@ public class CSGODeathLayerHandler() : LayerHandler<CSGODeathLayerHandlerPropert
 
         if (!_isDead)
         {
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
         var fadeAlpha = GetFadeAlpha();
         if (fadeAlpha <= 0)
         {
             _isDead = false;
-            return EffectLayer.EmptyLayer;
+            return EmptyLayer.Instance;
         }
 
-        _solidBrush.Color = CommonColorUtils.FastColor(deathColor.R, deathColor.G, deathColor.B, (byte)fadeAlpha);
-        EffectLayer.Fill(_solidBrush);
+        var color = CommonColorUtils.FastColor(deathColor.R, deathColor.G, deathColor.B, (byte)fadeAlpha);
+        EffectLayer.Fill(in color);
         return EffectLayer;
     }
 

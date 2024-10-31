@@ -13,7 +13,7 @@ namespace AuroraRgb.Profiles.Desktop;
 
 public sealed class EventIdle : LightEvent
 {
-    private readonly EffectLayer _layer = new("IDLE", true);
+    private readonly BitmapEffectLayer _layer = new("IDLE", true);
 
     private DateTime _previousTime = DateTime.UtcNow;
     internal DateTime CurrentTime = DateTime.UtcNow;
@@ -103,12 +103,12 @@ public abstract class AwayEffect
     protected readonly Color IdleEffectPrimaryColor = Global.Configuration.IdleEffectPrimaryColor;
     protected readonly SolidBrush IdEffectSecondaryColorBrush = new(Global.Configuration.IdleEffectSecondaryColor);
 
-    public abstract void Update(EffectLayer layer);
+    public abstract void Update(BitmapEffectLayer layer);
 }
 
 internal class NoneEffect : AwayEffect
 {
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         //noop
     }
@@ -123,7 +123,7 @@ internal class DimEffect : AwayEffect
     {
     }
 
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         layer.Fill(_dimBrush);
     }
@@ -131,7 +131,7 @@ internal class DimEffect : AwayEffect
 
 internal class ColorBreathingEffect(EventIdle eventIdle) : AwayEffect
 {
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         layer.Fill(IdEffectSecondaryColorBrush);
         var sine = (float) Math.Pow(
@@ -143,7 +143,7 @@ internal class ColorBreathingEffect(EventIdle eventIdle) : AwayEffect
 
 internal class RainbowShiftHorizontal(EventIdle eventIdle) : AwayEffect
 {
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         layer.DrawGradient(LayerEffects.RainbowShift_Horizontal, eventIdle.EffectCfg);
     }
@@ -151,7 +151,7 @@ internal class RainbowShiftHorizontal(EventIdle eventIdle) : AwayEffect
 
 internal class RainbowShiftVertical(EventIdle eventIdle) : AwayEffect
 {
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         layer.DrawGradient(LayerEffects.RainbowShift_Vertical, eventIdle.EffectCfg);
     }
@@ -163,7 +163,7 @@ internal class StarFall(EventIdle eventIdle) : AwayEffect
 
     private readonly Dictionary<DeviceKeys, double> _stars = new();
 
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         if (_nextStarSet < eventIdle.CurrentTime)
         {
@@ -198,7 +198,7 @@ internal class RainFall(EventIdle eventIdle) : AwayEffect
 
     private readonly Pen _pen = new(Color.Transparent, 2);
 
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         if (_nextStarSet < eventIdle.CurrentTime)
         {
@@ -235,7 +235,7 @@ internal class RainFall(EventIdle eventIdle) : AwayEffect
 
 internal class Blackout : AwayEffect
 {
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         layer.Fill(Brushes.Black);
     }
@@ -246,7 +246,7 @@ public class Matrix(EventIdle eventIdle) : AwayEffect
     private readonly AnimationMix _matrixLines = new AnimationMix().SetAutoRemove(true); //This will be an infinite Mix
     private DateTime _nextStarSet;
 
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         var span = eventIdle.CurrentTime - DateTime.UnixEpoch;
         var ms = (long)span.TotalMilliseconds;
@@ -312,7 +312,7 @@ internal class RainFallSmooth(EventIdle eventIdle) : AwayEffect
 
     private DateTime _nextStarSet;
 
-    public override void Update(EffectLayer layer)
+    public override void Update(BitmapEffectLayer layer)
     {
         if (_nextStarSet < eventIdle.CurrentTime)
         {

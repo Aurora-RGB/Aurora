@@ -2,7 +2,7 @@
   "profiles": {
     "Generators": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "../../Project-Aurora/Project-Aurora.csproj"
+      "targetProject": "..\\..\\Project-Aurora\\Project-Aurora.csproj"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json"

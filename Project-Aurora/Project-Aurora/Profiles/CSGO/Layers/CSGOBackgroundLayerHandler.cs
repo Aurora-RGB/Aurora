@@ -84,7 +84,8 @@ public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHand
     private bool _isDimming;
     private double _dimValue = 100.0;
     private long _dimBgAt = 15;
-    private readonly SolidBrush _solidBrush = new(Color.Empty);
+    
+    private Color _currentColor = Color.Transparent;
 
     protected override UserControl CreateControl()
     {
@@ -93,7 +94,7 @@ public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHand
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (gameState is not GameStateCsgo csgostate) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateCsgo csgostate) return EmptyLayer.Instance;
 
         var inGame = csgostate.Previously?.Player.State.Health is > -1 and < 100
                      || (csgostate.Round.WinTeam == RoundWinTeam.Undefined && csgostate.Previously?.Round.WinTeam != RoundWinTeam.Undefined);
@@ -125,9 +126,9 @@ public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHand
             }
         }
 
-        if (_solidBrush.Color == bgColor) return EffectLayer;
-        _solidBrush.Color = bgColor;
-        EffectLayer.Fill(_solidBrush);
+        if (_currentColor == bgColor) return EffectLayer;
+        _currentColor = bgColor;
+        EffectLayer.Fill(bgColor);
 
         return EffectLayer;
     }

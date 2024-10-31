@@ -57,7 +57,7 @@ public partial class Dota2RespawnLayerHandlerProperties : LayerHandlerProperties
 
 }
 
-public class Dota2RespawnLayerHandler() : LayerHandler<Dota2RespawnLayerHandlerProperties>("Dota 2 - Respawn")
+public class Dota2RespawnLayerHandler() : LayerHandler<Dota2RespawnLayerHandlerProperties, BitmapEffectLayer>("Dota 2 - Respawn")
 {
     private readonly SolidBrush _solidBrush = new(Color.Empty);
 
@@ -66,14 +66,14 @@ public class Dota2RespawnLayerHandler() : LayerHandler<Dota2RespawnLayerHandlerP
         return new Control_Dota2RespawnLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
-        if (state is not GameStateDota2 dota2State) return EffectLayer.EmptyLayer;
+        if (gameState is not GameStateDota2 dota2State) return EmptyLayer.Instance;
 
         if (dota2State.Player.Team is DotaPlayerTeam.Undefined or DotaPlayerTeam.None ||
-            dota2State.Hero.IsAlive) return EffectLayer.EmptyLayer;
+            dota2State.Hero.IsAlive) return EmptyLayer.Instance;
         var percent = dota2State.Hero.SecondsToRespawn > 5 ? 0.0 : 1.0 - dota2State.Hero.SecondsToRespawn / 5.0;
-        if (percent <= 0) return EffectLayer.EmptyLayer;
+        if (percent <= 0) return EmptyLayer.Instance;
 
         _solidBrush.Color = ColorUtils.BlendColors(Color.Transparent, Properties.BackgroundColor, percent);
         EffectLayer.Fill(_solidBrush);
