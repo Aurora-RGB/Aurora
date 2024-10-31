@@ -10,7 +10,7 @@ namespace Plugin_Example.Layers
 
     }
 
-    public class ExampleLayerHandler : LayerHandler<LayerHandlerProperties>
+    public class ExampleLayerHandler() : LayerHandler<LayerHandlerProperties>("ExampleLayer")
     {
         protected override UserControl CreateControl()
         {
@@ -19,9 +19,8 @@ namespace Plugin_Example.Layers
 
         public override EffectLayer Render(IGameState gamestate)
         {
-            EffectLayer solidcolor_layer = new EffectLayer("ExampleLayer");
-            solidcolor_layer.Set(Properties.Sequence, Properties.PrimaryColor);
-            return solidcolor_layer;
+            EffectLayer.Set(Properties.Sequence, Properties.PrimaryColor);
+            return EffectLayer;
         }
     }
 }

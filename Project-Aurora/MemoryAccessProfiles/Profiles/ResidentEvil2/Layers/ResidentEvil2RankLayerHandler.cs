@@ -23,7 +23,7 @@ public partial class ResidentEvil2RankLayerHandlerProperties : LayerHandlerPrope
 
 }
 
-public class ResidentEvil2RankLayerHandler : LayerHandler<ResidentEvil2RankLayerHandlerProperties>
+public class ResidentEvil2RankLayerHandler() : LayerHandler<ResidentEvil2RankLayerHandlerProperties>("Resident Evil 2 - Rank")
 {
     protected override UserControl CreateControl()
     {
@@ -32,7 +32,7 @@ public class ResidentEvil2RankLayerHandler : LayerHandler<ResidentEvil2RankLayer
 
     public override EffectLayer Render(IGameState state)
     {
-        EffectLayer keys_layer = new EffectLayer( "Resident Evil 2 - Rank" );
+        var keys_layer = EffectLayer;
 
         if (state is GameState_ResidentEvil2)
         {
