@@ -461,9 +461,10 @@ public class UpdateManager
             {
                 File.Delete(file);
             }
-            catch
+            catch(Exception e)
             {
                 _log.Add(new LogEntry("Unable to delete file - " + file, Color.Red));
+                _log.Add(new LogEntry(e.Message, Color.Red));
             }
         }
 
