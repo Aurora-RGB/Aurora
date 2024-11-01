@@ -96,7 +96,7 @@ public sealed class EventIdle : LightEvent
 
 public abstract class AwayEffect
 {
-    protected readonly float IdleSpeed = Global.Configuration.IdleSpeed;
+    protected float IdleSpeed => Global.Configuration.IdleSpeed;
     protected readonly TimeSpan IdleFrequency = TimeSpan.FromSeconds(Global.Configuration.IdleFrequency);
     protected readonly int IdleAmount = Global.Configuration.IdleAmount;
     
@@ -134,10 +134,25 @@ internal class ColorBreathingEffect(EventIdle eventIdle) : AwayEffect
     public override void Update(BitmapEffectLayer layer)
     {
         layer.Fill(IdEffectSecondaryColorBrush);
-        var sine = (float) Math.Pow(
-            Math.Sin((double) (eventIdle.CurrentTime.Millisecond % 10000L / 10000.0f) * 2 * Math.PI *
-                     IdleSpeed), 2);
-        layer.FillOver(Color.FromArgb((byte) (sine * 255), IdleEffectPrimaryColor));
+        
+        var seconds = (DateTime.UtcNow - DateTime.UnixEpoch).TotalSeconds * IdleSpeed;
+
+        // https://www.desmos.com/calculator/yxhba9jczx
+        var x = seconds % 10 < 5 ? IncreasingFunc(seconds) : DecreasingFunc(seconds);
+
+        var smoothed = CurveFunctions.Functions[CurveFunction.Sine](x);
+        
+        layer.FillOver(Color.FromArgb((byte) (smoothed * 255), IdleEffectPrimaryColor));
+    }
+
+    private static double IncreasingFunc(double x)
+    {
+        return x/5 - Math.Floor(x/5);
+    }
+
+    private static double DecreasingFunc(double x)
+    {
+        return -x/5 + 1 + Math.Floor(x/5);
     }
 }
 
