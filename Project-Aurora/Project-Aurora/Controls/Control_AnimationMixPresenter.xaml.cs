@@ -68,9 +68,14 @@ public partial class Control_AnimationMixPresenter
 
     public Control_AnimationMixPresenter()
     {
-        _playbackTimeUpdater = new("AnimationMixPresenter UpdatePlaybackTime", UpdatePlaybackTime);
+        _playbackTimeUpdater = new("AnimationMixPresenter UpdatePlaybackTime", UpdatePlaybackTime, PlaybackTimeUpdaterException);
 
         InitializeComponent();
+    }
+
+    private static void PlaybackTimeUpdaterException(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.logger.Error(eventArgs.Exception, "PlayerbackTimeUpdaterException");
     }
 
     private void NewTrack_AnimationFrameItemSelected(object? sender, AnimationFrame? track)
