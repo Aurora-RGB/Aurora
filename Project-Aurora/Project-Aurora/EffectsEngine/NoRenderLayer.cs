@@ -25,6 +25,13 @@ public sealed class NoRenderLayer : EffectLayer
     // TODO optimize a lot by reducing the result of this
     public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
     private DeviceKeys[] AllKeys => Effects.Canvas.Keys;
+    
+    private readonly ZoneKeysCache _zoneKeysCache = new();
+
+    public NoRenderLayer()
+    {
+        _zoneKeysCache.KeysChanged += (_, _) => Clear();
+    }
 
     public void Fill(ref readonly Color color)
     {
@@ -97,8 +104,7 @@ public sealed class NoRenderLayer : EffectLayer
 
     private IEnumerable<DeviceKeys> GetKeys(FreeFormObject sequenceFreeform)
     {
-        //TODO implement getting keys inside the rectangle
-        return [];
+        return _zoneKeysCache.GetKeys(sequenceFreeform);
     }
 
     public EffectLayer Add(EffectLayer other)
@@ -259,6 +265,7 @@ public sealed class NoRenderLayer : EffectLayer
 
     public void Dispose()
     {
+        _zoneKeysCache.Dispose();
     }
 
     private Color GetCurrentColor(DeviceKeys deviceKey)
