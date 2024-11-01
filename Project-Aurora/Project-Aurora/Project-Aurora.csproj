@@ -138,6 +138,10 @@
         </Content>
         <None Remove="kb_layouts\Extra Features\images\*.psd"/>
         <None Remove="kb_layouts\Extra Features\images\*.pdn"/>
+        <Content Update="x64\libusb-1.0.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <TargetPath>..\win10-x64\libusb-1.0.dll</TargetPath>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
