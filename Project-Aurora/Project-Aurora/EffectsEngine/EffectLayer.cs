@@ -63,6 +63,11 @@ public sealed class BitmapEffectLayer : EffectLayer
     /// </summary>
     public Color Get(DeviceKeys key)
     {
+        if (KeyExcluded(key))
+        {
+            return TransparentColor;
+        }
+        
         var keyRectangle = Effects.Canvas.GetRectangle(key);
 
         if (keyRectangle.IsEmpty)
@@ -1041,6 +1046,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     }
 
     private KeySequence _excludeSequence = new();
+    private readonly ZoneKeysCache _excludeKeysCache = new();
 
     /// <inheritdoc />
     public void Exclude(KeySequence sequence)
@@ -1064,6 +1070,19 @@ public sealed class BitmapEffectLayer : EffectLayer
     {
         _colormap.OnlyInclude(sequence);
         Invalidate();
+    }
+
+    private bool KeyExcluded(DeviceKeys key)
+    {
+        switch (_excludeSequence.Type)
+        {
+            case KeySequenceType.Sequence:
+                return _excludeSequence.Keys.Contains(key);
+            case KeySequenceType.FreeForm:
+                return _excludeKeysCache.GetKeys(_excludeSequence.Freeform).Contains(key);
+        }
+
+        return false;
     }
 
     public override string ToString() => _name;
