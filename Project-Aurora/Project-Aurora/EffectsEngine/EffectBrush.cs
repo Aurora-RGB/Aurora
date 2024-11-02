@@ -266,6 +266,7 @@ public sealed class EffectBrush : IDisposable
 
                 ColorGradients = lgb.GradientStops
                     .Where(stop => (float)stop.Offset >= 0.0f && (float)stop.Offset <= 1.0f)
+                    .DistinctBy(e => e.Offset)
                     .OrderBy(e => e.Offset)
                     .ToDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
                 break;
