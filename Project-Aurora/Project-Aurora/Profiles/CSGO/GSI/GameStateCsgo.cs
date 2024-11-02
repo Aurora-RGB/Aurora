@@ -39,7 +39,7 @@ public partial class GameStateCsgo : GameState
     /// </summary>
     [JsonPropertyName("previously")]
     [JsonConverter(typeof(PreviousNodeConverter<PreviousState>))]
-    public PreviousState? Previously { get; set; }
+    public PreviousState Previously { get; set; } = PreviousState.Default;
 
     /// <summary>
     /// Information about GSI authentication

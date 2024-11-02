@@ -70,6 +70,7 @@ public abstract class GameState : IGameState
     }
 
     public double GetNumber(VariablePath path) {
+        //TODO maybe we shouldn't try to parse for every path? It is 1% of the cpu per profiling
         if (double.TryParse(path.GsiPath, CultureInfo.InvariantCulture, out var val)) // If the path is a raw number, return that
             return val;
         if (TryResolveGsPath(path, GSIPropertyType.Number, out var pVal)) // Next, try resolve the path as we would other types
