@@ -18,7 +18,7 @@ public class LayerHandlerProperties : IValueOverridable, INotifyPropertyChanged,
     public event PropertyChangedEventHandler? PropertyChanged;
 
     [GameStateIgnore, JsonIgnore] 
-    public LayerHandlerPropertiesLogic? Logic { get; set; }
+    public LayerHandlerPropertiesLogic? Logic { get; protected set; }
 
     [JsonIgnore] private Color? _primaryColor;
 
