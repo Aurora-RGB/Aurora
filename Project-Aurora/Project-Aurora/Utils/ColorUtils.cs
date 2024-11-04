@@ -96,7 +96,7 @@ public static class ColorUtils
         return CommonColorUtils.FastColor((byte)(red / numPixels), (byte)(green / numPixels), (byte)(blue / numPixels));
     }
 
-    public static DrawingColor BlendColors(in DrawingColor background, DrawingColor foreground, double percent)
+    public static DrawingColor BlendColors(in DrawingColor background, in DrawingColor foreground, double percent)
     {
         return CommonColorUtils.BlendColors(background, foreground, percent);
     }
