@@ -58,7 +58,7 @@ public sealed class WindowListener : IDisposable
     private readonly object _disposeLock = new();
 
     // using Automation as it is being disposed is BAD!
-    private bool _disposed;
+    private bool _stopped;
 
     public WindowListener()
     {
@@ -72,14 +72,18 @@ public sealed class WindowListener : IDisposable
 
     public void StopListening()
     {
-        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, _automationEventHandler);
+        _stopped = true;
+        lock (_disposeLock)
+        {
+            Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, _automationEventHandler);
+        }
     }
 
     private void WindowDetected(object? sender, AutomationEventArgs e)
     {
         lock (_disposeLock)
         {
-            if (_disposed)
+            if (_stopped)
             {
                 return;
             }
@@ -97,15 +101,23 @@ public sealed class WindowListener : IDisposable
 
                 var processId = process.Id;
 
-                if (_disposed)
+                if (_stopped)
                 {
                     return;
                 }
 
                 Automation.AddAutomationEventHandler(WindowPattern.WindowClosedEvent, element, TreeScope.Element, (_, _) =>
                 {
-                    ProcessWindowsMap.Remove(name, new WindowProcess(windowHandle));
-                    WindowDestroyed?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, false));
+                    lock (_disposeLock)
+                    {
+                        if (_stopped)
+                        {
+                            return;
+                        }
+
+                        ProcessWindowsMap.Remove(name, new WindowProcess(windowHandle));
+                        WindowDestroyed?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, false));
+                    }
                 });
 
                 //To make sure window close event can be fired, we fire open event after subscribing to close event
@@ -121,11 +133,7 @@ public sealed class WindowListener : IDisposable
 
     public void Dispose()
     {
-        _disposed = true;
-        lock (_disposeLock)
-        {
-            StopListening();
-        }
+        StopListening();
     }
 
     public sealed class WindowListenerReference : IDisposable
@@ -147,7 +155,6 @@ public sealed class WindowListener : IDisposable
                 Instances.Add(this);
             }
         }
-
 
         public void Dispose()
         {
