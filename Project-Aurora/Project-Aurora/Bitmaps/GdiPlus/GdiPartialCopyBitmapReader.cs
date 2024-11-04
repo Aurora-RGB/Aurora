@@ -13,10 +13,10 @@ namespace AuroraRgb.Bitmaps.GdiPlus;
 public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 {
     private const int SmallestBufferLength = 32;
-    private static readonly Dictionary<int, BitmapData> Bitmaps = new(20);
+    private static readonly Dictionary<Size, BitmapData> Bitmaps = new(20);
 
     // ReSharper disable once CollectionNeverQueried.Local //to keep reference
-    private static readonly Dictionary<int, int[]> BitmapBuffers = new(20);
+    private static readonly Dictionary<Size, int[]> BitmapBuffers = new(20);
 
     private readonly Bitmap _bitmap;
     private readonly RectangleF _dimension;
@@ -46,18 +46,19 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             return ref _transparentColor;
 
         var area = rectangle.Width * rectangle.Height;
-        var bufferArea = Math.Max(area, SmallestBufferLength);
-        if (!Bitmaps.TryGetValue(bufferArea, out var buff))
+        //var size = Math.Max(area, SmallestBufferLength);
+        var size = rectangle.Size;
+        if (!Bitmaps.TryGetValue(size, out var buff))
         {
             buff = CreateBuffer(rectangle);
-            Bitmaps[bufferArea] = buff;
+            Bitmaps[size] = buff;
         }
 
-        if (area < SmallestBufferLength)
-        {
-            // clear the padded array
-            Array.Copy(_emptySmallestBuffer, 0, BitmapBuffers[SmallestBufferLength], 0, _emptySmallestBuffer.Length);
-        }
+        //if (area < SmallestBufferLength)
+        //{
+        //    // clear the padded array
+        //    Array.Copy(_emptySmallestBuffer, 0, BitmapBuffers[SmallestBufferLength], 0, _emptySmallestBuffer.Length);
+        //}
 
         var srcData = _bitmap.LockBits(
             rectangle,
@@ -166,9 +167,9 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private static BitmapData CreateBuffer(in Rectangle rectangle)
     {
         var area = rectangle.Width * rectangle.Height;
-        var bufferArea = Math.Max(area, SmallestBufferLength);
-        var bitmapBuffer = new int[bufferArea];
-        BitmapBuffers[bufferArea] = bitmapBuffer;
+        //var bufferArea = Math.Max(area, SmallestBufferLength);
+        var bitmapBuffer = new int[area];
+        BitmapBuffers[rectangle.Size] = bitmapBuffer;
 
         var buffer = Marshal.AllocHGlobal(bitmapBuffer.Length * sizeof(int));
         Marshal.Copy(bitmapBuffer, 0, buffer, bitmapBuffer.Length);
@@ -185,12 +186,5 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 
     public void Dispose()
     {
-        foreach (var bitmapData in Bitmaps.Values)
-        {
-            Marshal.FreeHGlobal(bitmapData.Scan0);
-        }
-
-        Bitmaps.Clear();
-        BitmapBuffers.Clear();
     }
 }
