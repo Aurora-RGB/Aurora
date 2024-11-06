@@ -221,8 +221,15 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     private readonly object _brushLock = new();
     private Brush _screenBrush = Brushes.Transparent;
     private IntPtr _specificProcessHandle = IntPtr.Zero;
+
+    private readonly (Size size, Bitmap bitmap)[] _screenBitmaps =
+    [
+        (new Size(8, 8), new Bitmap(8, 8)),
+        (new Size(8, 8), new Bitmap(8, 8))
+    ];
+    private int _screenshotBitmapIndex = 0;
     private Rectangle _cropRegion = Rectangle.Empty;
-    private Bitmap _screenBitmap = new(8, 8);
+
     private ImageAttributes _imageAttributes = new();
 
     private bool _brushChanged = true;
@@ -276,7 +283,6 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
             }
         }
 
-        //and because of that, this should never happen 
         var effectLayer = EffectLayer;
         if (_cropRegion.IsEmpty)
             return effectLayer;
@@ -348,16 +354,22 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     {
         if (TryGetCropRegion(out var newCropRegion))
         {
-            if (_cropRegion != newCropRegion)
+            if (_screenBitmaps[_screenshotBitmapIndex].size != newCropRegion.Size)
             {
-                var screenBitmap = _screenBitmap;
-                _screenBitmap = new Bitmap(newCropRegion.Width, newCropRegion.Height);
-                screenBitmap.Dispose();
+                lock (Effects.CanvasChangedLock)
+                {
+                    _screenshotBitmapIndex = (_screenshotBitmapIndex + 1) % _screenBitmaps.Length;
+                    var oldBitmap = _screenBitmaps[_screenshotBitmapIndex];
+                    var screenBitmap = oldBitmap.bitmap;
+                    var newBitmap = new Bitmap(newCropRegion.Width, newCropRegion.Height);
+                    _screenBitmaps[_screenshotBitmapIndex] = new (newCropRegion.Size, newBitmap);
+                    screenBitmap.Dispose();
+                }
             }
             _cropRegion = newCropRegion;
         }
         
-        _screenCapture.Value.Capture(_cropRegion, _screenBitmap);
+        _screenCapture.Value.Capture(_cropRegion, _screenBitmaps[_screenshotBitmapIndex].bitmap);
         WaitTimer(_captureStopwatch.Elapsed);
         _captureStopwatch.Restart();
     }

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using AuroraRgb.Bitmaps;
-using AuroraRgb.BrushAdapters;
 using AuroraRgb.Devices;
 using AuroraRgb.Utils;
 using Common;
@@ -128,7 +127,7 @@ public class Effects(Task<DeviceManager> deviceManager)
     }
 
     public static event EventHandler? CanvasChanged;
-    private static readonly object CanvasChangedLock = new();
+    public static readonly object CanvasChangedLock = new();
 
     private static EffectCanvas _canvas = new(8, 8,
         new Dictionary<DeviceKeys, BitmapRectangle>
