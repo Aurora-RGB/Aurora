@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AuroraRgb.Settings;
 using Common.Devices;
 
@@ -9,7 +10,8 @@ public sealed class ZoneKeysCache : IDisposable
 {
     public event EventHandler? KeysChanged;
     
-    private DeviceKeys[]? _zoneKeys;
+    private DeviceKeys[] _zoneKeys = [];
+    private KeySequence? _lastKeySequence;
     private FreeFormObject? _lastFreeForm;
 
     public ZoneKeysCache()
@@ -17,10 +19,34 @@ public sealed class ZoneKeysCache : IDisposable
         Effects.CanvasChanged += EffectsOnCanvasChanged;
     }
 
-    public DeviceKeys[] GetKeys(FreeFormObject freeFormObject)
+    public void SetSequence(KeySequence keySequence)
+    {
+        if (keySequence.Equals(_lastKeySequence))
+        {
+            return;
+        }
+
+        switch (keySequence.Type)
+        {
+            case KeySequenceType.Sequence:
+                _zoneKeys = keySequence.Keys.ToArray();
+                break;
+            case KeySequenceType.FreeForm:
+                _zoneKeys = GetKeys(keySequence.Freeform);
+                break;
+        }
+        _lastKeySequence = keySequence;
+    }
+
+    public DeviceKeys[] GetKeys()
+    {
+        return _zoneKeys;
+    }
+
+    private DeviceKeys[] GetKeys(FreeFormObject freeFormObject)
     {
         // Return cached keys if the FreeFormObject hasn't changed
-        if (_zoneKeys != null && _lastFreeForm != null && _lastFreeForm.Equals(freeFormObject))
+        if (_lastFreeForm != null && _lastFreeForm.Equals(freeFormObject))
         {
             return _zoneKeys;
         }
@@ -40,7 +66,7 @@ public sealed class ZoneKeysCache : IDisposable
         return _zoneKeys;
     }
 
-    private DeviceKeys[] CalculateKeys(FreeFormObject freeForm)
+    private static DeviceKeys[] CalculateKeys(FreeFormObject freeForm)
     {
         var canvas = Effects.Canvas;
 
@@ -227,7 +253,7 @@ public sealed class ZoneKeysCache : IDisposable
 
     private void Invalidate()
     {
-        _zoneKeys = null;
+        _zoneKeys = [];
     }
 
     public void Dispose()

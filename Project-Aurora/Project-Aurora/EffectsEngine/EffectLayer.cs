@@ -1047,6 +1047,7 @@ public sealed class BitmapEffectLayer : EffectLayer
 
     private KeySequence _excludeSequence = new();
     private readonly ZoneKeysCache _excludeKeysCache = new();
+    private ZoneKeysCache? _onlyIncludeKeysCache;
 
     /// <inheritdoc />
     public void Exclude(KeySequence sequence)
@@ -1058,6 +1059,7 @@ public sealed class BitmapEffectLayer : EffectLayer
 
         var freeform = _excludeSequence.Freeform;
         WeakEventManager<FreeFormObject, EventArgs>.RemoveHandler(freeform, nameof(freeform.ValuesChanged), FreeformOnValuesChanged);
+        _excludeKeysCache.SetSequence(sequence);
         _excludeSequence = sequence;
         WeakEventManager<FreeFormObject, EventArgs>.AddHandler(freeform, nameof(freeform.ValuesChanged), FreeformOnValuesChanged);
         FreeformOnValuesChanged(this, EventArgs.Empty);
@@ -1069,20 +1071,16 @@ public sealed class BitmapEffectLayer : EffectLayer
     public void OnlyInclude(KeySequence sequence)
     {
         _colormap.OnlyInclude(sequence);
+        _onlyIncludeKeysCache ??= new();
+        _onlyIncludeKeysCache.SetSequence(sequence);
         Invalidate();
     }
 
     private bool KeyExcluded(DeviceKeys key)
     {
-        switch (_excludeSequence.Type)
-        {
-            case KeySequenceType.Sequence:
-                return _excludeSequence.Keys.Contains(key);
-            case KeySequenceType.FreeForm:
-                return _excludeKeysCache.GetKeys(_excludeSequence.Freeform).Contains(key);
-        }
-
-        return false;
+        if (_excludeKeysCache.GetKeys().Contains(key)) return true;
+        if (_onlyIncludeKeysCache == null) return false;
+        return !_onlyIncludeKeysCache.GetKeys().Contains(key);
     }
 
     public override string ToString() => _name;
