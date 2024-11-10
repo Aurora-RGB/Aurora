@@ -46,7 +46,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             return ref _transparentColor;
 
         var area = rectangle.Width * rectangle.Height;
-        //var size = Math.Max(area, SmallestBufferLength);
         var size = rectangle.Size;
         if (!Bitmaps.TryGetValue(size, out var buff))
         {
@@ -54,11 +53,11 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             Bitmaps[size] = buff;
         }
 
-        //if (area < SmallestBufferLength)
-        //{
-        //    // clear the padded array
-        //    Array.Copy(_emptySmallestBuffer, 0, BitmapBuffers[SmallestBufferLength], 0, _emptySmallestBuffer.Length);
-        //}
+        if (area < SmallestBufferLength)
+        {
+            // clear the padded array
+            Array.Copy(_emptySmallestBuffer, 0, BitmapBuffers[size], 0, _emptySmallestBuffer.Length);
+        }
 
         var srcData = _bitmap.LockBits(
             rectangle,
@@ -66,7 +65,8 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             PixelFormat.Format32bppArgb,
             buff);
 
-        var totals = ProcessPixels(srcData.Scan0, area);
+        var bufferSize = Math.Max(area, SmallestBufferLength);
+        var totals = ProcessPixels(srcData.Scan0, bufferSize);
 
         _bitmap.UnlockBits(srcData);
 
@@ -167,8 +167,8 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private static BitmapData CreateBuffer(in Rectangle rectangle)
     {
         var area = rectangle.Width * rectangle.Height;
-        //var bufferArea = Math.Max(area, SmallestBufferLength);
-        var bitmapBuffer = new int[area];
+        var bufferArea = Math.Max(area, SmallestBufferLength);
+        var bitmapBuffer = new int[bufferArea];
         BitmapBuffers[rectangle.Size] = bitmapBuffer;
 
         var buffer = Marshal.AllocHGlobal(bitmapBuffer.Length * sizeof(int));
