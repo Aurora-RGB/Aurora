@@ -127,11 +127,17 @@ public sealed class LightingStateManager : IDisposable
         LoadSettings();
         await LoadPlugins();
 
+        Task<Task>? previousTask = null;
         foreach (var (_, profile) in Events)
         {
+            var waitTask = previousTask;
             // don't await on purpose, need Aurora open fast.
             var initTask = Task.Delay(200, cancellationToken).ContinueWith(async _ =>
             {
+                if (waitTask != null)
+                {
+                    await waitTask;
+                }
                 try
                 {
                     await profile.Initialize(cancellationToken);
@@ -142,6 +148,7 @@ public sealed class LightingStateManager : IDisposable
                     Global.logger.Error(e, "Error initializing profile {Profile}", profile.GetType());
                 }
             }, cancellationToken);
+            previousTask = initTask;
             _initTasks.Add(initTask);
         }
 
