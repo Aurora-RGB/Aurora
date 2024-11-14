@@ -26,7 +26,7 @@ public partial class Control_DeviceCalibrationItem
         _deviceKey = device.DeviceId;
         _color = color;
 
-        _worker = new SingleConcurrentThread("Device Calibration", WorkerOnDoWork);
+        _worker = new SingleConcurrentThread("Device Calibration", WorkerOnDoWork, ExceptionCallback);
 
         InitializeComponent();
 
@@ -46,6 +46,11 @@ public partial class Control_DeviceCalibrationItem
     private async Task WorkerOnDoWork()
     {
         await _deviceManager.DevicesPipe.Recalibrate(_deviceKey, _color);
+    }
+
+    private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.logger.Error(eventArgs.Exception, "Control_DeviceCalibrationItem._worker");
     }
 
     private void ResetDevice_OnClick(object sender, RoutedEventArgs e)

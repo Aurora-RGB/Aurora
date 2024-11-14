@@ -92,6 +92,8 @@ namespace AuroraRgb.Settings.Layers {
 
             // Call the render event
             LayerRender?.Invoke(this, EffectLayer.GetBitmap());
+            
+            EffectLayer.OnlyInclude(Properties.Sequence);
 
             return EffectLayer;
         }

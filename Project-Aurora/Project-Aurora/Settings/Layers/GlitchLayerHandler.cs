@@ -52,14 +52,20 @@ public partial class GlitchLayerHandlerProperties : LayerHandlerProperties2Color
     }
 }
 
-public class GlitchLayerHandler<TProperty>() : LayerHandler<TProperty>("Glitch Layer")
-    where TProperty : GlitchLayerHandlerProperties
+[LogicOverrideIgnoreProperty("_PrimaryColor")]
+[LogicOverrideIgnoreProperty("SecondaryColor")]
+public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("Glitch Layer")
 {
     private readonly Random _randomizer = new();
 
     private readonly Dictionary<DeviceKeys, Color> _glitchColors = new();
 
     private long _previousTime;
+
+    protected override UserControl CreateControl()
+    {
+        return new Control_GlitchLayer(this);
+    }
 
     public override EffectLayer Render(IGameState state)
     {
@@ -79,9 +85,9 @@ public class GlitchLayerHandler<TProperty>() : LayerHandler<TProperty>("Glitch L
             _glitchColors[key] = clr;
         }
 
-        foreach (var kvp in _glitchColors)
+        foreach (var (key, color) in _glitchColors)
         {
-            EffectLayer.Set(kvp.Key, kvp.Value);
+            EffectLayer.Set(key, in color);
         }
         EffectLayer.OnlyInclude(Properties.Sequence);
         return EffectLayer;
@@ -91,15 +97,5 @@ public class GlitchLayerHandler<TProperty>() : LayerHandler<TProperty>("Glitch L
     {
         base.PropertiesChanged(sender, args);
         _glitchColors.Clear();
-    }
-}
-
-[LogicOverrideIgnoreProperty("_PrimaryColor")]
-[LogicOverrideIgnoreProperty("SecondaryColor")]
-public class GlitchLayerHandler : GlitchLayerHandler<GlitchLayerHandlerProperties>
-{
-    protected override UserControl CreateControl()
-    {
-        return new Control_GlitchLayer(this);
     }
 }

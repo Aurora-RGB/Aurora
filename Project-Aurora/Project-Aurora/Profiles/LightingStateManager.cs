@@ -85,9 +85,14 @@ public sealed class LightingStateManager : IDisposable
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
                                          Array.Exists(evt.Config.ProcessNames, processRunning);
 
-        _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate);
+        _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate, ExceptionCallback);
 
         bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
+    }
+
+    private void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.logger.Error(eventArgs.Exception, "Unexpected error with LightingStateManager loop");
     }
 
     public async Task Initialize()
@@ -131,11 +136,17 @@ public sealed class LightingStateManager : IDisposable
     public void InitializeApps()
     {
         var cancellationToken = _initializeCancelSource.Token;
+        Task<Task>? previousTask = null;
         foreach (var (_, profile) in Events)
         {
+            var waitTask = previousTask;
             // don't await on purpose, need Aurora open fast.
             var initTask = Task.Delay(200, cancellationToken).ContinueWith(async _ =>
             {
+                if (waitTask != null)
+                {
+                    await waitTask;
+                }
                 try
                 {
                     await profile.Initialize(cancellationToken);
@@ -146,6 +157,7 @@ public sealed class LightingStateManager : IDisposable
                     Global.logger.Error(e, "Error initializing profile {Profile}", profile.GetType());
                 }
             }, cancellationToken);
+            previousTask = initTask;
             _initTasks.Add(initTask);
         }
     }

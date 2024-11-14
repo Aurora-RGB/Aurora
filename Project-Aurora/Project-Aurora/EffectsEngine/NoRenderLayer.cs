@@ -13,8 +13,10 @@ namespace AuroraRgb.EffectsEngine;
 
 public sealed class NoRenderLayer : EffectLayer
 {
+    private static readonly Color Transparent = Color.Transparent;
+    private static DeviceKeys[] AllKeys => Effects.Canvas.Keys;
+
     private readonly Color[] _keyColors = new Color[Effects.MaxDeviceId + 1];
-    private readonly Color _transparent = Color.Transparent;
     private double _opacity = 1;
     private bool _isOpaque = true;
 
@@ -24,7 +26,15 @@ public sealed class NoRenderLayer : EffectLayer
     
     // TODO optimize a lot by reducing the result of this
     public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
-    private DeviceKeys[] AllKeys => Effects.Canvas.Keys;
+    
+    private readonly ZoneKeysCache _zoneKeysCache = new();
+    private readonly ZoneKeysCache _excludedZoneKeysCache = new();
+    private ZoneKeysCache? _onlyIncludedZoneKeysCache;
+
+    public NoRenderLayer()
+    {
+        _zoneKeysCache.KeysChanged += (_, _) => Clear();
+    }
 
     public void Fill(ref readonly Color color)
     {
@@ -43,7 +53,7 @@ public sealed class NoRenderLayer : EffectLayer
 
     public void Clear()
     {
-        Fill(Color.Transparent);
+        Fill(in Transparent);
     }
 
     public void Set(DeviceKeys key, ref readonly Color color)
@@ -64,41 +74,11 @@ public sealed class NoRenderLayer : EffectLayer
         }
     }
 
-    public void Set(IEnumerable<DeviceKeys> keys, ref readonly Color color)
-    {
-        foreach (var deviceKeys in keys)
-        {
-            Set(deviceKeys, in color);
-        }
-    }
-
     public void Set(KeySequence sequence, ref readonly Color color)
     {
-        var keys = GetKeys(sequence);
+        _zoneKeysCache.SetSequence(sequence);
+        var keys = _zoneKeysCache.GetKeys();
         Set(keys, in color);
-    }
-
-    private IEnumerable<DeviceKeys> GetKeys(KeySequence sequence)
-    {
-        switch (sequence.Type)
-        {
-            case KeySequenceType.Sequence:
-            {
-                return sequence.Keys;
-            }
-            case KeySequenceType.FreeForm:
-            {
-                return GetKeys(sequence.Freeform);
-            }
-        }
-
-        return [];
-    }
-
-    private IEnumerable<DeviceKeys> GetKeys(FreeFormObject sequenceFreeform)
-    {
-        //TODO implement getting keys inside the rectangle
-        return [];
     }
 
     public EffectLayer Add(EffectLayer other)
@@ -195,13 +175,13 @@ public sealed class NoRenderLayer : EffectLayer
                 switch (percentEffectType)
                 {
                     case PercentEffectType.AllAtOnce:
-                        Set(currentKey, ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal));
+                        Set(currentKey, ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progressTotal));
                         break;
                     case PercentEffectType.Progressive_Gradual:
                         if (i == (int)progress)
                         {
                             var percent = progress - i;
-                            Set(currentKey, ColorUtils.BlendColors(backgroundColor, foregroundColor, percent));
+                            Set(currentKey, ColorUtils.BlendColors(in backgroundColor, in foregroundColor, percent));
                         }
                         else if (i < (int)progress)
                             Set(currentKey, foregroundColor);
@@ -218,21 +198,13 @@ public sealed class NoRenderLayer : EffectLayer
 
     public void Exclude(KeySequence sequence)
     {
-        Exclude(GetKeys(sequence));
-    }
-
-    private void Exclude(IEnumerable<DeviceKeys> exclusion)
-    {
-        foreach (var deviceKey in exclusion)
-        {
-            Set(deviceKey, Color.Transparent);
-        }
+        _excludedZoneKeysCache.SetSequence(sequence);
     }
 
     public void OnlyInclude(KeySequence sequence)
     {
-        var exclusion = ActiveKeys.Except(GetKeys(sequence));
-        Exclude(exclusion);
+        _onlyIncludedZoneKeysCache ??= new ZoneKeysCache();
+        _onlyIncludedZoneKeysCache.SetSequence(sequence);
     }
 
     public void SetOpacity(double layerOpacity)
@@ -243,6 +215,11 @@ public sealed class NoRenderLayer : EffectLayer
 
     public Color Get(DeviceKeys key)
     {
+        if (KeyExcluded(key))
+        {
+            return Transparent;
+        }
+        
         if (_isOpaque)
         {
             return GetCurrentColor(key);
@@ -253,19 +230,27 @@ public sealed class NoRenderLayer : EffectLayer
         return CommonColorUtils.FastColor(color.R, color.G, color.B, a);
     }
 
+    private bool KeyExcluded(DeviceKeys key)
+    {
+        if (_excludedZoneKeysCache.GetKeys().Contains(key)) return true;
+        if (_onlyIncludedZoneKeysCache == null) return false;
+        return !_onlyIncludedZoneKeysCache.GetKeys().Contains(key);
+    }
+
     public void Close()
     {
     }
 
     public void Dispose()
     {
+        _zoneKeysCache.Dispose();
     }
 
     private Color GetCurrentColor(DeviceKeys deviceKey)
     {
         if (deviceKey == DeviceKeys.NONE)
         {
-            return _transparent;
+            return Transparent;
         }
 
         return _keyColors[(int)deviceKey];

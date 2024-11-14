@@ -134,13 +134,18 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         _settingsControl.DataContext = this;
 
         _keyboardTimerCallback = KeyboardTimerCallback;
-        _virtualKeyboardTimer = new SingleConcurrentThread("ConfigUI render thread", virtual_keyboard_timer_Tick);
+        _virtualKeyboardTimer = new SingleConcurrentThread("ConfigUI render thread", virtual_keyboard_timer_Tick, ExceptionCallback);
 
         _profilesStack = new Control_ProfilesStack(httpListener, lightingStateManager);
         _profilesStack.FocusedAppChanged += ProfilesStackOnFocusedAppChanged;
         _profilesStack.SettingsSelected += ProfilesStackOnSettingsSelected;
         
         ProfileStackGrid.Children.Add(_profilesStack);
+    }
+
+    private void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.logger.Error(eventArgs.Exception, "Error updating virtual keyboard");
     }
 
     private void ProfilesStackOnSettingsSelected(object? sender, EventArgs e)

@@ -1,10 +1,17 @@
 ﻿using System.Text.Json.Serialization;
 using AuroraRgb.Profiles.CSGO.GSI.Nodes.Converters;
+using Common.Utils;
 
 namespace AuroraRgb.Profiles.CSGO.GSI.Nodes;
 
 public class PreviousState
 {
+    public static readonly PreviousState Default = new()
+    {
+        Round = (RoundNode)new RoundNode().TryClone(true),
+        Player = (PlayerNode)new PlayerNode().TryClone(true),
+    };
+
     /// <summary>
     /// Information about the current round
     /// </summary>

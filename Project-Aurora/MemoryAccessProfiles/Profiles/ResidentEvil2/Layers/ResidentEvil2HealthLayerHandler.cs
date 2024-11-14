@@ -32,7 +32,7 @@ public partial class ResidentEvil2HealthLayerHandlerProperties : LayerHandlerPro
 
 }
 
-public class ResidentEvil2HealthLayerHandler : LayerHandler<ResidentEvil2HealthLayerHandlerProperties>
+public class ResidentEvil2HealthLayerHandler() : LayerHandler<ResidentEvil2HealthLayerHandlerProperties, BitmapEffectLayer>("Resident Evil 2 - Health")
 {
     private long previoustime = 0;
     private long currenttime = 0;
@@ -73,7 +73,7 @@ public class ResidentEvil2HealthLayerHandler : LayerHandler<ResidentEvil2HealthL
 
     public override EffectLayer Render(IGameState state)
     {
-        EffectLayer bg_layer = new EffectLayer("Resident Evil 2 - Health");
+        var bg_layer = EffectLayer;
 
         if (state is GameState_ResidentEvil2)
         {

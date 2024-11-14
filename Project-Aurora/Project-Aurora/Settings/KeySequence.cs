@@ -141,7 +141,7 @@ public sealed class KeySequence : ICloneable, IEquatable<KeySequence>
         return obj.GetType() == GetType() && Equals((KeySequence)obj);
     }
 
-    public bool Equals(KeySequence p)
+    public bool Equals(KeySequence? p)
     {
         if (ReferenceEquals(null, p)) return false;
         if (ReferenceEquals(this, p)) return true;

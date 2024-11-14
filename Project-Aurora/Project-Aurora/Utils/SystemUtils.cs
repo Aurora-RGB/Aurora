@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Security.Principal;
 using System.Text;
+using System.Threading;
 using Microsoft.Win32;
 
 namespace AuroraRgb.Utils;
@@ -34,6 +35,7 @@ public static class SystemUtils
         systemInfoSb.Append($"Launch Directory: {Directory.GetCurrentDirectory()}\r\n");
         systemInfoSb.Append($"Processor Count: {Environment.ProcessorCount}\r\n");
         systemInfoSb.Append($"Environment Version: {Environment.Version}\r\n");
+        systemInfoSb.Append($"Locale: {Thread.CurrentThread.CurrentCulture}\r\n");
 
         var identity = WindowsIdentity.GetCurrent();
         var principal = new WindowsPrincipal(identity);

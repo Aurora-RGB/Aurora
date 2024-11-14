@@ -220,7 +220,14 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                                {{genericConstraints}}
                            {
                                [GameStateIgnore, JsonIgnore] 
-                               public {{logicClassName}}? Logic { get; set; }
+                               public {{logicClassName}}? Logic
+                                {
+                                    get => ({{logicClassName}}?)base.Logic;
+                                    set
+                                    {
+                                        base.Logic = value;
+                                    }
+                                }
                            }
                        }
                        """;

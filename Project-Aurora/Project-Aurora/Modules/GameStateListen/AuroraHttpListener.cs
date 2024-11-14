@@ -62,7 +62,12 @@ public sealed partial class AuroraHttpListener
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
         
-        _readThread = new SingleConcurrentThread("Http Read Thread", AsyncRead);
+        _readThread = new SingleConcurrentThread("Http Read Thread", AsyncRead, ExceptionCallback);
+    }
+
+    private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.logger.Error(eventArgs.Exception, "Error reading http response");
     }
 
     /// <summary>

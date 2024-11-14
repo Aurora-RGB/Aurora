@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Runtime.InteropServices;
 using Common;
 using Common.Devices;
 using Common.Devices.RGBNet;
@@ -15,7 +16,7 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
         _flush = true;
     }
     
-    internal void UpdateDevice(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
+    internal void UpdateDevice(Dictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
         if (needsLayout)
         {
@@ -30,12 +31,14 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
         _flush = false;
     }
 
-    private static void UpdateReverse(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
+    private static void UpdateReverse(Dictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
         var calibrationName = CalibrationName(device);
         var calibrated = Global.DeviceConfig.DeviceCalibrations.TryGetValue(calibrationName, out var calibration);
-        foreach (var (key, color) in keyColors)
+        foreach (var key in keyColors.Keys)
         {
+            ref var color = ref CollectionsMarshal.GetValueRefOrNullRef(keyColors, key);
+
             if (!RgbNetKeyMappings.AuroraToRgbNet.TryGetValue(key, out var rgbNetLedId))
                 continue;
 
@@ -55,11 +58,11 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
             if (calibrated)
             {
-                UpdateLedCalibrated(led, color, calibration);
+                UpdateLedCalibrated(led, in color, calibration);
             }
             else
             {
-                UpdateLed(led, color);
+                UpdateLed(led, in color);
             }
         }
     }
@@ -90,16 +93,16 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
             if (calibrated)
             {
-                UpdateLedCalibrated(led, color, calibration);
+                UpdateLedCalibrated(led, in color, calibration);
             }
             else
             {
-                UpdateLed(led, color);
+                UpdateLed(led, in color);
             }
         }
     }
 
-    private static void UpdateLed(Led led, SimpleColor color)
+    private static void UpdateLed(Led led, in SimpleColor color)
     {
         led.Color = new Color(
             color.A,
@@ -109,7 +112,7 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
         );
     }
 
-    private static void UpdateLedCalibrated(Led led, SimpleColor color, SimpleColor calibration)
+    private static void UpdateLedCalibrated(Led led, in SimpleColor color, SimpleColor calibration)
     {
         led.Color = new Color(
             (byte)(color.A * calibration.A / 255),

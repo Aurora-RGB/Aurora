@@ -54,44 +54,80 @@ public sealed class WindowListener : IDisposable
     
     public static void Initialize() => Instance = new WindowListener();
 
+    private readonly AutomationEventHandler _automationEventHandler;
+    private readonly object _disposeLock = new();
+
+    // using Automation as it is being disposed is BAD!
+    private bool _stopped;
+
+    public WindowListener()
+    {
+        _automationEventHandler = WindowDetected;
+    }
+
     public void StartListening()
     {
-        Automation.AddAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, TreeScope.Descendants, WindowDetected);
+        Automation.AddAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, TreeScope.Descendants, _automationEventHandler);
     }
 
     public void StopListening()
     {
-        Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, WindowDetected);
+        _stopped = true;
+        lock (_disposeLock)
+        {
+            Automation.RemoveAutomationEventHandler(WindowPattern.WindowOpenedEvent, AutomationElement.RootElement, _automationEventHandler);
+        }
     }
 
     private void WindowDetected(object? sender, AutomationEventArgs e)
     {
-        try
+        lock (_disposeLock)
         {
-            var element = (AutomationElement)sender;
-            using var process = Process.GetProcessById(element.Current.ProcessId);
-            if (process.ProcessName == Aurora)
+            if (_stopped)
             {
                 return;
             }
-
-            var name = process.ProcessName + ".exe";
-            var windowHandle = element.Current.NativeWindowHandle;
-
-            var processId = process.Id;
-            Automation.AddAutomationEventHandler(WindowPattern.WindowClosedEvent, element, TreeScope.Element, (_, _) =>
+            try
             {
-                ProcessWindowsMap.Remove(name, new WindowProcess(windowHandle));
-                WindowDestroyed?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, false));
-            });
+                var element = (AutomationElement)sender;
+                using var process = Process.GetProcessById(element.Current.ProcessId);
+                if (process.ProcessName == Aurora)
+                {
+                    return;
+                }
 
-            //To make sure window close event can be fired, we fire open event after subscribing to close event
-            ProcessWindowsMap.Add(name, new WindowProcess(windowHandle) { ProcessId = element.Current.ProcessId, ProcessName = name, });
-            WindowCreated?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, true));
-        }
-        catch
-        {
-            //ignored
+                var name = process.ProcessName + ".exe";
+                var windowHandle = element.Current.NativeWindowHandle;
+
+                var processId = process.Id;
+
+                if (_stopped)
+                {
+                    return;
+                }
+
+                Automation.AddAutomationEventHandler(WindowPattern.WindowClosedEvent, element, TreeScope.Element, (_, _) =>
+                {
+                    lock (_disposeLock)
+                    {
+                        if (_stopped)
+                        {
+                            return;
+                        }
+
+                        ProcessWindowsMap.Remove(name, new WindowProcess(windowHandle));
+                        WindowDestroyed?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, false));
+                    }
+                });
+
+                //To make sure window close event can be fired, we fire open event after subscribing to close event
+                ProcessWindowsMap.Add(name, new WindowProcess(windowHandle) { ProcessId = element.Current.ProcessId, ProcessName = name, });
+                WindowCreated?.Invoke(this, new WindowEventArgs(name, processId, windowHandle, true));
+            }
+            catch
+            {
+                //ignored
+            }
         }
     }
 
@@ -112,13 +148,13 @@ public sealed class WindowListener : IDisposable
             {
                 if (Instances.Count == 0)
                 {
+                    Global.logger.Information("[WindowListener] Initializing Window listener");
                     Instance.StartListening();
                 }
                 
                 Instances.Add(this);
             }
         }
-
 
         public void Dispose()
         {
@@ -127,6 +163,7 @@ public sealed class WindowListener : IDisposable
                 Instances.Remove(this);
                 if (Instances.Count == 0)
                 {
+                    Global.logger.Information("[WindowListener] Disposing Window listener as it's no longer used");
                     Instance.StopListening();
                 }
             }

@@ -27,7 +27,7 @@ public sealed class DeviceContainer : IDisposable
         Device = device;
         
         var args = new DoWorkEventArgs(null);
-        _worker = new SingleConcurrentThread(device.DeviceName + " Thread", () => { WorkerOnDoWork(args).Wait(); });
+        _worker = new SingleConcurrentThread(device.DeviceName + " Thread", () => { WorkerOnDoWork(args).Wait(); }, ExceptionCallback);
 
         _deviceInformation = new MemorySharedStruct<DeviceInformation>(SharedObjectName, GetSharedDeviceInformation());
         _deviceInformation.UpdateRequested += (_, _) => { UpdateSharedMemory(); };
@@ -35,6 +35,11 @@ public sealed class DeviceContainer : IDisposable
         var deviceVariables = CreateSharedDeviceVariables();
         _deviceVariables = new MemorySharedArray<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
         _deviceVariables.WriteCollection(deviceVariables);
+    }
+
+    private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    {
+        Global.Logger.Error(eventArgs.Exception, "Exception during device update");
     }
 
     private List<DeviceVariable> CreateSharedDeviceVariables()

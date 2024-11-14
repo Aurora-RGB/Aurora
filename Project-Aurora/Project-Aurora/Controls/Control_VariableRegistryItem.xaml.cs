@@ -5,8 +5,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Threading;
+using AuroraRgb.Utils;
 using Common;
 using Common.Devices;
 using Xceed.Wpf.Toolkit;
@@ -114,6 +114,10 @@ public partial class Control_VariableRegistryItem
         else if (varType == typeof(SimpleColor))
         {
             control = CreateColorControl();
+        }
+        else if(varType == typeof(RealColor))
+        {
+            control = CreateRealColorControl();
         }
         else if (varType == typeof(DeviceKeys))
         {
@@ -235,6 +239,20 @@ public partial class Control_VariableRegistryItem
         return ctrl;
     }
 
+    private ColorPicker CreateRealColorControl()
+    {
+        var clr = VarRegistry.GetVariable<RealColor>(VariableName).GetMediaColor();
+        var mediaColor = MediaColor.FromArgb(clr.A, clr.R, clr.G, clr.B);
+
+        var ctrl = new ColorPicker
+        {
+            ColorMode = ColorMode.ColorCanvas,
+            SelectedColor = mediaColor
+        };
+        ctrl.SelectedColorChanged += RealColorPickerControlValueChanged;
+        return ctrl;
+    }
+
     private ComboBox CreateDeviceKeyControl()
     {
         var ctrl = new ComboBox
@@ -263,7 +281,7 @@ public partial class Control_VariableRegistryItem
         VarRegistry.SetVariable(VariableName, e.AddedItems[0]);
     }
 
-    private void ColorPickerControlValueChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e)
+    private void ColorPickerControlValueChanged(object? sender, RoutedPropertyChangedEventArgs<MediaColor?> e)
     {
         var ctrlClr = e.NewValue;
         if (!ctrlClr.HasValue)
@@ -272,6 +290,18 @@ public partial class Control_VariableRegistryItem
         }
         var clr = ctrlClr.Value;
         VarRegistry.SetVariable(VariableName, new SimpleColor(clr.R, clr.G, clr.B, clr.A));
+    }
+
+    private void RealColorPickerControlValueChanged(object o, RoutedPropertyChangedEventArgs<MediaColor?> args)
+    {
+        var ctrlClr = args.NewValue;
+        if (!ctrlClr.HasValue)
+        {
+            return;
+        }
+
+        var clr1 = ctrlClr.Value;
+        VarRegistry.SetVariable(VariableName, new RealColor(clr1));
     }
 
     private void VariableChanged<T>(object? sender, RoutedPropertyChangedEventArgs<T> e) where T : notnull

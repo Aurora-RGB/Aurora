@@ -89,7 +89,6 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
 
         MigrateDevices();
 
-        PrioritizeDevice("SteelSeries (RGB.NET)", "SteelSeries");
         PrioritizeDevice("Logitech (RGB.NET)", "Logitech");
 
         EnabledDevices.CollectionChanged += (_, _) =>

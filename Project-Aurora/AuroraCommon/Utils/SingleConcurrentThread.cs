@@ -2,12 +2,18 @@
 
 namespace Common.Utils;
 
+public class SingleThreadExceptionEventArgs(Exception exception) : EventArgs
+{
+    public Exception Exception { get; } = exception;
+}
+
 /**
  * Makes sure only one thread is running the Action.
  * Makes sure last trigger is invoked after the call
  */
 public sealed class SingleConcurrentThread
 {
+    
     private const bool UsePool = true;
 
     private readonly SmartThreadPool _worker = new(5000, 1)
@@ -22,13 +28,23 @@ public sealed class SingleConcurrentThread
 
     private readonly Action _updateAction;
 
-    public SingleConcurrentThread(string threadName, Func<Task> updateAction) : this(threadName, () => updateAction().Wait())
+    public SingleConcurrentThread(string threadName, Func<Task> updateAction, Action<object?, SingleThreadExceptionEventArgs>? exceptionCallback) : this(threadName, () => updateAction().Wait(), exceptionCallback)
     {
     }
 
-    public SingleConcurrentThread(string threadName, Action updateAction)
+    public SingleConcurrentThread(string threadName, Action updateAction, Action<object?, SingleThreadExceptionEventArgs>? exceptionCallback)
     {
-        _updateAction = updateAction;
+        _updateAction = () =>
+        {
+            try
+            {
+                updateAction();
+            }
+            catch (Exception e)
+            {
+                exceptionCallback?.Invoke(this, new SingleThreadExceptionEventArgs(e));
+            }
+        };
         _worker.Name = threadName;
 
         _thread = new Thread(() =>
