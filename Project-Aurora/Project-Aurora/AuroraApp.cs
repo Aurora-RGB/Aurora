@@ -105,6 +105,9 @@ public sealed class AuroraApp : IDisposable
             DisplayWindow();
         }
 
+        var lsm = await LightingStateManagerModule.LightningStateManager;
+        lsm.InitializeApps();
+
         var ipcListener = await IpcListenerModule.IpcListener;
         if (ipcListener != null)
         {

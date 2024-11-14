@@ -122,6 +122,15 @@ public sealed class LightingStateManager : IDisposable
         LoadSettings();
         await LoadPlugins();
 
+        // Listen for profile keybind triggers
+        (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
+
+        Initialized = true;
+    }
+
+    public void InitializeApps()
+    {
+        var cancellationToken = _initializeCancelSource.Token;
         foreach (var (_, profile) in Events)
         {
             // don't await on purpose, need Aurora open fast.
@@ -139,11 +148,6 @@ public sealed class LightingStateManager : IDisposable
             }, cancellationToken);
             _initTasks.Add(initTask);
         }
-
-        // Listen for profile keybind triggers
-        (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
-
-        Initialized = true;
     }
 
     private static IEnumerable<Application> EnumerateDefaultApps()
