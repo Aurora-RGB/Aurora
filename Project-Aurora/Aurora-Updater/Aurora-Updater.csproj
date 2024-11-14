@@ -6,7 +6,8 @@
     <OutputType>WinExe</OutputType>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    
+
+    <SelfContained>true</SelfContained>
     <UseWindowsForms>true</UseWindowsForms>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Aurora_Updater</RootNamespace>

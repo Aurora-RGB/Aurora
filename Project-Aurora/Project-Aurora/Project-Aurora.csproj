@@ -44,7 +44,7 @@
         <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
 
         <Optimize>true</Optimize>
-        <PublishSelfContained>true</PublishSelfContained>
+        <SelfContained>true</SelfContained>
         <ReadyToRun>true</ReadyToRun>
         <ReadyToRunComposite>true</ReadyToRunComposite>
     </PropertyGroup>
