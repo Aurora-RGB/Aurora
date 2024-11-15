@@ -109,7 +109,7 @@ public sealed class LightingStateManager : IDisposable
         // Register all Application types in the assembly
         var profiles = defaultApps.Concat(userApps);
         foreach (var inst in profiles)
-            RegisterEvent(inst);
+            await RegisterEvent(inst);
 
         // Register all layer types that are in the Aurora.Settings.Layers namespace.
         // Do not register all that are inside the assembly since some are application-specific (e.g. minecraft health layer)
@@ -214,7 +214,7 @@ public sealed class LightingStateManager : IDisposable
         Global.Configuration.ProfileOrder.Insert(0, profileId);
     }
 
-    public void RegisterEvent(Application application)
+    public async Task RegisterEvent(Application application)
     {
         var profileId = application.Config.ID;
         if (string.IsNullOrWhiteSpace(profileId) || !Events.TryAdd(profileId, application)) return;
@@ -260,7 +260,7 @@ public sealed class LightingStateManager : IDisposable
         }
 
         if (Initialized)
-            application.Initialize(_initializeCancelSource.Token);
+            await application.Initialize(_initializeCancelSource.Token);
     }
 
     public void RemoveGenericProfile(string key)
