@@ -25,7 +25,7 @@
         <Path Width="10" Height="6" HorizontalAlignment="Right" Margin="0,0,9,0" Fill="#FF858585" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z " Stretch="Fill" IsHitTestVisible="False" />
 
         <!-- Dropdown content -->
-        <Popup IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
+        <Popup Name="Popup" StaysOpen="False" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
             <Grid x:Name="PopupContent" Background="#1A1A1A" Height="280" Width="450">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -34,11 +34,25 @@
                 </Grid.RowDefinitions>
 
                 <!-- Up button and current "directory" -->
-                <StackPanel Grid.Row="0" Orientation="Vertical">
-                    <Button Content="⬅ Previous" IsEnabled="{Binding WorkingPath, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}},
-                     Converter={StaticResource IsStringNotNullConv}}" Margin="6" Padding="6,2" Click="BackBtn_Click" />
-                    <TextBlock Text="{Binding WorkingPath.GsiPath, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}" Margin="6,0,6,6" VerticalAlignment="Center" />
-                </StackPanel>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    
+                    <Button Content="⬅ Previous" IsEnabled="{Binding WorkingPath,
+                         RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}},
+                         Converter={StaticResource IsStringNotNullConv}}" Margin="6" Padding="6,2" Click="BackBtn_Click" />
+                    <Button Grid.Row="0" Name="PinButton" Grid.Column="1" Content="📌" Margin="6" Width="16" Height="16" Click="PinButton_Click"/>
+                    
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                               Text="{Binding WorkingPath.GsiPath, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}"
+                               Margin="6,0,6,6" VerticalAlignment="Center" />
+                </Grid>
 
                 <!-- List boxes (aux is for animation) -->
                 <ListBox x:Name="MainListBox" Grid.Row="1"

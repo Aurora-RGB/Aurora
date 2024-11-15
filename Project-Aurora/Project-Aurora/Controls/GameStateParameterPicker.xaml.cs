@@ -294,6 +294,22 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     {
         UpdateConverterApp();
     }
+
+    private void PinButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (Popup.StaysOpen)
+        {
+            Popup.StaysOpen = false;
+            Popup.IsOpen = false;
+            PinButton.Content = "\ud83d\udccc";
+        }
+        else
+        {
+            Popup.StaysOpen = true;
+            PinButton.Content = "X";
+            PinButton.BorderBrush = new SolidColorBrush(Colors.Green);
+        }
+    }
 }
 
 
