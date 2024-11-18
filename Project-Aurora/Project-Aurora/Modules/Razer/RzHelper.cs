@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using AuroraRgb.Settings.Layers;
 using Microsoft.Win32;
 using RazerSdkReader;
 using RazerSdkReader.Structures;
@@ -32,8 +34,7 @@ public static class RzHelper
         }
     }
 
-    private static DateTime _lastFetch = DateTime.UnixEpoch;
-    private static DateTime _lastUpdate = DateTime.UtcNow;
+    private static HashSet<int> _updatedLayers = new();
     private static string? _currentAppExecutable = string.Empty;
 
     /// <summary>
@@ -75,14 +76,10 @@ public static class RzHelper
     public static bool IsSdkVersionSupported(RzSdkVersion version)
         => version >= SupportedFromVersion && version < SupportedToVersion;
 
-    public static bool IsStale()
+    public static bool IsStale(RazerLayerHandler razerLayerHandler)
     {
-        if (_lastFetch > _lastUpdate)
-        {
-            return true;
-        }
-        _lastFetch = DateTime.UtcNow;
-        return false;
+        var hash = razerLayerHandler.GetHashCode();
+        return !_updatedLayers.Add(hash);
     }
 
     public static bool IsCurrentAppValid() => !string.IsNullOrEmpty(CurrentAppExecutable) && CurrentAppExecutable != Global.AuroraExe;
@@ -93,35 +90,35 @@ public static class RzHelper
         {
             KeyboardColors.Provider = keyboard;
             KeyboardColors.IsDirty = true;
-            _lastUpdate = DateTime.UtcNow;
+            _updatedLayers.Clear();
         };
 
         sdkManager.MouseUpdated += (object? _, in ChromaMouse mouse) =>
         {
             MouseColors.Provider = mouse;
             MouseColors.IsDirty = true;
-            _lastUpdate = DateTime.UtcNow;
+            _updatedLayers.Clear();
         };
 
         sdkManager.MousepadUpdated += (object? _, in ChromaMousepad mousepad) =>
         {
             MousepadColors.Provider = mousepad;
             MousepadColors.IsDirty = true;
-            _lastUpdate = DateTime.UtcNow;
+            _updatedLayers.Clear();
         };
         
         sdkManager.HeadsetUpdated += (object? _, in ChromaHeadset headset) =>
         {
             HeadsetColors.Provider = headset;
             HeadsetColors.IsDirty = true;
-            _lastUpdate = DateTime.UtcNow;
+            _updatedLayers.Clear();
         };
 
         sdkManager.ChromaLinkUpdated += (object? _, in ChromaLink link) =>
         {
             ChromaLinkColors.Provider = link;
             ChromaLinkColors.IsDirty = true;
-            _lastUpdate = DateTime.UtcNow;
+            _updatedLayers.Clear();
         };
 
         sdkManager.AppDataUpdated += (object? _, in ChromaAppData appData) =>

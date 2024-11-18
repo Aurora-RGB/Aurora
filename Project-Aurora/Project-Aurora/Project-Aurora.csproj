@@ -26,6 +26,7 @@
         <Nullable>enable</Nullable>
         <StartupObject>AuroraRgb.App</StartupObject>
 
+        <CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
         <WarningsAsErrors>CA2244;CA1069;SYSLIB1054</WarningsAsErrors>
     </PropertyGroup>
 

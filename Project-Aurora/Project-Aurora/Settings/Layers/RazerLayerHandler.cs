@@ -59,11 +59,11 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
         set => _hueShift = value;
     }
 
-    private Dictionary<DeviceKeys, DeviceKeys>? _keyCloneMap;
+    private Dictionary<DeviceKeys, DeviceKeys> _keyCloneMap = new();
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
     {
-        get => Logic?._keyCloneMap ?? (_keyCloneMap ??= new Dictionary<DeviceKeys, DeviceKeys>());
+        get => Logic?._keyCloneMap ?? _keyCloneMap;
         set => _keyCloneMap = value;
     }
 
@@ -89,15 +89,15 @@ public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Ch
         return new Control_RazerLayer(this);
     }
 
-    private static readonly DeviceKeys[] DeviceKeysArray = (DeviceKeys[])Enum.GetValues(typeof(DeviceKeys));
+    private static readonly DeviceKeys[] DeviceKeysArray = Enum.GetValues<DeviceKeys>();
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (!RzHelper.IsCurrentAppValid())
         {
             return EmptyLayer.Instance;
         }
-        if (RzHelper.IsStale())
+        if (RzHelper.IsStale(this))
             return EffectLayer;
 
         foreach (var key in DeviceKeysArray)
@@ -105,12 +105,12 @@ public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Ch
             if (!TryGetColor(key, out var color))
                 continue;
                 
-            EffectLayer.Set(key, color);
+            EffectLayer.Set(key, in color);
         }
 
         foreach (var target in Properties.KeyCloneMap)
             if(TryGetColor(target.Value, out var clr))
-                EffectLayer.Set(target.Key, clr);
+                EffectLayer.Set(target.Key, in clr);
 
         return EffectLayer;
     }
@@ -146,11 +146,11 @@ public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Ch
 
         var color = FastTransform(rzColor);
         
-        if (Properties.BrightnessChange != 0)
+        if (Properties.BrightnessChange >= 0.001)
             color = CommonColorUtils.ChangeBrightness(color, Properties.BrightnessChange);
-        if (Properties.SaturationChange != 0)
+        if (Properties.SaturationChange >= 0.001)
             color = CommonColorUtils.ChangeSaturation(color, Properties.SaturationChange);
-        if (Properties.HueShift != 0)
+        if (Properties.HueShift >= 0.001)
             color = CommonColorUtils.ChangeHue(color, Properties.HueShift);
 
         return color;
