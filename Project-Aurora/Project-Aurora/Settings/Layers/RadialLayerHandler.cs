@@ -13,11 +13,15 @@ namespace AuroraRgb.Settings.Layers;
 public partial class RadialLayerProperties : LayerHandlerProperties {
 
     private static readonly SegmentedRadialBrushFactory DefaultFactory = new(new ColorStopCollection(
-        new[] { Color.Red, Color.Orange, Color.Yellow, Color.Lime, Color.Cyan, Color.Blue, Color.Purple, Color.Red }));
+        [Color.Red, Color.Orange, Color.Yellow, Color.Lime, Color.Cyan, Color.Blue, Color.Purple, Color.Red]));
 
     private SegmentedRadialBrushFactory? _brush;
     [JsonProperty("_Brush")]
-    public SegmentedRadialBrushFactory Brush => Logic?._brush ?? _brush ?? DefaultFactory;
+    public SegmentedRadialBrushFactory Brush
+    {
+        get => Logic?._brush ?? _brush ?? DefaultFactory;
+        set => _brush = value;
+    }
 
     // Number of degrees per second the brush rotates at.
     private int? _animationSpeed;
