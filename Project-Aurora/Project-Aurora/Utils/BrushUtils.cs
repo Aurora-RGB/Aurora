@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using D = System.Drawing;
 using M = System.Windows.Media;
@@ -35,7 +37,7 @@ namespace AuroraRgb.Utils
                     (float)lgb.EndPoint.Y
                     );
 
-                D.Drawing2D.LinearGradientBrush brush = new D.Drawing2D.LinearGradientBrush(
+                LinearGradientBrush brush = new LinearGradientBrush(
                     starting_point,
                     ending_point,
                     D.Color.Red,
@@ -74,7 +76,7 @@ namespace AuroraRgb.Utils
                     brush_positions.Add(kvp.Key);
                 }
 
-                D.Drawing2D.ColorBlend color_blend = new D.Drawing2D.ColorBlend();
+                ColorBlend color_blend = new ColorBlend();
                 color_blend.Colors = brush_colors.ToArray();
                 color_blend.Positions = brush_positions.ToArray();
                 brush.InterpolationColors = color_blend;
@@ -97,10 +99,10 @@ namespace AuroraRgb.Utils
                     (float)rgb.Center.Y
                     );
 
-                D.Drawing2D.GraphicsPath g_path = new D.Drawing2D.GraphicsPath();
+                GraphicsPath g_path = new GraphicsPath();
                 g_path.AddEllipse(brush_region);
 
-                D.Drawing2D.PathGradientBrush brush = new D.Drawing2D.PathGradientBrush(g_path);
+                PathGradientBrush brush = new PathGradientBrush(g_path);
 
                 brush.CenterPoint = center_point;
 
@@ -136,7 +138,7 @@ namespace AuroraRgb.Utils
                     brush_positions.Add(kvp.Key);
                 }
 
-                D.Drawing2D.ColorBlend color_blend = new D.Drawing2D.ColorBlend();
+                ColorBlend color_blend = new ColorBlend();
                 color_blend.Colors = brush_colors.ToArray();
                 color_blend.Positions = brush_positions.ToArray();
                 brush.InterpolationColors = color_blend;
@@ -145,7 +147,7 @@ namespace AuroraRgb.Utils
             }
             else
             {
-                return new D.SolidBrush(System.Drawing.Color.Red); //Return error color
+                return new D.SolidBrush(D.Color.Red); //Return error color
             }
         }
 
@@ -159,16 +161,16 @@ namespace AuroraRgb.Utils
 
                 return brush;
             }
-            else if (in_brush is D.Drawing2D.LinearGradientBrush)
+            else if (in_brush is LinearGradientBrush)
             {
-                D.Drawing2D.LinearGradientBrush lgb = (in_brush as D.Drawing2D.LinearGradientBrush);
+                LinearGradientBrush lgb = (in_brush as LinearGradientBrush);
 
-                System.Windows.Point starting_point = new System.Windows.Point(
+                Point starting_point = new Point(
                     lgb.Rectangle.X,
                     lgb.Rectangle.Y
                     );
 
-                System.Windows.Point ending_point = new System.Windows.Point(
+                Point ending_point = new Point(
                     lgb.Rectangle.Right,
                     lgb.Rectangle.Bottom
                     );
@@ -211,11 +213,11 @@ namespace AuroraRgb.Utils
 
                 return brush;
             }
-            else if (in_brush is D.Drawing2D.PathGradientBrush)
+            else if (in_brush is PathGradientBrush)
             {
-                D.Drawing2D.PathGradientBrush pgb = (in_brush as D.Drawing2D.PathGradientBrush);
+                PathGradientBrush pgb = (in_brush as PathGradientBrush);
 
-                System.Windows.Point starting_point = new System.Windows.Point(
+                Point starting_point = new Point(
                     pgb.CenterPoint.X,
                     pgb.CenterPoint.Y
                     );
@@ -245,7 +247,7 @@ namespace AuroraRgb.Utils
             }
             else
             {
-                return new M.SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 255, 0, 0)); //Return error color
+                return new M.SolidColorBrush(M.Color.FromArgb(255, 255, 0, 0)); //Return error color
             }
         }
     }
@@ -361,12 +363,26 @@ namespace AuroraRgb.Utils
         /// <summary>
         /// Creates a new stop collection from the given media brush.
         /// </summary>
-        public static ColorStopCollection FromMediaBrush(M.Brush brush) {
-            if (brush is M.GradientBrush gb)
-                return new ColorStopCollection(gb.GradientStops.GroupBy(gs => gs.Offset).ToDictionary(gs => (float)gs.First().Offset, gs => gs.First().Color.ToDrawingColor()));
-            else if (brush is M.SolidColorBrush sb)
-                return new ColorStopCollection { { 0f, sb.Color.ToDrawingColor() } };
-            throw new InvalidOperationException($"Brush of type '{brush.GetType().Name} could not be converted to a ColorStopCollection.");
+        public static ColorStopCollection FromMediaBrush(M.Brush brush)
+        {
+            switch (brush)
+            {
+                case M.GradientBrush gb:
+                {
+                    var colorPositions = gb.GradientStops
+                        .GroupBy(gs => gs.Offset)
+                        .Distinct()
+                        .ToDictionary(
+                            gs => (float)gs.First().Offset,
+                            gs => gs.First().Color.ToDrawingColor()
+                        );
+                    return new ColorStopCollection(colorPositions);
+                }
+                case M.SolidColorBrush sb:
+                    return new ColorStopCollection { { 0f, sb.Color.ToDrawingColor() } };
+                default:
+                    throw new InvalidOperationException($"Brush of type '{brush.GetType().Name} could not be converted to a ColorStopCollection.");
+            }
         }
 
         /// <summary>
@@ -388,7 +404,7 @@ namespace AuroraRgb.Utils
     /// Does not support converting back.
     /// </summary>
     public class ColorToBrushConverter : IValueConverter {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => new M.SolidColorBrush((value as M.Color?) ?? System.Windows.Media.Color.FromArgb(0, 0, 0, 0));
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => new M.SolidColorBrush((value as M.Color?) ?? M.Color.FromArgb(0, 0, 0, 0));
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }
