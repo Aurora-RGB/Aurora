@@ -15,6 +15,7 @@ public sealed class NoRenderLayer : EffectLayer
 {
     private static readonly Color Transparent = Color.Transparent;
     private static DeviceKeys[] AllKeys => Effects.Canvas.Keys;
+    private readonly Color[] _emptyKeyColors = new Color[Effects.MaxDeviceId + 1];
 
     private readonly Color[] _keyColors = new Color[Effects.MaxDeviceId + 1];
     private double _opacity = 1;
@@ -53,7 +54,7 @@ public sealed class NoRenderLayer : EffectLayer
 
     public void Clear()
     {
-        Fill(in Transparent);
+        Array.Copy(_emptyKeyColors, _keyColors, _emptyKeyColors.Length);
     }
 
     public void Set(DeviceKeys key, ref readonly Color color)

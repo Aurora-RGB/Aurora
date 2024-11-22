@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using AuroraRgb.Settings;
 using Common.Devices;
@@ -13,6 +12,8 @@ public sealed class ZoneKeysCache : IDisposable
     private DeviceKeys[] _zoneKeys = [];
     private KeySequence? _lastKeySequence;
     private FreeFormObject? _lastFreeForm;
+    
+    private bool _invalidated;
 
     public ZoneKeysCache()
     {
@@ -21,36 +22,41 @@ public sealed class ZoneKeysCache : IDisposable
 
     public void SetSequence(KeySequence keySequence)
     {
-        if (keySequence.Equals(_lastKeySequence))
+        if (keySequence.Equals(_lastKeySequence) && !_invalidated)
         {
             return;
         }
 
-        switch (keySequence.Type)
-        {
-            case KeySequenceType.Sequence:
-                _zoneKeys = keySequence.Keys.ToArray();
-                break;
-            case KeySequenceType.FreeForm:
-                _zoneKeys = GetKeys(keySequence.Freeform);
-                break;
-        }
+        _zoneKeys = GetKeys(keySequence);
         _lastKeySequence = keySequence;
+        _invalidated = false;
     }
 
     public DeviceKeys[] GetKeys()
     {
+        if (_invalidated)
+        {
+            if (_lastKeySequence == null)
+            {
+                return [];
+            }
+            _zoneKeys = GetKeys(_lastKeySequence);
+        }
         return _zoneKeys;
+    }
+
+    private DeviceKeys[] GetKeys(KeySequence keySequence)
+    {
+        return keySequence.Type switch
+        {
+            KeySequenceType.Sequence => keySequence.Keys.ToArray(),
+            KeySequenceType.FreeForm => GetKeys(keySequence.Freeform),
+            _ => throw new ArgumentOutOfRangeException(nameof(keySequence))
+        };
     }
 
     private DeviceKeys[] GetKeys(FreeFormObject freeFormObject)
     {
-        // Return cached keys if the FreeFormObject hasn't changed
-        if (_lastFreeForm != null && _lastFreeForm.Equals(freeFormObject))
-        {
-            return _zoneKeys;
-        }
-
         // Store the new FreeFormObject and subscribe to its changes
         if (_lastFreeForm != null)
         {
@@ -70,7 +76,6 @@ public sealed class ZoneKeysCache : IDisposable
     {
         var canvas = Effects.Canvas;
 
-        var matchingKeys = new List<DeviceKeys>();
         var editorToCanvasWidth = canvas.EditorToCanvasWidth;
         var editorToCanvasHeight = canvas.EditorToCanvasHeight;
 
@@ -98,10 +103,10 @@ public sealed class ZoneKeysCache : IDisposable
             TransformPoint(canvasX, canvasY + canvasHeight, centerX, centerY, cos, sin)
         };
 
-        foreach (var key in canvas.Keys)
+        var matchingKeys = canvas.Keys.Where(key =>
         {
             ref readonly var rect = ref canvas.GetRectangle(key);
-            
+
             // Create corners for the key rectangle
             var keyCorners = new[]
             {
@@ -111,11 +116,8 @@ public sealed class ZoneKeysCache : IDisposable
                 new PointF(rect.Left, rect.Bottom + rect.Height)
             };
 
-            if (PolygonContainsPolygon(corners, keyCorners))
-            {
-                matchingKeys.Add(key);
-            }
-        }
+            return PolygonContainsPolygon(corners, keyCorners);
+        });
 
         return matchingKeys.ToArray();
     }
@@ -253,7 +255,7 @@ public sealed class ZoneKeysCache : IDisposable
 
     private void Invalidate()
     {
-        _zoneKeys = [];
+        _invalidated = true;
     }
 
     public void Dispose()
