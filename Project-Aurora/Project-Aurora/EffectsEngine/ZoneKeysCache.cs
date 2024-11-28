@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuroraRgb.Settings;
 using Common.Devices;
@@ -76,32 +77,7 @@ public sealed class ZoneKeysCache : IDisposable
     {
         var canvas = Effects.Canvas;
 
-        var editorToCanvasWidth = canvas.EditorToCanvasWidth;
-        var editorToCanvasHeight = canvas.EditorToCanvasHeight;
-
-        // Convert FreeForm coordinates to canvas coordinates
-        var canvasX = (freeForm.X + canvas.CanvasGridProperties.GridBaselineX) * editorToCanvasWidth;
-        var canvasY = (freeForm.Y + canvas.CanvasGridProperties.GridBaselineY) * editorToCanvasHeight;
-        var canvasWidth = freeForm.Width * editorToCanvasWidth;
-        var canvasHeight = freeForm.Height * editorToCanvasHeight;
-
-        // Calculate the center point of rotation
-        var centerX = canvasX + canvasWidth / 2;
-        var centerY = canvasY + canvasHeight / 2;
-
-        // Convert angle to radians
-        var angleRad = freeForm.Angle * (float)Math.PI / 180f;
-        var cos = (float)Math.Cos(angleRad);
-        var sin = (float)Math.Sin(angleRad);
-
-        // Calculate the corners of the rotated rectangle
-        var corners = new[]
-        {
-            TransformPoint(canvasX, canvasY, centerX, centerY, cos, sin),
-            TransformPoint(canvasX + canvasWidth, canvasY, centerX, centerY, cos, sin),
-            TransformPoint(canvasX + canvasWidth, canvasY + canvasHeight, centerX, centerY, cos, sin),
-            TransformPoint(canvasX, canvasY + canvasHeight, centerX, centerY, cos, sin)
-        };
+        var corners = GetCorners(freeForm);
 
         var matchingKeys = canvas.Keys.Where(key =>
         {
@@ -111,9 +87,9 @@ public sealed class ZoneKeysCache : IDisposable
             var keyCorners = new[]
             {
                 new PointF(rect.Left, rect.Bottom),
-                new PointF(rect.Left + rect.Width, rect.Bottom),
-                new PointF(rect.Left + rect.Width, rect.Bottom + rect.Height),
-                new PointF(rect.Left, rect.Bottom + rect.Height)
+                new PointF(rect.Right, rect.Bottom),
+                new PointF(rect.Right, rect.Top),
+                new PointF(rect.Left, rect.Top)
             };
 
             return PolygonContainsPolygon(corners, keyCorners);
@@ -122,13 +98,45 @@ public sealed class ZoneKeysCache : IDisposable
         return matchingKeys.ToArray();
     }
 
+    private static PointF[] GetCorners(FreeFormObject freeForm)
+    {
+        // Convert FreeForm coordinates to canvas coordinates
+        var xPos = (freeForm.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth;
+        var yPos = (freeForm.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight;
+        var width = freeForm.Width * Effects.Canvas.EditorToCanvasWidth;
+        var height = freeForm.Height * Effects.Canvas.EditorToCanvasHeight;
+
+        var left = xPos;
+        var right = xPos + width;
+        var top = yPos;
+        var bottom = yPos + height;
+
+        // Calculate the center point of rotation
+        var centerX = xPos + width / 2;
+        var centerY = yPos + height / 2;
+
+        // Convert angle to radians
+        var angleRad = freeForm.Angle * Math.PI / 180;
+        var cos = Math.Cos(angleRad);
+        var sin = Math.Sin(angleRad);
+ 
+        // Calculate the corners of the rotated rectangle
+        return
+        [
+            TransformPoint(left, top, centerX, centerY, cos, sin),
+            TransformPoint(right, top, centerX, centerY, cos, sin),
+            TransformPoint(right, bottom, centerX, centerY, cos, sin),
+            TransformPoint(left, bottom, centerX, centerY, cos, sin)
+        ];
+    }
+
     private readonly struct PointF(float x, float y)
     {
         public readonly float X = x;
         public readonly float Y = y;
     }
 
-    private static PointF TransformPoint(float x, float y, float centerX, float centerY, float cos, float sin)
+    private static PointF TransformPoint(float x, float y, float centerX, float centerY, double cos, double sin)
     {
         // Translate point to origin
         var translatedX = x - centerX;
@@ -140,107 +148,43 @@ public sealed class ZoneKeysCache : IDisposable
 
         // Translate back
         return new PointF(
-            rotatedX + centerX,
-            rotatedY + centerY
+            (float)(rotatedX + centerX),
+            (float)(rotatedY + centerY)
         );
     }
     
-    private static bool PolygonContainsPolygon(PointF[] container, PointF[] contained)
+    private static bool PolygonContainsPolygon(PointF[] container, [Length(4, 4)] PointF[] contained)
     {
         // First, check if any point of the contained polygon is outside the container
-        foreach (var point in contained)
-        {
-            if (!PointInPolygon(point, container))
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return Array.TrueForAll(contained, point => PointInRectangle(point, container));
     }
 
-    private static bool PointInPolygon(PointF point, PointF[] polygon)
+    private static bool PointInRectangle(PointF point, [Length(4, 4)] PointF[] rectangleCorners)
     {
-        bool inside = false;
-        int j = polygon.Length - 1;
+        // Translate the point and rectangle so that the rectangle's first corner is at the origin
+        var translatedPoint = new PointF(
+            point.X - rectangleCorners[0].X, 
+            point.Y - rectangleCorners[0].Y
+        );
 
-        for (int i = 0; i < polygon.Length; i++)
-        {
-            if (((polygon[i].Y > point.Y) != (polygon[j].Y > point.Y)) &&
-                (point.X < (polygon[j].X - polygon[i].X) * (point.Y - polygon[i].Y) / 
-                    (polygon[j].Y - polygon[i].Y) + polygon[i].X))
-            {
-                inside = !inside;
-            }
-            j = i;
-        }
+        // Calculate the vectors of the rectangle's sides
+        var vector1 = new PointF(
+            rectangleCorners[1].X - rectangleCorners[0].X,
+            rectangleCorners[1].Y - rectangleCorners[0].Y
+        );
 
-        return inside;
-    }
+        var vector2 = new PointF(
+            rectangleCorners[3].X - rectangleCorners[0].X,
+            rectangleCorners[3].Y - rectangleCorners[0].Y
+        );
 
-    private static bool PolygonsIntersect(PointF[] polygon1, PointF[] polygon2)
-    {
-        // Use the Separating Axis Theorem (SAT) to detect intersection
-        // Check all edges of both polygons as potential separating axes
-        
-        // Check edges of polygon1
-        for (var i = 0; i < polygon1.Length; i++)
-        {
-            var j = (i + 1) % polygon1.Length;
-            var edge = new PointF(
-                polygon1[j].X - polygon1[i].X,
-                polygon1[j].Y - polygon1[i].Y
-            );
-            var axis = new PointF(-edge.Y, edge.X); // Normal to the edge
-            
-            if (HasSeparatingAxis(axis, polygon1, polygon2))
-            {
-                return false;
-            }
-        }
-        
-        // Check edges of polygon2
-        for (var i = 0; i < polygon2.Length; i++)
-        {
-            var j = (i + 1) % polygon2.Length;
-            var edge = new PointF(
-                polygon2[j].X - polygon2[i].X,
-                polygon2[j].Y - polygon2[i].Y
-            );
-            var axis = new PointF(-edge.Y, edge.X); // Normal to the edge
-            
-            if (HasSeparatingAxis(axis, polygon1, polygon2))
-            {
-                return false;
-            }
-        }
-        
-        return true;
-    }
+        // Calculate dot products to determine if point is inside
+        var dot1 = translatedPoint.X * vector1.X + translatedPoint.Y * vector1.Y;
+        var dot2 = translatedPoint.X * vector2.X + translatedPoint.Y * vector2.Y;
 
-    private static bool HasSeparatingAxis(PointF axis, PointF[] polygon1, PointF[] polygon2)
-    {
-        var (min1, max1) = ProjectPolygon(axis, polygon1);
-        var (min2, max2) = ProjectPolygon(axis, polygon2);
-        
-        return max1 < min2 || max2 < min1;
-    }
-
-    private static (float Min, float Max) ProjectPolygon(PointF axis, PointF[] polygon)
-    {
-        var min = float.MaxValue;
-        var max = float.MinValue;
-        
-        foreach (var point in polygon)
-        {
-            var projection = (point.X * axis.X + point.Y * axis.Y) / 
-                             (axis.X * axis.X + axis.Y * axis.Y);
-            
-            min = Math.Min(min, projection);
-            max = Math.Max(max, projection);
-        }
-        
-        return (min, max);
+        // Check if the point is within the rectangle's side lengths
+        return dot1 >= 0 && dot1 <= vector1.X * vector1.X + vector1.Y * vector1.Y &&
+               dot2 >= 0 && dot2 <= vector2.X * vector2.X + vector2.Y * vector2.Y;
     }
 
     private void FreeFormObjectOnValuesChanged(object? sender, FreeFormChangedEventArgs e)
