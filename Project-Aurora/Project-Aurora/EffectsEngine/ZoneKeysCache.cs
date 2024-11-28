@@ -12,6 +12,7 @@ public sealed class ZoneKeysCache : IDisposable
     
     private DeviceKeys[] _zoneKeys = [];
     private KeySequence? _lastKeySequence;
+    private KeySequenceType _lastKeySequenceType = KeySequenceType.Sequence;
     private FreeFormObject? _lastFreeForm;
     
     private bool _invalidated;
@@ -23,13 +24,14 @@ public sealed class ZoneKeysCache : IDisposable
 
     public void SetSequence(KeySequence keySequence)
     {
-        if (keySequence.Equals(_lastKeySequence) && !_invalidated)
+        if (keySequence.Equals(_lastKeySequence) && _lastKeySequenceType == keySequence.Type && !_invalidated)
         {
             return;
         }
 
         _zoneKeys = GetKeys(keySequence);
         _lastKeySequence = keySequence;
+        _lastKeySequenceType = keySequence.Type;
         _invalidated = false;
     }
 
@@ -197,7 +199,7 @@ public sealed class ZoneKeysCache : IDisposable
         Invalidate();
     }
 
-    private void Invalidate()
+    public void Invalidate()
     {
         _invalidated = true;
     }

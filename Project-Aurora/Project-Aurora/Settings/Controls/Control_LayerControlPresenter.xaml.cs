@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -27,7 +28,7 @@ public partial class Control_LayerControlPresenter
         InitializeComponent();
     }
 
-    private async void SetLayer(Layer layer)
+    private async Task SetLayer(Layer layer)
     {
         _isSettingNewLayer = true;
 
@@ -74,35 +75,30 @@ public partial class Control_LayerControlPresenter
         HighUsageTooltip.Visibility = layer.Handler.HighResource() ? Visibility.Visible : Visibility.Hidden;
     }
 
-    private void cmbLayerType_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private async void cmbLayerType_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         if (!IsLoaded || _isSettingNewLayer || sender is not ComboBox comboBox) return;
         _Layer?.Dispose();
-        ResetLayer((Type)comboBox.SelectedValue);
+        await ResetLayer((Type)comboBox.SelectedValue);
     }
 
-    private async void ResetLayer(Type type)
+    private async Task ResetLayer(Type type)
     {
         if (!IsLoaded || _isSettingNewLayer || type == null) return;
 
         _Layer.Handler = (ILayerHandler)Activator.CreateInstance(type);
+        await SetLayer(_Layer);
 
-        CtrlLayerTypeConfig.Content = EmptyContent;
-        CtrlLayerTypeConfig.Content = await _Layer.Control;
-        ChkExcludeMask.IsChecked = Layer.Handler._EnableExclusionMask ?? false;
-        KeyseqExcludeMask.Sequence = Layer.Handler._ExclusionMask;
-        SldrOpacity.Value = (int)(Layer.Handler.Opacity * 100.0f);
-        LblOpacityText.Text = $"{(int)SldrOpacity.Value} %";
         _Layer.AssociatedApplication.SaveProfiles();
 
         OverridesEditor.ForcePropertyListUpdate();
     }
 
-    private void btnReset_Click(object? sender, RoutedEventArgs e)
+    private async void btnReset_Click(object? sender, RoutedEventArgs e)
     {
         if (IsLoaded && !_isSettingNewLayer && sender is Button)
         {
-            ResetLayer((Type)CmbLayerType.SelectedValue);
+            await ResetLayer((Type)CmbLayerType.SelectedValue);
         }
     }
 

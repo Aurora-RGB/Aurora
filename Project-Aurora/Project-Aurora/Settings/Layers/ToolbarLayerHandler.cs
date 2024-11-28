@@ -67,7 +67,8 @@ public sealed class ToolbarLayerHandler() : LayerHandler<ToolbarLayerHandlerProp
         return new Control_ToolbarLayer(this);
     }
         
-    public override EffectLayer Render(IGameState _) {
+    public override EffectLayer Render(IGameState gameState) {
+        EffectLayer.Clear();
         foreach (var key in Properties.Sequence.Keys)
             EffectLayer.Set(key, key == _activeKey ? Properties.SecondaryColor : Properties.PrimaryColor);
         return EffectLayer;

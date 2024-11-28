@@ -55,6 +55,7 @@ public sealed class NoRenderLayer : EffectLayer
     public void Clear()
     {
         Array.Copy(_emptyKeyColors, _keyColors, _emptyKeyColors.Length);
+        _zoneKeysCache.Invalidate();
     }
 
     public void Set(DeviceKeys key, ref readonly Color color)

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
@@ -57,8 +56,8 @@ public partial class GlitchLayerHandlerProperties : LayerHandlerProperties2Color
 public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("Glitch Layer")
 {
     private readonly Random _randomizer = new();
-
     private readonly Dictionary<DeviceKeys, Color> _glitchColors = new();
+    private readonly ZoneKeysCache _zoneKeysCache = new();
 
     private long _previousTime;
 
@@ -67,14 +66,14 @@ public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("
         return new Control_GlitchLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
         var currentTime = Time.GetMillisecondsSinceEpoch();
         if (_previousTime + Properties.UpdateInterval * 1000L > currentTime) return EffectLayer;
         _previousTime = currentTime;
 
-        var keys = Properties.Sequence.Type == KeySequenceType.FreeForm ? Enum.GetValues(typeof(DeviceKeys)) : Properties.Sequence.Keys.ToArray();
-        foreach (DeviceKeys key in keys)
+        var keys = _zoneKeysCache.GetKeys();
+        foreach (var key in keys)
         {
             Color clr;
             if (Properties.AllowTransparency)
@@ -85,11 +84,11 @@ public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("
             _glitchColors[key] = clr;
         }
 
+        EffectLayer.Clear();
         foreach (var (key, color) in _glitchColors)
         {
             EffectLayer.Set(key, in color);
         }
-        EffectLayer.OnlyInclude(Properties.Sequence);
         return EffectLayer;
     }
 
@@ -97,5 +96,6 @@ public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("
     {
         base.PropertiesChanged(sender, args);
         _glitchColors.Clear();
+        _zoneKeysCache.SetSequence(Properties.Sequence);
     }
 }

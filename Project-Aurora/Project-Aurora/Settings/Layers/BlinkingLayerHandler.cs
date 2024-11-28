@@ -78,6 +78,7 @@ public class BlinkingLayerHandler() : LayerHandler<BlinkingLayerHandlerPropertie
         else if (!Properties.RandomPrimaryColor)
             _currentPrimaryColor = Properties.PrimaryColor;
 
+        EffectLayer.Clear();
         EffectLayer.Set(Properties.Sequence, ColorUtils.BlendColors(_currentPrimaryColor, _currentSecondaryColor, currentSine));
 
         return EffectLayer;
