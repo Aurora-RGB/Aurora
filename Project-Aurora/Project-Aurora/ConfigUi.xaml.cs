@@ -564,4 +564,9 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
             PerformanceModeModule.UpdatePriority();
         });
     }
+
+    private void KeyboardViewBorder_OnMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
 }
