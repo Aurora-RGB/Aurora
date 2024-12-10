@@ -2,6 +2,7 @@
 
 namespace AuroraRgb.Modules.Razer.RazerApi;
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.KebabCaseLower)]
-[JsonSerializable(typeof(RazerEndpoints))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(RazerInstallerManifest))]
+[JsonSerializable(typeof(RazerManifest))]
 public partial class RazerApiSourceGenerationContext : JsonSerializerContext;

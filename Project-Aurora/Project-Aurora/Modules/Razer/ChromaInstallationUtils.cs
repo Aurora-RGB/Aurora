@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
-using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.ServiceProcess;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml;
 using AuroraRgb.Modules.Razer.RazerApi;
 using AuroraRgb.Utils;
 using Microsoft.Win32;
@@ -30,9 +29,6 @@ public static class ChromaInstallationUtils
                                        <devices>
                                        </devices>
                                        """;
-
-    private const string RazerChromaSdkServer = "Razer Chroma SDK Server";
-    private const string RazerChromaStreamServer = "Razer Chroma Stream Server";
 
     public static async Task<int> UninstallAsync() => await Task.Run(() =>
     {
@@ -97,45 +93,20 @@ public static class ChromaInstallationUtils
 
     private static async Task<string?> GetDownloadUrlAsync()
     {
-        const string endpoint = "prod";
-
         using var client = new HttpClient();
-        var json = await client.GetStringAsync("https://discovery.razerapi.com/user/endpoints");
-        var razerEndpoints = JsonSerializer.Deserialize(json, RazerApiSourceGenerationContext.Default.RazerEndpoints);
-        var hash = razerEndpoints?.Endpoints.Find(c => c.Name == endpoint)?.Hash;
+        var installerManifest = await client.GetFromJsonAsync(RazerInstallerManifest.GetUrl, RazerApiSourceGenerationContext.Default.RazerInstallerManifest);
 
-        if (hash == null)
-            return null;
-
-        const string platformData = """
-                                    <PlatformRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-                                      <Platform>
-                                        <Arch>64</Arch>
-                                        <Locale>en</Locale>
-                                        <Mfr>Generic-MFR</Mfr>
-                                        <Model>Generic-MDL</Model>
-                                        <OS>Windows</OS>
-                                        <OSVer>10</OSVer>
-                                        <SKU>Generic-SKU</SKU>
-                                      </Platform>
-                                    </PlatformRoot>
-                                    """;
-
-        var request = new HttpRequestMessage(HttpMethod.Post, $"https://manifest.razerapi.com/api/legacy/{hash}/{endpoint}/productlist/get")
+        if (installerManifest == null)
         {
-            Content = new StringContent(platformData)
-        };
-        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/xml");
-        var response = await client.SendAsync(request);
-        var xml = await response.Content.ReadAsStringAsync();
-        var doc = new XmlDocument();
-        doc.LoadXml(xml);
+            return null;
+        }
+        
+        var latestVersionManifest = await client.GetFromJsonAsync(installerManifest.LatestManifestAbsoluteUrl, RazerApiSourceGenerationContext.Default.RazerManifest);
 
-        foreach (XmlNode node in doc.DocumentElement.SelectNodes("//Module"))
-            if (node["Name"].InnerText == "CHROMABROADCASTER")
-                return node["DownloadURL"].InnerText;
+        var sdkCoreInstaller = latestVersionManifest?.Resources
+            .FirstOrDefault(r => r.ResourceName == "ExtraInstaller_Razer Chroma SDK Core");
 
-        return null;
+        return sdkCoreInstaller?.Url;
     }
 
     public static async Task<string?> DownloadAsync()
@@ -221,8 +192,14 @@ public static class ChromaInstallationUtils
 
     public static void DisableChromaBloat()
     {
-        DisableService(RazerChromaSdkServer);
-        DisableService(RazerChromaStreamServer);
+        string[] services =
+        [
+            "Razer Chroma SDK Server", "Razer Chroma Stream Server", "Razer Elevation Service", "Razer Game Manager Service 3"
+        ];
+        foreach (var service in services)
+        {
+            DisableService(service);
+        }
     }
 
     private static void DisableService(string serviceName)
