@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AuroraRgb.Settings;
-using AuroraRgb.Utils;
 using Common.Devices;
 using Common.Utils;
 
@@ -124,78 +122,6 @@ public sealed class NoRenderLayer : EffectLayer
         var backgroundColor = Get(key);
         ref var newColor = ref CommonColorUtils.AddColors(in backgroundColor, in foregroundColor, ref _colorCache);
         Set(key, in newColor);
-    }
-
-    /// <summary>
-    /// Draws a percent effect on the layer bitmap using an array of DeviceKeys keys and solid colors.
-    /// </summary>
-    /// <param name="foregroundColor">The foreground color, used as a "Progress bar color"</param>
-    /// <param name="value">The current progress value</param>
-    /// <param name="total">The maxiumum progress value</param>
-    public void PercentEffect(Color foregroundColor, Color backgroundColor, IReadOnlyList<DeviceKeys> keys, double value,
-        double total, PercentEffectType percentEffectType = PercentEffectType.Progressive, double flashPast = 0.0,
-        bool flashReversed = false, bool blinkBackground = false)
-    {
-        var progressTotal = value / total;
-        if (progressTotal < 0.0)
-            progressTotal = 0.0;
-        else if (progressTotal > 1.0)
-            progressTotal = 1.0;
-
-        var progress = progressTotal * keys.Count;
-
-        if (flashPast > 0.0 && ((flashReversed && progressTotal >= flashPast) || (!flashReversed && progressTotal <= flashPast)))
-        {
-            var percent = Math.Sin(Time.GetMillisecondsSinceEpoch() % 1000.0D / 1000.0D * Math.PI);
-            if (blinkBackground)
-                backgroundColor = ColorUtils.BlendColors(backgroundColor, Color.Empty, percent);
-            else
-                foregroundColor = ColorUtils.BlendColors(backgroundColor, foregroundColor, percent);
-        }
-
-        if (percentEffectType is PercentEffectType.Highest_Key or PercentEffectType.Highest_Key_Blend && keys.Count > 0)
-        {
-            var activeKey = (int)Math.Ceiling(Math.Clamp(value, 0, 1) / (total / keys.Count)) - 1;
-            var col = percentEffectType == PercentEffectType.Highest_Key ?
-                foregroundColor : ColorUtils.BlendColors(backgroundColor, foregroundColor, progressTotal);
-            for (var i = 0; i < keys.Count; i++)
-            {
-                if (i != activeKey)
-                {
-                    Set(keys[i], Color.Transparent);
-                }
-            }
-            Set(keys[activeKey], in col);
-
-        }
-        else
-        {
-            for (var i = 0; i < keys.Count; i++)
-            {
-                var currentKey = keys[i];
-
-                switch (percentEffectType)
-                {
-                    case PercentEffectType.AllAtOnce:
-                        Set(currentKey, ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progressTotal));
-                        break;
-                    case PercentEffectType.Progressive_Gradual:
-                        if (i == (int)progress)
-                        {
-                            var percent = progress - i;
-                            Set(currentKey, ColorUtils.BlendColors(in backgroundColor, in foregroundColor, percent));
-                        }
-                        else if (i < (int)progress)
-                            Set(currentKey, foregroundColor);
-                        else
-                            Set(currentKey, backgroundColor);
-                        break;
-                    default:
-                        Set(currentKey, i < (int) progress ? foregroundColor : backgroundColor);
-                        break;
-                }
-            }
-        }
     }
 
     public void Exclude(KeySequence sequence)

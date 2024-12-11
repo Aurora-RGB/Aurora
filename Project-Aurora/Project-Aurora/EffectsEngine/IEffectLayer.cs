@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using AuroraRgb.Settings;
 using Common.Devices;
@@ -47,10 +46,6 @@ public interface EffectLayer : IDisposable
     /// <param name="color">Color to be used</param>
     /// <returns>Itself</returns>
     void Set(KeySequence sequence, ref readonly Color color);
-
-    void PercentEffect(Color foregroundColor, Color backgroundColor, IReadOnlyList<DeviceKeys> keys, double value,
-        double total, PercentEffectType percentEffectType = PercentEffectType.Progressive, double flashPast = 0.0,
-        bool flashReversed = false, bool blinkBackground = false);
 
     /// <summary>
     /// + Operator, sums two EffectLayer together.

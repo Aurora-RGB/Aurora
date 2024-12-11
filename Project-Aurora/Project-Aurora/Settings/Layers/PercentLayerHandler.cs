@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
@@ -86,65 +84,49 @@ public partial class PercentLayerHandlerProperties : LayerHandlerProperties2Colo
     }
 }
 
-public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty, BitmapEffectLayer>("PercentLayer")
+public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("PercentLayer")
     where TProperty : PercentLayerHandlerProperties
 {
     private double _value;
 
-    private readonly NoRenderLayer NoRenderLayer = new();
-
     public override EffectLayer Render(IGameState gameState)
     {
         var keySequence = Properties.Sequence;
-        EffectLayer layer = keySequence.Type switch
-        {
-            KeySequenceType.Sequence => NoRenderLayer,
-            _ => EffectLayer,
-        };
-        
-        
+
         if (Invalidated)
         {
-            layer.Clear();
             Invalidated = false;
             _value = -1;
         }
         var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
-        if (MathUtils.NearlyEqual(_value, value, 0.000001))
+        if (MathUtils.NearlyEqual(_value, value, 0.000001) && !Invalidated)
         {
-            return layer;
+            return EffectLayer;
         }
         _value = value;
-            
+
         var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
-        if (keySequence.Type == KeySequenceType.Sequence)
-        {
-            NoRenderLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence.Keys, value, maxvalue,
-                Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);
-            return NoRenderLayer;
-        }
-        EffectLayer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence, value, maxvalue,
+        EffectLayer.Clear();
+        var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+        percentDrawer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence, value, maxvalue,
             Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);
         return EffectLayer;
     }
 
     public override void SetApplication(Application profile)
     {
-        if (profile != null)
-        {
-            if (!double.TryParse(Properties.VariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
-                !string.IsNullOrWhiteSpace(Properties.VariablePath.GsiPath) &&
-                !profile.ParameterLookup.IsValidParameter(Properties.VariablePath.GsiPath)
-               )
-                Properties.VariablePath = VariablePath.Empty;
+        if (!double.TryParse(Properties.VariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
+            !string.IsNullOrWhiteSpace(Properties.VariablePath.GsiPath) &&
+            !profile.ParameterLookup.IsValidParameter(Properties.VariablePath.GsiPath)
+           )
+            Properties.VariablePath = VariablePath.Empty;
 
-            if (!double.TryParse(Properties.MaxVariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
-                !string.IsNullOrWhiteSpace(Properties.MaxVariablePath.GsiPath) &&
-                !profile.ParameterLookup.IsValidParameter(Properties.MaxVariablePath.GsiPath)
-               )
-                Properties.MaxVariablePath = VariablePath.Empty;
-        }
+        if (!double.TryParse(Properties.MaxVariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
+            !string.IsNullOrWhiteSpace(Properties.MaxVariablePath.GsiPath) &&
+            !profile.ParameterLookup.IsValidParameter(Properties.MaxVariablePath.GsiPath)
+           )
+            Properties.MaxVariablePath = VariablePath.Empty;
         base.SetApplication(profile);
     }
 }
