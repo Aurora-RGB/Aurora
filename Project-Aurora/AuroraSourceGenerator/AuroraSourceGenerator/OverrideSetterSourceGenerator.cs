@@ -220,7 +220,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                                {{genericConstraints}}
                            {
                                [GameStateIgnore, JsonIgnore] 
-                               public {{logicClassName}}? Logic
+                               public new {{logicClassName}}? Logic
                                 {
                                     get => ({{logicClassName}}?)base.Logic;
                                     set
