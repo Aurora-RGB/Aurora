@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Globalization;
+using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -29,14 +30,14 @@ public partial class PercentGradientLayerHandlerProperties : PercentLayerHandler
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("SecondaryColor")]
 [LayerHandlerMeta(Name = "Percent (Gradient)", IsDefault = true)]
-public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLayerHandlerProperties>
+public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradientLayerHandlerProperties, BitmapEffectLayer>("PercentLayer")
 {
     protected override UserControl CreateControl()
     {
         return new Control_PercentGradientLayer(this);
     }
 
-    public override EffectLayer Render(IGameState state)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (Invalidated)
         {
@@ -44,11 +45,30 @@ public class PercentGradientLayerHandler : PercentLayerHandler<PercentGradientLa
         }
         Invalidated = false;
             
-        var value = Properties.Logic?._Value ?? state.GetNumber(Properties.VariablePath);
-        var maxvalue = Properties.Logic?._MaxValue ?? state.GetNumber(Properties.MaxVariablePath);
+        var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
+        var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
         EffectLayer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
+        // below is for no-render layer
+        //var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+        //percentDrawer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
         return EffectLayer;
+    }
+
+    public override void SetApplication(Application profile)
+    {
+        if (!double.TryParse(Properties.VariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
+            !string.IsNullOrWhiteSpace(Properties.VariablePath.GsiPath) &&
+            !profile.ParameterLookup.IsValidParameter(Properties.VariablePath.GsiPath)
+           )
+            Properties.VariablePath = VariablePath.Empty;
+
+        if (!double.TryParse(Properties.MaxVariablePath.GsiPath, CultureInfo.InvariantCulture, out _) &&
+            !string.IsNullOrWhiteSpace(Properties.MaxVariablePath.GsiPath) &&
+            !profile.ParameterLookup.IsValidParameter(Properties.MaxVariablePath.GsiPath)
+           )
+            Properties.MaxVariablePath = VariablePath.Empty;
+        base.SetApplication(profile);
     }
 
     public override void Dispose()
