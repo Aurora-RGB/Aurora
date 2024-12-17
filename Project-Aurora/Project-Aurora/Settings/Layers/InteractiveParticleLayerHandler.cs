@@ -23,9 +23,11 @@ public sealed class InteractiveParticleLayerHandler : SimpleParticleLayerHandler
         _awaitingKeys.Enqueue(e.GetDeviceKey());
     }
 
-    protected override void SpawnParticles(double dt) {
-        foreach (var key in _awaitingKeys) {
-            Properties._Sequence = new KeySequence(new[] { key });
+    protected override void SpawnParticles(double dt)
+    {
+        var particleCount = _awaitingKeys.Count;
+        for (var n = 0; n < particleCount; n++)
+        {
             var count = Rnd.Next(Properties.MinSpawnAmount, Properties.MaxSpawnAmount);
             for (var i = 0; i < count; i++)
                 SpawnParticle();
