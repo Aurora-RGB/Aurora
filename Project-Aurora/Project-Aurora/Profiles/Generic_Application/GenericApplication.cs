@@ -52,19 +52,18 @@ public class GenericApplication : Application
     {
         await base.LoadSettings(settingsType);
 
-        if (Settings is GenericApplicationSettings genericApplicationSettings)
+        var genericApplicationSettings = (GenericApplicationSettings)Settings!;
+        
+        var additionalProcessNames = genericApplicationSettings.AdditionalProcesses;
+        if (additionalProcessNames.Length != 0)
         {
-            var additionalProcessNames = genericApplicationSettings.AdditionalProcesses;
-            if (additionalProcessNames.Length != 0)
+            if (additionalProcessNames[0] != Config.ProcessNames[0])
             {
-                if (additionalProcessNames[0] != Config.ProcessNames[0])
-                {
-                    Config.ProcessNames = Config.ProcessNames.Concat(additionalProcessNames).ToArray();
-                }
-                else
-                {
-                    Config.ProcessNames = additionalProcessNames;
-                }
+                Config.ProcessNames = Config.ProcessNames.Concat(additionalProcessNames).ToArray();
+            }
+            else
+            {
+                Config.ProcessNames = additionalProcessNames;
             }
         }
     }
@@ -76,7 +75,7 @@ public class GenericApplication : Application
 
     protected override ApplicationProfile CreateNewProfile(string profileName)
     {
-        ApplicationProfile profile = (ApplicationProfile)Activator.CreateInstance(Config.ProfileType);
+        var profile = (ApplicationProfile)Activator.CreateInstance(Config.ProfileType);
         profile.ProfileName = profileName;
         profile.ProfileFilepath = Path.Combine(GetProfileFolderPath(), GetUnusedFilename(GetProfileFolderPath(), profile.ProfileName) + ".json");
         return profile;

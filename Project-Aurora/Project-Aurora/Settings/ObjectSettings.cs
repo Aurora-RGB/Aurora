@@ -72,7 +72,8 @@ public class ObjectSettings<T>
             try
             {
                 var json = await File.ReadAllTextAsync(SettingsSavePath);
-                Settings = JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None });
+                var jsonSerializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None };
+                Settings = (T)JsonConvert.DeserializeObject(json, settingsType, jsonSerializerSettings);
             }
             catch (Exception exc)
             {
