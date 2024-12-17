@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,8 +55,11 @@ public class LightEvent : ILightEvent
     public virtual void UpdateLights(EffectFrame frame) {
         UpdateTick();
 
-        var layers = new Queue<EffectLayer>(Application.Profile.Layers.Where(l => l.Enabled).Reverse().Select(l => l.Render(GameState)));
-        frame.AddLayers(layers.ToArray());
+        var layers = Application.Profile.Layers
+            .Where(l => l.Enabled)
+            .Reverse()
+            .Select(l => l.Render(GameState));
+        frame.AddLayers(layers);
     }
 
     /// <summary>

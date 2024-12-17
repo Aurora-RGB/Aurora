@@ -510,41 +510,38 @@ public sealed class BitmapEffectLayer : EffectLayer
         // The bounds represent the target position of the render part
         var bounds = sequence.GetAffectedRegion();
 
-        var gfx = _colormap;
-        {
-            // First, calculate the scaling required to transform the sourceRect's size into the bounds' size
-            float sx = bounds.Width / sourceRegion.Width, sy = bounds.Height / sourceRegion.Height;
+        // First, calculate the scaling required to transform the sourceRect's size into the bounds' size
+        float sx = bounds.Width / sourceRegion.Width, sy = bounds.Height / sourceRegion.Height;
 
-            // Perform this scale first
-            // Note: that if the scale is zero, when setting the graphics transform to the matrix,
-            // it throws an error, so we must have NON-ZERO values
-            // Note 2: Also tried using float.Epsilon but this also caused the exception,
-            // so a somewhat small number will have to suffice. Not noticed any visual issues with 0.001f.
-            matrix.Scale(Math.Max(.001f, sx), Math.Max(.001f, sy), MatrixOrder.Append);
+        // Perform this scale first
+        // Note: that if the scale is zero, when setting the graphics transform to the matrix,
+        // it throws an error, so we must have NON-ZERO values
+        // Note 2: Also tried using float.Epsilon but this also caused the exception,
+        // so a somewhat small number will have to suffice. Not noticed any visual issues with 0.001f.
+        matrix.Scale(Math.Max(.001f, sx), Math.Max(.001f, sy), MatrixOrder.Append);
 
-            // Second, for freeform objects, apply the rotation. This needs to be done AFTER the scaling,
-            // else the scaling is applied to the rotated object, which skews it
-            // We rotate around the central point of the source region, but we need to take the scaling of the dimensions into account
-            if (sequence.Type == KeySequenceType.FreeForm)
-                matrix.RotateAt(
-                    sequence.Freeform.Angle,
-                    new PointF((sourceRegion.Left + sourceRegion.Width / 2f) * sx, (sourceRegion.Top + sourceRegion.Height / 2f) * sy), MatrixOrder.Append);
+        // Second, for freeform objects, apply the rotation. This needs to be done AFTER the scaling,
+        // else the scaling is applied to the rotated object, which skews it
+        // We rotate around the central point of the source region, but we need to take the scaling of the dimensions into account
+        if (sequence.Type == KeySequenceType.FreeForm)
+            matrix.RotateAt(
+                sequence.Freeform.Angle,
+                new PointF((sourceRegion.Left + sourceRegion.Width / 2f) * sx, (sourceRegion.Top + sourceRegion.Height / 2f) * sy), MatrixOrder.Append);
 
-            // Third, we can translate the matrix from the source to the target location.
-            matrix.Translate(bounds.X - sourceRegion.Left, bounds.Y - sourceRegion.Top, MatrixOrder.Append);
+        // Third, we can translate the matrix from the source to the target location.
+        matrix.Translate(bounds.X - sourceRegion.Left, bounds.Y - sourceRegion.Top, MatrixOrder.Append);
 
-            // Finally, call the custom matrix configure action
-            configureMatrix(matrix);
+        // Finally, call the custom matrix configure action
+        configureMatrix(matrix);
 
-            // Apply the matrix transform to the graphics context and then render
-            gfx.Reset();
-            gfx.SetClip(bounds);
-            gfx.SetTransform(matrix);
-            render(gfx);
+        // Apply the matrix transform to the graphics context and then render
+        _colormap.Reset();
+        _colormap.SetClip(bounds);
+        _colormap.SetTransform(matrix);
+        render(_colormap);
 
-            gfx.Reset();
-            gfx.OnlyInclude(sequence);
-        }
+        _colormap.Reset();
+        _colormap.OnlyInclude(sequence);
 
         Invalidate();
     }
