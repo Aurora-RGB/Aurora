@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -70,7 +71,9 @@ public sealed class LightingStateManager : IDisposable
 
     private bool Initialized { get; set; }
     private readonly CancellationTokenSource _initializeCancelSource = new();
-    private readonly List<Task> _initTasks = [];
+    
+    private readonly ConcurrentQueue<Func<Task>> _initTaskQueue = new();
+    private readonly SingleConcurrentThread _profileInitThread;
 
     public LightingStateManager(Task<PluginManager> pluginManager, Task<IpcListener?> ipcListener,
         Task<DeviceManager> deviceManager, Task<ActiveProcessMonitor> activeProcessMonitor, Task<RunningProcessMonitor> runningProcessMonitor)
@@ -84,13 +87,29 @@ public sealed class LightingStateManager : IDisposable
         Predicate<string> processRunning = ProcessRunning;
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
                                          Array.Exists(evt.Config.ProcessNames, processRunning);
+        
+        _profileInitThread = new SingleConcurrentThread("ProfileInit", ProfileInitAction, ProfileInitExceptionCallback);
 
         _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate, ExceptionCallback);
 
         bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
     }
 
-    private void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
+    private static void ProfileInitExceptionCallback(object? arg1, SingleThreadExceptionEventArgs arg2)
+    {
+        Global.logger.Fatal(arg2.Exception, "Profile load failed");
+    }
+
+    private async Task ProfileInitAction()
+    {
+        if (_initTaskQueue.TryDequeue(out var action))
+        {
+            await action.Invoke();
+            _profileInitThread.Trigger();
+        }
+    }
+
+    private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
     {
         Global.logger.Error(eventArgs.Exception, "Unexpected error with LightingStateManager loop");
     }
@@ -136,17 +155,10 @@ public sealed class LightingStateManager : IDisposable
     public void InitializeApps()
     {
         var cancellationToken = _initializeCancelSource.Token;
-        Task<Task>? previousTask = null;
         foreach (var (_, profile) in Events)
         {
-            var waitTask = previousTask;
-            // don't await on purpose, need Aurora open fast.
-            var initTask = Task.Delay(200, cancellationToken).ContinueWith(async _ =>
+            _initTaskQueue.Enqueue(async () =>
             {
-                if (waitTask != null)
-                {
-                    await waitTask;
-                }
                 try
                 {
                     await profile.Initialize(cancellationToken);
@@ -156,10 +168,9 @@ public sealed class LightingStateManager : IDisposable
                 {
                     Global.logger.Error(e, "Error initializing profile {Profile}", profile.GetType());
                 }
-            }, cancellationToken);
-            previousTask = initTask;
-            _initTasks.Add(initTask);
+            });
         }
+        _profileInitThread.Trigger();
     }
 
     private static IEnumerable<Application> EnumerateDefaultApps()
@@ -696,7 +707,6 @@ public sealed class LightingStateManager : IDisposable
     public void Dispose()
     {
         _initializeCancelSource.Cancel();
-        Task.WaitAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
         _updateTimer.Dispose(200);
         foreach (var (_, lightEvent) in Events)
@@ -706,7 +716,6 @@ public sealed class LightingStateManager : IDisposable
     public async Task DisposeAsync()
     {
         await _initializeCancelSource.CancelAsync();
-        await Task.WhenAll(_initTasks.ToArray());
         _initializeCancelSource.Dispose();
         _updateTimer.Dispose(200);
         foreach (var (_, lightEvent) in Events)
