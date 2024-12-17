@@ -272,9 +272,9 @@ public sealed class GdiBitmap : IAuroraBitmap
         _graphics.FillEllipse(brush.GetBrush(), dimension);
     }
 
-    public void DrawImage(Image image, float x = 0, float y = 0, float width = 0, float height = 0)
+    public void DrawImage(Image image, float x = 0, float y = 0)
     {
-        _graphics.DrawImage(image, x, y, width, height);
+        _graphics.DrawImage(image, x, y);
     }
 
     public void DrawLine(Pen pen, PointF startPoint, PointF endPoint)

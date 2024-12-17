@@ -167,7 +167,7 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
     {
     }
 
-    public void DrawImage(Image image, float x = 0, float y = 0, float width = 0, float height = 0)
+    public void DrawImage(Image image, float x = 0, float y = 0)
     {
     }
 

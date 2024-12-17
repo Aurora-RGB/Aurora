@@ -87,6 +87,8 @@ public abstract class LayerHandler<TProperty, LayerType> : ILayerHandler
 
     protected bool Invalidated = true;
 
+    private readonly string _name;
+
     protected LayerHandler(): this("Unoptimized Layer"){}
 
     protected LayerHandler(string name)
@@ -97,6 +99,12 @@ public abstract class LayerHandler<TProperty, LayerType> : ILayerHandler
         WeakEventManager<Effects, EventArgs>.AddHandler(null, nameof(Effects.CanvasChanged), PropertiesChanged);
 
         _control = new Temporary<Task<UserControl>>(CreateControlOnMain, false);
+        _name = name;
+    }
+
+    public override string ToString()
+    {
+        return _name;
     }
 
     private EffectLayer CreateLayer(string name)

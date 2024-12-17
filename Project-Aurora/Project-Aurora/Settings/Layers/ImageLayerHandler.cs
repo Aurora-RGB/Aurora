@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
@@ -12,19 +13,23 @@ namespace AuroraRgb.Settings.Layers;
 
 public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color
 {
-    private string? _imagePath;
+    private string _imagePath = string.Empty;
 
     [JsonProperty("_ImagePath")]
-    public string? ImagePath
+    public string ImagePath
     {
         get => Logic?._imagePath ?? _imagePath;
-        set => _imagePath = value;
+        set
+        {
+            _imagePath = value;
+            OnPropertiesChanged(this, new PropertyChangedEventArgs(nameof(ImagePath)));
+        }
     }
 
     public override void Default()
     {
         base.Default();
-        _imagePath = "";
+        ImagePath = "";
     }
 }
 
@@ -32,32 +37,33 @@ public partial class ImageLayerHandlerProperties : LayerHandlerProperties2Color
 [LogicOverrideIgnoreProperty("SecondaryColor")]
 public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties, BitmapEffectLayer>("ImageLayer")
 {
-    private Image? _loadedImage;
+    private Image _loadedImage = new Bitmap(8, 8);
     private string? _loadedImagePath = "";
+    private bool _secondInvalidation = true;
 
     protected override UserControl CreateControl()
     {
         return new Control_ImageLayer(this);
     }
 
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (string.IsNullOrWhiteSpace(Properties.ImagePath)) return EmptyLayer.Instance;
-        
+
         if (_loadedImagePath != Properties.ImagePath)
         {
             //Not loaded, load it!
             if (!File.Exists(Properties.ImagePath))
                 return EmptyLayer.Instance;
 
-            _loadedImage?.Dispose();
+            _loadedImage.Dispose();
             _loadedImage = new Bitmap(Properties.ImagePath);
             _loadedImagePath = Properties.ImagePath;
 
             Invalidated = true;
 
             if (Properties.ImagePath.EndsWith(".gif") && ImageAnimator.CanAnimate(_loadedImage))
-                ImageAnimator.Animate(_loadedImage, null);
+                ImageAnimator.Animate(_loadedImage, (_, _) => { });
         }
 
         if (Properties.ImagePath.EndsWith(".gif") && ImageAnimator.CanAnimate(_loadedImage))
@@ -66,21 +72,26 @@ public class ImageLayerHandler() : LayerHandler<ImageLayerHandlerProperties, Bit
             Invalidated = true;
         }
 
-        if (Invalidated)
+        if (!Invalidated && !_secondInvalidation)
         {
-            EffectLayer.Clear();
+            return EffectLayer;
         }
-        
+
+        EffectLayer.Clear();
         EffectLayer.DrawTransformed(Properties.Sequence,
-            _ => {},
-            g =>
-            {
-                g.DrawImage(_loadedImage);
-            },
+            g => g.DrawImage(_loadedImage),
             new RectangleF(0, 0, _loadedImage.Width, _loadedImage.Height)
         );
 
-        Invalidated = false;
+        if (!Invalidated)
+        {
+            Invalidated = false;
+        }
+        else
+        {
+            // don't know why but image needs to be drawn two times when canvas changes or first initialized
+            _secondInvalidation = false;
+        }
         return EffectLayer;
     }
 }
