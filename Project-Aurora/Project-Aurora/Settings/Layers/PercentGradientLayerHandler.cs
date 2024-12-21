@@ -30,7 +30,7 @@ public partial class PercentGradientLayerHandlerProperties : PercentLayerHandler
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("SecondaryColor")]
 [LayerHandlerMeta(Name = "Percent (Gradient)", IsDefault = true)]
-public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradientLayerHandlerProperties, BitmapEffectLayer>("PercentLayer")
+public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradientLayerHandlerProperties>("PercentLayer")
 {
     protected override UserControl CreateControl()
     {
@@ -48,10 +48,8 @@ public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradient
         var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
         var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
-        EffectLayer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
-        // below is for no-render layer
-        //var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
-        //percentDrawer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
+        var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+        percentDrawer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
         return EffectLayer;
     }
 

@@ -7,6 +7,7 @@ using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
 
+// most of this file is created by AI and adjusted, idk what it does
 public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
 {
     public void PercentEffect(Color foregroundColor, Color backgroundColor, KeySequence sequence, double value,
@@ -238,7 +239,6 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 foregroundColor = ColorUtils.BlendColors(backgroundColor, foregroundColor, percent);
         }
 
-
         switch (percentEffectType)
         {
             case PercentEffectType.AllAtOnce:
@@ -282,6 +282,101 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 var blendColor = ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progress);
                 effectLayer.Set(keys[highestKey], in blendColor);
                 break;
+            }
+        }
+    }
+
+    public void PercentEffect(ColorSpectrum spectrum, KeySequence sequence, double value,
+        double total, PercentEffectType percentEffectType,
+        double flashPast = 0.0, bool flashReversed = false)
+    {
+        var progressTotal = (value / total) switch
+        {
+            < 0.0 => 0.0,
+            > 1.0 => 1.0,
+            _ => value / total
+        };
+        
+        var zoneKeysCache = new ZoneKeysCache();
+        zoneKeysCache.SetSequence(sequence);
+        var keys = zoneKeysCache.GetKeys();
+
+        var flashAmount = 1.0;
+        if (flashPast > 0.0 && ((flashReversed && progressTotal >= flashPast) || (!flashReversed && progressTotal <= flashPast)))
+        {
+            flashAmount = Math.Sin(Time.GetMillisecondsSinceEpoch() % 1000.0D / 1000.0D * Math.PI);
+        }
+
+        switch (percentEffectType, sequence.Type)
+        {
+            case (PercentEffectType.AllAtOnce, _):
+            {
+                var color = spectrum.GetColorAt(progressTotal, 1.0f, flashAmount);
+                effectLayer.Set(keys, in color);
+                return;
+            }
+            case (PercentEffectType.Progressive, KeySequenceType.Sequence):
+            {
+                if (progressTotal <= 0)
+                {
+                    return;
+                }
+                for (var i = 0; i < keys.Length; i++)
+                {
+                    var position = (double)i * keys.Length / (keys.Length - 1);
+                    var keyProgress = Math.Clamp(position/keys.Length, 0, 1);
+                    if (keyProgress > progressTotal)
+                    {
+                        return;
+                    }
+                    var key = keys[i];
+                    var color = spectrum.GetColorAt(keyProgress, 1.0f, flashAmount);
+                    effectLayer.Set(key, in color);
+                }
+                break;
+            }
+            case (PercentEffectType.Progressive_Gradual, KeySequenceType.Sequence):
+            {
+                if (progressTotal <= 0)
+                {
+                    return;
+                }
+                var delta = 1.0 / keys.Length;
+                for (var i = 0; i < keys.Length; i++)
+                {
+                    var position = (double)i * keys.Length / (keys.Length - 1);
+                    var keyProgress = Math.Clamp(position/keys.Length, 0, 1) * (keys.Length - 1) / keys.Length;
+                    var key = keys[i];
+                    var color = spectrum.GetColorAt(keyProgress, 1.0f, flashAmount);
+                    
+                    if (progressTotal - keyProgress < delta)
+                    {
+                        var keyCoverage = (progressTotal - keyProgress) / delta;
+                        if (keyCoverage < float.Epsilon)
+                        {
+                            return;
+                        }
+                        var partialColor = ColorUtils.MultiplyColorByScalar(color, keyCoverage);
+                        effectLayer.Set(key, in partialColor);
+                        return;
+                    }
+                    effectLayer.Set(key, in color);
+                }
+                break;
+            }
+            case (PercentEffectType.Highest_Key, KeySequenceType.Sequence):
+            case (PercentEffectType.Highest_Key_Blend, KeySequenceType.Sequence):
+            {
+                if (progressTotal <= 0)
+                {
+                    return;
+                }
+                var highestKey = Math.Clamp((int)(progressTotal * keys.Length), 0, keys.Length - 1);
+                
+                var key = keys[highestKey];
+                var color = spectrum.GetColorAt(progressTotal, 1.0f, flashAmount);
+                effectLayer.Set(key, in color);
+                return;
             }
         }
     }
