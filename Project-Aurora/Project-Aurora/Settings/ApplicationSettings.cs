@@ -8,6 +8,7 @@ namespace AuroraRgb.Settings;
 [JsonSerializable(typeof(FirstTimeApplicationSettings))]
 [JsonSerializable(typeof(NewJsonApplicationSettings))]
 [JsonSerializable(typeof(GenericApplicationSettings))]
+[JsonSerializable(typeof(PluginManagerSettings))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class SettingsJsonContext : JsonSerializerContext;
 
