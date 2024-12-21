@@ -190,8 +190,7 @@ public sealed class LightingStateManager : IDisposable
             return Array.Empty<Application>();
         }
 
-        var additionals = new List<string>(Directory.EnumerateDirectories(additionalProfilesPath));
-        var userApps = from dir in additionals
+        var userApps = from dir in Directory.EnumerateDirectories(additionalProfilesPath)
             where File.Exists(Path.Combine(dir, "settings.json"))
             select Path.GetFileName(dir);
 

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Settings;
 
-[JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
 public class ObjectSettings<T>
 {
     protected string? SettingsSavePath { get; set; }
@@ -37,10 +36,8 @@ public class ObjectSettings<T>
         {
             try
             {
-                await File.WriteAllTextAsync(SettingsSavePath, JsonConvert.SerializeObject(Settings, new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Auto, Formatting = Formatting.Indented
-                }));
+                var json = JsonSerializer.Serialize(Settings, Settings.GetType(), SettingsJsonContext.Default);
+                await File.WriteAllTextAsync(SettingsSavePath, json);
                 return;
             }
             catch (IOException ioException)
@@ -71,9 +68,12 @@ public class ObjectSettings<T>
         {
             try
             {
-                var json = await File.ReadAllTextAsync(SettingsSavePath);
-                var jsonSerializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.None };
-                Settings = (T)JsonConvert.DeserializeObject(json, settingsType, jsonSerializerSettings);
+                string json;
+                using (var streamReader = new StreamReader(SettingsSavePath))
+                {
+                    json = await streamReader.ReadToEndAsync();
+                }
+                Settings = (T)JsonSerializer.Deserialize(json, settingsType, SettingsJsonContext.Default);
             }
             catch (Exception exc)
             {

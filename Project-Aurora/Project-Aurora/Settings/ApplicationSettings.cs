@@ -1,7 +1,15 @@
 ﻿using System.ComponentModel;
 using System.Text.Json.Serialization;
+using AuroraRgb.Profiles.Generic_Application;
 
 namespace AuroraRgb.Settings;
+
+[JsonSerializable(typeof(ApplicationSettings))]
+[JsonSerializable(typeof(FirstTimeApplicationSettings))]
+[JsonSerializable(typeof(NewJsonApplicationSettings))]
+[JsonSerializable(typeof(GenericApplicationSettings))]
+[JsonSourceGenerationOptions(WriteIndented = true)]
+public partial class SettingsJsonContext : JsonSerializerContext;
 
 public class ApplicationSettings : INotifyPropertyChanged
 {
@@ -41,7 +49,6 @@ public class FirstTimeApplicationSettings : ApplicationSettings
     }
 }
 
-
 public class NewJsonApplicationSettings : ApplicationSettings
 {
     public bool IsNewJsonInstalled { get; private set; }
@@ -53,9 +60,9 @@ public class NewJsonApplicationSettings : ApplicationSettings
     }
 
     [method: JsonConstructor]
-    public NewJsonApplicationSettings(bool isFirstTimeInstalled)
+    public NewJsonApplicationSettings(bool isNewJsonInstalled)
     {
-        IsNewJsonInstalled = isFirstTimeInstalled;
+        IsNewJsonInstalled = isNewJsonInstalled;
     }
     
     public override void CompleteInstallation()
