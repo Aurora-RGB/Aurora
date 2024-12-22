@@ -109,7 +109,7 @@ public sealed class SingleConcurrentThread
         _semaphore.Release();
     }
 
-    public void Dispose(int timeout)
+    public void Shutdown(int timeout)
     {
         if (UsePool)
         {
@@ -122,6 +122,11 @@ public sealed class SingleConcurrentThread
             _thread.Join(timeout);
             _cancellationTokenSource.Dispose();
         }
+    }
+
+    public void Dispose(int timeout)
+    {
+        Shutdown(timeout);
         _worker.Dispose();
     }
 }

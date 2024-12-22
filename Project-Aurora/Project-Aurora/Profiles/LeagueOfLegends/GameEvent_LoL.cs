@@ -1,41 +1,55 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using AuroraRgb.Modules;
 using AuroraRgb.Profiles.LeagueOfLegends.GSI;
 using AuroraRgb.Profiles.LeagueOfLegends.GSI.Nodes;
 using AuroraRgb.Utils;
+using Common.Utils;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.LeagueOfLegends;
 
-public sealed class GameEvent_LoL : LightEvent
+public sealed class GameEventLoL : LightEvent
 {
-    private const string URI = "https://127.0.0.1:2999/liveclientdata/allgamedata";
+    private static readonly Uri Uri = new("https://127.0.0.1:2999/liveclientdata/allgamedata");
 
     private readonly HttpClient _client;
-    private readonly Timer _updateTimer;
+    private readonly SingleConcurrentThread _updateThread;
 
     private _RootGameData? _allGameData;
     private bool _updatedOnce;
+    private CancellationTokenSource _cancellationTokenSource = new();
 
-    public GameEvent_LoL()
+    public GameEventLoL()
     {
         //ignore ssl errors
         var handler = new HttpClientHandler();
         handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
         _client = new HttpClient(handler);
-        _updateTimer = new Timer(100);
-        _updateTimer.Elapsed += UpdateData;
+        _updateThread = new SingleConcurrentThread("LoL update thread", UpdateData, ExceptionCallback);
     }
 
-    public override void OnStart() => _updateTimer.Start();
+    private void ExceptionCallback(object? arg1, SingleThreadExceptionEventArgs arg2)
+    {
+        Global.logger.Error(arg2.Exception, "Error updating LoL data");
+        _updateThread.Trigger();
+    }
+
+    public override void OnStart()
+    {
+        var cancelSource = _cancellationTokenSource;
+        _cancellationTokenSource = new CancellationTokenSource();
+        cancelSource.Dispose();
+        _updateThread.Trigger();
+    }
 
     public override void OnStop()
     {
-        _updateTimer.Stop();
-        _client.CancelPendingRequests();
+        var cancelSource = _cancellationTokenSource;
+        cancelSource.Cancel();
     }
 
     public override void UpdateTick()
@@ -54,10 +68,12 @@ public sealed class GameEvent_LoL : LightEvent
         try
         {
             #region Match
+
             s.Match.InGame = true;
             //s.Match.GameMode = EnumUtils.TryParseOr(allGameData.gameData.gameMode, true, GameMode.Unknown);
             s.Match.GameMode = _allGameData.gameData.gameMode;
             s.Match.GameTime = _allGameData.gameData.gameTime;
+
             #endregion
 
             #region Player
@@ -68,6 +84,7 @@ public sealed class GameEvent_LoL : LightEvent
             s.Player.SummonerName = ap.summonerName;
 
             #region Abilities
+
             s.Player.Abilities.Q.Level = ap.abilities.Q.abilityLevel;
             s.Player.Abilities.Q.Name = ap.abilities.Q.displayName;
             s.Player.Abilities.W.Level = ap.abilities.W.abilityLevel;
@@ -76,9 +93,11 @@ public sealed class GameEvent_LoL : LightEvent
             s.Player.Abilities.E.Name = ap.abilities.E.displayName;
             s.Player.Abilities.R.Level = ap.abilities.R.abilityLevel;
             s.Player.Abilities.R.Name = ap.abilities.R.displayName;
+
             #endregion
 
             #region Stats
+
             s.Player.ChampionStats.AbilityPower = ap.championStats.abilityPower;
             s.Player.ChampionStats.Armor = ap.championStats.armor;
             s.Player.ChampionStats.ArmorPenetrationFlat = ap.championStats.armorPenetrationFlat;
@@ -107,13 +126,17 @@ public sealed class GameEvent_LoL : LightEvent
             s.Player.ChampionStats.ResourceCurrent = ap.championStats.resourceValue;
             s.Player.ChampionStats.SpellVamp = ap.championStats.spellVamp;
             s.Player.ChampionStats.Tenacity = ap.championStats.tenacity;
+
             #endregion
 
             #region Runes
+
             //TODO
+
             #endregion
 
             #region allPlayer data
+
             //there's some data in allPlayers about the user that is not contained in activePlayer...
             var p = _allGameData.allPlayers.FirstOrDefault(a => a.summonerName == ap.summonerName);
             if (p == null)
@@ -133,9 +156,11 @@ public sealed class GameEvent_LoL : LightEvent
             s.Player.Assists = p.scores.assists;
             s.Player.CreepScore = p.scores.creepScore;
             s.Player.WardScore = p.scores.wardScore;
+
             #endregion
 
             #region Events
+
             var drags = _allGameData.events.Events.OfType<_DragonKillEvent>();
 
             s.Match.InfernalDragonsKilled = drags.Count(d => d.DragonType.ToLower() == "fire");
@@ -152,9 +177,11 @@ public sealed class GameEvent_LoL : LightEvent
             s.Match.TurretsKilled = _allGameData.events.Events.Count(ev => ev is _TurretKillEvent);
             s.Match.InhibsKilled = _allGameData.events.Events.Count(ev => ev is _InhibKillEvent);
             s.Match.MapTerrain = EnumUtils.TryParseOr(_allGameData.gameData.mapTerrain, true, MapTerrain.Unknown);
+
             #endregion
 
             #region Items
+
             s.Player.Items.Slot1 = GetItem(p, 0);
             s.Player.Items.Slot2 = GetItem(p, 1);
             s.Player.Items.Slot3 = GetItem(p, 2);
@@ -162,6 +189,7 @@ public sealed class GameEvent_LoL : LightEvent
             s.Player.Items.Slot5 = GetItem(p, 4);
             s.Player.Items.Slot6 = GetItem(p, 5);
             s.Player.Items.Trinket = GetItem(p, 6);
+
             #endregion
 
             #endregion
@@ -185,43 +213,36 @@ public sealed class GameEvent_LoL : LightEvent
         return newItem == null ? new SlotNode() : new SlotNode(newItem);
     }
 
-    private async void UpdateData(object? sender, ElapsedEventArgs e)
+    private async Task UpdateData()
     {
-        if (!ProcessesModule.RunningProcessMonitor.Result.IsProcessRunning("league of legends.exe"))
+        if (!(await ProcessesModule.RunningProcessMonitor).IsProcessRunning("league of legends.exe"))
         {
             _allGameData = null;
             return;
         }
 
         var jsonData = "";
-        try
-        {
-            using var res = await _client.GetAsync(URI);
-            if (res.IsSuccessStatusCode)
-                jsonData = await res.Content.ReadAsStringAsync();
-        }
-        catch (Exception exc)
-        {
-            Global.logger.Error(exc, "Error updating LoL data");
-            _allGameData = null;
-            return;
-        }
+        using var res = await _client.GetAsync(Uri, _cancellationTokenSource.Token);
+        if (res.IsSuccessStatusCode)
+            jsonData = await res.Content.ReadAsStringAsync();
 
         if (string.IsNullOrWhiteSpace(jsonData) || jsonData.Contains("error"))
         {
             _allGameData = null;
+            _updateThread.Trigger();
             return;
         }
 
         _allGameData = JsonConvert.DeserializeObject<_RootGameData>(jsonData);
         _updatedOnce = true;
+        _updateThread.Trigger();
     }
 
     public override void Dispose()
     {
         base.Dispose();
-        
+
         _client.Dispose();
-        _updateTimer.Dispose();
+        _updateThread.Dispose(200);
     }
 }
