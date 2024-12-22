@@ -19,7 +19,7 @@ public sealed class FreeFormObject : IEquatable<FreeFormObject>
 {
     private float _x;
     /// <summary>
-    /// Get/Set the X coordinate for this region.
+    /// Get/Set the original X coordinate for this region. Absolute X coordinate is calculated based on the rotation angle.
     /// </summary>
     public float X
     {
@@ -33,7 +33,7 @@ public sealed class FreeFormObject : IEquatable<FreeFormObject>
 
     private float _y;
     /// <summary>
-    /// Get/Set the Y coordinate for this region.
+    /// Get/Set the original Y coordinate for this region. Absolute Y coordinate is calculated based on the rotation angle.
     /// </summary>
     public float Y
     {

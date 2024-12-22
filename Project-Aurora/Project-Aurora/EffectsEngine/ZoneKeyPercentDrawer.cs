@@ -378,6 +378,83 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 effectLayer.Set(key, in color);
                 return;
             }
+            case (_, KeySequenceType.FreeForm):
+            {
+                PercentEffectOnFreeForm(spectrum, sequence.Freeform, keys, value, total, flashPast, flashReversed, effectLayer);
+                return;
+            }
         }
+    }
+
+    private static void PercentEffectOnFreeForm(ColorSpectrum spectrum, FreeFormObject freeform,
+        DeviceKeys[] keys, double value, double total,
+        double flashPast, bool flashReversed, EffectLayer effectLayer)
+    {
+        // Calculate progress
+        var progressTotal = Math.Clamp(value / total, 0.0, 1.0);
+
+        var percent = 1.0;
+        // Apply flash effect if needed
+        if (flashPast > 0.0 && ((flashReversed && progressTotal >= flashPast) || (!flashReversed && progressTotal <= flashPast)))
+        {
+            percent = Math.Sin(Time.GetMillisecondsSinceEpoch() % 1000.0D / 1000.0D * Math.PI);
+        }
+
+        // Calculate freeform object's world coordinates and corners
+        var freeformCorners = GetFreeFormCorners(freeform, progressTotal);
+
+        // Iterate through keys and determine their color based on their position
+        foreach (var key in keys)
+        {
+            // Get key's rectangle in canvas coordinates
+            ref readonly var keyRect = ref Effects.Canvas.GetRectangle(key);
+
+            // Create key corners
+            var keyCorners = new[]
+            {
+                new PointF(keyRect.Left, keyRect.Bottom),
+                new PointF(keyRect.Right, keyRect.Bottom),
+                new PointF(keyRect.Right, keyRect.Top),
+                new PointF(keyRect.Left, keyRect.Top)
+            };
+
+            // Calculate coverage
+            var coverageRatio = CalculateKeyCoverage(freeformCorners, keyCorners) * percent;
+            if (coverageRatio < double.Epsilon)
+            {
+                continue;
+            }
+
+            var x = GetKeyColorPosition(keyCorners, freeform);
+
+            var keyColor = ColorUtils.MultiplyColorByScalar(
+                spectrum.GetColorAt(x),
+                Math.Min(coverageRatio, 1.0)
+            );
+
+            effectLayer.Set(key, in keyColor);
+        }
+    }
+
+    private static double GetKeyColorPosition(PointF[] keyCorners, FreeFormObject freeform)
+    {
+        // First calculate the center point of the key using its corners
+        var centerX = keyCorners.Average(p => p.X);
+        var centerY = keyCorners.Average(p => p.Y);
+        
+        // Calculate the key's center position as a ratio of the freeform's width
+        // Convert FreeForm coordinates to canvas coordinates
+        var xPos = (freeform.X + Effects.Canvas.GridBaselineX) * Effects.Canvas.EditorToCanvasWidth;
+        var yPos = (freeform.Y + Effects.Canvas.GridBaselineY) * Effects.Canvas.EditorToCanvasHeight;
+        var width = freeform.Width * Effects.Canvas.EditorToCanvasWidth;
+        var height = freeform.Height * Effects.Canvas.EditorToCanvasHeight;
+        
+        var x = (centerX - xPos) / width;
+        var y = (centerY - yPos) / height;
+        
+        var sin = Math.Sin(freeform.Angle * Math.PI / 180);
+        var cos = Math.Cos(freeform.Angle * Math.PI / 180);
+        
+        return x * cos - y * sin;
     }
 }
