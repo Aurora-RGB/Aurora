@@ -454,7 +454,12 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
         
         var sin = Math.Sin(freeform.Angle * Math.PI / 180);
         var cos = Math.Cos(freeform.Angle * Math.PI / 180);
-        
-        return x * cos - y * sin;
+
+        var keyColorPosition = x * cos - y * sin;
+        if (keyColorPosition < 0)
+        {
+            return 1 + keyColorPosition;
+        }
+        return keyColorPosition;
     }
 }
