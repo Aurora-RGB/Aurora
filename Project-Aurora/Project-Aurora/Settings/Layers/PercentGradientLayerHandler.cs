@@ -39,12 +39,9 @@ public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradient
 
     public override EffectLayer Render(IGameState gameState)
     {
-        if (Invalidated)
-        {
-            EffectLayer.Clear();
-        }
+        EffectLayer.Clear();
         Invalidated = false;
-            
+
         var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
         var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
