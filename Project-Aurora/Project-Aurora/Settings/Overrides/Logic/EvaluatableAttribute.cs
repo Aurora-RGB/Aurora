@@ -26,7 +26,7 @@ public class EvaluatableAttribute : Attribute {
     public EvaluatableCategory Category { get; }
 
     /// <summary>Gets the description of the category as a string.</summary>
-    public string CategoryStr => EnumUtils.GetDescription(Category);
+    public string CategoryStr => Category.GetDescription();
 }
 
 public enum EvaluatableCategory {
@@ -35,5 +35,6 @@ public enum EvaluatableCategory {
     [Description("Input")] Input,
     [Description("Misc.")] Misc,
     [Description("Maths")] Maths,
-    [Description("String")] String
+    [Description("String")] String,
+    [Description("Global Variable")] Global,
 }

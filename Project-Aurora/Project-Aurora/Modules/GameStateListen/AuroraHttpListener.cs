@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Net;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using AuroraRgb.Nodes;
 using AuroraRgb.Profiles;
 using Common.Utils;
 
@@ -31,6 +33,9 @@ public sealed partial class AuroraHttpListener
     private readonly HttpListener _netListener;
     private readonly int _port;
     private readonly SingleConcurrentThread _readThread;
+    private readonly SingleConcurrentThread _readThread2;
+
+    private SingleConcurrentThread _nextReadThread;
 
     public IGameState CurrentGameState
     {
@@ -62,7 +67,10 @@ public sealed partial class AuroraHttpListener
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
         
-        _readThread = new SingleConcurrentThread("Http Read Thread", AsyncRead, ExceptionCallback);
+        _readThread = new SingleConcurrentThread("Http Read Thread 1", AsyncRead1, ExceptionCallback);
+        _readThread2 = new SingleConcurrentThread("Http Read Thread 2", AsyncRead2, ExceptionCallback);
+
+        _nextReadThread = _readThread;
     }
 
     private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
@@ -100,7 +108,24 @@ public sealed partial class AuroraHttpListener
         return true;
     }
 
-    private async Task AsyncRead()
+    private async Task AsyncRead1()
+    {
+        try
+        {
+            var context = await _netListener.GetContextAsync().WaitAsync(_cancellationToken);
+            if (!_cancellationToken.IsCancellationRequested)
+            {
+                _readThread2.Trigger();
+            }
+            ProcessContext(context);
+        }
+        catch (TaskCanceledException)
+        {
+            // stop
+        }
+    }
+
+    private async Task AsyncRead2()
     {
         try
         {
@@ -155,6 +180,12 @@ public sealed partial class AuroraHttpListener
             return null;
         }
 
+        if (path.StartsWith("/variables"))
+        {
+            ProcessVariables(json);
+            return null;
+        }
+
         if (!path.StartsWith("/gameState/"))
         {
             return new NewtonsoftGameState(json);
@@ -175,6 +206,39 @@ public sealed partial class AuroraHttpListener
         // set announce false to prevent LSM from setting it to a profile
         // also return NewtonsoftGameState for compatibility and GSI window 
         return new NewtonsoftGameState(json, false);
+    }
+
+    private static void ProcessVariables(string json)
+    {
+        var jsonNode = JsonSerializer.Deserialize<JsonElement>(json);
+        switch (jsonNode.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in jsonNode.EnumerateObject())
+                {
+                    var key = property.Name;
+                    var value = property.Value;
+                    switch (value.ValueKind)
+                    {
+                        case JsonValueKind.String:
+                            AuroraVariables.Instance.Strings[key] = value.GetString() ?? string.Empty;
+                            break;
+                        case JsonValueKind.Number:
+                            AuroraVariables.Instance.Numbers[key] = value.GetDouble();
+                            break;
+                        case JsonValueKind.True:
+                        case JsonValueKind.False:
+                            AuroraVariables.Instance.Booleans[key] = value.GetBoolean();
+                            break;
+                        case JsonValueKind.Null:
+                            AuroraVariables.Instance.Strings.Remove(key);
+                            AuroraVariables.Instance.Numbers.Remove(key);
+                            AuroraVariables.Instance.Booleans.Remove(key);
+                            break;
+                    }
+                }
+                break;
+        }
     }
 
     private static string ReadContent(HttpListenerContext context, out string path)
