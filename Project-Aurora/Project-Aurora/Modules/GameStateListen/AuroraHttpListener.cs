@@ -157,6 +157,50 @@ public sealed partial class AuroraHttpListener
 
     private void ProcessContext(HttpListenerContext context)
     {
+        switch (context.Request.HttpMethod)
+        {
+            case "GET":
+                ProcessGet(context);
+                break;
+            case "POST":
+                ProcessPost(context);
+                break;
+            default:
+                var response = context.Response;
+                response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                response.ContentLength64 = 0;
+                response.Headers = WebHeaderCollection;
+                response.Close([], true);
+                break;
+        }
+    }
+
+    private static void ProcessGet(HttpListenerContext context)
+    {
+        if (context.Request.Url.LocalPath == "/variables")
+        {
+            var response = context.Response;
+            response.StatusCode = (int)HttpStatusCode.OK;
+            response.ContentType = "application/json";
+            response.Headers = WebHeaderCollection;
+            using (var sw = new StreamWriter(response.OutputStream))
+            {
+                JsonSerializer.SerializeAsync<AuroraVariables>(sw.BaseStream, AuroraVariables.Instance, VariablesSourceGenContext.Default.AuroraVariables, CancellationToken.None);
+            }
+            response.Close([], true);
+        }
+        else
+        {
+            var response = context.Response;
+            response.StatusCode = (int)HttpStatusCode.NotFound;
+            response.ContentLength64 = 0;
+            response.Headers = WebHeaderCollection;
+            response.Close([], true);
+        }
+    }
+
+    private void ProcessPost(HttpListenerContext context)
+    {
         var json = ReadContent(context, out var path);
         try
         {
