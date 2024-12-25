@@ -35,8 +35,6 @@ public sealed partial class AuroraHttpListener
     private readonly SingleConcurrentThread _readThread;
     private readonly SingleConcurrentThread _readThread2;
 
-    private SingleConcurrentThread _nextReadThread;
-
     public IGameState CurrentGameState
     {
         get => _currentGameState;
@@ -69,8 +67,6 @@ public sealed partial class AuroraHttpListener
         
         _readThread = new SingleConcurrentThread("Http Read Thread 1", AsyncRead1, ExceptionCallback);
         _readThread2 = new SingleConcurrentThread("Http Read Thread 2", AsyncRead2, ExceptionCallback);
-
-        _nextReadThread = _readThread;
     }
 
     private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
@@ -164,6 +160,12 @@ public sealed partial class AuroraHttpListener
                 break;
             case "POST":
                 ProcessPost(context);
+                break;
+            case "OPTIONS":
+                var optResponse = context.Response;
+                optResponse.StatusCode = (int)HttpStatusCode.OK;
+                optResponse.Headers = WebHeaderCollection;
+                optResponse.Close([], true);
                 break;
             default:
                 var response = context.Response;
