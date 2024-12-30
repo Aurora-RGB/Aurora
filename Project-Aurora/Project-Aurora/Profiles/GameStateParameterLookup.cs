@@ -76,7 +76,7 @@ public sealed class GameStateParameterLookup {
 
     /// <summary>Returns a list of all children of the given path, REGARDLESS of depth.</summary>
     private IEnumerable<GameStateParameterLookupEntry> AllChildren(string path) {
-        if (!path.EndsWith("/")) path += '/';
+        if (!path.EndsWith('/')) path += '/';
         return from kvp in _lookup where kvp.Key.StartsWith(path) select kvp.Value;
     }
 

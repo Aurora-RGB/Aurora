@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace AuroraRgb.Vorons.Mathos.Parser;
 
@@ -239,8 +240,8 @@ internal class MathParser
     {
         if (identifyComments)
         {
-            mathExpression = System.Text.RegularExpressions.Regex.Replace(mathExpression, "#\\{.*?\\}#", ""); // Delete Comments #{Comment}#
-            mathExpression = System.Text.RegularExpressions.Regex.Replace(mathExpression, "#.*$", ""); // Delete Comments #Comment
+            mathExpression = Regex.Replace(mathExpression, "#\\{.*?\\}#", ""); // Delete Comments #{Comment}#
+            mathExpression = Regex.Replace(mathExpression, "#.*$", ""); // Delete Comments #Comment
         }
 
         if (correctExpression)
@@ -260,7 +261,7 @@ internal class MathParser
             else
             {
                 varName = mathExpression.Substring(mathExpression.IndexOf("let", StringComparison.Ordinal) + 3,
-                    mathExpression.IndexOf("=", StringComparison.Ordinal) - mathExpression.IndexOf("let", StringComparison.Ordinal) - 3);
+                    mathExpression.IndexOf('=', StringComparison.Ordinal) - mathExpression.IndexOf("let", StringComparison.Ordinal) - 3);
                 mathExpression = mathExpression.Replace(varName + "=", "");
             }
 
@@ -317,10 +318,10 @@ internal class MathParser
     {
         // Word corrections
 
-        input = System.Text.RegularExpressions.Regex.Replace(input, "\\b(sqr|sqrt)\\b", "sqrt",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        input = System.Text.RegularExpressions.Regex.Replace(input, "\\b(atan2|arctan2)\\b", "arctan2",
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        input = Regex.Replace(input, "\\b(sqr|sqrt)\\b", "sqrt",
+            RegexOptions.IgnoreCase);
+        input = Regex.Replace(input, "\\b(atan2|arctan2)\\b", "arctan2",
+            RegexOptions.IgnoreCase);
         //... and more
 
         return input;

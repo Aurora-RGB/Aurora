@@ -27,7 +27,7 @@
         <StartupObject>AuroraRgb.App</StartupObject>
 
         <CsWinRTAotOptimizerEnabled>false</CsWinRTAotOptimizerEnabled>
-        <WarningsAsErrors>CA2244;CA1069;SYSLIB1054</WarningsAsErrors>
+        <WarningsAsErrors>CA2244;CA1069;SYSLIB1054;CA1865;CA1866;CA1867</WarningsAsErrors>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">

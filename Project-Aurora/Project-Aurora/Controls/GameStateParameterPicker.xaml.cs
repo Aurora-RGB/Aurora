@@ -280,7 +280,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
     {
         var path = WorkingPath.GsiPath;
         if (path.Contains('/'))
-            WorkingPath = new VariablePath(path.Substring(0, path.LastIndexOf("/")));
+            WorkingPath = new VariablePath(path[..path.LastIndexOf('/')]);
         else
             WorkingPath = VariablePath.Empty;
     }
