@@ -22,7 +22,7 @@ public sealed class EventIdle : LightEvent
 
     internal readonly LayerEffectConfig EffectCfg = new();
 
-    internal readonly DeviceKeys[] AllKeys = Enum.GetValues(typeof(DeviceKeys)).Cast<DeviceKeys>().ToArray();
+    internal readonly DeviceKeys[] AllKeys = Enum.GetValues<DeviceKeys>().Except([DeviceKeys.NONE]).ToArray();
 
     private AwayEffect _awayEffect = DimEffect.Instance;
 
@@ -219,7 +219,8 @@ internal class RainFall(EventIdle eventIdle) : AwayEffect
         {
             for (var x = 0; x < IdleAmount; x++)
             {
-                var star = eventIdle.AllKeys[eventIdle.Randomizer.Next(eventIdle.AllKeys.Length)];
+                var index = eventIdle.Randomizer.Next(eventIdle.AllKeys.Length);
+                var star = eventIdle.AllKeys[index];
                 _raindrops[star] = 1.0f;
             }
 
