@@ -418,10 +418,10 @@ public sealed class LightingStateManager : IDisposable
 
     private void UpdateProcess()
     {
-        if (Global.Configuration.DetectionMode != ApplicationDetectionMode.ForegroundApp ||
-            _currentTick < _nextProcessNameUpdate) return;
+        var pollingEnabled = Global.Configuration.DetectionMode is ApplicationDetectionMode.ForegroundApp or ApplicationDetectionMode.EventsAndForeground;
+        if (!pollingEnabled || _currentTick < _nextProcessNameUpdate) return;
         _activeProcessMonitor.Result.UpdateActiveProcessPolling();
-        _nextProcessNameUpdate = _currentTick + 1000L;
+        _nextProcessNameUpdate = _currentTick + 2000L;
     }
 
     private void UpdateIdleEffects(EffectFrame newFrame)

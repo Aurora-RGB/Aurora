@@ -584,6 +584,9 @@ public enum ApplicationDetectionMode
     [Description("Foreground App Scan")]
     ForegroundApp = 1,
 
+    [Description("Windows Events and Foreground App Scan")]
+    EventsAndForeground = 2,
+
     [Description("None")]
     [UsedImplicitly]
     None = -1,

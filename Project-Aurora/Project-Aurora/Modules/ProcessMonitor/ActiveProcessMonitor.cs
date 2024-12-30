@@ -31,13 +31,11 @@ public sealed class ActiveProcessMonitor : IDisposable
 	internal ActiveProcessMonitor()
 	{
 		_dele = WinEventProc;
-		if (Global.Configuration.DetectionMode != ApplicationDetectionMode.WindowsEvents)
+		if (Global.Configuration.DetectionMode is ApplicationDetectionMode.WindowsEvents or ApplicationDetectionMode.EventsAndForeground)
 		{
-			return;
+			_setWinEventHook = User32.SetWinEventHook(EventSystemForeground, EventSystemForeground, 
+				IntPtr.Zero, _dele, 0, 0, WinEventOutOfContext);
 		}
-
-		_setWinEventHook = User32.SetWinEventHook(EventSystemForeground, EventSystemForeground, 
-			IntPtr.Zero, _dele, 0, 0, WinEventOutOfContext);
 	}
 
 	private void WinEventProc(IntPtr hWinEventHook, uint eventType, IntPtr windowHandle, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime)
@@ -77,6 +75,9 @@ public sealed class ActiveProcessMonitor : IDisposable
 
 	public void Dispose()
 	{
-		User32.UnhookWinEvent(_setWinEventHook);
+		if (_setWinEventHook != IntPtr.Zero)
+		{
+			User32.UnhookWinEvent(_setWinEventHook);
+		}
 	}
 }
