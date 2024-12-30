@@ -598,12 +598,12 @@ public sealed class LightingStateManager : IDisposable
     }
 
     /// <summary>Gets the current application.</summary>
-    private Application GetCurrentProfile() => GetCurrentProfile(out _);
+    public Application GetCurrentProfile() => GetCurrentProfile(out _);
     /// <summary>
     /// Returns a list of all profiles that should have their overlays active. This will include processes that running but not in the foreground.
     /// </summary>
     /// <returns></returns>
-    private IEnumerable<Application> GetOverlayActiveProfiles()
+    public IEnumerable<Application> GetOverlayActiveProfiles()
     {
         return Events.Values.Where(_isOverlayActiveProfile);
     }

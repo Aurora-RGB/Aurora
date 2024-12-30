@@ -1,12 +1,12 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Frozen;
+using System.Linq;
 using System.Net;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using AuroraRgb.Nodes;
+using AuroraRgb.Modules.GameStateListen.Http;
 using AuroraRgb.Profiles;
 using Common.Utils;
 
@@ -18,7 +18,7 @@ public sealed class JsonGameStateEventArgs(string gameId, string json) : EventAr
     public string Json { get; } = json;
 }
 
-public sealed partial class AuroraHttpListener
+public sealed class AuroraHttpListener
 {
     private static readonly WebHeaderCollection WebHeaderCollection = new()
     {
@@ -34,11 +34,13 @@ public sealed partial class AuroraHttpListener
     private readonly int _port;
     private readonly SingleConcurrentThread _readThread;
     private readonly SingleConcurrentThread _readThread2;
+    private readonly FrozenDictionary<string, AuroraEndpoint> _endpoints;
+    private readonly FrozenDictionary<Regex, AuroraRegexEndpoint> _regexEndpoints;
 
     public IGameState CurrentGameState
     {
         get => _currentGameState;
-        private set
+        internal set
         {
             _currentGameState = value;
             NewGameState?.Invoke(this, value);
@@ -64,9 +66,12 @@ public sealed partial class AuroraHttpListener
 
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
-        
+
         _readThread = new SingleConcurrentThread("Http Read Thread 1", AsyncRead1, ExceptionCallback);
         _readThread2 = new SingleConcurrentThread("Http Read Thread 2", AsyncRead2, ExceptionCallback);
+        
+        _endpoints = HttpEndpointFactory.CreateEndpoints(this);
+        _regexEndpoints = HttpEndpointFactory.CreateRegexEndpoints(this);
     }
 
     private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
@@ -153,163 +158,42 @@ public sealed partial class AuroraHttpListener
 
     private void ProcessContext(HttpListenerContext context)
     {
-        switch (context.Request.HttpMethod)
+        var path = context.Request.Url!.LocalPath;
+        
+        // find exact path match
+        if (_endpoints.TryGetValue(path, out var endpoint))
         {
-            case "GET":
-                ProcessGet(context);
-                break;
-            case "POST":
-                ProcessPost(context);
-                break;
-            case "OPTIONS":
-                var optResponse = context.Response;
-                optResponse.StatusCode = (int)HttpStatusCode.OK;
-                optResponse.Headers = WebHeaderCollection;
-                optResponse.Close([], true);
-                break;
-            default:
-                var response = context.Response;
-                response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-                response.ContentLength64 = 0;
-                response.Headers = WebHeaderCollection;
-                response.Close([], true);
-                break;
+            endpoint.HandleRequest(context);
+            return;
         }
-    }
 
-    private static void ProcessGet(HttpListenerContext context)
-    {
-        if (context.Request.Url.LocalPath == "/variables")
-        {
-            var response = context.Response;
-            response.StatusCode = (int)HttpStatusCode.OK;
-            response.ContentType = "application/json";
-            response.Headers = WebHeaderCollection;
-            using (var sw = new StreamWriter(response.OutputStream))
-            {
-                JsonSerializer.SerializeAsync<AuroraVariables>(sw.BaseStream, AuroraVariables.Instance, VariablesSourceGenContext.Default.AuroraVariables, CancellationToken.None);
-            }
-            response.Close([], true);
-        }
-        else
-        {
-            var response = context.Response;
-            response.StatusCode = (int)HttpStatusCode.NotFound;
-            response.ContentLength64 = 0;
-            response.Headers = WebHeaderCollection;
-            response.Close([], true);
-        }
-    }
-
-    private void ProcessPost(HttpListenerContext context)
-    {
-        var json = ReadContent(context, out var path);
+        // find regex path match
         try
         {
-            var response = TryProcessRequest(json, path);
-            if (response != null)
-            {
-                CurrentGameState = response;
-            }
-        }
-        catch (Exception e)
+            var (match, regexEndpoint) = _regexEndpoints
+                .Select(kv => (kv.Key.Match(path), kv.Value))
+                .First(kv => kv.Item1.Success);
+            regexEndpoint.HandleRequest(context, match);
+            return;
+        }catch(InvalidOperationException)
         {
-            Global.logger.Error(e, "[NetworkListener] ReceiveGameState error on: {Path}", path);
-            Global.logger.Debug("JSON: {Json}", json);
+            // no match
         }
-    }
-
-    private NewtonsoftGameState? TryProcessRequest(string json, string path)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return null;
-        }
-
-        if (path.StartsWith("/variables"))
-        {
-            ProcessVariables(json);
-            return null;
-        }
-
-        if (!path.StartsWith("/gameState/"))
-        {
-            return new NewtonsoftGameState(json);
-        }
-
-        var match = GameStateRegex().Match(path);
-        if (!match.Success)
-        {
-            return new NewtonsoftGameState(json);
-        }
- 
-        var gameIdGroup = match.Groups[1];
-        var gameId = gameIdGroup.Value;
-
-        var eventArgs = new JsonGameStateEventArgs(gameId, json);
-        NewJsonGameState?.Invoke(this, eventArgs);
         
-        // set announce false to prevent LSM from setting it to a profile
-        // also return NewtonsoftGameState for compatibility and GSI window 
-        return new NewtonsoftGameState(json, false);
-    }
-
-    private static void ProcessVariables(string json)
-    {
-        var jsonNode = JsonSerializer.Deserialize<JsonElement>(json);
-        switch (jsonNode.ValueKind)
-        {
-            case JsonValueKind.Object:
-                foreach (var property in jsonNode.EnumerateObject())
-                {
-                    var key = property.Name;
-                    var value = property.Value;
-                    switch (value.ValueKind)
-                    {
-                        case JsonValueKind.String:
-                            AuroraVariables.Instance.Strings[key] = value.GetString() ?? string.Empty;
-                            break;
-                        case JsonValueKind.Number:
-                            AuroraVariables.Instance.Numbers[key] = value.GetDouble();
-                            break;
-                        case JsonValueKind.True:
-                        case JsonValueKind.False:
-                            AuroraVariables.Instance.Booleans[key] = value.GetBoolean();
-                            break;
-                        case JsonValueKind.Null:
-                            AuroraVariables.Instance.Strings.Remove(key);
-                            AuroraVariables.Instance.Numbers.Remove(key);
-                            AuroraVariables.Instance.Booleans.Remove(key);
-                            break;
-                    }
-                }
-                break;
-        }
-    }
-
-    private static string ReadContent(HttpListenerContext context, out string path)
-    {
-        var request = context.Request;
-        string json;
-
-        using (var sr = new StreamReader(request.InputStream))
-        {
-            json = sr.ReadToEnd();
-        }
-
-        // immediately respond to the game, don't let it wait for response
+        // no match
         var response = context.Response;
-        response.StatusCode = (int)HttpStatusCode.OK;
-        response.ContentLength64 = 0;
+        response.StatusCode = context.Request.HttpMethod switch
+        {
+             "OPTIONS" => (int)HttpStatusCode.OK,
+            _ => (int)HttpStatusCode.NotFound
+        };
         response.Headers = WebHeaderCollection;
         response.Close([], true);
-        
-        path = request.Url.LocalPath;
-
-        return json;
     }
 
-    // https://regex101.com/r/N3BMIu/1
-    [GeneratedRegex(@"\/gameState\/([a-zA-Z0-9_]*)\??\/?.*")]
-    private static partial Regex GameStateRegex();
+    public void OnNewJsonGameState(string gameId, string json)
+    {
+        var eventArgs = new JsonGameStateEventArgs(gameId, json);
+        NewJsonGameState?.Invoke(this, eventArgs);
+    }
 }

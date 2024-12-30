@@ -12,7 +12,6 @@ public class AuroraVariables
     public Dictionary<string, string> Strings { get; } = new(8);
 }
 
-
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(AuroraVariables))]
 public partial class VariablesSourceGenContext : JsonSerializerContext;
