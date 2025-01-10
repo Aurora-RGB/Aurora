@@ -15,6 +15,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+.sonarqube/
 
 # External tool builders
 .externalToolBuilders/
