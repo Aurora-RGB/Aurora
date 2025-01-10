@@ -1400,7 +1400,7 @@ public enum DeviceKeys
     /// Peripheral DPI
     /// </summary>
     [Description("PERIPHERAL_DPI")]
-    PERIPHERAL_DPI = 237, 
+    PERIPHERAL_DPI = 237,
 
     /// <summary>
     /// Mousepad Light 2
@@ -1768,6 +1768,186 @@ public enum DeviceKeys
 
     [Description("Scroll Lock Led")]
     WIN_LOCK_INDICATOR = 305,
+
+    [Description("Additional Light 61")]
+    ADDITIONALLIGHT61 = 306,
+
+    [Description("Additional Light 62")]
+    ADDITIONALLIGHT62 = 307,
+
+    [Description("Additional Light 63")]
+    ADDITIONALLIGHT63 = 308,
+
+    [Description("Additional Light 64")]
+    ADDITIONALLIGHT64 = 309,
+
+    [Description("Additional Light 65")]
+    ADDITIONALLIGHT65 = 310,
+
+    [Description("Additional Light 66")]
+    ADDITIONALLIGHT66 = 311,
+
+    [Description("Additional Light 67")]
+    ADDITIONALLIGHT67 = 312,
+
+    [Description("Additional Light 68")]
+    ADDITIONALLIGHT68 = 313,
+
+    [Description("Additional Light 69")]
+    ADDITIONALLIGHT69 = 314,
+
+    [Description("Additional Light 70")]
+    ADDITIONALLIGHT70 = 315,
+
+    [Description("Additional Light 71")]
+    ADDITIONALLIGHT71 = 316,
+
+    [Description("Additional Light 72")]
+    ADDITIONALLIGHT72 = 317,
+
+    [Description("Additional Light 73")]
+    ADDITIONALLIGHT73 = 318,
+
+    [Description("Additional Light 74")]
+    ADDITIONALLIGHT74 = 319,
+
+    [Description("Additional Light 75")]
+    ADDITIONALLIGHT75 = 320,
+
+    [Description("Additional Light 76")]
+    ADDITIONALLIGHT76 = 321,
+
+    [Description("Additional Light 77")]
+    ADDITIONALLIGHT77 = 322,
+
+    [Description("Additional Light 78")]
+    ADDITIONALLIGHT78 = 323,
+
+    [Description("Additional Light 79")]
+    ADDITIONALLIGHT79 = 324,
+
+    [Description("Additional Light 80")]
+    ADDITIONALLIGHT80 = 325,
+
+    [Description("Additional Light 81")]
+    ADDITIONALLIGHT81 = 326,
+
+    [Description("Additional Light 82")]
+    ADDITIONALLIGHT82 = 327,
+
+    [Description("Additional Light 83")]
+    ADDITIONALLIGHT83 = 328,
+
+    [Description("Additional Light 84")]
+    ADDITIONALLIGHT84 = 329,
+
+    [Description("Additional Light 85")]
+    ADDITIONALLIGHT85 = 330,
+
+    [Description("Additional Light 86")]
+    ADDITIONALLIGHT86 = 331,
+
+    [Description("Additional Light 87")]
+    ADDITIONALLIGHT87 = 332,
+
+    [Description("Additional Light 88")]
+    ADDITIONALLIGHT88 = 333,
+
+    [Description("Additional Light 89")]
+    ADDITIONALLIGHT89 = 334,
+
+    [Description("Additional Light 90")]
+    ADDITIONALLIGHT90 = 335,
+
+    [Description("Additional Light 91")]
+    ADDITIONALLIGHT91 = 336,
+
+    [Description("Additional Light 92")]
+    ADDITIONALLIGHT92 = 337,
+
+    [Description("Additional Light 93")]
+    ADDITIONALLIGHT93 = 338,
+
+    [Description("Additional Light 94")]
+    ADDITIONALLIGHT94 = 339,
+
+    [Description("Additional Light 95")]
+    ADDITIONALLIGHT95 = 340,
+
+    [Description("Additional Light 96")]
+    ADDITIONALLIGHT96 = 341,
+
+    [Description("Additional Light 97")]
+    ADDITIONALLIGHT97 = 342,
+
+    [Description("Additional Light 98")]
+    ADDITIONALLIGHT98 = 343,
+
+    [Description("Additional Light 99")]
+    ADDITIONALLIGHT99 = 344,
+
+    [Description("Additional Light 100")]
+    ADDITIONALLIGHT100 = 345,
+
+    [Description("Additional Light 101")]
+    ADDITIONALLIGHT101 = 346,
+
+    [Description("Additional Light 102")]
+    ADDITIONALLIGHT102 = 347,
+
+    [Description("Additional Light 103")]
+    ADDITIONALLIGHT103 = 348,
+
+    [Description("Additional Light 104")]
+    ADDITIONALLIGHT104 = 349,
+
+    [Description("Additional Light 105")]
+    ADDITIONALLIGHT105 = 350,
+
+    [Description("Additional Light 106")]
+    ADDITIONALLIGHT106 = 351,
+
+    [Description("Additional Light 107")]
+    ADDITIONALLIGHT107 = 352,
+
+    [Description("Additional Light 108")]
+    ADDITIONALLIGHT108 = 353,
+
+    [Description("Additional Light 109")]
+    ADDITIONALLIGHT109 = 354,
+
+    [Description("Additional Light 110")]
+    ADDITIONALLIGHT110 = 355,
+
+    [Description("Additional Light 111")]
+    ADDITIONALLIGHT111 = 356,
+
+    [Description("Additional Light 112")]
+    ADDITIONALLIGHT112 = 357,
+
+    [Description("Additional Light 113")]
+    ADDITIONALLIGHT113 = 358,
+
+    [Description("Additional Light 114")]
+    ADDITIONALLIGHT114 = 359,
+
+    [Description("Additional Light 115")]
+    ADDITIONALLIGHT115 = 360,
+
+    [Description("Additional Light 116")]
+    ADDITIONALLIGHT116 = 361,
+
+    [Description("Additional Light 117")]
+    ADDITIONALLIGHT117 = 362,
+
+    [Description("Additional Light 118")]
+    ADDITIONALLIGHT118 = 363,
+
+    [Description("Additional Light 119")]
+    ADDITIONALLIGHT119 = 364,
+
+    [Description("Additional Light 120")]
+    ADDITIONALLIGHT120 = 365,
 
     /// <summary>
     /// None
