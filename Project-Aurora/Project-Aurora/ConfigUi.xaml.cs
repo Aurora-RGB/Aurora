@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Automation.Peers;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
@@ -141,6 +142,11 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         _profilesStack.SettingsSelected += ProfilesStackOnSettingsSelected;
         
         ProfileStackGrid.Children.Add(_profilesStack);
+    }
+
+    protected override AutomationPeer OnCreateAutomationPeer()
+    {
+        return new FakeWindowsPeer(this);
     }
 
     private void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)

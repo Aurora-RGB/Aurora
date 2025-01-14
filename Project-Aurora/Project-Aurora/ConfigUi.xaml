@@ -31,7 +31,7 @@
     </WindowChrome.WindowChrome>
     <DockPanel x:Name="bg_grid" Background="#AA660000" IsHitTestVisible="True">
         <Grid Width="Auto" Height="25" Background="#10000000" DockPanel.Dock="Top">
-            <TextBlock Margin="12, 2">Aurora-RGB</TextBlock>
+            <TextBlock Margin="12, 2" Text="Aurora-RGB" Focusable="False"/>
         </Grid>
         <Grid Name="ProfileStackGrid" HorizontalAlignment="Left" Width="56" Background="#3F000000" DockPanel.Dock="Left" />
 
