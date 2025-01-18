@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -57,19 +58,22 @@ public sealed class AuroraHttpListener
      /// <summary>
     /// A GameStateListener that listens for connections on http://127.0.0.1:port/
     /// </summary>
-    /// <param name="port"></param>
-    public AuroraHttpListener(int port)
+    public AuroraHttpListener(int port, IEnumerable<string> listenIps)
     {
         _port = port;
         _netListener = new HttpListener();
         _netListener.Prefixes.Add($"http://127.0.0.1:{port}/");
+        foreach (var listenIp in listenIps)
+        {
+            _netListener.Prefixes.Add($"http://{listenIp}:{port}/");
+        }
 
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
 
         _readThread = new SingleConcurrentThread("Http Read Thread 1", AsyncRead1, ExceptionCallback);
         _readThread2 = new SingleConcurrentThread("Http Read Thread 2", AsyncRead2, ExceptionCallback);
-        
+
         _endpoints = HttpEndpointFactory.CreateEndpoints(this);
         _regexEndpoints = HttpEndpointFactory.CreateRegexEndpoints(this);
     }

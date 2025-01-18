@@ -44,11 +44,13 @@ public partial class Control_Settings
         var controlDeviceManager = new Control_DeviceManager(deviceManager, ipcListener);
         var deviceMapping = new DeviceMapping(deviceManager, ipcListener);
         var plugins = new Control_PluginManager(pluginManager);
+        var advancedSettings = new Control_AdvancedSettings();
         
         DevicesAndWrappersTab.Content = devicesAndWrappers;
         DeviceManagerTab.Content = controlDeviceManager;
         RemapDevicesTab.Content = deviceMapping;
         PluginsTab.Content = plugins;
+        AdvancedTab.Content = advancedSettings;
     }
 
     private void Hyperlink_RequestNavigate(object? sender, RequestNavigateEventArgs e)

@@ -58,6 +58,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool EnableMediaInfo { get; set; } = true;
     public bool EnableInputCapture { get; set; } = true;
     public bool EnableHttpListener { get; set; } = true;
+    public List<string> HttpListenInterfaceNames { get; set; } = [];
     public bool EnableIpcListener { get; set; } = true;
     public bool EnableHardwareInfo { get; set; } = true;
     public bool EnableAmdCpuMonitor { get; set; }

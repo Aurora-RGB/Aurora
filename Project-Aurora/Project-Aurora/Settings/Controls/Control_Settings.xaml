@@ -20,6 +20,7 @@
             <controls:Control_SettingsGeneral />
         </TabItem>
         <TabItem Name="PluginsTab" Header="Plugin Management" />
+        <TabItem Name="AdvancedTab" Header="Advanced" />
         <TabItem Header="Updates">
             <StackPanel Orientation="Vertical">
                 <TextBlock HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="You can view all changelogs on Github "/>

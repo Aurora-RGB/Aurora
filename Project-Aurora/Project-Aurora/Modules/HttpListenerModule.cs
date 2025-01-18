@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.GameStateListen;
@@ -27,7 +31,8 @@ public sealed class HttpListenerModule : AuroraModule
         }
         try
         {
-            _listener = new AuroraHttpListener(9088);
+            var ips = GetListenIps();
+            _listener = new AuroraHttpListener(9088, ips);
 
             if (_listener.Start()) return _listener;
 
@@ -44,6 +49,29 @@ public sealed class HttpListenerModule : AuroraModule
                             "\r\n" + exc);
             return _listener;
         }
+    }
+
+    private static IEnumerable<string> GetListenIps()
+    {
+        var enabledInterfaceNames = Global.Configuration.HttpListenInterfaceNames;
+        return NetworkInterface.GetAllNetworkInterfaces().Where(netInterface => enabledInterfaceNames.Contains(netInterface.Name))
+            .SelectMany(netInterface => netInterface.GetIPProperties().UnicastAddresses)
+            .Where(InterIp)
+            .Select(GetIp);
+    }
+
+    private static bool InterIp(UnicastIPAddressInformation arg)
+    {
+        return arg.Address.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6;
+    }
+
+    private static string GetIp(UnicastIPAddressInformation ip)
+    {
+        if (ip.Address.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+            return $"[{ip.Address}]";
+        }
+        return ip.Address.ToString();
     }
 
     public override async ValueTask DisposeAsync()
