@@ -285,7 +285,7 @@ public sealed class KeyboardLayoutManager : IDisposable
 
         foreach (var key in virtualKeyboardGroup.GroupedKeys)
         {
-            if (key.Tag.Equals(DeviceKeys.NONE))
+            if ((int)key.Tag < 0)
                 continue;
 
             var width = key.Width;
