@@ -22,6 +22,7 @@ public static class ConfigManager
 
     public static async Task<Configuration> Load()
     {
+        Global.logger.Information("Loading Configuration");
         var config = await TryLoad();
 
         config.OnPostLoad();

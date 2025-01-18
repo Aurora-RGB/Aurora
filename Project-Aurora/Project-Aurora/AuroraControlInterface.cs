@@ -14,6 +14,7 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
 {
     public TaskbarIcon? TrayIcon { private get; set; }
     public DeviceManager? DeviceManager { private get; set; }
+    public AuroraApp? AuroraApp { private get; set; }
 
     public async Task Initialize()
     {
@@ -57,9 +58,17 @@ public sealed class AuroraControlInterface(Task<IpcListener?> listener)
                 }
                 DeviceManager.InitializeDevices().Wait();
                 break;
+            case "restore":
+                ShowWindow();
+                break;
         }
     }
-    
+
+    public void ShowWindow()
+    {
+        AuroraApp?.DisplayWindow();
+    }
+
     public void ExitApp()
     {
         //to only shutdown Aurora itself

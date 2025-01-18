@@ -11,7 +11,13 @@ namespace AuroraRgb.Utils;
 
 public static class SystemUtils
 {
-    public static string GetSystemInfo()
+    public static void LogSystemInfo()
+    {
+        var systemInfo = GetSystemInfo();
+        Global.logger.Information("{Sys}", systemInfo);
+    }
+
+    private static string GetSystemInfo()
     {
         var systemInfoSb = new StringBuilder(string.Empty);
         systemInfoSb.Append("\r\n========================================\r\n");

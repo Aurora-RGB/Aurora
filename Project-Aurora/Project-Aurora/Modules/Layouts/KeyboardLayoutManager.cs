@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -33,7 +32,7 @@ public sealed class KeyboardLayoutManager : IDisposable
 
     public Task<Grid> VirtualKeyboard { get; }
 
-    public Task<Panel> AbstractVirtualKeyboard => CreateUserControl(_virtualKeyboardGroup, CancellationToken.None, true);
+    public Task<Panel> AbstractVirtualKeyboard => CreateUserControlAbstract(_virtualKeyboardGroup, CancellationToken.None);
 
     public delegate void LayoutUpdatedEventHandler(object? sender);
 
@@ -254,7 +253,7 @@ public sealed class KeyboardLayoutManager : IDisposable
 
     private void Configuration_PropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        IEnumerable<string> relatedProperties =
+        HashSet<string> relatedProperties =
         [
             nameof(Configuration.BitmapAccuracy),
             nameof(Configuration.VirtualkeyboardKeycapType),
@@ -264,7 +263,7 @@ public sealed class KeyboardLayoutManager : IDisposable
             nameof(Configuration.HeadsetPreference),
             nameof(Configuration.ChromaLedsPreference),
         ];
-        if (!relatedProperties.Contains(e.PropertyName)) return;
+        if (!relatedProperties.Contains(e.PropertyName ?? string.Empty)) return;
 
         Global.LightingStateManager.PreUpdate += LightingStateManager_LoadLayout;
     }
@@ -341,14 +340,22 @@ public sealed class KeyboardLayoutManager : IDisposable
         };
     }
 
-    private async Task<Panel> CreateUserControl(VirtualGroup virtualKeyboardGroup, CancellationToken cancellationToken, bool abstractKeycaps = false)
+    private async Task<Panel> CreateUserControl(VirtualGroup virtualKeyboardGroup, CancellationToken cancellationToken)
     {
-        if (!abstractKeycaps)
-            _virtualKeyboardMap.Clear();
+        _virtualKeyboardMap.Clear();
 
-        var virtualKb = abstractKeycaps ? new Grid() : await VirtualKeyboard;
-        var kcg = new KeyboardControlGenerator(abstractKeycaps, _virtualKeyboardMap, virtualKeyboardGroup, _layoutsPath, virtualKb,
-            cancellationToken);
+        var virtualKb = await VirtualKeyboard;
+        var kcg = new KeyboardControlGenerator(false, _virtualKeyboardMap, virtualKeyboardGroup, _layoutsPath, virtualKb, cancellationToken);
+
+        var keyboardControl = await kcg.Generate();
+        Effects.Canvas.CanvasGridProperties = new CanvasGridProperties((float)kcg.BaselineX, (float)kcg.BaselineY, (float)virtualKb.Width, (float)virtualKb.Height);
+        return keyboardControl;
+    }
+
+    private async Task<Panel> CreateUserControlAbstract(VirtualGroup virtualKeyboardGroup, CancellationToken cancellationToken)
+    {
+        var virtualKb = new Grid();
+        var kcg = new KeyboardControlGenerator(true, _virtualKeyboardMap, virtualKeyboardGroup, _layoutsPath, virtualKb, cancellationToken);
 
         var keyboardControl = await kcg.Generate();
         Effects.Canvas.CanvasGridProperties = new CanvasGridProperties((float)kcg.BaselineX, (float)kcg.BaselineY, (float)virtualKb.Width, (float)virtualKb.Height);

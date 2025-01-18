@@ -28,7 +28,7 @@ public partial class App
     private static readonly SemaphoreSlim PreventShutdown = new(0);
     public AuroraApp? AuroraApp { get; private set; }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         UseArgs(e);
         AuroraApp = new AuroraApp(IsSilent);
@@ -42,7 +42,7 @@ public partial class App
         if (!Global.isDebug)
             currentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        await AuroraApp.OnStartup();
+        Dispatcher.InvokeAsync(AuroraApp.OnStartup).Wait();
 
         SessionEnding += (_, sessionEndingParams) =>
         {

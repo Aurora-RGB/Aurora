@@ -34,7 +34,7 @@ public sealed class AuroraApp : IDisposable
     public AuroraApp(bool isSilent)
     {
         _isSilent = isSilent;
-        
+
         ControlInterface = new AuroraControlInterface(IpcListenerModule.IpcListener);
         _devicesModule = new DevicesModule(ControlInterface);
         var lightingStateManagerModule = new LightingStateManagerModule(
@@ -44,7 +44,7 @@ public sealed class AuroraApp : IDisposable
         );
         var onlineSettings = new OnlineConfiguration(ProcessesModule.RunningProcessMonitor);
         _layoutsModule = new LayoutsModule(RazerSdkModule.RzSdkManager, onlineSettings.LayoutsUpdate);
-        
+
         _modules =
         [
             UpdateModule,
@@ -68,28 +68,27 @@ public sealed class AuroraApp : IDisposable
             new PerformanceMonitor(ProcessesModule.RunningProcessMonitor),
             new AutomaticGsiPatcher(),
         ];
-        
+
         _trayIcon = new AuroraTrayIcon(ControlInterface);
     }
 
     public async Task OnStartup()
     {
         new UserSettingsBackup().BackupIfNew();
-        var systemInfo = SystemUtils.GetSystemInfo();
-        Global.logger.Information("{Sys}", systemInfo);
+        SystemUtils.LogSystemInfo();
 
         //Load config
-        Global.logger.Information("Loading Configuration");
         Global.Configuration = await ConfigManager.Load();
         Global.SensitiveData = await ConfigManager.LoadSensitiveData();
 
         WindowListener.Initialize();
         var initModules = _modules.Select(async m => await m.InitializeAsync())
-            .Where(t => t!= null)
+            .Where(t => t != null)
             .ToArray();
 
         ControlInterface.TrayIcon = _trayIcon.TrayIcon;
         ControlInterface.DeviceManager = await _devicesModule.DeviceManager;
+        ControlInterface.AuroraApp = this;
         await ControlInterface.Initialize();
         _trayIcon.DisplayWindow += TrayIcon_OnDisplayWindow;
         if (!_isSilent)
@@ -107,12 +106,6 @@ public sealed class AuroraApp : IDisposable
 
         var lsm = await LightingStateManagerModule.LightningStateManager;
         lsm.InitializeApps();
-
-        var ipcListener = await IpcListenerModule.IpcListener;
-        if (ipcListener != null)
-        {
-            ipcListener.AuroraCommandReceived += OnAuroraCommandReceived;
-        }
 
         //Debug Windows on Startup
         if (Global.Configuration.BitmapWindowOnStartUp)
@@ -133,24 +126,14 @@ public sealed class AuroraApp : IDisposable
             }
             catch (Exception moduleException)
             {
-                Global.logger.Fatal(moduleException,"Failed closing module {@Module}", m);
+                Global.logger.Fatal(moduleException, "Failed closing module {@Module}", m);
             }
         });
         UsbDevice.Exit();
         return Task.WhenAll(tasks);
     }
 
-    private void OnAuroraCommandReceived(object? sender, string e)
-    {
-        switch (e)
-        {
-            case "restore":
-                DisplayWindow();
-                break;
-        }
-    }
-
-    private void DisplayWindow()
+    public void DisplayWindow()
     {
         Application.Current.Dispatcher.BeginInvoke(() =>
         {
@@ -161,6 +144,7 @@ public sealed class AuroraApp : IDisposable
                 configUi.Display();
                 return;
             }
+
             mainWindow.Display();
         });
     }
@@ -173,7 +157,7 @@ public sealed class AuroraApp : IDisposable
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
             LightingStateManagerModule.LightningStateManager, ControlInterface, UpdateModule);
         Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);
-        
+
         stopwatch.Restart();
 
         Global.logger.Debug("configUi.Initialize() took {Elapsed}", stopwatch.Elapsed);

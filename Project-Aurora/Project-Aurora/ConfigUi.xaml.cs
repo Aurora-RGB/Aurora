@@ -211,12 +211,18 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
             return;
         }
 
-        await _keyboardUpdateCancel.CancelAsync();
-        _keyboardUpdateCancel.Dispose();
-        _keyboardUpdateCancel = new CancellationTokenSource();
+        await CancelKeyboardUpdate();
 
         var dispatcherPriority = IsDragging ? DispatcherPriority.Background : DispatcherPriority.Render;
         await Dispatcher.InvokeAsync(_updateKeyboardLayouts, dispatcherPriority, _keyboardUpdateCancel.Token);
+    }
+
+    private async Task CancelKeyboardUpdate()
+    {
+        var keyboardUpdateCancel = _keyboardUpdateCancel;
+        _keyboardUpdateCancel = new CancellationTokenSource();
+        await keyboardUpdateCancel.CancelAsync();
+        keyboardUpdateCancel.Dispose();
     }
 
     public void Display()
@@ -316,15 +322,20 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         {
             return;
         }
+        await ShowChangelogs();
+    }
+
+    private async Task ShowChangelogs()
+    {
         var changelogs = await _updateModule.Changelogs;
         if (changelogs.Length == 0) return;
-        
+
         var changelogWindow = new Window_Changelogs(changelogs, _updateModule);
         changelogWindow.Show();
         _changelogsShown = true;
     }
 
-   private static IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    private static IntPtr WndProcDrag(IntPtr winHandle, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
    {
        const int wmEnterSizeMove = 0x0231;
        const int wmExitSizeMove = 0x0232;
@@ -346,14 +357,18 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         await _profilesStack.GenerateProfileStack();
     }
 
-    private async void Window_Unloaded(object sender, RoutedEventArgs e)
+    private void Window_Unloaded(object sender, RoutedEventArgs e)
+    {
+        KeyboardGrid.Children.Clear();
+        Task.Run(Window_UnloadedAsync).Wait();
+    }
+
+    private async Task Window_UnloadedAsync()
     {
         _runKeyboardUpdate = false;
-        await _keyboardUpdateCancel.CancelAsync();
+        await CancelKeyboardUpdate();
 
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
-
-        KeyboardGrid.Children.Clear();
 
         windowHwndSource?.RemoveHook(WndProcDrag);
         windowHwndSource?.Dispose();
@@ -372,37 +387,46 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     ////Misc
 
-    private async void Window_Closing(object? sender, CancelEventArgs e)
+    private void Window_Closing(object? sender, CancelEventArgs e)
     {
-        _runKeyboardUpdate = false;
-        await _keyboardUpdateCancel.CancelAsync();
+        var focusedApp = FocusedApplication;
+        Hide();
+        FocusedApplication = null;
+        if (Global.Configuration.CloseMode == AppExitMode.Ask)
+        {
+            var result = MessageBox.Show("Would you like to Exit Aurora?", "Aurora", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.No)
+            {
+                Hide();
+                e.Cancel = true;
+                return;
+            }
 
-        if (FocusedApplication != null)
-        { 
-            await FocusedApplication.SaveAll();
+            Task.Run(() => Window_ClosingAsync(focusedApp)).Wait();
         }
 
-        FocusedApplication = null;
+        Task.Run(() => Window_ClosingAsync(focusedApp)).Wait();
+    }
+
+    private async Task Window_ClosingAsync(Application? focusedApp)
+    {
+        _runKeyboardUpdate = false;
+        await CancelKeyboardUpdate();
+
+        if (focusedApp != null)
+        { 
+            await focusedApp.SaveAll();
+        }
+
+        var lightingStateManager = await _lightingStateManager;
+        lightingStateManager.PreviewProfileKey = string.Empty;
 
         switch (Global.Configuration.CloseMode)
         {
             case AppExitMode.Ask:
             {
-                var result = MessageBox.Show("Would you like to Exit Aurora?",
-                    "Aurora", MessageBoxButton.YesNo);
-
-                if (result == MessageBoxResult.No)
-                {
-                    await MinimizeApp();
-                    e.Cancel = true;
-                }
-                else
-                {
-                    await _controlInterface.ShutdownDevices();
-                    _controlInterface.ExitApp();
-                }
-
-                break;
+                // handled in the sync part
+                return;
             }
             case AppExitMode.Minimize:
                 // let the window dispose itself
@@ -412,14 +436,6 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
                 _controlInterface.ExitApp();
                 break;
         }
-    }
-
-    private async Task MinimizeApp()
-    {
-        var lightingStateManager = await _lightingStateManager;
-        lightingStateManager.PreviewProfileKey = string.Empty;
-
-        Hide();
     }
 
     private void Window_Activated(object? sender, EventArgs e)
