@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -9,7 +8,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AuroraRgb.Modules.GameStateListen;
@@ -18,7 +16,6 @@ using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
 using Application = AuroraRgb.Profiles.Application;
-using Color = System.Windows.Media.Color;
 using Image = System.Windows.Controls.Image;
 using Path = System.IO.Path;
 
@@ -43,8 +40,6 @@ public partial class Control_ProfilesStack
     private readonly BitmapImage _visible = new(new Uri(@"Resources/Visible.png", UriKind.Relative));
     private readonly BitmapImage _notVisible = new(new Uri(@"Resources/Not Visible.png", UriKind.Relative));
 
-    private readonly BitmapImage _profileRemoveImage = new(new Uri(@"Resources/removeprofile_icon.png", UriKind.Relative));
-    private readonly BitmapImage _disabledProfileImage = new(new Uri(@"Resources/disabled.png", UriKind.Relative));
     private CancellationTokenSource _generateStackCancelSource = new();
 
     public bool ShowHidden
@@ -98,7 +93,7 @@ public partial class Control_ProfilesStack
 
         var allCompleted = Task.WhenAll(profileLoadTasks);
         await Task.WhenAny(allCompleted, focusedSetTaskCompletion.Task);
-        
+
         oldCancelSource.Dispose();
     }
 
@@ -108,6 +103,8 @@ public partial class Control_ProfilesStack
         return Dispatcher.BeginInvoke(() =>
         {
             var profileImage = CreateApplication(focusedKey, application);
+            var setHidden = application.Settings?.Hidden ?? false;
+            profileImage.Visibility = setHidden && !ShowHidden ? Visibility.Collapsed : Visibility.Visible;
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -129,82 +126,18 @@ public partial class Control_ProfilesStack
 
     private FrameworkElement CreateApplication(string focusedKey, Application application)
     {
-        return CreateGenericApplication(focusedKey, application, application is GenericApplication);
-    }
-
-    private FrameworkElement CreateGenericApplication(string? focusedKey, Application application, bool isGeneric)
-    {
-        var profileImage = GenerateProfileImage(application);
-
-        var profileGrid = new Grid
+        var ctrl = new Control_ProfileImage(application);
+        ctrl.ProfileRemoved += (_, e) =>
         {
-            Background = new SolidColorBrush(Color.FromArgb(1, 0, 0, 0)),
-            Margin = new Thickness(0, 5, 0, 0),
+            Task.Run(async () => await RemoveApplication(e.Application)).Wait();
         };
-        var applicationSettings = application.Settings;
+        ctrl.ProfileSelected += (_, e) => FocusApplication(e.Application);
+        ctrl.MouseDown += ProfileImage_MouseDown;
 
-        profileGrid.Children.Add(profileImage);
-        if (isGeneric && (!applicationSettings?.Hidden ?? ShowHidden))
-        {
-            AddProfileRemoveButton(application, profileGrid);
-        }
-
-        var profileDisabled = !applicationSettings?.IsEnabled ?? ShowHidden;
-        if (profileDisabled && (!applicationSettings?.Hidden ?? ShowHidden))
-        {
-            AddProfileDisabledImage(application, profileGrid);
-        }
-
-        if (!application.Config.ID.Equals(focusedKey)) return profileGrid;
+        if (!application.Config.ID.Equals(focusedKey)) return ctrl;
 
         FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)application.Icon));
-        return profileGrid;
-    }
-
-    private void AddProfileRemoveButton(Application application, Grid profileGrid)
-    {
-        var profileRemove = new Image
-        {
-            Source = _profileRemoveImage,
-            ToolTip = $"Remove {application.Config.ProcessNames[0]} Profile",
-            HorizontalAlignment = HorizontalAlignment.Right,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Height = 16,
-            Width = 16,
-            Visibility = Visibility.Hidden,
-            Tag = application.Config.ID
-        };
-        profileGrid.Tag = profileRemove;
-            
-        profileRemove.MouseDown += async (_, _) => { await RemoveApplication(application); };
-
-        profileGrid.MouseEnter += (_, _) =>
-        {
-            profileRemove.Visibility = Visibility.Visible;
-        };
-        profileGrid.MouseLeave += (_, _) =>
-        {
-            profileRemove.Visibility = Visibility.Hidden;
-        };
-
-        profileGrid.Children.Add(profileRemove);
-    }
-
-    private void AddProfileDisabledImage(Application application, Grid profileGrid)
-    {
-        var disabledTooltip = application.Settings?.IsOverlayEnabled ?? true ?
-            "Profile is disabled. Overlay Layers can still work\nRight click to change" :  "Profile is completely disabled\nRight click to change";
-        var profileDisabledImage = new Image
-        {
-            Source = _disabledProfileImage,
-            ToolTip = disabledTooltip,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            VerticalAlignment = VerticalAlignment.Bottom,
-            Height = 16,
-            Width = 16,
-        };
-
-        profileGrid.Children.Add(profileDisabledImage);
+        return ctrl;
     }
 
     private async Task RemoveApplication(Application application)
@@ -220,41 +153,9 @@ public partial class Control_ProfilesStack
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes;
         if (cancelled) return;
 
-        var eventList = Global.Configuration.ProfileOrder
-            .ToDictionary(x => x, x => lightingStateManager.Events[x])
-            .Where(x => ShowHidden || ShowProfile(x))
-            .ToList();
-        var idx = Math.Max(eventList.FindIndex(x => x.Key == name), 0);
         lightingStateManager.RemoveGenericProfile(name);
-        await GenerateProfileStack(eventList[idx].Key);
 
-        bool ShowProfile(KeyValuePair<string, Application> x)
-        {
-            var application1 = x.Value;
-            if (application1.Settings == null)
-            {
-                return true;
-            }
-            return !application1.Settings.Hidden;
-        }
-    }
-
-    private FrameworkElement GenerateProfileImage(Application application)
-    {
-        var setHidden = application.Settings?.Hidden ?? false;
-        var profileImage = new Image
-        {
-            Tag = application,
-            Source = application.Icon,
-            ToolTip = application.Config.Name + " Settings\n\nRight click to enable/disable the profile",
-            Margin = new Thickness(0, 5, 0, 0),
-            Opacity = application.Settings?.Hidden ?? false ? 0.5 : 1,
-            Visibility = setHidden && !ShowHidden ? Visibility.Collapsed : Visibility.Visible,
-        };
-        
-        profileImage.MouseDown += ProfileImage_MouseDown;
-        
-        return profileImage;
+        Dispatcher.InvokeAsync(async () => await GenerateProfileStack());
     }
 
     private async void AddProfile_MouseDown(object? sender, MouseButtonEventArgs e)
@@ -303,12 +204,9 @@ public partial class Control_ProfilesStack
 
         foreach (FrameworkElement ctrl in ProfilesStack.Children)
         {
-            var img = ctrl as Image ?? (ctrl is Grid grid ? grid.Children[0] as Image : null);
-            if (img?.Tag is not Application profile) continue;
-
-            var setHidden = profile.Settings?.Hidden ?? false;
+            if (ctrl is not Control_ProfileImage img) continue;
+            var setHidden = img.Application.Settings?.Hidden ?? false;
             img.Visibility = setHidden && !showHidden ? Visibility.Collapsed : Visibility.Visible;
-            img.Opacity = setHidden ? 0.5 : 1;
         }
     }
 
@@ -351,13 +249,6 @@ public partial class Control_ProfilesStack
     private async void Control_ProfilesStack_OnLoaded(object sender, RoutedEventArgs e)
     {
         (await _lightingStateManager).EventAdded += LightingStateManagerOnEventAdded;
-
-        foreach (Image child in ProfilesStack.Children)
-        {
-            if (child.Visibility != Visibility.Visible) continue;
-            ProfileImage_MouseDown(child, null);
-            break;
-        }
     }
 
     private async void Control_ProfilesStack_OnUnloaded(object sender, RoutedEventArgs e)
@@ -365,19 +256,17 @@ public partial class Control_ProfilesStack
         (await _lightingStateManager).EventAdded -= LightingStateManagerOnEventAdded;
     }
 
+    private void FocusApplication(Application application)
+    {
+        FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)application.Icon));
+    }
+
     private void ProfileImage_MouseDown(object? sender, MouseButtonEventArgs? e)
     {
         if (sender is not Image { Tag: Application } image) return;
-        if (e == null || e.LeftButton == MouseButtonState.Pressed)
-        {
-            var application = (Application)image.Tag;
-            FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)image.Source));
-        }
-        else if (e.RightButton == MouseButtonState.Pressed)
-        {
-            CmenuProfiles.PlacementTarget = image;
-            CmenuProfiles.IsOpen = true;
-        }
+        if (e.RightButton != MouseButtonState.Pressed) return;
+        CmenuProfiles.PlacementTarget = image;
+        CmenuProfiles.IsOpen = true;
     }
 
     private async void LightingStateManagerOnEventAdded(object? sender, EventArgs e)
