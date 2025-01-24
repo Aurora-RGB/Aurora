@@ -236,11 +236,10 @@ public partial class Control_ProfilesStack
     {
         var context = (ContextMenu)e.OriginalSource;
 
-        if (context.PlacementTarget is not Image img)
+        if (context.PlacementTarget is not Control_ProfileImage img)
             return;
 
-        var profile = img.Tag as Application;
-        context.DataContext = profile;
+        context.DataContext = img.Application;
     }
 
     private void cmbtnOpenBitmapWindow_Clicked(object? sender, RoutedEventArgs e) => Window_BitmapView.Open();
@@ -263,9 +262,9 @@ public partial class Control_ProfilesStack
 
     private void ProfileImage_MouseDown(object? sender, MouseButtonEventArgs? e)
     {
-        if (sender is not Image { Tag: Application } image) return;
+        if (sender is not Control_ProfileImage appControl) return;
         if (e.RightButton != MouseButtonState.Pressed) return;
-        CmenuProfiles.PlacementTarget = image;
+        CmenuProfiles.PlacementTarget = appControl;
         CmenuProfiles.IsOpen = true;
     }
 
