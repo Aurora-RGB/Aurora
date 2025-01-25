@@ -1,10 +1,10 @@
 ﻿using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Bitmaps.Skia;
-using AuroraSourceGenerator;
+using Doner.Wrap;
 
 namespace AuroraRgb.Bitmaps;
 
-[DelegateTo(nameof(_bitmap))]
+[WrapTo(nameof(_bitmap))]
 public sealed partial class RuntimeChangingBitmap : IAuroraBitmap
 {
     private readonly IAuroraBitmap _bitmap;

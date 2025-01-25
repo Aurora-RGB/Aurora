@@ -1,9 +1,9 @@
 ﻿using AuroraRgb.Bitmaps;
-using AuroraSourceGenerator;
+using Doner.Wrap;
 
 namespace AuroraRgb.EffectsEngine;
 
-[DelegateTo(nameof(_effectLayer))]
+[WrapTo(nameof(_effectLayer))]
 public sealed partial class RuntimeChangingLayer : EffectLayer
 {
     private readonly NoRenderLayer _noRenderLayer = new();
