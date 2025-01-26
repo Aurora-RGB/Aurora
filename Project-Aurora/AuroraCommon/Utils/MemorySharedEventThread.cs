@@ -49,7 +49,6 @@ internal static class MemorySharedEventThread
                 _cancellation = value;
                 _handles[0] = value.Token.WaitHandle;
                 old.Cancel();
-                old.Dispose();
             }
         }
         
@@ -68,13 +67,15 @@ internal static class MemorySharedEventThread
         {
             var thread = new Thread(() =>
             {
+                var cancelToken = CancelToken;
                 try
                 {
-                    _semaphore.Wait(CancelToken.Token);
+                    _semaphore.Wait(cancelToken.Token);
                     ThreadCallback();
                 }
                 catch (OperationCanceledException)
                 {
+                    cancelToken.Dispose();
                     // end the thread
                 }
                 finally
@@ -93,11 +94,6 @@ internal static class MemorySharedEventThread
         }
 
         private void ThreadCallback(){
-            if (_handles.Length <= 1)
-            {
-                // stop thread if only handle is cancel token
-                return;
-            }
             while (true)
             {
                 if (CancelToken.IsCancellationRequested)
