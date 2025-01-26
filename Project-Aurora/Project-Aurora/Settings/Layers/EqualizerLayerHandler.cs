@@ -8,6 +8,7 @@ using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Profiles;
+using AuroraRgb.Settings.Layers.AudioVisualizer;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
@@ -17,7 +18,6 @@ using NAudio.CoreAudioApi;
 using NAudio.Dsp;
 using NAudio.Wave;
 using Newtonsoft.Json;
-using Complex = NAudio.Dsp.Complex;
 
 namespace AuroraRgb.Settings.Layers;
 
@@ -197,9 +197,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 {
     public event NewLayerRendered? NewLayerRender = delegate { };
 
-    private int _channels;
-    private int _bitsPerSample;
-    private int _bufferIncrement;
     private bool _disposed;
 
     private readonly Temporary<AudioDeviceProxy> _deviceProxy;
@@ -210,9 +207,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         if (deviceProxyValue?.Device == null || deviceProxyValue.WaveIn == null)
             return;
         _freq = deviceProxyValue.Device.AudioClient.MixFormat.SampleRate;
-        _channels = deviceProxyValue.WaveIn.WaveFormat.Channels;
-        _bitsPerSample = deviceProxyValue.WaveIn.WaveFormat.BitsPerSample;
-        _bufferIncrement = deviceProxyValue.WaveIn.WaveFormat.BlockAlign;
+        _frequencyCalculatorClassic.Channels = deviceProxyValue.WaveIn.WaveFormat.Channels;
     }
 
     private readonly List<float> _fluxArray = [];
@@ -221,10 +216,9 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     // Base rectangle that defines the region that is used to render the audio output
     // Higher values mean a higher initial resolution, but may increase memory usage (looking at you, waveform).
     // KEEP X AND Y AT 0
+    // TODO: width same as the number of frequencies
     private static readonly RectangleF SourceRect = new(0, 0, 80, 40);
-
-    private readonly SampleAggregator _sampleAggregator = new(FftLength);
-    private Complex[] _ffts;
+    private readonly AudioFrequencyRangeCalculatorClassic _frequencyCalculatorClassic = new(FftLength);
 
     private double[]? _previousFreqResults;
     private int _freq = 48000;
@@ -236,10 +230,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     public EqualizerLayerHandler(): base("EqualizerLayer")
     {
-        _ffts = new Complex[FftLength];
-
-        _sampleAggregator.FftCalculated += FftCalculated;
-        
         _deviceProxy = new Temporary<AudioDeviceProxy>(() =>
         {
             var deviceProxyFlow = Properties.DeviceFlow switch
@@ -253,6 +243,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
             deviceProxy.DeviceId = Properties.DeviceId;
             return deviceProxy;
         });
+        // TODO: add ValueDestroyed event
         _deviceProxy.ValueCreated += (_, _) =>
         {
             DeviceChanged(this, EventArgs.Empty);
@@ -263,7 +254,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
     {
         return new ControlEqualizerLayer(this);
     }
-    public override EffectLayer Render(IGameState gamestate)
+    public override EffectLayer Render(IGameState gameState)
     {
         if (_disposed) return EmptyLayer.Instance;
 
@@ -288,19 +279,16 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
         var freqs = Properties.Frequencies.ToArray(); //Defined Frequencies
 
-        var freqResults = new double[freqs.Length];
-
         if (_previousFreqResults == null || _previousFreqResults.Length < freqs.Length)
             _previousFreqResults = new double[freqs.Length];
 
-        var localFft = _ffts;
+        var localFft = _frequencyCalculatorClassic.Ffts;
 
         // do transformations before using them
         for (var position = 0; position < localFft.Length; position++)
         {
             var complex = localFft[position];
-            var val = complex.X;
-            complex.X = val * (float)FastFourierTransform.HannWindow(position, localFft.Length);
+            complex.X *= (float)FastFourierTransform.HannWindow(position, localFft.Length);
         }
 
         var bgEnabled = false;
@@ -374,8 +362,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
                     for (var x = 0; x < freqs.Length - 1; x++)
                     {
-                        var startF = FreqToBin(freqs[x]);
-                        var endF = FreqToBin(freqs[x + 1]);
+                        var startF = FreqToBin(freqs[x], localFft.Length);
+                        var endF = FreqToBin(freqs[x + 1], localFft.Length);
                         var flux = 0.0f;
 
                         for (var j = startF; j <= endF; j++)
@@ -391,7 +379,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                     }
 
                     var barWidth = SourceRect.Width / (freqs.Length - 1);
-                    for (var fX = 0; fX < freqResults.Length - 1; fX++)
+                    for (var fX = 0; fX < freqs.Length - 1; fX++)
                     {
                         var fftVal = _fluxArray[fX] / scaledMaxAmplitude;
                         fftVal = Math.Min(1.0f, fftVal);
@@ -405,7 +393,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
                         _previousFreqResults[fX] = fftVal;
 
-                        var brush = GetBrush(-(fX % 2), fX, freqResults.Length - 1);
+                        var brush = GetBrush(-(fX % 2), fX, freqs.Length - 1);
                         g.DrawRectangle(brush, new RectangleF(x, (float)(y - height), barWidth, (float)height));
                     }
                     break;
@@ -413,7 +401,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                     throw new InvalidOperationException(Properties.BackgroundMode + " is not implemented");
             }
         }, SourceRect);
-        _sampleAggregator.Reset();
+        _frequencyCalculatorClassic.Reset();
 
         NewLayerRender?.Invoke(EffectLayer.GetBitmap());
         return EffectLayer;
@@ -421,36 +409,12 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
 
     private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
-        var waveBuffer = new WaveBuffer(e.Buffer) { ByteBufferCount = e.BytesRecorded };
-        var bufferCount = waveBuffer.FloatBufferCount;
-        var fftIndexRatio = (double)FftLength / bufferCount;
-        var buffer = waveBuffer.FloatBuffer;
-
-        for (var freqPlusChannel = 0; freqPlusChannel < bufferCount; freqPlusChannel += _channels)
-        {
-            var max = 0f;
-            var nextFreq = freqPlusChannel + _channels;
-
-            for (var i = freqPlusChannel; i < nextFreq; i++)
-            {
-                max = Math.Max(max, buffer[i]);
-            }
-
-            var fftIndex = (int)Math.Floor(freqPlusChannel * fftIndexRatio);
-            _sampleAggregator.Add(max, fftIndex);
-        }
-        waveBuffer.Clear();
-        _sampleAggregator.Complete();
+        _frequencyCalculatorClassic.OnDataAvailable(e);
     }
 
-    private void FftCalculated(object? sender, FftEventArgs e)
+    private int FreqToBin(float freq, int length)
     {
-        _ffts = e.Result;
-    }
-
-    private int FreqToBin(float freq)
-    {
-        return (int)freq / (_freq / _ffts.Length);
+        return (int)freq / (_freq / length);
     }
 
     private Brush GetBrush(float value, float position, float maxPosition)
@@ -520,68 +484,4 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         _primaryBrush.Dispose();
         _secondaryBrush.Dispose();
     }
-}
-
-public class SampleAggregator
-{
-    private readonly int _fftLength;
-
-    // FFT
-    public event EventHandler<FftEventArgs>? FftCalculated;
-
-    // This Complex is NAudio's own! 
-    private readonly Complex[] _fftBuffer;
-    private readonly FftEventArgs _fftArgs;
-
-    public SampleAggregator(int fftLength)
-    {
-        _fftLength = fftLength;
-        if (!IsPowerOfTwo(fftLength))
-        {
-            throw new ArgumentException("FFT Length must be a power of two");
-        }
-
-        _fftBuffer = new Complex[fftLength];
-        _fftArgs = new FftEventArgs(_fftBuffer);
-    }
-
-    private bool IsPowerOfTwo(int x)
-    {
-        return (x & (x - 1)) == 0;
-    }
-
-    public void Add(float value, int position)
-    {
-        if (FftCalculated == null) return;
-        // Remember the window function! There are many others as well.
-        var p = _fftBuffer[position];
-        if (float.IsNaN(p.X))
-        {
-            p.X = 0;
-        }
-
-        // just save the max value. Transformations will be done when they are needed
-        p.X = Math.Max(p.X, value);
-        p.Y = 0; // This is always zero with audio.
-        _fftBuffer[position] = p;
-    }
-
-    public void Complete()
-    {
-        FftCalculated?.Invoke(this, _fftArgs);
-    }
-
-    public void Reset()
-    {
-        for (var index = 0; index < _fftBuffer.Length; index++)
-        {
-            _fftBuffer[index].X = 0;
-            _fftBuffer[index].Y = 0;
-        }
-    }
-}
-
-public class FftEventArgs(Complex[] result) : EventArgs
-{
-    public Complex[] Result { get; } = result;
 }
