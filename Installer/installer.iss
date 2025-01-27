@@ -11,10 +11,10 @@ AppId={{9444602B-C5D8-4EF5-9D5B-E76D06B53C71}
 AppName=Aurora
 AppVersion=v{#Version}
 AppVerName=Aurora v{#Version}
-AppPublisher=Anton Pupkov
+AppPublisher=Aurora-RGB
 AppPublisherURL=http://www.project-aurora.com/
-AppSupportURL=https://github.com/antonpup/Aurora/issues/
-AppUpdatesURL=https://github.com/antonpup/Aurora/releases
+AppSupportURL=https://github.com/Aurora-RGB/Aurora/issues/
+AppUpdatesURL=https://github.com/Aurora-RGB/Aurora/releases
 DefaultDirName={pf64}\Aurora
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
@@ -43,8 +43,6 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 //Source: "unzipper.dll"; Flags: dontcopy
 Source: "..\Build\Release\win10-x64\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 //AfterInstall: ExtractMe('{app}\Aurora-v{#Version}.zip', '{app}')
-Source: "vcredist_x86.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
-Source: "vcredist_x64.exe"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
 Name: "{commonprograms}\Aurora"; Filename: "{app}\AuroraRgb.exe"
@@ -185,20 +183,8 @@ end;
   #DEFINE AW "A"
 #ENDIF
 
-function VCRedistX64NeedsInstall: Boolean;
-begin
-  Result := not RegKeyExists(HKEY_LOCAL_MACHINE,'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64');
-end;
-                                             
-function VCRedistX86NeedsInstall: Boolean;
-begin
-  Result := not RegKeyExists(HKEY_LOCAL_MACHINE,'SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86');
-end;
-
 [Run]
 Filename: "{app}\AuroraRgb.exe"; Flags: nowait postinstall skipifsilent runascurrentuser; Description: "{cm:LaunchProgram,Aurora}"
-Filename: "{tmp}\vcredist_x86.exe"; Check: VCRedistX86NeedsInstall
-Filename: "{tmp}\vcredist_x64.exe"; Check: VCRedistX64NeedsInstall and IsWin64
 
 [UninstallDelete]
 ;This works only if it is installed in default location
