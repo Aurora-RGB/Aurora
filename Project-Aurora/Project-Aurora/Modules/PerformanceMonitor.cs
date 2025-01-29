@@ -38,7 +38,7 @@ public sealed class PerformanceMonitor(Task<RunningProcessMonitor> runningProces
     {
         Task.Run(BackgroundInitialize);
 
-        GC.AddMemoryPressure((long)ByteSize.FromMegaBytes(666).Bytes);
+        GC.AddMemoryPressure((long)ByteSize.FromMegaBytes(200).Bytes);
         
         return Task.CompletedTask;
     }
