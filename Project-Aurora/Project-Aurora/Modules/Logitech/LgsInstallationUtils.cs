@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using Microsoft.Win32;
 
 namespace AuroraRgb.Modules.Logitech;
@@ -33,9 +34,28 @@ public static class LgsInstallationUtils
         using var key64 = Registry.LocalMachine.OpenSubKey(registryPath64);
         using var key32 = Registry.LocalMachine.OpenSubKey(registryPath32);
 
-        var is64BitKeyPresent = File.Exists(key64?.GetValue(null)?.ToString()) ;
-        var is32BitKeyPresent = File.Exists(key32?.GetValue(null)?.ToString());
-        
-        return is64BitKeyPresent && is32BitKeyPresent;
+        var file64 = key64?.GetValue(null)?.ToString();
+        var file32 = key32?.GetValue(null)?.ToString();
+
+        return DllInstalled(file64) && DllInstalled(file32);
+    }
+
+    private static bool DllInstalled(string? path)
+    {
+        const string dllProductName = "Logitech Gaming LED SDK";
+
+        if (path == null)
+        {
+            return false;
+        }
+
+        var present = File.Exists(path);
+        if (!present)
+        {
+            return false;
+        }
+
+        var attributes = FileVersionInfo.GetVersionInfo(path);
+        return attributes.FileDescription == dllProductName;
     }
 }
