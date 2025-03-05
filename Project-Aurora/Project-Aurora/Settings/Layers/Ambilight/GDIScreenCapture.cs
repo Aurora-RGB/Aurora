@@ -10,10 +10,12 @@ namespace AuroraRgb.Settings.Layers.Ambilight;
 
 internal sealed class GdiScreenCapture : IScreenCapture
 {
+    private static readonly Bitmap DefaultBitmap = new(8, 8);
+
     public event EventHandler<Bitmap>? ScreenshotTaken;
 
     private Bitmap? _lastBitmap;
-    private Graphics _graphics = Graphics.FromImage(new Bitmap(8, 8));
+    private Graphics _graphics = Graphics.FromImage(DefaultBitmap);
     private readonly WindowListener.WindowListenerReference _windowListenerReference = new();
 
     public WindowListener WindowListener => _windowListenerReference.WindowListener;
