@@ -14,7 +14,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
         double total = 1.0D, PercentEffectType percentEffectType = PercentEffectType.Progressive,
         double flashPast = 0.0, bool flashReversed = false, bool blinkBackground = false)
     {
-        var zoneKeysCache = new ZoneKeysCache();
+        using var zoneKeysCache = new ZoneKeysCache();
         zoneKeysCache.SetSequence(sequence);
         var keys = zoneKeysCache.GetKeys();
 
@@ -297,7 +297,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
             _ => value / total
         };
         
-        var zoneKeysCache = new ZoneKeysCache();
+        using var zoneKeysCache = new ZoneKeysCache();
         zoneKeysCache.SetSequence(sequence);
         var keys = zoneKeysCache.GetKeys();
 

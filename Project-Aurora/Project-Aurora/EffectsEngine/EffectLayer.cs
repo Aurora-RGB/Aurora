@@ -224,6 +224,8 @@ public sealed class BitmapEffectLayer : EffectLayer
         _lastFreeform = new FreeFormObject();
         _colormap.Dispose();
         _solidBrush.Dispose();
+        _excludeKeysCache.Dispose();
+        _onlyIncludeKeysCache?.Dispose();
     }
 
     /// <summary>

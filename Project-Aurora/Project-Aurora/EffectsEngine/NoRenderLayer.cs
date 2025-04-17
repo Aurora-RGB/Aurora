@@ -172,6 +172,8 @@ public sealed class NoRenderLayer : EffectLayer
     public void Dispose()
     {
         _zoneKeysCache.Dispose();
+        _excludedZoneKeysCache.Dispose();
+        _onlyIncludedZoneKeysCache?.Dispose();
     }
 
     private Color GetCurrentColor(DeviceKeys deviceKey)

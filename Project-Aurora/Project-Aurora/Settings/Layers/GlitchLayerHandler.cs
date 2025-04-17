@@ -98,4 +98,10 @@ public class GlitchLayerHandler() : LayerHandler<GlitchLayerHandlerProperties>("
         _glitchColors.Clear();
         _zoneKeysCache.SetSequence(Properties.Sequence);
     }
+
+    public override void Dispose()
+    {
+        _zoneKeysCache.Dispose();
+        base.Dispose();
+    }
 }
