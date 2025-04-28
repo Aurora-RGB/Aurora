@@ -69,9 +69,11 @@ public class Dota2AbilityLayerHandler() : LayerHandler<Dota2AbilityLayerHandlerP
             if (_ignoredAbilities.Any(ignoredAbilityName => ability.Name.Contains(ignoredAbilityName)))
                 continue;
 
-            if (index >= Properties.AbilityKeys.Count) continue;
             var key = Properties.AbilityKeys[index];
-
+            if (ability.IsUltimate)
+            {
+                key = Properties.AbilityKeys[5]; // Always map ultimate to the 6th key
+            }
             switch (ability)
             {
                 case { CanCast: true, Cooldown: 0, Level: > 0 }:

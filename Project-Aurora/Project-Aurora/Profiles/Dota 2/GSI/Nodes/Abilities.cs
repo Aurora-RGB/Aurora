@@ -22,25 +22,25 @@ public class AbilitiesDota2
     /// </summary>
     public int Count => _abilities.Count;
 
+    public Ability? Ability0 { get; }
     public Ability? Ability1 { get; }
     public Ability? Ability2 { get; }
     public Ability? Ability3 { get; }
-    public Ability? UltimateAbility { get; }
     public Ability? Ability4 { get; }
-    public Ability? Ability5 { get;  }
+    public Ability? Ability5 { get; }
 
     [System.Text.Json.Serialization.JsonConstructor]
-    public AbilitiesDota2(Attributes attributes, Ability? ability1, Ability? ability2, Ability? ability3, Ability? ultimateAbility, Ability? ability4, Ability? ability5)
+    public AbilitiesDota2(Attributes attributes, Ability? ability0, Ability? ability1, Ability? ability2, Ability? ability3, Ability? ability4, Ability? ability5)
     {
         Attributes = attributes;
+        Ability0 = ability0;
         Ability1 = ability1;
         Ability2 = ability2;
         Ability3 = ability3;
-        UltimateAbility = ultimateAbility;
         Ability4 = ability4;
         Ability5 = ability5;
 
-        _abilities = ((Ability?[])[Ability1, Ability2, Ability3, UltimateAbility, Ability4, Ability5])
+        _abilities = ((Ability?[])[Ability0, Ability1, Ability2, Ability3, Ability4, Ability5])
             .Where(a => a != null).
             Cast<Ability>()
             .ToList();
@@ -51,5 +51,5 @@ public class AbilitiesDota2
     /// </summary>
     /// <param name="index">The index</param>
     /// <returns></returns>
-    public Ability this[int index] => index > _abilities.Count - 1 ? Ability.Default : _abilities[index];
+    public Ability this[int index] => index > _abilities.Count ? Ability.Default : _abilities[index];
 }
