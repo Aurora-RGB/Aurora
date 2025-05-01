@@ -83,6 +83,7 @@ public class ObjectSettings<T>
         if (Equals(Settings, default(T)))
         {
             Settings = (T)Activator.CreateInstance(settingsType);
+            SettingsCreateHook();
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules;
+using AuroraRgb.Modules.Gamebar;
 using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
@@ -61,6 +62,7 @@ public sealed class AuroraApp : IDisposable
             _processesModule,
             new LogitechSdkModule(ProcessesModule.RunningProcessMonitor),
             new RazerSdkModule(),
+            new GamebarGamesModule(),
             PluginsModule,
             lightingStateManagerModule,
             onlineSettings,

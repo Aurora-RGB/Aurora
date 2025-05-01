@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using AuroraRgb.Modules.Gamebar;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 using AuroraRgb.Utils.Json;
@@ -110,6 +111,36 @@ public static class ConfigManager
 
         var content = await File.ReadAllTextAsync(DeviceConfig.ConfigFile, Encoding.UTF8);
         return JsonSerializer.Deserialize(content, CommonSourceGenerationContext.Default.DeviceConfig) ?? await MigrateDeviceConfig();
+    }
+    
+    public static async Task<GamebarConfig> LoadGamebarConfig()
+    {
+        GamebarConfig config;
+        try
+        {
+            config = await TryLoadGamebar();
+        }
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Exception loading GamebarConfig. Error: ");
+            config = new GamebarConfig();
+        }
+
+        return config;
+    }
+    
+    private static async Task<GamebarConfig> TryLoadGamebar()
+    {
+        if (!File.Exists(GamebarConfig.ConfigFile))
+        {
+            // first time start
+            var gamebarConfig = new GamebarConfig();
+            await SaveAsync(gamebarConfig);
+            return gamebarConfig;
+        }
+
+        var content = await File.ReadAllTextAsync(GamebarConfig.ConfigFile, Encoding.UTF8);
+        return JsonSerializer.Deserialize(content, GamebarSourceGenerationContext.Default.GamebarConfig) ?? new GamebarConfig();
     }
 
     public static async Task<AuroraChromaSettings> LoadChromaConfig()
