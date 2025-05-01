@@ -213,6 +213,7 @@ public sealed class LightingStateManager : IDisposable
         Global.Configuration.ProfileOrder
             .RemoveAll(key => !Events.ContainsKey(key) || Events[key] is not Application);
 
+        PutProfileTop("games");
         PutProfileTop("logitech");
         PutProfileTop("chroma");
         PutProfileTop("desktop");
