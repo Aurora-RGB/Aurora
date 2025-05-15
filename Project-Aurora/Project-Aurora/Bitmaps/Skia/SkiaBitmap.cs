@@ -39,20 +39,26 @@ public abstract class AuroraSkiaBitmap : IAuroraBitmap
     {
     }
 
-    public void DrawRectangle(Brush brush, Rectangle dimension)
+    public void DrawRectangle(Brush brush, Rectangle dimension, bool overwriteColor = false)
     {
         var skiaRectangle = SkiaRectangle(dimension);
         SetBrush(brush);
+        var previousBlendMode = SkPaint.BlendMode;
+        SkPaint.BlendMode = overwriteColor ? SKBlendMode.Src : SKBlendMode.SrcOver;
 
         Canvas.DrawRect(skiaRectangle, SkPaint);
+        SkPaint.BlendMode = previousBlendMode;
     }
 
-    public void DrawRectangle(Brush brush, RectangleF dimension)
+    public void DrawRectangle(Brush brush, RectangleF dimension, bool overwriteColor = false)
     {
         var skiaRectangle = SkiaRectangle(dimension);
         SetBrush(brush);
+        var previousBlendMode = SkPaint.BlendMode;
+        SkPaint.BlendMode = overwriteColor ? SKBlendMode.Src : SKBlendMode.SrcOver;
 
         Canvas.DrawRect(skiaRectangle, SkPaint);
+        SkPaint.BlendMode = previousBlendMode;
     }
 
     public void DrawRectangle(IAuroraBrush brush, Rectangle dimension)

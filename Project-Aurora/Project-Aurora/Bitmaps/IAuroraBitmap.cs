@@ -14,8 +14,8 @@ public interface IAuroraBitmap : IDisposable
     IBitmapReader CreateReader();
 
     void Reset();
-    void DrawRectangle(Brush brush, Rectangle dimension);
-    void DrawRectangle(Brush brush, RectangleF dimension);
+    void DrawRectangle(Brush brush, Rectangle dimension, bool overwriteColor = false);
+    void DrawRectangle(Brush brush, RectangleF dimension, bool overwriteColor = false);
     void DrawRectangle(Pen pen, RectangleF dimension);
     void DrawRectangle(EffectLayer brush);
     void DrawRectangle(IAuroraBrush brush, Rectangle dimension);

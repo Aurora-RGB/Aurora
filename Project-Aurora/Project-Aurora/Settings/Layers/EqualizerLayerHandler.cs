@@ -338,7 +338,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = Math.Max(Math.Min(fftVal / (float)scaledMaxAmplitude * 1000.0f, halfHeight), -halfHeight);
-                        g.DrawRectangle(brush, new RectangleF(x, halfHeight - yOff, 1, yOff * 2));
+                        g.DrawRectangle(brush, new RectangleF(x, halfHeight - yOff, 1, yOff * 2), true);
                     }
                     break;
                 case EqualizerType.WaveformBottom:
@@ -348,7 +348,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fftVal = localFft.Length > fi ? localFft[fi].X : 0.0f;
                         var brush = GetBrush(fftVal, x, SourceRect.Width);
                         var yOff = Math.Min(Math.Abs(fftVal / (float)scaledMaxAmplitude) * 1000.0f, SourceRect.Height);
-                        g.DrawRectangle(brush, new RectangleF(x, SourceRect.Height - yOff, 1, yOff * 2));
+                        g.DrawRectangle(brush, new RectangleF(x, SourceRect.Height - yOff, 1, yOff * 2), true);
                     }
                     break;
                 case EqualizerType.PowerBars:
@@ -394,7 +394,7 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         _previousFreqResults[fX] = fftVal;
 
                         var brush = GetBrush(-(fX % 2), fX, freqs.Length - 1);
-                        g.DrawRectangle(brush, new RectangleF(x, (float)(y - height), barWidth, (float)height));
+                        g.DrawRectangle(brush, new RectangleF(x, (float)(y - height), barWidth, (float)height), true);
                     }
                     break;
                 default:

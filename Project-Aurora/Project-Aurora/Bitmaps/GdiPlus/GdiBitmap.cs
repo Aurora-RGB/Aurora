@@ -59,8 +59,6 @@ public sealed class GdiBitmap : IAuroraBitmap
             return _textureBrush;
         }
     }
-    
-    private static readonly SolidBrush ColorBrush = new(Color.Transparent);
 
     public GdiBitmap(int canvasWidth, int canvasHeight)
     {
@@ -97,14 +95,32 @@ public sealed class GdiBitmap : IAuroraBitmap
         _textureBrush = null;
     }
 
-    public void DrawRectangle(Brush brush, Rectangle dimension)
+    public void DrawRectangle(Brush brush, Rectangle dimension, bool overwriteColor = false)
     {
+        if (!overwriteColor)
+        {
+            _graphics.FillRectangle(brush, dimension.X, dimension.Y, dimension.Width, dimension.Height);
+            return;
+        }
+
+        var graphicsState = _graphics.Save();
+        _graphics.CompositingMode = CompositingMode.SourceCopy;
         _graphics.FillRectangle(brush, dimension.X, dimension.Y, dimension.Width, dimension.Height);
+        _graphics.Restore(graphicsState);
     }
 
-    public void DrawRectangle(Brush brush, RectangleF dimension)
+    public void DrawRectangle(Brush brush, RectangleF dimension, bool overwriteColor = false)
     {
+        if (!overwriteColor)
+        {
+            _graphics.FillRectangle(brush, dimension.X, dimension.Y, dimension.Width, dimension.Height);
+            return;
+        }
+
+        var graphicsState = _graphics.Save();
+        _graphics.CompositingMode = CompositingMode.SourceCopy;
         _graphics.FillRectangle(brush, dimension.X, dimension.Y, dimension.Width, dimension.Height);
+        _graphics.Restore(graphicsState);
     }
 
     public void DrawRectangle(Pen pen, RectangleF dimension)
