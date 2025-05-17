@@ -48,6 +48,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     #endregion
 
     #region Internal Properties
+    protected override string SettingsSavePath => Path.Combine(GetProfileFolderPath(), "settings.json");
     protected ImageSource? icon;
     public virtual ImageSource Icon => icon ??= new BitmapImage(new Uri(GetBaseUri(), @"/AuroraRgb;component/" + Config.IconURI));
 
@@ -72,7 +73,6 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     protected Application(LightEventConfig config)
     {
         Config = config;
-        SettingsSavePath = Path.Combine(GetProfileFolderPath(), "settings.json");
         config.Application = this;
         config.Event.ResetGameState(config.GameStateType);
         Profiles = new ObservableCollection<ApplicationProfile>();
@@ -678,7 +678,10 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     {
         await base.LoadSettings(settingsType);
 
-        Settings.PropertyChanged += OnSettingsPropertyChanged;
+        if (Settings != null)
+        {
+            Settings.PropertyChanged += OnSettingsPropertyChanged;
+        }
     }
 
     private async void OnSettingsPropertyChanged(object? sender, PropertyChangedEventArgs e)

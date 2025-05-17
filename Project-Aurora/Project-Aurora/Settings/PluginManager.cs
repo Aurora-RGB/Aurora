@@ -94,12 +94,7 @@ public class PluginManager : ObjectSettings<PluginManagerSettings>, IPluginHost
     public const string PluginDirectory = "Plugins";
 
     public Dictionary<string, IPlugin> Plugins { get; set; } = new();
-
-    public PluginManager()
-    {
-        SettingsSavePath = Path.Combine(Global.AppDataDirectory, "PluginSettings.json");
-    }
-
+    protected override string SettingsSavePath => Path.Combine(Global.AppDataDirectory, "PluginSettings.json");
     public bool Initialized { get; protected set; }
 
     public async Task<bool> Initialize(CancellationToken cancellationToken)

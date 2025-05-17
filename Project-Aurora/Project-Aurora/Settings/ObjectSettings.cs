@@ -5,10 +5,10 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace AuroraRgb.Settings;
 
-public class ObjectSettings<T>
+public abstract class ObjectSettings<T>
 {
-    protected string? SettingsSavePath { get; set; }
-    public T? Settings { get; protected set; }
+    protected abstract string SettingsSavePath { get; }
+    public T? Settings { get; private set; }
 
     public async Task SaveSettings()
     {
@@ -17,11 +17,6 @@ public class ObjectSettings<T>
 
     protected async Task SaveSettings(Type settingsType)
     {
-        if (SettingsSavePath == null)
-        {
-            return;
-        }
-
         if (Settings == null) {
             Settings = (T)Activator.CreateInstance(settingsType);
             SettingsCreateHook();
@@ -58,12 +53,6 @@ public class ObjectSettings<T>
 
     protected virtual async Task LoadSettings(Type settingsType)
     {
-        if (SettingsSavePath == null)
-        {
-            Global.logger.Warning("Type {Type} does not have a setting save path!", GetType());
-            return;
-        }
-
         if (File.Exists(SettingsSavePath))
         {
             try
