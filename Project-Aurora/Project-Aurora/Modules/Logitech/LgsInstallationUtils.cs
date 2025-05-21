@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Frozen;
+using System.Diagnostics;
 using System.IO;
 using Microsoft.Win32;
 
@@ -7,6 +8,11 @@ namespace AuroraRgb.Modules.Logitech;
 public static class LgsInstallationUtils
 {
     public const string LgsExe = "lcore.exe";
+    private static readonly FrozenSet<string> LgsProductNames = new[]
+            {
+                "Logitech Gaming LED SDK",
+                "Logitech G Legacy LED SDK",
+            }.ToFrozenSet();
 
     public static bool IsLgsInstalled()
     {
@@ -42,8 +48,6 @@ public static class LgsInstallationUtils
 
     private static bool DllInstalled(string? path)
     {
-        const string dllProductName = "Logitech Gaming LED SDK";
-
         if (path == null)
         {
             return false;
@@ -56,6 +60,7 @@ public static class LgsInstallationUtils
         }
 
         var attributes = FileVersionInfo.GetVersionInfo(path);
-        return attributes.FileDescription == dllProductName;
+        var productName = attributes.FileDescription;
+        return productName != null && LgsProductNames.Contains(productName);
     }
 }
