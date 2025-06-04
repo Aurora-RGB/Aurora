@@ -192,6 +192,7 @@
                         
                         <TextBlock Foreground="LightGray">LGS autostart is disabled</TextBlock>
                         <TextBlock Grid.Row="0" Grid.Column="1" Name="LgsAutostartStatus" Foreground="Green">✔</TextBlock>
+                        <TextBlock Grid.Row="0" Grid.Column="2" Foreground="LightGray">Disabling from Task Manager may be needed</TextBlock>
                         <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">LGS and GHUB are not running</TextBlock>
                         <TextBlock Grid.Row="1" Grid.Column="1" Name="LgsRunningStatus" Foreground="LightGray">‐</TextBlock>
                         <TextBlock Grid.Row="2" Grid.Column="0" Foreground="LightGray">LGS Lightsync binary exists</TextBlock>

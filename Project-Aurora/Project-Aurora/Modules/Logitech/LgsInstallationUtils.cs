@@ -1,6 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Microsoft.Win32;
 
 namespace AuroraRgb.Modules.Logitech;
@@ -11,25 +12,56 @@ public static class LgsInstallationUtils
     private static readonly FrozenSet<string> LgsProductNames = new[]
             {
                 "Logitech Gaming LED SDK",
-                "Logitech G Legacy LED SDK",
             }.ToFrozenSet();
+
+    private static readonly FrozenSet<string> LgsAutoStartNames = new[]
+    {
+        "Launch LCore",
+        "LCore.exe",
+    }.ToFrozenSet();
 
     public static bool IsLgsInstalled()
     {
         const string runReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
         using var runKey = Registry.LocalMachine.OpenSubKey(runReg);
-        var lgsLaunch = runKey?.GetValue("Launch LCore");
-        var lgsInstalled = lgsLaunch != null;
-        return lgsInstalled;
+        
+        if (runKey == null)
+            return false;
+        return LgsAutoStartNames.Any(IsLgsRegistry);
+
+        bool IsLgsRegistry(string keyValue)
+        {
+            var lgsLaunch = runKey.GetValue(keyValue);
+            var lgsInstalled = lgsLaunch != null;
+            return lgsInstalled;
+        }
     }
 
     public static bool LgsAutorunEnabled()
     {
         const string runApprovedReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
         using var runApprovedKey = Registry.LocalMachine.OpenSubKey(runApprovedReg);
-        var lgsLaunchApproved = runApprovedKey?.GetValue("Launch LCore");
-        var runApproved = lgsLaunchApproved is byte[] startValue && startValue[0] == 2;
-        return runApproved;
+        
+        if (runApprovedKey == null)
+            return false;
+        return LgsAutoStartNames.Any(IsLgsRunEnabled);
+        
+        bool IsLgsRunEnabled(string keyValue)
+        {
+            var lgsLaunch = runApprovedKey.GetValue(keyValue);
+            var valueNull = lgsLaunch != null;
+            if (!valueNull)
+            {
+                return false;
+            }
+
+            if (lgsLaunch is not byte[] valueBytes || valueBytes.Length < 1)
+            {
+                return false;
+            }
+            var enabledFlag = valueBytes[0];
+            return enabledFlag == 2;
+        }
     }
 
     public static bool DllInstalled()
