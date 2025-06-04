@@ -11,6 +11,8 @@ namespace AuroraRgb.Nodes.Razer;
 
 internal abstract class RazerFetcher : IDisposable
 {
+    private const string? GLOBAL_RAZERLINKREADWRITEGUARDMUTEX = "Global\\RazerLinkReadWriteGuardMutex";
+
     private const int HidReqSetReport = 0x09;
     private const int HidReqGetReport = 0x01; // Add GET_REPORT request
     private const int UsbTypeClass = 0x20;
@@ -21,7 +23,7 @@ internal abstract class RazerFetcher : IDisposable
     private const int UsbTypeRequestIn = UsbTypeClass | UsbRecipInterface | UsbDirIn;
     private const int RazerUsbReportLen = 90; // Example length, set this according to actual length
 
-    private readonly Mutex _mutex = new(false, "Global\\RazerLinkReadWriteGuardMutex");
+    private readonly Mutex _mutex;
 
     static RazerFetcher()
     {
@@ -37,7 +39,23 @@ internal abstract class RazerFetcher : IDisposable
         var mutexSecurity = new MutexSecurity();
         mutexSecurity.AddAccessRule(rule);
         
-        _mutex.SetAccessControl(mutexSecurity);
+        // Create a mutex with a well-known name use acl
+        _mutex = MutexAcl.Create(false, GLOBAL_RAZERLINKREADWRITEGUARDMUTEX, out _, mutexSecurity);
+
+        try
+        {
+            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
+            {
+                _mutex.ReleaseMutex();
+                return;
+            }
+        }
+        catch (AbandonedMutexException)
+        {
+            //continue
+        }
+
+        _mutex.ReleaseMutex();
     }
 
     protected byte[]? Update()
