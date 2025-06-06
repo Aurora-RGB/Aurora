@@ -53,9 +53,10 @@ public sealed class LightingStateManager : IDisposable
     private readonly HashSet<ILightEvent> _startedEvents = [];
     private readonly HashSet<ILightEvent> _updatedEvents = [];
 
-    private Dictionary<string, string> EventProcesses { get; } = new();
-    private Dictionary<Regex, string> EventTitles { get; } = new();
-    private Dictionary<string, string> EventAppIDs { get; } = new();
+    // TODO convert to Dictionary of SortedList with profile priority as key
+    private Dictionary<string, Application> EventProcesses { get; } = new();
+    private Dictionary<Regex, Application> EventTitles { get; } = new();
+    private Dictionary<string, Application> EventAppIDs { get; } = new();
     public Dictionary<Type, LayerHandlerMeta> LayerHandlers { get; } = new();
 
     public event EventHandler? PreUpdate;
@@ -232,7 +233,7 @@ public sealed class LightingStateManager : IDisposable
 
         foreach (var exe in application.Config.ProcessNames)
         {
-            EventProcesses[exe.ToLower()] = profileId;
+            EventProcesses[exe.ToLower()] = application;
         }
 
         application.Config.ProcessNamesChanged += (_, _) =>
@@ -240,7 +241,7 @@ public sealed class LightingStateManager : IDisposable
             var keysToRemove = new List<string>();
             foreach (var (s, value) in EventProcesses)
             {
-                if (value == profileId)
+                if (value.Config.ID == profileId)
                 {
                     keysToRemove.Add(s);
                 }
@@ -254,18 +255,18 @@ public sealed class LightingStateManager : IDisposable
             foreach (var exe in application.Config.ProcessNames)
             {
                 if (!exe.Equals(profileId))
-                    EventProcesses.TryAdd(exe.ToLower(), profileId);
+                    EventProcesses.TryAdd(exe.ToLower(), application);
             }
         };
 
         if (application.Config.ProcessTitles != null)
             foreach (var titleRx in application.Config.ProcessTitles)
-                EventTitles.Add(titleRx, profileId);
+                EventTitles.Add(titleRx, application);
 
         if (!string.IsNullOrWhiteSpace(application.Config.AppID))
-            EventAppIDs.Add(application.Config.AppID, profileId);
+            EventAppIDs.Add(application.Config.AppID, application);
 
-        if (application is Application && !Global.Configuration.ProfileOrder.Contains(profileId))
+        if (!Global.Configuration.ProfileOrder.Contains(profileId))
         {
             Global.Configuration.ProfileOrder.Add(profileId);
         }
@@ -317,13 +318,7 @@ public sealed class LightingStateManager : IDisposable
 
     private Application? GetProfileFromProcessName(string process)
     {
-        if (EventProcesses.TryGetValue(process, out var eventId) &&
-            Events.TryGetValue(eventId, out var res))
-        {
-            return res;
-        }
- 
-        return Events.TryGetValue(process, out res) ? res : null;
+        return EventProcesses.GetValueOrDefault(process);
     }
 
     /// <summary>
@@ -340,29 +335,14 @@ public sealed class LightingStateManager : IDisposable
 
     private Application? GetProfileFromProcessTitle(string title)
     {
-        foreach (var value in EventTitles
-                     .Where(entry => entry.Key.IsMatch(title))
-                     .Select(kv => kv.Value)
-                )
-        {
-            if (!Events.TryGetValue(value, out var lightEvent))
-                Global.logger.Warning("GetProfileFromProcess: The process with title '{Title}' matches an item in EventTitles" +
-                                      " but subsequently '{Value}' does not in Events!", title, value);
-            else
-                return lightEvent; // added in an else so we keep searching for more valid regexes.
-        }
-
-        return null;
+        return EventTitles.Where(entry => entry.Key.IsMatch(title))
+            .Select(kv => kv.Value)
+            .FirstOrDefault();
     }
 
     private Application? GetProfileFromAppId(string appid)
     {
-        if (!EventAppIDs.TryGetValue(appid, out var value)) return Events.GetValueOrDefault(appid);
-        if (!Events.ContainsKey(value))
-            Global.logger.Warning(
-                "GetProfileFromAppID: The appid '{AppId}' exists in EventAppIDs but subsequently '{EventAppID}' does not in Events!",
-                appid, value);
-        return Events[value];
+        return !EventAppIDs.TryGetValue(appid, out var value) ? Events.GetValueOrDefault(appid) : value;
     }
 
     private readonly SingleConcurrentThread _updateTimer;
