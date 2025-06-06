@@ -55,6 +55,7 @@ public class LightEventConfig : INotifyPropertyChanged
 
     public bool EnableByDefault { get; init; } = true;
     public bool EnableOverlaysByDefault { get; set; } = true;
+    public int Priority { get; init; }
 
     public event PropertyChangedEventHandler? PropertyChanged;
 

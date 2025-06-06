@@ -17,6 +17,7 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
     GameStateType = typeof(GameState_Wrapper),
     IconURI = "Resources/controller-icon.png",
     EnableByDefault = false,
+    Priority = -10,
 })
 {
     public override async Task<bool> Initialize(CancellationToken cancellationToken)

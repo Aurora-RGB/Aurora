@@ -53,8 +53,7 @@ public sealed class LightingStateManager : IDisposable
     private readonly HashSet<ILightEvent> _startedEvents = [];
     private readonly HashSet<ILightEvent> _updatedEvents = [];
 
-    // TODO convert to Dictionary of SortedList with profile priority as key
-    private Dictionary<string, Application> EventProcesses { get; } = new();
+    private Dictionary<string, SortedSet<Application>> EventProcesses { get; } = new();
     private Dictionary<Regex, Application> EventTitles { get; } = new();
     private Dictionary<string, Application> EventAppIDs { get; } = new();
     public Dictionary<Type, LayerHandlerMeta> LayerHandlers { get; } = new();
@@ -233,17 +232,25 @@ public sealed class LightingStateManager : IDisposable
 
         foreach (var exe in application.Config.ProcessNames)
         {
-            EventProcesses[exe.ToLower()] = application;
+            if (!EventProcesses.TryGetValue(exe, out var applicationList))
+            {
+                applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
+                EventProcesses[exe] = applicationList;
+            }
+            applicationList.Add(application);
         }
 
         application.Config.ProcessNamesChanged += (_, _) =>
         {
             var keysToRemove = new List<string>();
-            foreach (var (s, value) in EventProcesses)
+            foreach (var (s, applications) in EventProcesses)
             {
-                if (value.Config.ID == profileId)
+                foreach (var app in applications)
                 {
-                    keysToRemove.Add(s);
+                    if (app.Config.ID == profileId)
+                    {
+                        keysToRemove.Add(s);
+                    }
                 }
             }
 
@@ -254,8 +261,14 @@ public sealed class LightingStateManager : IDisposable
 
             foreach (var exe in application.Config.ProcessNames)
             {
-                if (!exe.Equals(profileId))
-                    EventProcesses.TryAdd(exe.ToLower(), application);
+                if (exe.Equals(profileId)) continue;
+                var processKey = exe.ToLower();
+                if (!EventProcesses.TryGetValue(processKey, out var applicationList))
+                {
+                    applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
+                    EventProcesses[processKey] = applicationList;
+                }
+                applicationList.Add(application);
             }
         };
 
@@ -318,7 +331,7 @@ public sealed class LightingStateManager : IDisposable
 
     private Application? GetProfileFromProcessName(string process)
     {
-        return EventProcesses.GetValueOrDefault(process);
+        return EventProcesses.GetValueOrDefault(process)?.First();
     }
 
     /// <summary>
