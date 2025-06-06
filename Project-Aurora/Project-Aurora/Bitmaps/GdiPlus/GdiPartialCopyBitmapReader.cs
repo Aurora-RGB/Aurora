@@ -23,7 +23,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private readonly double _opacity;
     private readonly Vector256<int> _zeroVector = Vector256<int>.Zero;
 
-    private Color _transparentColor = Color.Transparent;
+    private readonly Color _transparentColor = Color.Transparent;
     private Color _currentColor = Color.Black;
 
     private readonly int[] _emptySmallestBuffer = new int[SmallestBufferLength];

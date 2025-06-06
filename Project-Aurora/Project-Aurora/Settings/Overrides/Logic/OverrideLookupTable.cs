@@ -32,7 +32,7 @@ public class OverrideLookupTable : IOverrideLogic {
     /// <param name="lookupTable">Optionally a collection of existing LookupTableEntries to add to the new table.</param>
     public OverrideLookupTable(Type type, IEnumerable<LookupTableEntry>? lookupTable = null) {
         VarType = type;
-        LookupTable = lookupTable == null ? new ObservableCollection<LookupTableEntry>() : new ObservableCollection<LookupTableEntry>(lookupTable);
+        LookupTable = lookupTable == null ? [] : new ObservableCollection<LookupTableEntry>(lookupTable);
         LookupTable.CollectionChanged += (_, _) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LookupTable)));
     }
 
