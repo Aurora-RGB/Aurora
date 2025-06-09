@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.HardwareMonitor;
+using AuroraRgb.Profiles;
 
 namespace AuroraRgb.Nodes;
 
@@ -9,6 +10,7 @@ namespace AuroraRgb.Nodes;
 /// </summary>
 public class LocalPcInformation : Node
 {
+    [GameStateIgnore]
     public static IHardwareMonitor HardwareMonitor { get; set; } = new NoopHardwareMonitor();
 
     private TimeNode? _time;
@@ -18,16 +20,16 @@ public class LocalPcInformation : Node
     public AudioNode Audio => _audio ??= new AudioNode();
 
     private static CPUInfo? _cpuInfo;
-    public CPUInfo CPU => _cpuInfo ??= new CPUInfo();
+    public static CPUInfo CPU => _cpuInfo ??= new CPUInfo();
 
     private static RAMInfo? _ramInfo;
-    public RAMInfo RAM => _ramInfo ??= new RAMInfo();
+    public static RAMInfo RAM => _ramInfo ??= new RAMInfo();
 
     private static GPUInfo? _gpuInfo;
-    public GPUInfo GPU => _gpuInfo ??= new GPUInfo();
+    public static GPUInfo GPU => _gpuInfo ??= new GPUInfo();
 
     private static NETInfo? _netInfo;
-    public NETInfo NET => _netInfo ??= new NETInfo();
+    public static NETInfo NET => _netInfo ??= new NETInfo();
 
     public Controllers Controllers { get; } = new();
     public RazerDevices RazerDevices { get; } = new();
@@ -35,35 +37,35 @@ public class LocalPcInformation : Node
     #region Cursor Position
 
     private static CursorPositionNode? _cursorPosition;
-    public CursorPositionNode CursorPosition => _cursorPosition ??= new CursorPositionNode();
+    public static CursorPositionNode CursorPosition => _cursorPosition ??= new CursorPositionNode();
 
     #endregion
 
     #region Battery Properties
 
     private static BatteryNode? _battery;
-    public BatteryNode Battery => _battery ??= new BatteryNode();
+    public static BatteryNode Battery => _battery ??= new BatteryNode();
 
     #endregion
 
     #region Media Properties
 
     private static MediaNode? _media;
-    public MediaNode Media => _media ??= new MediaNode();
+    public static MediaNode Media => _media ??= new MediaNode();
 
     #endregion
 
     /// <summary>
     /// Returns focused window's name.
     /// </summary>
-    public string ActiveWindowName => ProcessesModule.ActiveProcessMonitor.Result.ProcessTitle;
+    public static string ActiveWindowName => ProcessesModule.ActiveProcessMonitor.Result.ProcessTitle;
 
     /// <summary>
     /// Returns focused window's process name.
     /// </summary>
-    public string ActiveProcess => ProcessesModule.ActiveProcessMonitor.Result.ProcessName;
+    public static string ActiveProcess => ProcessesModule.ActiveProcessMonitor.Result.ProcessName;
 
-    private static CelestialData? _celestialData;
+    private CelestialData? _celestialData;
     public CelestialData CelestialData => _celestialData ??= new CelestialData();
 
     private DesktopNode? _desktop;

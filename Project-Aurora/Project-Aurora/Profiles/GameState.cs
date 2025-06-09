@@ -40,7 +40,7 @@ public abstract class GameState : IGameState
     private static LocalPcInformation? _localPcInfo;
 
     [PublicAPI] // game profiles can still access this
-    public LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
+    public static LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
     
     public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 

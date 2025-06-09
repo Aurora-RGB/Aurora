@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Nodes;
 
+/**
+ * A class holding variables set by /variables endpoint
+ */
 public class AuroraVariables
 {
     public static readonly AuroraVariables Instance = new(); 
