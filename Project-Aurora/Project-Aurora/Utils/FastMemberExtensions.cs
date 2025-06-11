@@ -11,13 +11,13 @@ public static class FastMemberExtensions {
     /// <summary>
     /// Takes a path to a property (e.g. "Property/NestedProperty") and attempts to resolve it into a value within the context of this object.
     /// </summary>
-    public static object? ResolvePropertyPath(this object target, string path) {
-        if (target is IGameState gameState && gameState.PropertyMap.TryGetValue(path, out var getter))
+    public static object? ResolvePropertyPath(this object target, VariablePath path) {
+        if (target is IGameState gameState && gameState.PropertyMap.TryGetValue(path.GsiPath, out var getter))
         {
             return getter.Invoke(gameState);
         }
 
-        var pathParts = path.Split('/');
+        var pathParts = path.GsiPath.Split('/');
         var curObj = target;
         try
         {

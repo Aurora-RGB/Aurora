@@ -4,6 +4,6 @@ namespace AuroraRgb.Nodes;
 
 public class CursorPositionNode : Node
 {
-    public float X => Cursor.Position.X;
-    public float Y => Cursor.Position.Y;
+    public static float X => Cursor.Position.X;
+    public static float Y => Cursor.Position.Y;
 }

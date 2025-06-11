@@ -4,8 +4,8 @@ namespace AuroraRgb.Nodes;
 
 public class MediaNode : Node
 {
-    public bool MediaPlaying => MediaMonitor.MediaPlaying;
-    public bool HasMedia => MediaMonitor.HasMedia;
-    public bool HasNextMedia => MediaMonitor.HasNextMedia;
-    public bool HasPreviousMedia => MediaMonitor.HasPreviousMedia;
+    public static bool MediaPlaying => MediaMonitor.MediaPlaying;
+    public static bool HasMedia => MediaMonitor.HasMedia;
+    public static bool HasNextMedia => MediaMonitor.HasNextMedia;
+    public static bool HasPreviousMedia => MediaMonitor.HasPreviousMedia;
 }

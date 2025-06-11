@@ -26,7 +26,7 @@
 
         <!-- Dropdown content -->
         <Popup Name="Popup" StaysOpen="False" IsOpen="{Binding IsOpen, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}">
-            <Grid x:Name="PopupContent" Background="#1A1A1A" Height="280" Width="450">
+            <Grid x:Name="PopupContent" Background="#1A1A1A" Height="460" Width="450">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="1*" />

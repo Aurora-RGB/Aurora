@@ -41,6 +41,29 @@ public abstract class GameState : IGameState
 
     [PublicAPI] // game profiles can still access this
     public static LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
+
+    private static AudioNode? _audio;
+    [PublicAPI]
+    public static AudioNode Audio => _audio ??= new AudioNode();
+    
+    private static DevicesNode? _devices;
+    [PublicAPI]
+    public static DevicesNode Devices => _devices ??= new DevicesNode();
+
+    private DesktopNode? _desktop;
+    [PublicAPI]
+    public DesktopNode Desktop => _desktop ??= new DesktopNode();
+
+    private static MediaNode? _media;
+    [PublicAPI]
+    public static MediaNode Media => _media ??= new MediaNode();
+
+    private CelestialData? _celestialData;
+    public CelestialData CelestialData => _celestialData ??= new CelestialData();
+    
+    private static ProcessesNode? _processes;
+    [PublicAPI]
+    public static ProcessesNode Processes => _processes ??= new ProcessesNode();
     
     public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 
@@ -65,7 +88,7 @@ public abstract class GameState : IGameState
     private bool TryResolveGsPath(VariablePath path, GSIPropertyType type, out object? value) {
         value = null;
         if (string.IsNullOrEmpty(path.GsiPath)) return false;
-        value = this.ResolvePropertyPath(path.GsiPath);
+        value = this.ResolvePropertyPath(path);
         return value != null && GSIPropertyTypeConverter.IsTypePropertyType(value.GetType(), type);
     }
 
