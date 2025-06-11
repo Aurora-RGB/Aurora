@@ -73,7 +73,13 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
             // to dictionary where classSymbol is the key
             .ToDictionary(classSymbol => classSymbol!.ToDisplayString(), classSymbol => GenerateClassProperties(context, classSymbol!));
         // flatten the list of PropertyLookupInfo
-        
+
+
+        if (context.CancellationToken.IsCancellationRequested)
+        {
+            return;
+        }
+
         var source = NodePropertyLookupsGenerator.GetSource(lookups);
         context.AddSource("NodePropertyLookups.g.cs", SourceText.From(source, Encoding.UTF8));
     }
@@ -99,6 +105,11 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         // Get all properties of the class
         var properties = PropertyAnalyzer.GetClassProperties("", classSymbol, $"(({classSymbol.Name})t).")
             .ToImmutableList();
+
+        if (context.CancellationToken.IsCancellationRequested)
+        {
+            return [];
+        }
 
         var source = PartialGameStateGenerator.GetSource(classSymbol, properties);
         context.AddSource(classSymbol.Name + ".g.cs", SourceText.From(source, Encoding.UTF8));
@@ -130,6 +141,12 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
             .Select(g => g.First())
             .Where(p => !string.IsNullOrWhiteSpace(p.GsiPath))
             .ToList();
+
+        if (context.CancellationToken.IsCancellationRequested)
+        {
+            return [];
+        }
+
         return folderLookupInfos.Union(propertyLookupInfos)
             .OrderBy(p => p.GsiPath)
             .ToList();
