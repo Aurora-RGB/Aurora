@@ -79,13 +79,13 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
         };
     }
 
-    private void UpdateStraight(IReadOnlyDictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
+    private void UpdateStraight(Dictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
         var calibrationName = CalibrationName(device);
+        deviceKeyRemap.TryGetValue(device, out var keyRemap);
         var calibrated = Global.DeviceConfig.DeviceCalibrations.TryGetValue(calibrationName, out var calibration);
         foreach (var led in device)
         {
-            deviceKeyRemap.TryGetValue(device, out var keyRemap);
             if (!(keyRemap != null &&
                   keyRemap.TryGetValue(led.Id, out var dk)) && //get remapped key if device if remapped
                 !RgbNetKeyMappings.KeyNames.TryGetValue(led.Id, out dk)) continue;

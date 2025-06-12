@@ -4,9 +4,9 @@ using System.Text.Json;
 using AuroraDeviceManager.Devices.RGBNet;
 using AuroraDeviceManager.Devices.ScriptedDevice;
 using AuroraDeviceManager.Utils;
-using Common.Devices;
 using Common;
 using Common.Data;
+using Common.Devices;
 using Common.Devices.RGBNet;
 using Microsoft.Win32;
 using RGB.NET.Core;
@@ -246,13 +246,14 @@ public sealed class DeviceManager : IDisposable
             if (!rgbNetDevice.DeviceKeyRemap.TryGetValue(device, out var deviceKeyMap))
             {
                 deviceKeyMap = new Dictionary<LedId, DeviceKeys>();
-                rgbNetDevice.DeviceKeyRemap.TryAdd(device, deviceKeyMap);
+                rgbNetDevice.DeviceKeyRemap[device] = deviceKeyMap;
             }
 
             var led = device[deviceLed];
             if (led == null)
             {
                 //in case somehow this device doesn't have this led
+                Global.Logger.Warning("Device {DeviceId} does not have led {LedId}", deviceId, deviceLed);
                 continue;
             }
             
@@ -308,10 +309,10 @@ public sealed class DeviceManager : IDisposable
         if (!client.IsConnected)
             return;
         
-        client.Write(command, 0, command.Length);
-        client.Write(_end, 0, _end.Length);
+        await client.WriteAsync(command, 0, command.Length);
+        await client.WriteAsync(_end, 0, _end.Length);
         
-        client.Flush();
+        await client.FlushAsync();
         client.Close();
     }
 }

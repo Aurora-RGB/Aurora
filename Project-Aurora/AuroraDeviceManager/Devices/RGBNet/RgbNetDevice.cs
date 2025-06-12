@@ -198,7 +198,7 @@ public abstract class RgbNetDevice : DefaultDevice
     {
         if (rgbNetConfigDevices.TryGetValue(rgbDevice.DeviceInfo.DeviceName, out var configDevice))
         {
-            DeviceKeyRemap.TryAdd(rgbDevice, configDevice.KeyMapper);
+            DeviceKeyRemap[rgbDevice] = configDevice.KeyMapper;
         }
     }
 
