@@ -1,6 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using AuroraRgb.Modules;
+using AuroraRgb.Profiles.Desktop;
 
 namespace AuroraRgb.Profiles.Logitech;
 
@@ -10,9 +10,9 @@ public class LogitechApplication : Application
     {
         Name = "Logitech Lightsync",
         ID = "logitech",
-        ProcessNames = Array.Empty<string>(),
+        ProcessNames = [],
         ProfileType = typeof(LogitechProfile),
-        GameStateType = typeof(GameState_Wrapper),
+        GameStateType = typeof(DesktopState),
         OverviewControlType = typeof(Control_Logitech),
         IconURI = "Resources/G-sync.png",
         EnableByDefault = true,
@@ -23,6 +23,6 @@ public class LogitechApplication : Application
 
     private void LogitechSdkListenerOnApplicationChanged(object? sender, string? e)
     {
-        Config.ProcessNames = e == null ? Array.Empty<string>() : [Path.GetFileName(e)];
+        Config.ProcessNames = e == null ? [] : [Path.GetFileName(e)];
     }
 }
