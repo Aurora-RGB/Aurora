@@ -42,7 +42,6 @@ public class GenericApplication : Application
         SettingsType = typeof(GenericApplicationSettings),
         ProfileType = typeof(GenericApplicationProfile),
         OverviewControlType = typeof(Control_GenericApplication),
-        GameStateType = typeof(GameState_Wrapper),
     })
     {
         AllowLayer<WrapperLightsLayerHandler>();

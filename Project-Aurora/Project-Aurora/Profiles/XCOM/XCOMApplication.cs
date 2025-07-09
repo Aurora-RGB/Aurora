@@ -8,11 +8,10 @@ public class XCOM : Application
     public XCOM()
         : base(new LightEventConfig {
             Name = "XCOM: Enemy Unknown",
-            ID = "XCOM", ProcessNames = new[] { "xcomgame.exe" },
+            ID = "XCOM", ProcessNames = ["xcomgame.exe"],
             SettingsType = typeof(FirstTimeApplicationSettings),
             ProfileType = typeof(XCOMProfile),
             OverviewControlType = typeof(Control_XCOM),
-            GameStateType = typeof(GameState_Wrapper),
             IconURI = "Resources/xcom_64x64.png"
         })
     {

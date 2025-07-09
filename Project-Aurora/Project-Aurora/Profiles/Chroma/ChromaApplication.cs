@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Razer;
-using AuroraRgb.Profiles.Desktop;
 
 namespace AuroraRgb.Profiles.Chroma;
 
@@ -15,7 +14,6 @@ public sealed class ChromaApplication() : Application(new LightEventConfig
     ProcessNames = [],
     ProfileType = typeof(RazerChromaProfile),
     OverviewControlType = typeof(Control_Chroma),
-    GameStateType = typeof(DesktopState),
     IconURI = "Resources/chroma.png",
     EnableByDefault = true,
 })

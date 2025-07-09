@@ -3,8 +3,8 @@ using System.IO;
 using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text.Json;
 using System.Threading.Tasks;
-using AuroraRgb.Profiles;
 using Common;
 
 namespace AuroraRgb.Modules.GameStateListen;
@@ -12,11 +12,6 @@ namespace AuroraRgb.Modules.GameStateListen;
 public class IpcListener
 {
     private bool _isRunning;
-
-    /// <summary>
-    ///  Event for handing a newly received game state
-    /// </summary>
-    public event EventHandler<IGameState>? NewGameState;
 
     public event EventHandler<string>? WrapperConnectionClosed;
 
@@ -95,16 +90,16 @@ public class IpcListener
 
         _ipcPipeStream = CreatePipe("Aurora\\server");
         _ipcPipeStream.BeginWaitForConnection(ReceiveGameState, null);
-        Global.logger.Information("[IPCServer] Pipe created {}", _ipcPipeStream?.GetHashCode() ?? -1);
+        Global.logger.Information("[IPCServer] Pipe created {PipeName}", _ipcPipeStream?.GetHashCode() ?? -1);
 
         _auroraInterfacePipeStream = CreatePipe(Constants.AuroraInterfacePipe);
         _auroraInterfacePipeStream.BeginWaitForConnection(ReceiveAuroraCommand, null);
-        Global.logger.Information("[AuroraCommandsServerIPC] Pipe created {}", _auroraInterfacePipeStream?.GetHashCode() ?? -1);
+        Global.logger.Information("[AuroraCommandsServerIPC] Pipe created {PipeName}", _auroraInterfacePipeStream?.GetHashCode() ?? -1);
     }
 
     private void ReceiveGameState(IAsyncResult result)
     {
-        if (!_isRunning)
+        if (!_isRunning || _ipcPipeStream == null)
         {
             return;
         }
@@ -117,16 +112,16 @@ public class IpcListener
             {
                 try
                 {
-                    var newState = new GameState_Wrapper(temp); //GameState_Wrapper 
+                    var gameState = JsonSerializer.Deserialize<LfxData>(temp, LfxJsonSourceContext.Default.LfxData) ?? LfxData.Empty;
+                    LfxState.SetGameState(gameState);
 
                     IsWrapperConnected = true;
-                    WrappedProcess = newState.Provider.Name.ToLowerInvariant();
-                    NewGameState?.Invoke(this, newState);
+                    WrappedProcess = LfxState.LastData.Provider.Name.ToLowerInvariant();
                 }
                 catch (Exception exc)
                 {
                     Global.logger.Error(exc, "[IPCServer] ReceiveGameState Exception, ");
-                    Global.logger.Information("Received data that caused error:\n\r{Data}", temp);
+                    Global.logger.Information("[IPCServer] Received data that caused error:\n\r{Data}", temp);
                 }
             }
         }
@@ -150,7 +145,7 @@ public class IpcListener
 
     private void ReceiveAuroraCommand(IAsyncResult result)
     {
-        if (!_isRunning)
+        if (!_isRunning || _auroraInterfacePipeStream == null)
         {
             return;
         }

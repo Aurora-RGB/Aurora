@@ -663,9 +663,6 @@ public sealed class LightingStateManager : IDisposable
             {
                 return;
             }
-            
-            if (profile.Config.GameStateType == null)
-                return;
 
             // profile supports System.Text.Json but we received data on old endpoint
             if (!profile.Config.GameStateType.IsAssignableTo(typeof(NewtonsoftGameState)))

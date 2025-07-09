@@ -9,11 +9,10 @@ public class DyingLight : Application
         : base(new LightEventConfig {
             Name = "Dying Light",
             ID = "DyingLight",
-            ProcessNames = new[] { "DyingLightGame.exe" },
+            ProcessNames = ["DyingLightGame.exe"],
             SettingsType = typeof(FirstTimeApplicationSettings),
             ProfileType = typeof(DyingLightProfile),
             OverviewControlType = typeof(Control_DyingLight),
-            GameStateType = typeof(GameState_Wrapper),
             IconURI = "Resources/dl_128x128.png"
         })
     {

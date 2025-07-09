@@ -40,7 +40,6 @@ public sealed class LightingStateManagerModule(
         var ipcListener = await listener;
         if (ipcListener != null)
         {
-            ipcListener.NewGameState += lightingStateManager.GameStateUpdate;
             ipcListener.WrapperConnectionClosed += lightingStateManager.ResetGameState;
         }
 
@@ -66,7 +65,6 @@ public sealed class LightingStateManagerModule(
         var ipcListener = await listener;
         if (ipcListener != null)
         {
-            ipcListener.NewGameState -= _manager.GameStateUpdate;
             ipcListener.WrapperConnectionClosed -= _manager.ResetGameState;
         }
 

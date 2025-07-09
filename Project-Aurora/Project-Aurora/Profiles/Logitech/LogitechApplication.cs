@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using AuroraRgb.Modules;
-using AuroraRgb.Profiles.Desktop;
 
 namespace AuroraRgb.Profiles.Logitech;
 
@@ -12,7 +11,6 @@ public class LogitechApplication : Application
         ID = "logitech",
         ProcessNames = [],
         ProfileType = typeof(LogitechProfile),
-        GameStateType = typeof(DesktopState),
         OverviewControlType = typeof(Control_Logitech),
         IconURI = "Resources/G-sync.png",
         EnableByDefault = true,

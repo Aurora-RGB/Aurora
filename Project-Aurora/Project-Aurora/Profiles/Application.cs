@@ -74,8 +74,8 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     {
         Config = config;
         config.Application = this;
-        config.Event.ResetGameState(config.GameStateType);
-        Profiles = new ObservableCollection<ApplicationProfile>();
+        config.Event.ResetGameState();
+        Profiles = [];
         Profiles.CollectionChanged += (_, e) =>
         {
             if (e.Action != NotifyCollectionChangedAction.Add) return;
@@ -84,8 +84,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                 prof.SetApplication(this);
             }
         };
-        if (config.GameStateType != null)
-            ParameterLookup = new GameStateParameterLookup(config.GameStateType);
+        ParameterLookup = new GameStateParameterLookup(config.GameStateType);
 
         var jsonSerializerSettings = new JsonSerializerSettings
         {
@@ -414,7 +413,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
         Config.Event.SetGameState(state);
     }
 
-    public virtual void ResetGameState(Type? gameStateType = null)
+    public virtual void ResetGameState()
     {
         if (Disposed)
             return;

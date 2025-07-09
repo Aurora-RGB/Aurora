@@ -43,7 +43,7 @@ namespace AuroraRgb.Profiles.ETS2 {
             }
         }
 
-        public override void ResetGameState(Type? gameStateType = null) {
+        public override void ResetGameState() {
             GameState = new GameState_ETS2(default(ETS2MemoryStruct));
         }
 

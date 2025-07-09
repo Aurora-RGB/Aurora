@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Controls;
+using AuroraRgb.Profiles.Desktop;
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
@@ -42,7 +43,7 @@ public class LightEventConfig : INotifyPropertyChanged
 
     public Type OverviewControlType { get; init; } = typeof(UserControl);
 
-    public Type? GameStateType { get; init; }
+    public Type GameStateType { get; init; } = typeof(DesktopState);
 
     public Application? Application { get; set; }
 
@@ -69,7 +70,7 @@ public class LightEventConfig : INotifyPropertyChanged
         {
             var evLightEvent = lightEvent.Invoke();
             evLightEvent.Application = Application;
-            evLightEvent.ResetGameState(GameStateType);
+            evLightEvent.ResetGameState();
             return evLightEvent;
         });
     }

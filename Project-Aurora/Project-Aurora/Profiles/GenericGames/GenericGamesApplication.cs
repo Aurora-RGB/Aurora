@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.Gamebar;
-using AuroraRgb.Profiles.Desktop;
 using AuroraRgb.Profiles.Generic_Application;
 
 namespace AuroraRgb.Profiles.GenericGames;
@@ -15,7 +14,6 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
     ProcessNames = [],
     ProfileType = typeof(GenericApplicationProfile),
     OverviewControlType = typeof(Control_GenericGames),
-    GameStateType = typeof(DesktopState),
     IconURI = "Resources/controller-icon.png",
     EnableByDefault = false,
     Priority = -10,

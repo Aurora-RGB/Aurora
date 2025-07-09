@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text;
 using AuroraRgb;
 using AuroraRgb.Profiles;
 using Newtonsoft.Json;
@@ -62,7 +63,7 @@ public abstract class MemoryReadingLightEvent<TPointers, TGameState> : LightEven
             try {
                 // Deserialize JSON directly from a file
                 using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var sr = new StreamReader(fs, System.Text.Encoding.Default)) {
+                using (var sr = new StreamReader(fs, Encoding.Default)) {
                     JsonSerializer serializer = new JsonSerializer();
                     pointers = (TPointers)serializer.Deserialize(sr, typeof(TPointers));
                 }
@@ -76,7 +77,7 @@ public abstract class MemoryReadingLightEvent<TPointers, TGameState> : LightEven
     /// <summary>
     /// Resets the game state to be the default value.
     /// </summary>
-    public override void ResetGameState(Type? gameStateType = null) {
+    public override void ResetGameState() {
         GameState = new TGameState();
     }
 

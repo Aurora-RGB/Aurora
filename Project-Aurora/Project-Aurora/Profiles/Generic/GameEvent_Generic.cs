@@ -1,15 +1,13 @@
-﻿using System;
-
-namespace AuroraRgb.Profiles.Generic;
+﻿namespace AuroraRgb.Profiles.Generic;
 
 public class GameEvent_Generic : LightEvent
 {
-    public override void SetGameState(IGameState new_game_state)
+    public override void SetGameState(IGameState newGameState)
     {
-        if (Application.Config.GameStateType != null && new_game_state.GetType() != Application.Config.GameStateType)
+        if (newGameState.GetType() != Application.Config.GameStateType)
             return;
 
-        GameState = new_game_state;
+        GameState = newGameState;
         UpdateLayerGameStates();
     }
 
@@ -26,9 +24,9 @@ public class GameEvent_Generic : LightEvent
             lyr.SetGameState(GameState);
     }
 
-    public override void ResetGameState(Type? gameStateType = null)
+    public override void ResetGameState()
     {
-        base.ResetGameState(gameStateType);
+        base.ResetGameState();
 
         UpdateLayerGameStates();
     }
