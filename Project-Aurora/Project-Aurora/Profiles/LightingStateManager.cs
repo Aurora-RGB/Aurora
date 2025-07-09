@@ -581,8 +581,8 @@ public sealed class LightingStateManager : IDisposable
             return DesktopProfile;
         }
         else if (Global.Configuration.AllowWrappersInBackground
-                 && _ipcListener.Result is {IsWrapperConnected: true} 
-                 && (tempProfile = GetProfileFromProcessName(_ipcListener.Result!.WrappedProcess)) != null 
+                 && LfxState.IsWrapperConnected
+                 && (tempProfile = GetProfileFromProcessName(LfxState.WrappedProcess)) != null 
                  && tempProfile.IsEnabled)
             profile = tempProfile;
 

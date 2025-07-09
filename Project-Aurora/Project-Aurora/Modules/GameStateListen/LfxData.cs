@@ -14,8 +14,17 @@ namespace AuroraRgb.Modules.GameStateListen;
 [JsonSourceGenerationOptions(WriteIndented = true, PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
 public partial class LfxJsonSourceContext : JsonSerializerContext;
 
-public class LfxState
+public static class LfxState
 {
+    /// <summary>
+    /// Returns whether or not the wrapper is connected through IPC
+    /// </summary>
+    public static bool IsWrapperConnected { get; set; }
+    /// <summary>
+    /// Returns the process of the wrapped connection
+    /// </summary>
+    public static string WrappedProcess { get; set; } = "";
+    
     public static LfxData LastData { get; private set; } = LfxData.Empty;
     public static readonly int[] Bitmap = new int[126];
     public static Dictionary<DeviceKeys, Color> ExtraKeys { get; } = new();

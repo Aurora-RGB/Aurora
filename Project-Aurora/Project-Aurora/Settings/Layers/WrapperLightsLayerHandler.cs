@@ -96,6 +96,10 @@ public class WrapperLightsLayerHandler() : LayerHandler<WrapperLightsLayerHandle
 
     public override EffectLayer Render(IGameState gamestate)
     {
+        if (!LfxState.IsWrapperConnected)
+        {
+            return EmptyLayer.Instance;
+        }
 
         EffectLayer.Fill(GetBoostedColor(LfxState.LastFillColor));
 

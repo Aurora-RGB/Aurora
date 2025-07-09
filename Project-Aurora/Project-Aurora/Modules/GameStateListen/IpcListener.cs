@@ -15,17 +15,7 @@ public class IpcListener
 
     public event EventHandler<string>? WrapperConnectionClosed;
 
-    public event EventHandler<string>? AuroraCommandReceived; 
-
-    /// <summary>
-    /// Returns whether or not the wrapper is connected through IPC
-    /// </summary>
-    public bool IsWrapperConnected { get; private set; }
-
-    /// <summary>
-    /// Returns the process of the wrapped connection
-    /// </summary>
-    public string WrappedProcess { get; private set; } = "";
+    public event EventHandler<string>? AuroraCommandReceived;
 
     private NamedPipeServerStream? _ipcPipeStream;
     private NamedPipeServerStream? _auroraInterfacePipeStream;
@@ -85,8 +75,8 @@ public class IpcListener
 
     private void BeginIpcServer()
     {
-        IsWrapperConnected = false;
-        WrappedProcess = "";
+        LfxState.IsWrapperConnected = false;
+        LfxState.WrappedProcess = "";
 
         _ipcPipeStream = CreatePipe("Aurora\\server");
         _ipcPipeStream.BeginWaitForConnection(ReceiveGameState, null);
@@ -115,8 +105,8 @@ public class IpcListener
                     var gameState = JsonSerializer.Deserialize<LfxData>(temp, LfxJsonSourceContext.Default.LfxData) ?? LfxData.Empty;
                     LfxState.SetGameState(gameState);
 
-                    IsWrapperConnected = true;
-                    WrappedProcess = LfxState.LastData.Provider.Name.ToLowerInvariant();
+                    LfxState.IsWrapperConnected = true;
+                    LfxState.WrappedProcess = LfxState.LastData.Provider.Name.ToLowerInvariant();
                 }
                 catch (Exception exc)
                 {
@@ -127,9 +117,9 @@ public class IpcListener
         }
         finally
         {
-            WrapperConnectionClosed?.Invoke(this, WrappedProcess);
-            IsWrapperConnected = false;
-            WrappedProcess = "";
+            WrapperConnectionClosed?.Invoke(this, LfxState.WrappedProcess);
+            LfxState.IsWrapperConnected = false;
+            LfxState.WrappedProcess = "";
         }
         if (!_isRunning)
         {
