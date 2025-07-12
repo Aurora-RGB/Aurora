@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using CoordinateSharp;
 
 namespace AuroraRgb.Nodes;
 
+[GameStateDescription(Description)]
 public class CelestialData : Node
 {
+    private const string Description = """
+                                       Provides the solar noon percentage, which indicates how close the sun is to the zenith.
+                                       """;
+
     private int _currentHour = -1;
     private Dictionary<int, double> _currentHourValues = new();
     

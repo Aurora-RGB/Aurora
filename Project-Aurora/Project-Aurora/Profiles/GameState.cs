@@ -65,9 +65,11 @@ public abstract class GameState : IGameState
     [PublicAPI]
     public static ProcessesNode Processes => _processes ??= new ProcessesNode();
     
+    [GameStateIgnore]
     public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 
     [JsonIgnore]
+    [GameStateIgnore]
     public virtual FrozenDictionary<string, Func<IGameState, object?>> PropertyMap => FrozenDictionary<string, Func<IGameState, object?>>.Empty;
 
     /// <summary>
