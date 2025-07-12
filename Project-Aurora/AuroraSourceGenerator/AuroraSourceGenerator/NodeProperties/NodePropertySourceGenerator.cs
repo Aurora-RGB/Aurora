@@ -114,40 +114,12 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         var source = PartialGameStateGenerator.GetSource(classSymbol, properties);
         context.AddSource(classSymbol.Name + ".g.cs", SourceText.From(source, Encoding.UTF8));
 
-        var propertyLookupInfos = properties
-            .Select(p =>
-            {
-                var paths = p.GsiPath.Split('/');
-                var name = paths.Last();
-                return new PropertyLookupInfo(name, p.GsiPath, p.PropertyType);
-            })
-            .ToList();
-        var folderLookupInfos = propertyLookupInfos
-            .SelectMany(p =>
-            {
-                var paths = p.GsiPath.Split('/');
-                // get all path depths until the last one
-
-                // IntRange(0, paths.Length - 1) but in C#:
-                return Enumerable.Range(1, paths.Length - 1)
-                    .Select(i =>
-                    {
-                        var folderName = paths[i - 1];
-                        var folderPath = string.Join("/", paths.Take(i));
-                        return new PropertyLookupInfo(folderName, folderPath);
-                    });
-            })
-            .GroupBy(p => p.GsiPath)
-            .Select(g => g.First())
-            .Where(p => !string.IsNullOrWhiteSpace(p.GsiPath))
-            .ToList();
-
         if (context.CancellationToken.IsCancellationRequested)
         {
             return [];
         }
 
-        return folderLookupInfos.Union(propertyLookupInfos)
+        return properties
             .OrderBy(p => p.GsiPath)
             .ToList();
     }

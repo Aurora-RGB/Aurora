@@ -112,7 +112,23 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
 
         // Raise an event informing subscribers
         picker.SelectedPathChanged?.Invoke(picker, new SelectedPathChangedEventArgs(e.OldValue?.ToString() ?? "", e.NewValue?.ToString() ?? ""));
+        picker.UpdateDescriptionTextBlock();
     }
+
+    private void UpdateDescriptionTextBlock()
+    {
+        var folder = Application?.ParameterLookup?.Children().FirstOrDefault(l => l.Path == WorkingPath.GsiPath);
+        // set description of the selected item
+        if (folder is { IsFolder: true })
+        {
+            DescriptionTextBlock.Text = folder.Description;
+        }
+        else
+        {
+            DescriptionTextBlock.Text = string.Empty; // Clear the description if it is not a folder
+        }
+    }
+
     #endregion
 
     #region Application Dependency Property
@@ -249,6 +265,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
                 if (itemContext.IsFolder) {
                     // If the user selected a directory, animate the box.
                     WorkingPath = new VariablePath(itemContext.Path);
+                    UpdateDescriptionTextBlock();
                     Animate(1);
                     NotifyChanged(nameof(CurrentParameterListItems), nameof(WorkingPath));
 
@@ -283,6 +300,7 @@ public partial class GameStateParameterPicker : INotifyPropertyChanged {
             WorkingPath = new VariablePath(path[..path.LastIndexOf('/')]);
         else
             WorkingPath = VariablePath.Empty;
+        UpdateDescriptionTextBlock();
     }
 
     private void NotifyChanged(params string[] propNames) {

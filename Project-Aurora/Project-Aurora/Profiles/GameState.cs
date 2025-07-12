@@ -172,8 +172,25 @@ public partial class NewtonsoftGameState : GameState
 /// <summary>
 /// Attribute that can be applied to properties to indicate they should be excluded from the game state.
 /// </summary>
-[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Property)]
 public class GameStateIgnoreAttribute : Attribute;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class GameStateDescriptionAttribute : Attribute
+{
+    /// <summary>
+    /// The description of the game state property.
+    /// </summary>
+    public string Description { get; }
+
+    /// <summary>
+    /// Creates a new GameStateDescriptionAttribute with the given description.
+    /// </summary>
+    public GameStateDescriptionAttribute(string description)
+    {
+        Description = description;
+    }
+}
 
 /// <summary>
 /// Attribute that indicates the range of indicies that are valid for an enumerable game state property.

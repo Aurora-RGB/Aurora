@@ -27,7 +27,7 @@ public sealed class GameStateParameterLookup
             {
                 if (lookup.IsFolder)
                 {
-                    _lookup[lookup.GsiPath] = GameStateParameterLookupEntry.Folder(lookup.Name, lookup.GsiPath);
+                    _lookup[lookup.GsiPath] = GameStateParameterLookupEntry.Folder(lookup.Name, lookup.GsiPath, lookup.Description ?? string.Empty);
                 }
                 else
                 {
@@ -56,7 +56,7 @@ public sealed class GameStateParameterLookup
             {
                 // Else if this not a handlable property, check if it's a node or list of nodes and if so make a folder and visit it's children
                 if (path != "") // If it's the root folder, don't add it
-                    _lookup.Add(path, GameStateParameterLookupEntry.Folder(name, path));
+                    _lookup.Add(path, GameStateParameterLookupEntry.Folder(name, path, string.Empty));
 
                 if (!typeCache.TryGetValue(type, out var accessor))
                 {
@@ -133,16 +133,18 @@ public sealed class GameStateParameterLookupEntry
     public required bool IsFolder { get; init; }
     public required Type? ClrType { get; init; }
     public required GSIPropertyType Type { get; init; }
+    public required string Description { get; init; }
 
     public string DisplayName => Name.CamelCaseToSpaceCase();
 
-    internal static GameStateParameterLookupEntry Folder(string name, string path) => new()
+    internal static GameStateParameterLookupEntry Folder(string name, string path, string description) => new()
     {
         Name = name,
         Path = path,
         IsFolder = true,
         ClrType = null,
-        Type = GSIPropertyType.None
+        Type = GSIPropertyType.None,
+        Description = description,
     };
 
     internal static GameStateParameterLookupEntry Property(string name, string path, Type? type) => new()
@@ -151,6 +153,7 @@ public sealed class GameStateParameterLookupEntry
         Path = path,
         IsFolder = false,
         ClrType = type,
-        Type = GSIPropertyTypeConverter.TypeToPropertyType(type)
+        Type = GSIPropertyTypeConverter.TypeToPropertyType(type),
+        Description = string.Empty,
     };
 }

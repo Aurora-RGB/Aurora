@@ -42,6 +42,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition />
                         <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
                     
                     <Button Content="⬅ Previous" IsEnabled="{Binding WorkingPath,
@@ -52,6 +53,7 @@
                     <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                                Text="{Binding WorkingPath.GsiPath, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type controls:GameStateParameterPicker}}}"
                                Margin="6,0,6,6" VerticalAlignment="Center" />
+                    <TextBlock Name="DescriptionTextBlock" Grid.Row="2" Grid.Column="0" Text="Description here" Padding="4,1" Margin="0,0,16,0" FontSize="12" Foreground="#FF888888" TextWrapping="Wrap" />
                 </Grid>
 
                 <!-- List boxes (aux is for animation) -->

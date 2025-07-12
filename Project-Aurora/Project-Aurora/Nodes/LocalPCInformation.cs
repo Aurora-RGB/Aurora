@@ -8,8 +8,16 @@ namespace AuroraRgb.Nodes;
 /// <summary>
 /// Class representing local computer information
 /// </summary>
+[GameStateDescription(Description)]
 public class LocalPcInformation : Node
 {
+    private const string Description = """
+                                       Information is mostly provided by LibreHardwareMonitor
+                                       
+                                       On AMD Systems, CPU and GPU data is not available by default because of insecure driver used LibreHardwareMonitor.
+                                       Go to Aurora Settings -> Plugin Management to enable it
+                                       """;
+
     [GameStateIgnore]
     public static IHardwareMonitor HardwareMonitor { get; set; } = new NoopHardwareMonitor();
 

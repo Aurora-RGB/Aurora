@@ -34,6 +34,7 @@ public static class NodePropertyLookupsGenerator
                          public string GsiPath { get; }
                          public bool IsFolder { get; }
                          public Type? Type { get; }
+                         public string? Description { get; }
                          
                          public PropertyLookup(string name, string gsiPath, Type? type)
                          {
@@ -43,11 +44,12 @@ public static class NodePropertyLookupsGenerator
                              Type = type;
                          }
                          
-                         public PropertyLookup(string name, string gsiPath)
+                         public PropertyLookup(string name, string gsiPath, string? description)
                          {
                              Name = name;
                              GsiPath = gsiPath;
                              IsFolder = true;
+                             Description = description;
                          }
                      }
                  }
@@ -68,7 +70,7 @@ public static class NodePropertyLookupsGenerator
     {
         if (p.PropertyType == null)
         {
-            return $"new PropertyLookup(\"{p.Name}\", \"{p.GsiPath}\")";
+            return $"new PropertyLookup(\"{p.Name}\", \"{p.GsiPath}\", \"\"\"\n{p.Description}\n\"\"\")";
         }
 
         return $"new PropertyLookup(\"{p.Name}\", \"{p.GsiPath}\", typeof({p.PropertyType.ToDisplayString().TrimEnd('?')}))";

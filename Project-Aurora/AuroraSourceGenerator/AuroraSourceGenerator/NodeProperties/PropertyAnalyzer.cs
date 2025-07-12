@@ -6,7 +6,7 @@ namespace AuroraSourceGenerator.NodeProperties;
 
 public static class PropertyAnalyzer
 {
-    public static IEnumerable<PropertyAccess> GetClassProperties(string currentPath, INamedTypeSymbol type, string upperAccessPath)
+    public static IEnumerable<PropertyLookupInfo> GetClassProperties(string currentPath, INamedTypeSymbol type, string upperAccessPath)
     {
         var namedTypeSymbols = ClassUtils.GetBaseTypes(type);
         foreach (var currentType in namedTypeSymbols)
@@ -16,7 +16,7 @@ public static class PropertyAnalyzer
         }
     }
 
-    private static IEnumerable<PropertyAccess> GetClassAccessors(string currentPath, INamedTypeSymbol currentType, string upperAccessPath)
+    private static IEnumerable<PropertyLookupInfo> GetClassAccessors(string currentPath, INamedTypeSymbol currentType, string upperAccessPath)
     {
         foreach (var member in currentType.GetMembers())
         {
@@ -31,11 +31,22 @@ public static class PropertyAnalyzer
 
             var accessPath = property.IsStatic ? GetStaticAccessPath(currentType, property) : upperAccessPath + property.Name;
 
+            var gsiPath = currentPath + property.Name;
+            var paths = gsiPath.Split('/');
+            var name = paths.Last();
             if (IsPropertyFinal(propertyType))
             {
-                yield return new PropertyAccess(currentPath + property.Name, accessPath.TrimEnd('.'), propertyType);
+                yield return new PropertyLookupInfo(name, gsiPath, accessPath.TrimEnd('.'), propertyType);
                 continue;
             }
+
+            // get GameStateDescription attribute if it exists
+            var descriptionAttribute = propertyType.GetAttributes()
+                .FirstOrDefault(attr => attr.AttributeClass?.Name == "GameStateDescriptionAttribute");
+            var description = descriptionAttribute?.ConstructorArguments.FirstOrDefault().Value as string;
+
+            // folder
+            yield return new PropertyLookupInfo(name, gsiPath, description);
 
             if (propertyType.TypeKind is not (TypeKind.Class or TypeKind.Interface)) continue;
 
@@ -51,7 +62,7 @@ public static class PropertyAnalyzer
             var s = property.NullableAnnotation == NullableAnnotation.Annotated ? "?." : ".";
             var lowerAccessPath = property.IsStatic ? accessPath : accessPath + s;
 
-            var folderPath = currentPath + property.Name + "/";
+            var folderPath = gsiPath + "/";
 
             foreach (var classProperty in GetClassProperties(folderPath, namedTypeSymbol, lowerAccessPath))
             {
@@ -78,7 +89,7 @@ public static class PropertyAnalyzer
 
     private static string GetStaticAccessPath(INamedTypeSymbol currentType, IPropertySymbol property)
         => currentType.ContainingNamespace + "." + currentType.Name + "." + property.Name + ".";
+
     private static bool IsAuroraClass(INamedTypeSymbol namedTypeSymbol)
         => namedTypeSymbol.ToString().StartsWith("AuroraRgb.");
-
 }

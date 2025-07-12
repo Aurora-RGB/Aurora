@@ -7,7 +7,7 @@ namespace AuroraSourceGenerator.NodeProperties.GeneratedClasses;
 
 public static class PartialGameStateGenerator
 {
-    public static string GetSource(INamedTypeSymbol classSymbol, ImmutableList<PropertyAccess> properties)
+    public static string GetSource(INamedTypeSymbol classSymbol, ImmutableList<PropertyLookupInfo> properties)
     {
         return $$"""
                  // Auto-generated code
@@ -24,7 +24,7 @@ public static class PartialGameStateGenerator
                      {
                          private static readonly FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>>()
                           {
-                 {{string.Join(",\n", properties.Select(Selector()))}}
+                 {{string.Join(",\n", properties.Where(Filter).Select(AccessorMethodSource))}}
                           }.ToFrozenDictionary();
                           public override FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
                      }
@@ -32,9 +32,12 @@ public static class PartialGameStateGenerator
                  """;
     }
 
-    private static Func<PropertyAccess, string> Selector() => AccessorMethodSource;
+    private static bool Filter(PropertyLookupInfo arg)
+    {
+        return !arg.IsFolder;
+    }
 
-    private static string AccessorMethodSource(PropertyAccess valueTuple)
+    private static string AccessorMethodSource(PropertyLookupInfo valueTuple)
     {
         var pathString = valueTuple.GsiPath;
         return $"[\"{pathString}\"]\t=\t(t) => {valueTuple.AccessPath}";

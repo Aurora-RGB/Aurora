@@ -1,10 +1,15 @@
 ﻿using AuroraRgb.Modules.AudioCapture;
+using AuroraRgb.Profiles;
 
 namespace AuroraRgb.Nodes;
 
-// info by NAudio
+[GameStateDescription(Description)]
 public class AudioNode : Node
 {
+    private const string Description = """
+                                       Data provided by NAudio
+                                       """;
+
     public static PlaybackDeviceNode PlaybackDevice { get; } = new();
     public static RecordingDeviceNode RecordingDevice { get; } = new();
 }
