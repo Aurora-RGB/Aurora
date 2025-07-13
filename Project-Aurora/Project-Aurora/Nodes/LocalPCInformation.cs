@@ -14,7 +14,7 @@ public class LocalPcInformation : Node
     private const string Description = """
                                        Information is mostly provided by LibreHardwareMonitor
                                        
-                                       On AMD Systems, CPU and GPU data is not available by default because of insecure driver used LibreHardwareMonitor.
+                                       On AMD Systems, CPU and GPU data is not available by default because of insecure driver used by LibreHardwareMonitor.
                                        Go to Aurora Settings -> Plugin Management to enable it
                                        """;
 
