@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="AuroraRgb.Settings.Controls.Wrappers.Control_ChromaWrapper"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:auroraRgb="clr-namespace:AuroraRgb"
+             mc:Ignorable="d"
+             Loaded="Control_ChromaWrapper_OnLoaded"
+             Unloaded="Control_ChromaWrapper_OnUnloaded"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" DataContext="{x:Static auroraRgb:Global.Configuration}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120" />
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="20*" />
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Supported Versions:" Margin="5 0 5 0" Padding="0"
+               VerticalAlignment="Center" />
+        <Label x:Name="ChromaSupportedVersionsLabel" Grid.Row="0" Grid.Column="1" Padding="0"
+               Margin="5 0 5 0" VerticalAlignment="Center" />
+        <Button x:Name="ChromaInstallButton" Grid.Row="0" Grid.Column="2" Content="Install" Width="90"
+                Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left"
+                Click="razer_wrapper_install_button_Click" />
+        <Button x:Name="ChromaAdvancedButton" Grid.Row="0" Grid.Column="2" Content="..."
+                Width="25" Margin="25 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Center"
+                Click="ChromaAdvancedButton_OnClick" />
+
+        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
+            <Button x:Name="ChromaDisableDeviceControlButton"
+                    HorizontalAlignment="Right" Margin="5 0 5 0"
+                    Content="Disable Device Control" Width="155"
+                    ToolTipService.InitialShowDelay="0"
+                    VerticalAlignment="Center"
+                    Click="razer_wrapper_disable_device_control_button_Click">
+                <Button.ToolTip>
+                    <TextBlock>
+                        Disabling device control will stop official Razer software from controlling Razer Devices
+                        <LineBreak />
+                        After this you will have to control them via OpenRGB
+                        <LineBreak />
+                        Synapse still needs to be closed completely
+                    </TextBlock>
+                </Button.ToolTip>
+            </Button>
+            <CheckBox IsChecked="{Binding ChromaDisableDeviceControl}"
+                      Content="↻"
+                      ToolTipService.InitialShowDelay="0"
+                      ToolTip="Automatically reapply"
+                      VerticalAlignment="Center" />
+        </StackPanel>
+
+        <Label Grid.Row="1" Grid.Column="0" Content="Installed Version:" Margin="5 0 5 0" Padding="0"
+               VerticalAlignment="Center" />
+        <Label x:Name="ChromaInstalledVersionLabel" Grid.Row="1" Grid.Column="1" Margin="5 0 5 0"
+               Padding="0" VerticalAlignment="Center" />
+
+        <Label Grid.Row="2" Grid.Column="0" Content="Connection:" Margin="5 0 5 0" Padding="0"
+               VerticalAlignment="Center" />
+        <Label x:Name="ChromaConnectionStatusLabel" Grid.Row="2" Grid.Column="2" Margin="5 0 5 0"
+               Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+
+        <Label Grid.Row="3" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
+               VerticalAlignment="Center" />
+        <Label x:Name="ChromaCurrentApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300"
+               Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+    </Grid>
+</UserControl>

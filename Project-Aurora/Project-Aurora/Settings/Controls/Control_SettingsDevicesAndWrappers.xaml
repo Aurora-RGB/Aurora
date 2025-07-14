@@ -6,9 +6,8 @@
              xmlns:auroraRgb="clr-namespace:AuroraRgb"
              xmlns:utils1="clr-namespace:AuroraRgb.Utils"
              xmlns:settings="clr-namespace:AuroraRgb.Settings"
+             xmlns:wrappers="clr-namespace:AuroraRgb.Settings.Controls.Wrappers"
              mc:Ignorable="d"
-             Unloaded="Control_SettingsDevicesAndWrappers_OnUnloaded"
-             IsVisibleChanged="Control_SettingsDevicesAndWrappers_OnIsVisibleChanged"
              d:DesignHeight="600" d:DesignWidth="900">
     <Grid DataContext="{x:Static auroraRgb:Global.Configuration}">
         <Grid.ColumnDefinitions>
@@ -108,118 +107,25 @@
 
         <Grid Grid.Column="1" Margin="0,7,7,7">
             <DockPanel>
-                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Chroma"
-                          VerticalAlignment="Stretch">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="120" />
-                            <ColumnDefinition Width="10*" />
-                            <ColumnDefinition Width="20*" />
-                        </Grid.ColumnDefinitions>
-
-                        <Label Grid.Row="0" Grid.Column="0" Content="Supported Versions:" Margin="5 0 5 0" Padding="0"
-                               VerticalAlignment="Center" />
-                        <Label x:Name="ChromaSupportedVersionsLabel" Grid.Row="0" Grid.Column="1" Padding="0"
-                               Margin="5 0 5 0" VerticalAlignment="Center" />
-                        <Button x:Name="ChromaInstallButton" Grid.Row="0" Grid.Column="2" Content="Install" Width="90"
-                                Margin="5 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                Click="razer_wrapper_install_button_Click" />
-                        <Button x:Name="ChromaAdvancedButton" Grid.Row="0" Grid.Column="2" Content="..."
-                                Width="25" Margin="25 0 5 0" VerticalAlignment="Center" HorizontalAlignment="Center"
-                                Click="ChromaAdvancedButton_OnClick"/>
-
-                        <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
-                            <Button x:Name="ChromaDisableDeviceControlButton"
-                                    HorizontalAlignment="Right" Margin="5 0 5 0"
-                                    Content="Disable Device Control" Width="155"
-                                    ToolTipService.InitialShowDelay="0"
-                                    VerticalAlignment="Center"
-                                    Click="razer_wrapper_disable_device_control_button_Click">
-                                <Button.ToolTip>
-                                    <TextBlock>
-                                        Disabling device control will stop official Razer software from controlling Razer Devices
-                                        <LineBreak />
-                                        After this you will have to control them via OpenRGB
-                                        <LineBreak />
-                                        Synapse still needs to be closed completely
-                                    </TextBlock> 
-                                </Button.ToolTip>
-                            </Button>
-                            <CheckBox IsChecked="{Binding ChromaDisableDeviceControl}"
-                                      Content="↻"
-                                      ToolTipService.InitialShowDelay="0"
-                                      ToolTip="Automatically reapply"
-                                      VerticalAlignment="Center" />
-                        </StackPanel>
-
-                        <Label Grid.Row="1" Grid.Column="0" Content="Installed Version:" Margin="5 0 5 0" Padding="0"
-                               VerticalAlignment="Center" />
-                        <Label x:Name="ChromaInstalledVersionLabel" Grid.Row="1" Grid.Column="1" Margin="5 0 5 0"
-                               Padding="0" VerticalAlignment="Center" />
-
-                        <Label Grid.Row="2" Grid.Column="0" Content="Connection:" Margin="5 0 5 0" Padding="0"
-                               VerticalAlignment="Center" />
-                        <Label x:Name="ChromaConnectionStatusLabel" Grid.Row="2" Grid.Column="2" Margin="5 0 5 0"
-                               Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-
-                        <Label Grid.Row="3" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
-                               VerticalAlignment="Center" />
-                        <Label x:Name="ChromaCurrentApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300"
-                               Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    </Grid>
+                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Chroma" VerticalAlignment="Stretch">
+                    <wrappers:Control_ChromaWrapper />
                 </GroupBox>
-                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Lightsync"
-                          VerticalAlignment="Stretch">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                            <RowDefinition Height="20" />
-                        </Grid.RowDefinitions>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="220" />
-                            <ColumnDefinition Width="10*" />
-                            <ColumnDefinition Width="20*" />
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Foreground="LightGray">LGS autostart is disabled</TextBlock>
-                        <TextBlock Grid.Row="0" Grid.Column="1" Name="LgsAutostartStatus" Foreground="Green">✔</TextBlock>
-                        <TextBlock Grid.Row="0" Grid.Column="2" Foreground="LightGray">Disabling from Task Manager may be needed</TextBlock>
-                        <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">LGS and GHUB are not running</TextBlock>
-                        <TextBlock Grid.Row="1" Grid.Column="1" Name="LgsRunningStatus" Foreground="LightGray">‐</TextBlock>
-                        <TextBlock Grid.Row="2" Grid.Column="0" Foreground="LightGray">LGS Lightsync binary exists</TextBlock>
-                        <TextBlock Grid.Row="2" Grid.Column="1" Name="LightsyncDllStatus" Foreground="Red">✗ TODO</TextBlock>
-
-                        <Label x:Name="LightsyncConnectionStatusLabel" Margin="5 0 5 0" Grid.Row="4" Grid.Column="2" Content="status"
-                               Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-
-                        <CheckBox Grid.Row="4" Grid.Column="0" IsChecked="{Binding EnableLightsyncTakeover}">Enable integration takeover</CheckBox>
-
-                        <Label Grid.Row="3" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
-                               VerticalAlignment="Center" />
-                        <Label x:Name="LightsyncCurrentApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300" Content="application name"
-                               Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
-                    </Grid>
+                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Lightsync" VerticalAlignment="Stretch">
+                    <wrappers:Control_LightsyncWrapper />
                 </GroupBox>
                 <TextBlock DockPanel.Dock="Top">
                     These wrappers are reverse-engineered and may not work as the original ones.
                 </TextBlock>
-                <GroupBox DockPanel.Dock="Bottom" Header="Wrappers" VerticalAlignment="Bottom">
+                <GroupBox DockPanel.Dock="Bottom" Header="LightFX" VerticalAlignment="Bottom">
                     <StackPanel Orientation="Vertical">
-                        <TextBlock TextWrapping="Wrap" Margin="4"
-                                   Text="Wrappers are not needed for Aurora to connect to your RGB devices. Only use these if you know what you're doing, otherwise you could cause issues in games or other applications! Read the wiki for more information." />
-                        <Button Content="Patch for LightFX (32 bit)" Margin="4" Width="200"
-                                Click="wrapper_install_lightfx_32_Click" />
-                        <Button Content="Patch for LightFX (64 bit)" Margin="4" Width="200"
-                                Click="wrapper_install_lightfx_64_Click" />
+                        <TextBlock TextWrapping="Wrap" Margin="4">
+                            LightFX game integration needs custom DLL in game files to work.
+                            Many games verify the DLL and will not load the custom DLL.
+                            <LineBreak />
+                            Use Wrapper Layer in a profile to display effects in these games.
+                        </TextBlock>
+                        <Button Content="Patch for LightFX (32 bit)" Margin="4" Width="200" Click="wrapper_install_lightfx_32_Click" />
+                        <Button Content="Patch for LightFX (64 bit)" Margin="4" Width="200" Click="wrapper_install_lightfx_64_Click" />
                     </StackPanel>
                 </GroupBox>
             </DockPanel>

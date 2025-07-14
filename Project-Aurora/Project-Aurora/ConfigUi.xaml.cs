@@ -99,7 +99,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         _controlInterface = controlInterface;
         _updateModule = updateModule;
 
-        _settingsControl = new Control_Settings(rzSdkManager, pluginManager, httpListener, deviceManager, ipcListener, layoutManager);
+        _settingsControl = new Control_Settings(pluginManager, httpListener, deviceManager, ipcListener, layoutManager);
         
         _updateKeyboardLayouts = async () =>
         {
