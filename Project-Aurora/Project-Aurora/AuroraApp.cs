@@ -155,7 +155,7 @@ public sealed class AuroraApp : IDisposable
     {
         Global.logger.Information("Loading ConfigUI...");
         var stopwatch = Stopwatch.StartNew();
-        var configUi = new ConfigUi(RazerSdkModule.RzSdkManager, PluginsModule.PluginManager, _layoutsModule.LayoutManager,
+        var configUi = new ConfigUi(PluginsModule.PluginManager, _layoutsModule.LayoutManager,
             _httpListenerModule.HttpListener, IpcListenerModule.IpcListener, _devicesModule.DeviceManager,
             LightingStateManagerModule.LightningStateManager, ControlInterface, UpdateModule);
         Global.logger.Debug("new ConfigUI() took {Elapsed}", stopwatch.Elapsed);

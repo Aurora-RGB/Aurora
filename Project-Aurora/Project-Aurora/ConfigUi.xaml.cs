@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +18,6 @@ using AuroraRgb.Devices;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.Layouts;
-using AuroraRgb.Modules.Razer;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
@@ -87,7 +87,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
     private CancellationTokenSource _keyboardUpdateCancel = new();
 
-    public ConfigUi(Task<ChromaSdkManager> rzSdkManager, Task<PluginManager> pluginManager,
+    public ConfigUi(Task<PluginManager> pluginManager,
         Task<KeyboardLayoutManager> layoutManager, Task<AuroraHttpListener?> httpListener,
         Task<IpcListener?> ipcListener, Task<DeviceManager> deviceManager, Task<LightingStateManager> lightingStateManager,
         AuroraControlInterface controlInterface, UpdateModule updateModule)
@@ -127,6 +127,10 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         };
         
         InitializeComponent();
+        
+        // append version to title
+        var auroraVersion = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion;
+        WindowTitle.Text += $" - {auroraVersion}";
 
         _transparencyComponent = new TransparencyComponent(this, bg_grid);
 
