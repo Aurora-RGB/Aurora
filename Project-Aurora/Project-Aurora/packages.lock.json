@@ -73,6 +73,12 @@
         "resolved": "0.10.2",
         "contentHash": "6bDzdj08dRW4Ynm4GycC2E2MlKFlnH9FPJKRlrIC+a3h+V6a6W7bRiMraviqIZd21JiN6+YggRb76qu/0Zdd0w=="
       },
+      "Fody": {
+        "type": "Direct",
+        "requested": "[6.9.2, )",
+        "resolved": "6.9.2",
+        "contentHash": "YBHobPGogb0vYhGYIxn/ndWqTjNWZveDi5jdjrcshL2vjwU3gQGyDeI7vGgye+2rAM5fGRvlLgNWLW3DpviS/w=="
+      },
       "Hardcodet.NotifyIcon.Wpf": {
         "type": "Direct",
         "requested": "[1.1.0, )",
@@ -175,6 +181,17 @@
         "requested": "[13.0.3, )",
         "resolved": "13.0.3",
         "contentHash": "HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ=="
+      },
+      "obs-websocket-dotnet": {
+        "type": "Direct",
+        "requested": "[5.0.1, )",
+        "resolved": "5.0.1",
+        "contentHash": "iV8P7q3hdzAjYdlga5pc/rE+Jk7PfgfD4saSx2JCyMYnJkQb97MpVLKTc+RYHoMX2m+3nCKQHaGhsdvrYXGjxA==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.4",
+          "Newtonsoft.Json": "13.0.3",
+          "Websocket.Client": "5.1.2"
+        }
       },
       "Octokit": {
         "type": "Direct",
@@ -413,11 +430,6 @@
         "dependencies": {
           "System.CodeDom": "6.0.0"
         }
-      },
-      "Fody": {
-        "type": "Transitive",
-        "resolved": "6.6.4",
-        "contentHash": "vLZS+oa+ndUHYPlx/8n9bBTT3dHkCF0riml4paKq4D663+cZd47x1uagQo32D/gKFZ/sfmV1oqKaLmH0elxq4A=="
       },
       "HidSharp": {
         "type": "Transitive",
@@ -1691,6 +1703,17 @@
           "System.Text.Encoding": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
+        }
+      },
+      "Websocket.Client": {
+        "type": "Transitive",
+        "resolved": "5.1.2",
+        "contentHash": "ZE5VoUCIYbfACGmXxgfD96i4W0wyBk0JEwIViyPpvxdk/pNfzh2SX9BgEj8fTqNaxlFl0bUTWq1UUvR/c18BTQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
+          "Microsoft.IO.RecyclableMemoryStream": "3.0.0",
+          "System.Reactive": "6.0.0",
+          "System.Threading.Channels": "8.0.0"
         }
       },
       "auroracommon": {

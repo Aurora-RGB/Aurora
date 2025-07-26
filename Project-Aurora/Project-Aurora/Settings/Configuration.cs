@@ -170,6 +170,8 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     [JsonProperty("idle_frequency")]
     public float IdleFrequency { get; set; } = 2.5f;
 
+    public string ObsWebsocketUrl { get; set; } = "ws://localhost:4455";
+
     //Hardware Monitor
     public int HardwareMonitorUpdateRate { get; set; } = 500;
     public int HardwareMonitorMaxQueue { get; set; } = 8;

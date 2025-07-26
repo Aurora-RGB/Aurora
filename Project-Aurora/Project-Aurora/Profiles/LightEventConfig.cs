@@ -39,7 +39,7 @@ public class LightEventConfig : INotifyPropertyChanged
 
     public Type SettingsType { get; init; } = typeof(ApplicationSettings);
 
-    public Type ProfileType { get; init; } = typeof(ApplicationProfile);
+    public required Type ProfileType { get; init; }
 
     public Type OverviewControlType { get; init; } = typeof(UserControl);
 

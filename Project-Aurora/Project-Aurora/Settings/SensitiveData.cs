@@ -11,4 +11,5 @@ public class SensitiveData : INotifyPropertyChanged
 
     public double Lat { get; set; }
     public double Lon { get; set; }
+    public string ObsWebSocketPassword { get; set; } = "";
 }
