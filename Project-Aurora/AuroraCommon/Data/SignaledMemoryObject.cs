@@ -67,6 +67,7 @@ public class SignaledMemoryObject : IDisposable
         {
             return;
         }
+        ObjectUpdatedHandle.Reset();
         UpdateRequestedHandle.Set();
     }
 

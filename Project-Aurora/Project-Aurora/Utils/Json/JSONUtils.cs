@@ -24,12 +24,12 @@ namespace AuroraRgb.Utils.Json;
 
 public partial class AuroraSerializationBinder : DefaultSerializationBinder
 {
-    private readonly ConcurrentDictionary<string, Dictionary<string, Type>> _assemblyTypeMap = new();
-    private readonly Dictionary<string, Type> _typeMap = new();
+    private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, Type>> _assemblyTypeMap = new();
+    private readonly ConcurrentDictionary<string, Type> _typeMap = new();
     
     public override Type BindToType(string? assemblyName, string typeName)
     {
-        Dictionary<string, Type> typeMap;
+        ConcurrentDictionary<string, Type> typeMap;
         if (assemblyName != null)
         {
             if (assemblyName == "Aurora")
@@ -39,7 +39,7 @@ public partial class AuroraSerializationBinder : DefaultSerializationBinder
 
             if (!_assemblyTypeMap.TryGetValue(assemblyName, out typeMap!))
             {
-                typeMap = new Dictionary<string, Type>();
+                typeMap = new ConcurrentDictionary<string, Type>();
                 _assemblyTypeMap[assemblyName] = typeMap;
             }
         }

@@ -97,6 +97,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
 
                                using System;
                                using System.Collections.Generic;
+                               using System.CodeDom.Compiler;
 
                                namespace AuroraRgb.Settings.Layers
                                {
@@ -106,6 +107,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                                        {
                                {{string.Join(",\n", classes.Where(c => !c.IsGenericType).Select(GetLogicInstanceSource))}}
                                        };
+                                       [GeneratedCode("AuroraRGB", "1.0.0")]
                                        public static IReadOnlyDictionary<string, Func<LayerHandlerPropertiesLogic>> LogicMap => _innerLogics;
                                    }
                                }
@@ -165,6 +167,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
 
                        using System;
                        using System.Collections.Generic;
+                       using System.CodeDom.Compiler;
 
                        namespace {{propertiesClassSymbol.ContainingNamespace}}
                        {
@@ -176,6 +179,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                                {
                        {{string.Join(",\n", properties.Select((Func<PropertySetter, string>)SetMethodSource))}}
                                };
+                               [GeneratedCode("AuroraRGB", "1.0.0")]
                                public override IReadOnlyDictionary<string, Action<AuroraRgb.Settings.Layers.LayerHandlerPropertiesLogic, object?>> SetterMap => InnerSetters;
                            }
                        }
@@ -213,13 +217,15 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                        using System.Collections.Generic;
                        using Newtonsoft.Json;
                        using AuroraRgb.Profiles;
+                       using System.CodeDom.Compiler;
 
                        namespace {{classSymbol.ContainingNamespace}}
                        {
                            public partial class {{classSymbol.Name}}{{genericParams}}
                                {{genericConstraints}}
                            {
-                               [GameStateIgnore, JsonIgnore] 
+                               [GameStateIgnore, JsonIgnore]
+                               [GeneratedCode("AuroraRGB", "1.0.0")]
                                public new {{logicClassName}}? Logic
                                 {
                                     get => ({{logicClassName}}?)base.Logic;
@@ -272,6 +278,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
         var propertySources = properties.Distinct()
             .Except([fieldName])
             .Select(p => $$"""
+                           [GeneratedCode("AuroraRGB", "1.0.0")]
                            public {{propertyType}} {{p}}
                            {
                                get => {{fieldName}};
@@ -285,6 +292,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
 
         return $"""
                 // field
+                [GeneratedCode("AuroraRGB", "1.0.0")]
                 public {propertyType} {fieldName};
 
                 {string.Join("", propertySources)}

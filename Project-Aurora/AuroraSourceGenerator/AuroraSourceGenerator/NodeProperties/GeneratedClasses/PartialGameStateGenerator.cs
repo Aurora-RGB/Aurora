@@ -17,15 +17,18 @@ public static class PartialGameStateGenerator
                  using System;
                  using System.Collections.Generic;
                  using System.Collections.Frozen;
+                 using System.CodeDom.Compiler;
 
                  namespace {{classSymbol.ContainingNamespace}}
                  {
                      public partial class {{classSymbol.Name}}
                      {
+                         [GeneratedCode("AuroraRGB", "1.0.0")]
                          private static readonly FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> _innerProperties = new Dictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>>()
                           {
                  {{string.Join(",\n", properties.Where(Filter).Select(AccessorMethodSource))}}
                           }.ToFrozenDictionary();
+                          [GeneratedCode("AuroraRGB", "1.0.0")]
                           public override FrozenDictionary<string, Func<AuroraRgb.Profiles.IGameState, object?>> PropertyMap => _innerProperties;
                      }
                  }

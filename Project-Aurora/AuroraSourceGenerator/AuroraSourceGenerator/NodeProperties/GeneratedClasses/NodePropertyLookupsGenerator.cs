@@ -16,18 +16,22 @@ public static class NodePropertyLookupsGenerator
                  using System;
                  using System.Collections.Generic;
                  using System.Collections.Frozen;
+                 using System.CodeDom.Compiler;
 
                  namespace AuroraRgb.Nodes
                  {
                      public class NodePropertyLookups
                      {
-                         private static readonly FrozenDictionary<Type, List<PropertyLookup>> _innerProperties = new Dictionary<Type, List<PropertyLookup>>()
+                          [GeneratedCode("AuroraRGB", "1.0.0")]
+                          private static readonly FrozenDictionary<Type, List<PropertyLookup>> _innerProperties = new Dictionary<Type, List<PropertyLookup>>()
                           {
                  {{string.Join(",\n", lookups.Select(DictSourceEntry()))}}
                           }.ToFrozenDictionary();
+                          [GeneratedCode("AuroraRGB", "1.0.0")]
                           public static FrozenDictionary<Type, List<PropertyLookup>> PropertyMap => _innerProperties;
                      }
                      
+                     [GeneratedCode("AuroraRGB", "1.0.0")]
                      public class PropertyLookup
                      {
                          public string Name { get; }
