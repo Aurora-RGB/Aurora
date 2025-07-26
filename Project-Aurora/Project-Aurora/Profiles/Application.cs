@@ -481,8 +481,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
                         break;
                     case ".cs":
                         new PluginCompiler(Global.logger, Global.ExecutingDirectory)
-                            .Compile(script)
-                            .Wait();
+                            .Compile(script);
 
                         var scriptAssembly = Assembly.LoadFrom(script + ".dll");
                         var effectType = typeof(IEffectScript);

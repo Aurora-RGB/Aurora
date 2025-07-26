@@ -34,9 +34,9 @@
         <DefineConstants>DEBUG;TRACE</DefineConstants>
 
         <Optimize>false</Optimize>
-        <PublishSelfContained>false</PublishSelfContained>
-        <ReadyToRun>false</ReadyToRun>
-        <ReadyToRunComposite>false</ReadyToRunComposite>
+        <SelfContained>true</SelfContained>
+        <ReadyToRun>true</ReadyToRun>
+        <ReadyToRunComposite>true</ReadyToRunComposite>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
@@ -71,6 +71,7 @@
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre396" />
         <PackageReference Include="LibUsbDotNet" Version="2.2.29" />
         <PackageReference Include="MdXaml" Version="1.27.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
         <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3"/>
         <PackageReference Include="NAudio.Core" Version="2.2.1"/>
         <PackageReference Include="NAudio.Wasapi" Version="22.0.0"/>
