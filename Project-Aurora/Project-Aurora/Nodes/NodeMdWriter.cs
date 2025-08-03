@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,22 @@ namespace AuroraRgb.Nodes;
 
 public class NodeMdWriter
 {
+    private const string BoolTag = "{{% typetag \"boolean\" %}}";
+    private const string NumberTag = "{{% typetag \"number\" %}}";
+    private const string StringTag = "{{% typetag \"string\" %}}";
+
+    private static readonly Dictionary<Type, string> TypeTags = new()
+    {
+        { typeof(bool), BoolTag },
+        { typeof(byte), NumberTag },
+        { typeof(short), NumberTag },
+        { typeof(int), NumberTag },
+        { typeof(long), NumberTag },
+        { typeof(float), NumberTag },
+        { typeof(double), NumberTag },
+        { typeof(string), StringTag },
+    };
+
     public static void Write()
     {
         ClearMdFiles();
@@ -72,6 +89,7 @@ public class NodeMdWriter
         public string? Description;
         public readonly List<Node> Children = [];
         public bool IsFolder;
+        public Type? Type { get; set; }
     }
 
     private static Node BuildTree(IEnumerable<PropertyLookup> props)
@@ -87,7 +105,7 @@ public class NodeMdWriter
                 var child = current.Children.FirstOrDefault(n => n.Name == name);
                 if (child == null)
                 {
-                    child = new Node { Name = name, IsFolder = i < parts.Length - 1, Description = prop.Description };
+                    child = new Node { Name = name, IsFolder = i < parts.Length - 1, Description = prop.Description, Type = prop.Type };
                     current.Children.Add(child);
                 }
 
@@ -104,7 +122,7 @@ public class NodeMdWriter
         foreach (var child in node.Children)
         {
             var prefix = indent + "- ";
-            writer.WriteLine($"{prefix}**{child.Name}**");
+            writer.WriteLine($"{prefix}**{child.Name}** {GetTypeTag(child.Type)}");
             if (!string.IsNullOrEmpty(child.Description))
             {
                 writer.WriteLine($"{indent}: {child.Description}");
@@ -113,5 +131,14 @@ public class NodeMdWriter
             if (child.Children.Count != 0)
                 WriteTreeMarkdown(child, writer, indentCount + 1);
         }
+    }
+
+    private static string GetTypeTag(Type? type)
+    {
+        if (type == null)
+            return string.Empty;
+
+        var typeKnown = TypeTags.TryGetValue(type, out var tag);
+        return typeKnown ? tag : string.Empty;
     }
 }
