@@ -1,8 +1,9 @@
 ﻿using AuroraRgb.Nodes;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes {
     public class GameStateNodeStationeers : Node {
-
+        [JsonPropertyName("game_state")]
         public int GameState;
         /*
         0 = Menu

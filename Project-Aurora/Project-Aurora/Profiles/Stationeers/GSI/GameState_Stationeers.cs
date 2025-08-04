@@ -1,20 +1,26 @@
 using AuroraRgb.Profiles.Generic;
 using AuroraRgb.Profiles.Stationeers.GSI.Nodes;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Stationeers.GSI;
 
 public class GameStateStationeers : NewtonsoftGameState {
 
+    [JsonPropertyName("provider")]
     private ProviderNode? _provider;
+    [JsonPropertyName("game_state")]
     private GameStateNodeStationeers? _gameState;
     //private NotificationNode? _notification;
+    [JsonPropertyName("world")]
     private WorldNode? _world;
     private PlayerNode? _player;
 
     /// <summary>
     /// Provider node provides information about the data source so that Aurora can update the correct gamestate.
     /// </summary>
-    public ProviderNode Provider => _provider ??= new ProviderNode(ParsedData["provider"]?.ToString() ?? "");
+    /// 
+    
+    public ProviderNode Provider => _provider ??= new ProviderNode(ParsedData["provider"]?.ToString() ?? "") ;
 
     // Fix ambiguous constructor call by using NodeFor<TNode> for GameStateNode creation
     public GameStateNodeStationeers GameState => _gameState ??= NodeFor<GameStateNodeStationeers>("game_state");

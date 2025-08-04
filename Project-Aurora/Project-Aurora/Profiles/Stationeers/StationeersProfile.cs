@@ -1,10 +1,7 @@
 ﻿using System.Drawing;
 using AuroraRgb.EffectsEngine;
-using AuroraRgb.EffectsEngine.Animations;
-using AuroraRgb.Profiles.Stationeers.GSI.Nodes;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
-using AuroraRgb.Settings.Overrides.Logic;
 using DK = Common.Devices.DeviceKeys;
 
 namespace AuroraRgb.Profiles.Stationeers;
