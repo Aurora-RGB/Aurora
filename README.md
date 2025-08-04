@@ -27,7 +27,7 @@ Project Aurora is a utility that unifies RGB lighting devices across different b
 
 Have a look at our [website](https://www.project-aurora.com/) for a better look at Aurora and its features!
 
-You can find the list of **Supported Games and Devices** [here](https://github.com/Aurora-RGB/Aurora/wiki/Supported-Games-&-Devices)
+You can find the list of **Supported Devices** [here](https://www.project-aurora.com/Docs/devices/alldevices/) and the list of **Supported Games** [here](https://www.project-aurora.com/Docs/basic-topics/games/).
 
 ## Download
 
