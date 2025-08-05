@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -82,17 +83,42 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         HashSet<string> ignore = [GameStateInterface];
         HashSet<string> ignoredInterfaces = [NewtonsoftGameStateInterface];
 
-        var lookups = classes.Select(classDeclaration =>
+        Dictionary<string, List<PropertyLookupInfo>> lookups = [];
+        foreach (var classDeclaration in classes)
+        {
+            var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
+            var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+            if (classSymbol == null) continue;
+
+            // if class is not partial, report warning
+            if (!classDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-                return semanticModel.GetDeclaredSymbol(classDeclaration);
-            }).Where(classSymbol => classSymbol != null)
-            .Where(classSymbol => !ignore.Contains(classSymbol!.ToDisplayString()))
+                AuroraSourceLinter.LintNotPartial(context, classSymbol);
+                continue;
+            }
+
+            if (ignore.Contains(classSymbol.ToDisplayString()))
+            {
+                continue;
+            }
+
             // Filter out classes that implement ignored interfaces
-            .Where(classSymbol => !classSymbol!.AllInterfaces.Any(i => ignoredInterfaces.Contains(i.ToDisplayString())))
-            // Filter out classes that are not AuroraRgb classes
-            // to dictionary where classSymbol is the key
-            .ToDictionary(classSymbol => classSymbol!.ToDisplayString(), classSymbol => GenerateClassProperties(context, classSymbol!));
+            if (classSymbol.AllInterfaces.Any(i => ignoredInterfaces.Contains(i.ToDisplayString())))
+            {
+                continue;
+            }
+
+            try
+            {
+                // Filter out classes that are not AuroraRgb classes
+                // to dictionary where classSymbol is the key
+                lookups[classSymbol.ToDisplayString()] = GenerateClassProperties(context, classSymbol);
+            }
+            catch (Exception ex)
+            {
+                AuroraSourceLinter.LintGenericPropertyError(context, classSymbol, ex);
+            }
+        }
 
 
         if (context.CancellationToken.IsCancellationRequested)
