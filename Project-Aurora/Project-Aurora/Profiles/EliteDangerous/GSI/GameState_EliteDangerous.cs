@@ -1,124 +1,79 @@
 ﻿using System;
 using AuroraRgb.Profiles.EliteDangerous.GSI.Nodes;
 
-namespace AuroraRgb.Profiles.EliteDangerous.GSI
+namespace AuroraRgb.Profiles.EliteDangerous.GSI;
+
+public class GameStateCondition(
+    long flagsSet = Flag.UNSPECIFIED,
+    long flagsNotSet = Flag.UNSPECIFIED,
+    GuiFocus[]? guiFocus = null,
+    Func<GameState_EliteDangerous, bool>? callback = null)
 {
-    public class GameStateCondition
+    public GameStateCondition(Func<GameState_EliteDangerous, bool> callback) : this(0, 0, null, callback)
     {
-        long flagsSet;
-        long flagsNotSet;
-        GuiFocus[] guiFocus;
-
-        private Func<GameState_EliteDangerous, bool> callback = null;
-
-        public GameStateCondition(long flagsSet = Flag.UNSPECIFIED, long flagsNotSet = Flag.UNSPECIFIED, GuiFocus[] guiFocus = null,
-            Func<GameState_EliteDangerous, bool> callback = null)
-        {
-            this.flagsSet = flagsSet;
-            this.guiFocus = guiFocus;
-            this.flagsNotSet = flagsNotSet;
-            this.callback = callback;
-        }
-
-        public GameStateCondition(Func<GameState_EliteDangerous, bool> callback)
-        {
-            this.callback = callback;
-        }
-
-        public bool IsSatisfied(GameState_EliteDangerous gameState)
-        {
-            if (callback != null && !callback(gameState))
-            {
-                return false;
-            }
-
-            if (guiFocus != null && Array.IndexOf(guiFocus, gameState.Status.GuiFocus) == Flag.UNSPECIFIED)
-            {
-                return false;
-            }
-
-            if (flagsSet != Flag.UNSPECIFIED && !Flag.IsFlagSet(gameState.Status.Flags, flagsSet))
-            {
-                return false;
-            }
-
-            if (flagsNotSet != Flag.UNSPECIFIED && Flag.AtLeastOneFlagSet(gameState.Status.Flags, flagsNotSet))
-            {
-                return false;
-            }
-
-            return true;
-        }
     }
 
-    public class NeedsGameState
+    public bool IsSatisfied(GameState_EliteDangerous gameState)
     {
-        public GameStateCondition NeededGameStateCondition;
-
-        public NeedsGameState()
+        if (callback != null && !callback(gameState))
         {
+            return false;
         }
 
-        public NeedsGameState(GameStateCondition neededGameStateCondition)
+        if (guiFocus != null && Array.IndexOf(guiFocus, gameState.Status.GuiFocus) == Flag.UNSPECIFIED)
         {
-            this.NeededGameStateCondition = neededGameStateCondition;
+            return false;
         }
 
-        public bool IsSatisfied(GameState_EliteDangerous gameState)
+        if (flagsSet != Flag.UNSPECIFIED && !Flag.IsFlagSet(gameState.Status.Flags, flagsSet))
         {
-            if (NeededGameStateCondition != null)
-            {
-                return NeededGameStateCondition.IsSatisfied(gameState);
-            }
-
-            return true;
+            return false;
         }
+
+        if (flagsNotSet != Flag.UNSPECIFIED && Flag.AtLeastOneFlagSet(gameState.Status.Flags, flagsNotSet))
+        {
+            return false;
+        }
+
+        return true;
+    }
+}
+
+public class NeedsGameState
+{
+    public GameStateCondition? NeededGameStateCondition;
+
+    public NeedsGameState()
+    {
     }
 
-    public class GameState_EliteDangerous : GameState
+    public NeedsGameState(GameStateCondition neededGameStateCondition)
     {
-        private Status status;
-        private Nodes.Journal journal;
-        private Nodes.Controls controls;
+        NeededGameStateCondition = neededGameStateCondition;
+    }
 
-        public Nodes.Journal Journal
-        {
-            get
-            {
-                if (journal == null)
-                    journal = new Nodes.Journal();
+    public bool IsSatisfied(GameState_EliteDangerous gameState)
+    {
+        return NeededGameStateCondition == null || NeededGameStateCondition.IsSatisfied(gameState);
+    }
+}
 
-                return journal;
-            }
-        }
+public partial class GameState_EliteDangerous : GameState
+{
+    private Status? _status;
+    private Nodes.Journal? _journal;
+    private Nodes.Controls? _controls;
 
-        public Status Status
-        {
-            get
-            {
-                if (status == null)
-                    status = new Status();
+    public Nodes.Journal Journal => _journal ??= new Nodes.Journal();
 
-                return status;
-            }
-        }
+    public Status Status => _status ??= new Status();
 
-        public Nodes.Controls Controls
-        {
-            get
-            {
-                if (controls == null)
-                    controls = new Nodes.Controls();
+    public Nodes.Controls Controls => _controls ??= new Nodes.Controls();
 
-                return controls;
-            }
-        }
-
-        /// <summary>
-        /// Creates a default GameState_EliteDangerous instance.
-        /// </summary>
-        public GameState_EliteDangerous() : base()
-        {
-        }
+    /// <summary>
+    /// Creates a default GameState_EliteDangerous instance.
+    /// </summary>
+    public GameState_EliteDangerous() : base()
+    {
     }
 }
