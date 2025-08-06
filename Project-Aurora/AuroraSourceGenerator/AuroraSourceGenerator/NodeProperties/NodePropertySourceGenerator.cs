@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -14,15 +15,16 @@ namespace AuroraSourceGenerator.NodeProperties;
 public class NodePropertySourceGenerator : IIncrementalGenerator
 {
     private const string GameStateInterface = "AuroraRgb.Profiles.GameState";
+    private const string NewtonsoftGameStateInterface = "AuroraRgb.Profiles.NewtonsoftGameState";
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Get all class declarations from syntax
         IncrementalValuesProvider<ClassDeclarationSyntax> classDeclarations = context.SyntaxProvider
             .CreateSyntaxProvider(
-                predicate: static (s, _) => IsSyntaxTargetForGeneration(s),
-                transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
-            .Where(static m => m is not null)!;
+                predicate: static (s, _) => IsAuroraGameStateSubclass(s),
+                transform: static (ctx, _) => (ClassDeclarationSyntax)ctx.Node)
+            .Where(static m => m is not null);
 
         // Combine the compilation and the class declarations
         IncrementalValueProvider<(Compilation Compilation, ImmutableArray<ClassDeclarationSyntax> Classifications)> compilationAndClasses
@@ -33,29 +35,45 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
             static (spc, source) => Execute(source.Compilation, source.Classifications, spc));
     }
 
-    private static bool IsSyntaxTargetForGeneration(SyntaxNode node)
-        => node is ClassDeclarationSyntax classDeclaration
-           && classDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);
-
-    private static ClassDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
+    private static bool IsAuroraGameStateSubclass(SyntaxNode node)
     {
-        var classDeclaration = (ClassDeclarationSyntax)context.Node;
+        if (node is not ClassDeclarationSyntax classDeclaration)
+            return false;
 
-        // Get the semantic model
-        var semanticModel = context.SemanticModel;
-        var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+        if (TryGetParentSyntax(classDeclaration, out var parent))
+        {
+            var parentNamespace = parent!.Name.ToString();
+            var rootNamespace = parentNamespace.Split('.').FirstOrDefault();
 
-        if (classSymbol == null) return null;
+            if (rootNamespace != "AuroraRgb")
+            {
+                return false;
+            }
+        }
 
-        // Check if it's an Aurora class and derives from GameState
-        if (!IsAuroraClass(classSymbol)) return null;
+        return IsSubtypeOf(classDeclaration, "GameState");
+    }
 
-        var gameStateInterface = semanticModel.Compilation.GetTypeByMetadataName(GameStateInterface);
-        if (gameStateInterface == null) return null;
+    private static bool TryGetParentSyntax(SyntaxNode? syntaxNode, out NamespaceDeclarationSyntax? result)
+    {
+        while (true)
+        {
+            // set defaults
+            result = null;
 
-        if (!IsSubtypeOf(classSymbol, gameStateInterface)) return null;
+            syntaxNode = syntaxNode?.Parent;
 
-        return classDeclaration;
+            switch (syntaxNode)
+            {
+                case null:
+                    return false;
+                case NamespaceDeclarationSyntax r:
+                    result = r;
+                    return true;
+                default:
+                    continue;
+            }
+        }
     }
 
     private static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes, SourceProductionContext context)
@@ -63,16 +81,44 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         if (classes.IsDefaultOrEmpty) return;
 
         HashSet<string> ignore = [GameStateInterface];
+        HashSet<string> ignoredInterfaces = [NewtonsoftGameStateInterface];
 
-        var lookups = classes.Select(classDeclaration =>
+        Dictionary<string, List<PropertyLookupInfo>> lookups = [];
+        foreach (var classDeclaration in classes)
+        {
+            var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
+            var classSymbol = semanticModel.GetDeclaredSymbol(classDeclaration);
+            if (classSymbol == null) continue;
+
+            // if class is not partial, report warning
+            if (!classDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword))
             {
-                var semanticModel = compilation.GetSemanticModel(classDeclaration.SyntaxTree);
-                return semanticModel.GetDeclaredSymbol(classDeclaration);
-            }).Where(classSymbol => classSymbol != null)
-            .Where(classSymbol => !ignore.Contains(classSymbol!.ToDisplayString()))
-            // to dictionary where classSymbol is the key
-            .ToDictionary(classSymbol => classSymbol!.ToDisplayString(), classSymbol => GenerateClassProperties(context, classSymbol!));
-        // flatten the list of PropertyLookupInfo
+                AuroraSourceLinter.LintNotPartial(context, classSymbol);
+                continue;
+            }
+
+            if (ignore.Contains(classSymbol.ToDisplayString()))
+            {
+                continue;
+            }
+
+            // Filter out classes that implement ignored interfaces
+            if (classSymbol.AllInterfaces.Any(i => ignoredInterfaces.Contains(i.ToDisplayString())))
+            {
+                continue;
+            }
+
+            try
+            {
+                // Filter out classes that are not AuroraRgb classes
+                // to dictionary where classSymbol is the key
+                lookups[classSymbol.ToDisplayString()] = GenerateClassProperties(context, classSymbol);
+            }
+            catch (Exception ex)
+            {
+                AuroraSourceLinter.LintGenericPropertyError(context, classSymbol, ex);
+            }
+        }
 
 
         if (context.CancellationToken.IsCancellationRequested)
@@ -84,20 +130,11 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         context.AddSource("NodePropertyLookups.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
-    private static bool IsSubtypeOf(INamedTypeSymbol classSymbol, INamedTypeSymbol gameStateInterface)
+    private static bool IsSubtypeOf(ClassDeclarationSyntax classSymbol, string @interface)
     {
-        var currentType = classSymbol.BaseType;
-        while (currentType != null)
-        {
-            if (SymbolEqualityComparer.Default.Equals(currentType, gameStateInterface))
-            {
-                return true;
-            }
-
-            currentType = currentType.BaseType;
-        }
-
-        return false;
+        return classSymbol.BaseList?.Types
+            .Select(a => a.Type.ToString())
+            .Any(name => name == @interface) ?? false;
     }
 
     private static List<PropertyLookupInfo> GenerateClassProperties(SourceProductionContext context, INamedTypeSymbol classSymbol)
@@ -123,7 +160,4 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
             .OrderBy(p => p.GsiPath)
             .ToList();
     }
-
-    private static bool IsAuroraClass(INamedTypeSymbol namedTypeSymbol)
-        => namedTypeSymbol.ToString().StartsWith("AuroraRgb.");
 }

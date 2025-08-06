@@ -11,12 +11,19 @@ public static class FastMemberExtensions {
     /// <summary>
     /// Takes a path to a property (e.g. "Property/NestedProperty") and attempts to resolve it into a value within the context of this object.
     /// </summary>
-    public static object? ResolvePropertyPath(this object target, VariablePath path) {
+    public static object? ResolvePropertyPath(this object target, VariablePath path)
+    {
         if (target is IGameState gameState && gameState.PropertyMap.TryGetValue(path.GsiPath, out var getter))
         {
             return getter.Invoke(gameState);
         }
 
+        return ResolveWithReflection(target, path);
+    }
+
+    [Obsolete("Shouldn't be needed when NewtonsoftGameState is gone")]
+    private static object? ResolveWithReflection(object target, VariablePath path)
+    {
         var pathParts = path.GsiPath.Split('/');
         var curObj = target;
         try
@@ -33,7 +40,6 @@ public static class FastMemberExtensions {
             }
 
             return curObj; // If we got here, there is a valid object at this path, return it.
-
         }
         catch (ArgumentOutOfRangeException)
         {

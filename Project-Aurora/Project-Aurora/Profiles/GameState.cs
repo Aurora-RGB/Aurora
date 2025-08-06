@@ -31,7 +31,8 @@ public interface IGameState {
     TEnum GetEnum<TEnum>(VariablePath path) where TEnum : Enum;
 
     FrozenDictionary<string, Func<IGameState, object?>> PropertyMap { get; }
-    
+
+    [Obsolete("Used for reflection access to NewtonsoftGameState properties")]
     Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 }
 
@@ -110,11 +111,10 @@ public abstract class GameState : IGameState
     #endregion
 }
 
-// WIP to be used for gso nodes with System.Text.Json parsing
-
 /// <summary>
 /// An empty gamestate with no child nodes.
 /// </summary>
+[Obsolete("This class is kept for old root endpoint that parses using Newtonsoft. New endpoint is /gameState/{profileId}")]
 public partial class NewtonsoftGameState : GameState
 {
     // Holds a cache of the child nodes on this gamestate

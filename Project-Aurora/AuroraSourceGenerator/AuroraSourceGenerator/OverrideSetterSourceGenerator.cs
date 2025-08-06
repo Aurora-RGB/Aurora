@@ -57,16 +57,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                 }
                 catch (Exception e)
                 {
-                    spc.ReportDiagnostic(Diagnostic.Create(
-                        new DiagnosticDescriptor(
-                            "ASG001",
-                            "Generator Error",
-                            "Error generating source: {0}",
-                            "SourceGenerator",
-                            DiagnosticSeverity.Error,
-                            true),
-                        Location.None,
-                        e.ToString()));
+                    AuroraSourceLinter.LintGenericSetterError(spc, e);
                 }
             });
 
