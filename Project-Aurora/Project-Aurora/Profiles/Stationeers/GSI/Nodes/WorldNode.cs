@@ -1,15 +1,15 @@
-using AuroraRgb.Nodes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes {
-    public class WorldNode : Node {
+namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
 
-        [JsonPropertyName("day_scalar")]
-        public float TimeOfDay;
+public class WorldNode
+{
+    public static readonly WorldNode Default = new();
 
-        internal WorldNode(string json) : base(json) 
-        {
-            TimeOfDay = GetFloat("day_scalar");
-        }
-    }
+    [JsonPropertyName("planet")]
+    public string Planet { get; set; } = string.Empty;
+
+    [JsonPropertyName("tod")]
+    public float Timeofday { get; set; }
+
 }

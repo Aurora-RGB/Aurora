@@ -61,8 +61,8 @@ public class StationeersProfile : ApplicationProfile {
             {
                 Properties = new PercentLayerHandlerProperties
                 {
-                    VariablePath = new VariablePath("Player/OxygenTankLevel"),
-                    MaxVariablePath = new VariablePath("Player/OxygenTankCapacity"),
+                    VariablePath = new VariablePath("Player/Oxygentanklevel"),
+                    MaxVariablePath = new VariablePath("Player/Oxygentankcapacity"),
                     _PrimaryColor = Color.FromArgb(0, 153, 153),
                     SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]
@@ -76,8 +76,8 @@ public class StationeersProfile : ApplicationProfile {
             {
                 Properties = new PercentLayerHandlerProperties
                 {
-                    VariablePath = new VariablePath("Player/WasteTankLevel"),
-                    MaxVariablePath = new VariablePath("Player/WasteTankCapacity"),
+                    VariablePath = new VariablePath("Player/Wastetanklevel"),
+                    MaxVariablePath = new VariablePath("Player/Wastetankcapacity"),
                     _PrimaryColor = Color.FromArgb(255, 0, 0),
                     SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(new[]

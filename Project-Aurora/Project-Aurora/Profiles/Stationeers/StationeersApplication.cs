@@ -1,4 +1,7 @@
-﻿namespace AuroraRgb.Profiles.Stationeers;
+﻿using AuroraRgb.Profiles.Stationeers.GSI;
+using AuroraRgb.Settings;
+
+namespace AuroraRgb.Profiles.Stationeers;
 
 public class Stationeers : Application {
 
@@ -7,10 +10,10 @@ public class Stationeers : Application {
         Name = "Stationeers",
         ID = "stationeers",
         AppID = "544550",
-        ProcessNames = new[] { "rocketstation.exe" },
+        ProcessNames = ["rocketstation.exe"],
         ProfileType = typeof(StationeersProfile),
         OverviewControlType = typeof(Control_Stationeers),
-        GameStateType = typeof(GSI.GameStateStationeers),
+        GameStateType = typeof(GameStateStationeers),
         IconURI = "Resources/Stationeers.png"
     })
     { }        

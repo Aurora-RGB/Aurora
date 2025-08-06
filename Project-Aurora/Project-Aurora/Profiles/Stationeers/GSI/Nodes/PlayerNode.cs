@@ -1,45 +1,31 @@
-﻿using AuroraRgb.Nodes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes 
+namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
+/// <summary>
+/// Class representing player information
+/// </summary>
+public class PlayerNode
 {
-    public class PlayerNode : Node 
-    {
-        [JsonPropertyName("oxygentanklevel")]
-        public int OxygenTankLevel;
-        [JsonPropertyName("oxygentankcapacity")]
-        public int OxygenTankCapacity;
+    public static readonly PlayerNode Default = new();
 
-        [JsonPropertyName("wastetanklevel")]
-        public int WasteTankLevel;
-        [JsonPropertyName("wastetankcapacity")]
-        public int WasteTankCapacity;
+    [JsonPropertyName("oxygentanklevel")]
+    public int Oxygentanklevel { get; set; }
+    [JsonPropertyName("oxygentankcapacity")]
+    public int Oxygentankcapacity { get; set; }
 
-        [JsonPropertyName("battery")]
-        public int Battery;
-        [JsonPropertyName("food")]
-        public int Food;
-        [JsonPropertyName("water")]
-        public int Water;
-        [JsonPropertyName("health")]
-        public int Health;
-        [JsonPropertyName("temp")]
-        public int Temperature;
+    [JsonPropertyName("wastetanklevel")]
+    public int Wastetanklevel { get; set; }
+    [JsonPropertyName("wastetankcapacity")]
+    public int Wastetankcapacity { get; set; }
 
-        internal PlayerNode(string json) : base(json) 
-        {
-            
-            OxygenTankLevel = GetInt("oxygentanklevel");
-            OxygenTankCapacity = GetInt("oxygentankcapacity");
+    [JsonPropertyName("fueltanklevel")]
+    public int Fueltanklevel { get; set; }
+    [JsonPropertyName("fueltankcapacity")]
+    public int Fueltankcapacity { get; set; }
 
-            WasteTankLevel = GetInt("wastetanklevel");
-            WasteTankCapacity = GetInt("wastetankcapacity");
-
-            Battery = GetInt("battery");
-            Food = GetInt("food");
-            Water = GetInt("water");
-            Health = GetInt("health");
-            Temperature = GetInt("temp");
-        }
-    }
+    public int Battery { get; set; }
+    public int Temperature { get; set; }
+    public int Health { get; set; }
+    public int Food { get; set; }
+    public int Water { get; set; }
 }

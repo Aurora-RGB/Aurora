@@ -52,8 +52,8 @@
                     <!-- Player-based variables -->
                     <Label Content="Player" FontWeight="SemiBold" HorizontalAlignment="Center" Grid.ColumnSpan="2" />
 
-                    <Label Content="In Game:" Grid.Row="1" HorizontalAlignment="Right" Margin="8,0" />
-                    <CheckBox Content="Yes" Grid.Row="1" Grid.Column="1" Margin="0,4" Checked="InGameCh_Checked" Unchecked="InGameCh_Checked" />
+                    <!--<Label Content="In Game:" Grid.Row="1" HorizontalAlignment="Right" Margin="8,0" />
+                    <CheckBox Content="Yes" Grid.Row="1" Grid.Column="1" Margin="0,4" Checked="InGameCh_Checked" Unchecked="InGameCh_Checked" />-->
 
                     <Label Content="Health:" Grid.Row="2" HorizontalAlignment="Right" Margin="8,0" />
                     <Slider Grid.Row="2" Grid.Column="1" Margin="0,4" ValueChanged="HealthSlider_ValueChanged" Minimum="0" Maximum="100" TickFrequency="1" IsSnapToTickEnabled="True" />

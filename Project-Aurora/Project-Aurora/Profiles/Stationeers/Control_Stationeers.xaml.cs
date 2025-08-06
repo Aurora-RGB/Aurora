@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
 using AuroraRgb.Profiles.Stationeers.GSI;
 using Xceed.Wpf.Toolkit;
 
@@ -36,19 +35,19 @@ public partial class Control_Stationeers
     #region Preview Handlers
     private GameStateStationeers State => _profile.Config.Event.GameState as GameStateStationeers;
 
-    private void InGameCh_Checked(object? sender, RoutedEventArgs e)
+    /*private void InGameCh_Checked(object? sender, RoutedEventArgs e)
     {
         if ((sender as CheckBox).IsChecked == true)
         {
-            State.GameState.GameState = 2;
-            State.GameState.InGame = true;
+            State.Player.Activity = GSI.Nodes.StaioneersPlayerActivity.Playing;
+            //State.GameState.InGame = true;
         }
         else
         {
-            State.GameState.GameState = 0;
-            State.GameState.InGame = false;
+            State.Player.Activity = GSI.Nodes.StaioneersPlayerActivity.Menu;
+            //State.GameState.InGame = false;
         }
-    }
+    }*/
 
     private void HealthSlider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
@@ -67,7 +66,7 @@ public partial class Control_Stationeers
 
     private void Oxygen_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.OxygenTankLevel = (int)e.NewValue;
+        State.Player.Oxygentanklevel = (int)e.NewValue;
     }
 
     private void preview_DepthLevel_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
