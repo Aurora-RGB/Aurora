@@ -1,9 +1,8 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
-/// <summary>
-/// Class representing player information
-/// </summary>
+
 public class PlayerNode
 {
     public static readonly PlayerNode Default = new();
@@ -24,8 +23,12 @@ public class PlayerNode
     public int Fueltankcapacity { get; set; }
 
     public int Battery { get; set; }
-    public int Temperature { get; set; }
+    public int Temperature { get; set; } 
     public int Health { get; set; }
     public int Food { get; set; }
     public int Water { get; set; }
+    public int Pressure { get; set; }
+    public bool Visor {  get; set; }
+    public bool Visoropening { get; set; }
+    public bool Visorclosing { get; set; }
 }
