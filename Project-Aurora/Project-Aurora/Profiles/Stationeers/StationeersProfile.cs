@@ -33,12 +33,12 @@ public class StationeersProfile : ApplicationProfile
                 {
                     _AnimationDuration = .5f,
                     _AnimationRepeat = 1,
-                    _AnimationMix = new AnimationMix(new[]
-                    {
+                    _AnimationMix = new AnimationMix(
+                    [
                         new AnimationTrack("Rectangle", 1)
                             .SetFrame(0, new AnimationFilledRectangle(new Rectangle(0, 0, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
                             .SetFrame(.5f, new AnimationFilledRectangle(new Rectangle(0, 70, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
-                    }),
+                    ]),
                     _TriggerMode = AnimationTriggerMode.OnTrue,
                     TriggerPath = new VariablePath("Player/Visorclosing"),
                     _StackMode = AnimationStackMode.Ignore,
@@ -51,12 +51,12 @@ public class StationeersProfile : ApplicationProfile
                 {
                     _AnimationDuration = .5f,
                     _AnimationRepeat = 1,
-                    _AnimationMix = new AnimationMix(new[]
-                    {
+                    _AnimationMix = new AnimationMix(
+                    [
                         new AnimationTrack("Rectangle", 1)
                             .SetFrame(0, new AnimationFilledRectangle(new Rectangle(0, 70, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
                             .SetFrame(.5f, new AnimationFilledRectangle(new Rectangle(0, 0, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
-                    }),
+                    ]),
                     _TriggerMode = AnimationTriggerMode.OnTrue,
                     TriggerPath = new VariablePath("Player/Visoropening"),
                     _StackMode = AnimationStackMode.Ignore,
@@ -71,10 +71,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("200"),
                     _PrimaryColor = Color.FromArgb(25, 0, 51),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.F1, DK.F2, DK.F3, DK.F4, DK.F5, DK.F6, DK.F7, DK.F8, DK.F9, DK.F10, DK.F11, DK.F12
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -86,10 +86,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(255, 110, 0),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.Q, DK.W, DK.E, DK.R, DK.T, DK.Y, DK.U, DK.I, DK.O, DK.P
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -101,10 +101,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(0, 0, 255),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.A, DK.S, DK.D, DK.F, DK.G, DK.H, DK.J, DK.K, DK.L , DK.SEMICOLON
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -116,10 +116,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("Player/Oxygentankcapacity"),
                     _PrimaryColor = Color.FromArgb(0, 153, 153),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.ONE, DK.TWO, DK.THREE, DK.FOUR, DK.FIVE, DK.SIX, DK.SEVEN, DK.EIGHT, DK.NINE, DK.ZERO, DK.MINUS, DK.EQUALS
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -131,10 +131,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("Player/Wastetankcapacity"),
                     _PrimaryColor = Color.FromArgb(255, 0, 0),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.Z, DK.X, DK.C, DK.V, DK.B, DK.N, DK.M, DK.COMMA,DK.PERIOD
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -146,10 +146,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("100"),
                     _PrimaryColor = Color.FromArgb(255, 0, 0),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.NUM_ZERO, DK.NUM_PERIOD,DK.NUM_ONE, DK.NUM_TWO, DK.NUM_THREE, DK.NUM_FOUR, DK.NUM_FIVE, DK.NUM_SIX, DK.NUM_SEVEN, DK.NUM_EIGHT, DK.NUM_NINE
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),
@@ -161,10 +161,10 @@ public class StationeersProfile : ApplicationProfile
                     MaxVariablePath = new VariablePath("Player/Fueltankcapacity"),
                     _PrimaryColor = Color.FromArgb(0, 255, 0),
                     SecondaryColor = Color.Transparent,
-                    _Sequence = new KeySequence(new[]
-                    {
+                    _Sequence = new KeySequence(
+                    [
                         DK.ARROW_LEFT, DK.ARROW_DOWN,DK.ARROW_RIGHT, DK.ARROW_UP, DK.DELETE, DK.END, DK.PAGE_DOWN, DK.INSERT, DK.HOME, DK.PAGE_UP
-                    }),
+                    ]),
                     BlinkThreshold = 0.25
                 }
             }),

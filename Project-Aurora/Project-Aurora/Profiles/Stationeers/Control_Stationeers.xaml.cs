@@ -102,7 +102,7 @@ public partial class Control_Stationeers
     }
 
 
-    private void preview_BatteryLevel_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
+    private void Preview_BatteryLevel_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
         if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
             State.Player.Battery = (sender as IntegerUpDown).Value.Value;
