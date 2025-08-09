@@ -43,68 +43,68 @@ public partial class Control_Stationeers
 
     private GameStateStationeers State => _profile.Config.Event.GameState as GameStateStationeers;
 
-    private void InGameCh_Checked(object? sender, RoutedEventArgs e)
-    {
-        if ((sender as CheckBox).IsChecked == true)
-        {
-            State.GameState.Gamestate = 2;
-            State.GameState.InGame = true;
-        }
-        else
-        {
-            State.GameState.Gamestate = 0;
-            State.GameState.InGame = false;
-        }
-    }
-
-
     private void HealthSlider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
+        if(State.Player != null)
         State.Player.Health = (int)e.NewValue;
     }
 
     private void HungerSlider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Food = (int)e.NewValue;
+        if (State.Player != null)
+            State.Player.Food = (int)e.NewValue;
     }
 
     private void WaterSlider_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Water = (int)e.NewValue;
+        if (State.Player != null)
+            State.Player.Water = (int)e.NewValue;
     }
 
     private void Oxygen_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Oxygentanklevel = (int)e.NewValue;
-        State.Player.Oxygentankcapacity = 100;
+        if (State.Player != null)
+        {
+            State.Player.OxygenTankLevel = (int)e.NewValue;
+            State.Player.OxygenTankCapacity = 100;
+        }
     }
 
     private void Waste_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Wastetanklevel = (int)e.NewValue;
-        State.Player.Wastetankcapacity = 100;
+        if (State.Player != null)
+        {
+            State.Player.WasteTankLevel = (int)e.NewValue;
+            State.Player.WasteTankCapacity = 100;
+        }
     }
 
     private void Fuel_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Fueltanklevel = (int)e.NewValue;
-        State.Player.Fueltankcapacity = 100;
+        if (State.Player != null)
+        {
+            State.Player.FuelTankLevel = (int)e.NewValue;
+            State.Player.FuelTankCapacity = 100;
+        }
     }
 
     private void Temp_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Temperature = (int)e.NewValue;
+        if (State.Player != null)
+            State.Player.Temperature = (int)e.NewValue;
     }
 
     private void Pressure_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        State.Player.Pressure = (int)e.NewValue;
+        if (State.Player != null)
+            State.Player.Pressure = (int)e.NewValue;
     }
 
 
     private void Preview_BatteryLevel_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
+        if (State.Player != null)
+            if (IsLoaded && sender is IntegerUpDown && (sender as IntegerUpDown).Value.HasValue)
             State.Player.Battery = (sender as IntegerUpDown).Value.Value;
     }
     #endregion

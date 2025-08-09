@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
 
@@ -6,10 +6,11 @@ public class WorldNode
 {
     public static readonly WorldNode Default = new();
 
-    [JsonPropertyName("planet")]
-    public string Planet { get; } = "Unknown";
-    [JsonPropertyName("tod")]
-    public float Timeofday { get;} 
-    public int Planetpressure { get;}
-    public int Planettemperature { get;} 
+    public string Planet { get; set; } = string.Empty;
+    [JsonProperty("timeofday")]
+    public float TimeOfDay { get; set; }
+    [JsonProperty("planetpressure")]
+    public int PlanetPressure { get; set; }
+    [JsonProperty("planettemperature")]
+    public int PlanetTemperature { get; set; } 
 }

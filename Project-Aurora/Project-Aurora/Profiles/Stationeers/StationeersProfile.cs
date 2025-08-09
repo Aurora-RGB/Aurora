@@ -16,7 +16,7 @@ public class StationeersProfile : ApplicationProfile
 
         Layers =
         [
-            new Layer("Visor Open", new SolidColorLayerHandler()
+            new Layer("Visor Closed", new SolidColorLayerHandler()
                 {
                     Properties = new LayerHandlerProperties
                     {
@@ -25,7 +25,7 @@ public class StationeersProfile : ApplicationProfile
                     }
                 },
                 new OverrideLogicBuilder().SetDynamicBoolean(nameof(LayerHandlerProperties._Enabled),
-                    new BooleanGSIBoolean("Player/Visor"))
+                    new BooleanGSIBoolean("Player/VisorClosed"))
             ),
             new Layer("Visor Close Animation", new AnimationLayerHandler
             {
@@ -40,7 +40,7 @@ public class StationeersProfile : ApplicationProfile
                             .SetFrame(.5f, new AnimationFilledRectangle(new Rectangle(0, 70, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
                     ]),
                     _TriggerMode = AnimationTriggerMode.OnTrue,
-                    TriggerPath = new VariablePath("Player/Visorclosing"),
+                    TriggerPath = new VariablePath("Player/VisorClosing"),
                     _StackMode = AnimationStackMode.Ignore,
                     _Sequence = new KeySequence(new FreeFormObject(0, -50, 980, 280))
                 }
@@ -58,7 +58,7 @@ public class StationeersProfile : ApplicationProfile
                             .SetFrame(.5f, new AnimationFilledRectangle(new Rectangle(0, 0, 1000, 60), Color.FromArgb(170, 0, 0, 0)))
                     ]),
                     _TriggerMode = AnimationTriggerMode.OnTrue,
-                    TriggerPath = new VariablePath("Player/Visoropening"),
+                    TriggerPath = new VariablePath("Player/VisorOpening"),
                     _StackMode = AnimationStackMode.Ignore,
                     _Sequence = new KeySequence(new FreeFormObject(0, -50, 980, 280))
                 }
@@ -112,8 +112,8 @@ public class StationeersProfile : ApplicationProfile
             {
                 Properties = new PercentLayerHandlerProperties
                 {
-                    VariablePath = new VariablePath("Player/Oxygentanklevel"),
-                    MaxVariablePath = new VariablePath("Player/Oxygentankcapacity"),
+                    VariablePath = new VariablePath("Player/OxygenTankLevel"),
+                    MaxVariablePath = new VariablePath("Player/OxygenTankCapacity"),
                     _PrimaryColor = Color.FromArgb(0, 153, 153),
                     SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(
@@ -127,8 +127,8 @@ public class StationeersProfile : ApplicationProfile
             {
                 Properties = new PercentLayerHandlerProperties
                 {
-                    VariablePath = new VariablePath("Player/Wastetanklevel"),
-                    MaxVariablePath = new VariablePath("Player/Wastetankcapacity"),
+                    VariablePath = new VariablePath("Player/WasteTankLevel"),
+                    MaxVariablePath = new VariablePath("Player/WasteTankCapacity"),
                     _PrimaryColor = Color.FromArgb(255, 0, 0),
                     SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(
@@ -157,8 +157,8 @@ public class StationeersProfile : ApplicationProfile
             {
                 Properties = new PercentLayerHandlerProperties
                 {
-                    VariablePath = new VariablePath("Player/Fueltanklevel"),
-                    MaxVariablePath = new VariablePath("Player/Fueltankcapacity"),
+                    VariablePath = new VariablePath("Player/FuelTankLevel"),
+                    MaxVariablePath = new VariablePath("Player/FuelTankCapacity"),
                     _PrimaryColor = Color.FromArgb(0, 255, 0),
                     SecondaryColor = Color.Transparent,
                     _Sequence = new KeySequence(
