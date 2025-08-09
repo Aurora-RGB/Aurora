@@ -1,15 +1,15 @@
 ﻿using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
 
 public partial class GameStateNode
 {
-    // A preconfigured default instance (Menu state by default)
     public static readonly GameStateNode Default = new();
 
     // Binds to "game_state" in your JSON payload
     [JsonProperty("game_state")]
-    public int GameState { get; }
+    public int GameState { get; set; }
 
     /*
     0 = Menu
