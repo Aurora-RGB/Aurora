@@ -8,7 +8,7 @@
              mc:Ignorable="d" Loaded="UserControl_Loaded">
     <Grid>
         <TextBlock TextWrapping="Wrap" HorizontalAlignment="Left" Width="487" VerticalAlignment="Top" Margin="0,0,0,0"
-                   Text="The purpose of this layer is to display lighting effects from games that have native lighting (LightFX, etc) that Aurora has wrappers for. This will only work if you have a wrapper applied to the correct location for a game that supports the lighting engine that the wrapper is designed for."
+                   Text="The purpose of this layer is to display lighting effects from games that have native lighting (LightFX, etc) that Aurora has integrations for. This will only work if you have a wrapper applied to the correct location for a game that supports the lighting engine that the wrapper is designed for."
                    />
 
         <GroupBox Header="Color Enhancement" Margin="0,69,0,0" Width="358" HorizontalAlignment="Left" VerticalAlignment="Top">

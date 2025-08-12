@@ -41,7 +41,7 @@
                                     HorizontalAlignment="Left" VerticalAlignment="Top" />
                 <TextBlock Text="sec" Margin="389,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-                <CheckBox Content="Show Overlays and Underlays in Application Preview"
+                <CheckBox Content="Show Global and Focused Layers in Application Preview"
                           IsChecked="{Binding OverlaysInPreview}"
                           Margin="12,62,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                 <CheckBox Content="Start Aurora minimized" IsChecked="{Binding StartSilently}" Margin="12,39,0,0"

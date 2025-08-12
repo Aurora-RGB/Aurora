@@ -13,7 +13,7 @@
              MinHeight="300" MinWidth="850">
 
     <TabControl Margin="0,7,0,0" DataContext="{x:Static auroraRgb:Global.Configuration}">
-        <TabItem x:Name="DevicesAndWrappersTab" Header="Devices &amp; Wrappers" />
+        <TabItem x:Name="DevicesAndWrappersTab" Header="Devices &amp; Integrations" />
         <TabItem Name="DeviceManagerTab" Header="Device Manager" />
         <TabItem Name="RemapDevicesTab" Header="Remap Devices" />
         <TabItem Header="General Settings">

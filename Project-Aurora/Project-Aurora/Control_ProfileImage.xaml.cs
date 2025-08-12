@@ -48,7 +48,7 @@ public sealed partial class Control_ProfileImage : IDisposable, IAsyncDisposable
         if (profileDisabled)
         {
             var disabledTooltip = overlayEnabled ?
-                "Profile is disabled. Overlay Layers can still work\nRight click to change" :
+                "Profile is disabled. Global Layers can still work\nRight click to change" :
                 "Profile is completely disabled\nRight click to change";
             IsDisabledButton.Visibility = Visibility.Visible;
             IsDisabledButton.ToolTip = disabledTooltip;

@@ -107,14 +107,14 @@
 
         <Grid Grid.Column="1" Margin="0,7,7,7">
             <DockPanel>
-                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Chroma" VerticalAlignment="Stretch">
+                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Chroma Game Integration" VerticalAlignment="Stretch">
                     <wrappers:Control_ChromaWrapper />
                 </GroupBox>
-                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Lightsync" VerticalAlignment="Stretch">
+                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Lightsync Game Integration" VerticalAlignment="Stretch">
                     <wrappers:Control_LightsyncWrapper />
                 </GroupBox>
                 <TextBlock DockPanel.Dock="Top">
-                    These wrappers are reverse-engineered and may not work as the original ones.
+                    These integrations are reverse-engineered and may not work as the original ones.
                 </TextBlock>
                 <GroupBox DockPanel.Dock="Bottom" Header="LightFX" VerticalAlignment="Bottom">
                     <StackPanel Orientation="Vertical">

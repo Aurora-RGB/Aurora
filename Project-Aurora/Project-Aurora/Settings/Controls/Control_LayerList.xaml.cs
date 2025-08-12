@@ -118,7 +118,7 @@ public partial class Control_LayerList : INotifyPropertyChanged {
     }
         
     public static readonly DependencyProperty ListTitleProperty =
-        DependencyProperty.Register(nameof(ListTitle), typeof(string), typeof(Control_LayerList), new PropertyMetadata("Layers"));
+        DependencyProperty.Register(nameof(ListTitle), typeof(string), typeof(Control_LayerList), new PropertyMetadata("Focused Layers"));
     #endregion
 
     #region Tooltip Property

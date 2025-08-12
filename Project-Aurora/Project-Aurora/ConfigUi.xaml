@@ -49,7 +49,7 @@
                                             FocusedApplication="{Binding FocusedApplication}"
                                             LayerCollection="{Binding Path=FocusedApplication.Profile.OverlayLayers}"
                                             Background="#00000000" PreviewMouseDown="ctrlOverlayLayerManager_PreviewMouseDown"
-                                            ListTitle="Overlay Layers" />
+                                            ListTitle="Global Layers" />
                 <controls:Control_LayerList x:Name="ctrlLayerManager" Margin="0,3,0,0"
                                             SelectedLayer="{Binding SelectedLayer, Mode=TwoWay}"
                                             FocusedApplication="{Binding FocusedApplication}"
