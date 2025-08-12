@@ -50,7 +50,7 @@ public sealed class LogitechSdkListener : IDisposable
     public IReadOnlyDictionary<DeviceKeys, Color> Colors => _colors;
     public SimpleColor BackgroundColor { get; private set; } = SimpleColor.Transparent;
 
-    private LogiSetTargetDevice Device { get; set; }
+    private LogiSetTargetDevice Device { get; set; } = LogiSetTargetDevice.All;
 
     private readonly List<PipeListener> _pipeListeners = [];
     private readonly ConcurrentDictionary<DeviceKeys, Color> _colors = new();
