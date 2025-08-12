@@ -182,7 +182,7 @@ public class StationeersProfile : ApplicationProfile
                     _PrimaryColor = Color.FromArgb(29, 131, 176),
                     SecondaryColor = Color.Transparent,
                     PercentType = PercentEffectType.Progressive_Gradual,
-                    _Sequence = new KeySequence(new FreeFormObject(0, -36, 980, 265))
+                    _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm),
                 }
             })
         ];
