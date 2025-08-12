@@ -239,6 +239,7 @@ public sealed class LightingStateManager : IDisposable
             }
             applicationList.Add(application);
         }
+        EventProcesses[application.Config.ID] = [application];
 
         application.Config.ProcessNamesChanged += (_, _) =>
         {
