@@ -103,11 +103,16 @@ public static class SteamUtils
 
             if (string.IsNullOrWhiteSpace(steamPath))
             {
+                Global.logger.Warning("Steam path is not set or empty.");
                 return null;
             }
 
             var librariesFile = Path.Combine(steamPath, "SteamApps", "LibraryFolders.vdf");
-            if (!File.Exists(librariesFile)) return null;
+            if (!File.Exists(librariesFile))
+            {
+                Global.logger.Warning("LibraryFolders.vdf does not exist at: {LibrariesFile}", librariesFile);
+                return null;
+            }
 
             var steamLibrary = VdfDeserializer.Deserialize<SteamLibrary>(await File.ReadAllTextAsync(librariesFile));
 
