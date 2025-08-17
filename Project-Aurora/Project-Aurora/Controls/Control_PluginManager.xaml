@@ -102,7 +102,7 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <CheckBox Content="IPC listener*" IsChecked="{Binding EnableIpcListener}" />
-                            <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for wrappers"
+                            <TextBlock Text="?" TextDecorations="Underline" ToolTip="Needed for brand game integrations"
                                        ToolTipService.InitialShowDelay="0" HorizontalAlignment="Left" VerticalAlignment="Top" />
                         </StackPanel>
 

@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -255,7 +254,7 @@ public sealed class LogitechSdkListener : IDisposable
             pipeListener.Disconnect();
         }
 
-        foreach (var key in Enum.GetValues(typeof(DeviceKeys)).Cast<DeviceKeys>())
+        foreach (var key in Enum.GetValues<DeviceKeys>())
         {
             _colors[key] = Color.Transparent;
         }

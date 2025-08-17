@@ -534,8 +534,6 @@ internal static class LedMapping
 
     internal static readonly MultiValueDictionary<int, DeviceKeys> KeyboardZoneKeys = new()
     {
-        // 0 is for all
-        
         { 1, DeviceKeys.ADDITIONALLIGHT1 },
         
         // left zone
@@ -566,7 +564,6 @@ internal static class LedMapping
         { 1, DeviceKeys.LEFT_CONTROL },
         { 1, DeviceKeys.LEFT_WINDOWS },
         { 1, DeviceKeys.LEFT_ALT },
-        
         
         { 2, DeviceKeys.ADDITIONALLIGHT2 },
         // middle zone
@@ -657,13 +654,4 @@ internal static class LedMapping
         { 5, DeviceKeys.NUM_PERIOD },
         { 5, DeviceKeys.NUM_ENTER },
     };
-
-    static LedMapping()
-    {
-        // add all keys to keyboard zone with id 0
-        foreach (var key in Enum.GetValues<DeviceKeys>())
-        {
-            KeyboardZoneKeys.Add(0, key);
-        }
-    }
 }

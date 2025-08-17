@@ -109,7 +109,7 @@ internal sealed class KeyboardControlGenerator(
 
         infoInstruction.Children.Add(new TextBlock
         {
-            Text = ") and go into \"Devices & Wrappers\" tab",
+            Text = ") and go into \"Devices & Integrations\" tab",
             Foreground = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)),
             VerticalAlignment = VerticalAlignment.Center
         });

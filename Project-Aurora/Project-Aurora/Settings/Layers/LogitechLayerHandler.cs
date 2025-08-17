@@ -2,14 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Controls;
-using AuroraRgb.BrushAdapters;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
-using Common;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
@@ -100,19 +98,20 @@ public sealed class LogitechLayerHandler : LayerHandler<LogitechLayerHandlerProp
         }
 
         EffectLayer.Fill((Color)logitechSdk.BackgroundColor);
-        foreach (var kv in logitechSdk.Colors)
+        foreach (var (key, sdkColor) in logitechSdk.Colors)
         {
-            var color = Properties.ColorPostProcessEnabled ? PostProcessColor(kv.Value) : kv.Value;
-            EffectLayer.Set(kv.Key, color);
+            var color = Properties.ColorPostProcessEnabled ? PostProcessColor(sdkColor) : sdkColor;
+            EffectLayer.Set(key, in color);
         }
 
         foreach (var (target, source) in Properties.KeyCloneMap)
             if(TryGetColor(source, out var clr))
             {
                 var color = Properties.ColorPostProcessEnabled ? PostProcessColor(clr) : clr;
-                EffectLayer.Set(target, color);
+                EffectLayer.Set(target, in color);
             }
 
+        Invalidated = false;
         return EffectLayer;
     }
 
