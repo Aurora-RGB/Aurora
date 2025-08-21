@@ -239,7 +239,9 @@ public sealed class LightingStateManager : IDisposable
             }
             applicationList.Add(application);
         }
-        EventProcesses[application.Config.ID] = [application];
+
+        SortedSet<Application> eventProcessList = new(new ApplicationPriorityComparer()) { application };
+        EventProcesses[application.Config.ID] = eventProcessList;
 
         application.Config.ProcessNamesChanged += (_, _) =>
         {
