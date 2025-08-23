@@ -53,7 +53,16 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     public virtual ImageSource Icon => icon ??= new BitmapImage(new Uri(GetBaseUri(), @"/AuroraRgb;component/" + Config.IconURI));
 
     private UserControl? _control;
-    public UserControl Control => _control ??= (UserControl)Activator.CreateInstance(Config.OverviewControlType, this);
+    public UserControl Control => _control ??= CreateControl();
+
+    private UserControl CreateControl()
+    {
+        if (ProfileControlFactory.ApplicationControls.TryGetValue(Config.OverviewControlType, out var controlFactoryMethod))
+        {
+            return controlFactoryMethod(this);
+        }
+        return (UserControl)Activator.CreateInstance(Config.OverviewControlType, this);
+    }
 
     internal Dictionary<string, IEffectScript> EffectScripts { get; } = new();
     #endregion

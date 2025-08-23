@@ -40,7 +40,7 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         if (node is not ClassDeclarationSyntax classDeclaration)
             return false;
 
-        if (TryGetParentSyntax(classDeclaration, out var parent))
+        if (ClassUtils.TryGetParentSyntax(classDeclaration, out var parent))
         {
             var parentNamespace = parent!.Name.ToString();
             var rootNamespace = parentNamespace.Split('.').FirstOrDefault();
@@ -52,28 +52,6 @@ public class NodePropertySourceGenerator : IIncrementalGenerator
         }
 
         return IsSubtypeOf(classDeclaration, "GameState");
-    }
-
-    private static bool TryGetParentSyntax(SyntaxNode? syntaxNode, out NamespaceDeclarationSyntax? result)
-    {
-        while (true)
-        {
-            // set defaults
-            result = null;
-
-            syntaxNode = syntaxNode?.Parent;
-
-            switch (syntaxNode)
-            {
-                case null:
-                    return false;
-                case NamespaceDeclarationSyntax r:
-                    result = r;
-                    return true;
-                default:
-                    continue;
-            }
-        }
     }
 
     private static void Execute(Compilation compilation, ImmutableArray<ClassDeclarationSyntax> classes, SourceProductionContext context)

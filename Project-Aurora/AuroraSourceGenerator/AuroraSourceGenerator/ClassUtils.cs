@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AuroraSourceGenerator;
 
@@ -15,18 +16,25 @@ public static class ClassUtils
         }
     }
 
-    public static IEnumerable<ITypeSymbol> GetBaseTypes(ITypeSymbol type)
+    public static bool TryGetParentSyntax(SyntaxNode? syntaxNode, out BaseNamespaceDeclarationSyntax? result)
     {
-        var currentType = type;
-        while (currentType != null)
+        while (true)
         {
-            yield return currentType;
-            currentType = currentType.BaseType;
-        }
-    }
+            // set defaults
+            result = null;
 
-    public static IEnumerable<ITypeSymbol> GetAllInterfaces(ITypeSymbol type)
-    {
-        return type.AllInterfaces;
+            syntaxNode = syntaxNode?.Parent;
+
+            switch (syntaxNode)
+            {
+                case null:
+                    return false;
+                case BaseNamespaceDeclarationSyntax bns:
+                    result = bns;
+                    return true;
+                default:
+                    continue;
+            }
+        }
     }
 }
