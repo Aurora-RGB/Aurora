@@ -13,6 +13,8 @@
 
 [Supported Devices](https://github.com/Aurora-RGB/Aurora/wiki/Supported-Devices)
 
+![Device Manager screenshot](./readme/AuroraRGB_Devices.webp)
+
 ## Alternatives
 In case you don't like Aurora, there are free open-source alternatives to Aurora.
 
