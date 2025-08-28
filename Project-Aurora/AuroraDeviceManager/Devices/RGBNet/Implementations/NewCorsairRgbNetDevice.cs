@@ -34,6 +34,12 @@ public class NewCorsairRgbNetDevice : RgbNetDevice
     protected override async Task ConfigureProvider(CancellationToken cancellationToken)
     {
         await base.ConfigureProvider(cancellationToken);
+        
+        // normalise dll path
+        var relativeDllPath = "x64/iCUESDK.x64_2019.dll";
+        var absoluteDllPath = Path.GetFullPath(relativeDllPath);
+        CorsairDeviceProvider.PossibleX64NativePaths.Clear();
+        CorsairDeviceProvider.PossibleX64NativePaths.Add(absoluteDllPath);
 
         var waitSessionUnlock = await DesktopUtils.WaitSessionUnlock();
         if (waitSessionUnlock)

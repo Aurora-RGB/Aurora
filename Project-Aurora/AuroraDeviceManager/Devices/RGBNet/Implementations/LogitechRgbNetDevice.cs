@@ -16,6 +16,12 @@ public sealed class LogitechRgbNetDevice() : RgbNetDevice(true)
     protected override async Task ConfigureProvider(CancellationToken cancellationToken)
     {
         await base.ConfigureProvider(cancellationToken);
+        
+        // normalise dll path
+        var relativeDllPath = "x64/LogitechLedEnginesWrapper.dll";
+        var absoluteDllPath = Path.GetFullPath(relativeDllPath);
+        LogitechDeviceProvider.PossibleX64NativePaths.Clear();
+        LogitechDeviceProvider.PossibleX64NativePaths.Add(absoluteDllPath);
 
         var isSdkRunning = ProcessUtils.IsProcessRunning("lghub_agent") || ProcessUtils.IsProcessRunning("lcore");
         if (!isSdkRunning)

@@ -9,17 +9,17 @@ public class SteelSeriesRgbNetDevice() : RgbNetDevice(true)
 {
     private static readonly string SsEngineProcess = "SteelSeriesEngine".lower();
     private static readonly string SsGgProcess = "SteelSeriesGG".lower();
-    
+
     private bool _sdkDetectedOff;
-    
-    protected override IRGBDeviceProvider Provider => SteelSeriesDeviceProvider.Instance;
+
+    protected override SteelSeriesDeviceProvider Provider => SteelSeriesDeviceProvider.Instance;
 
     public override string DeviceName => "SteelSeries (RGB.NET)";
 
     protected override async Task ConfigureProvider(CancellationToken cancellationToken)
     {
         await base.ConfigureProvider(cancellationToken);
-        
+
         var isSteelGgRunning = ProcessUtils.IsProcessRunning(SsEngineProcess);
         var isSteelEngineRunning = ProcessUtils.IsProcessRunning(SsGgProcess);
 

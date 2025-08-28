@@ -30,13 +30,19 @@ public class CorsairRgbNetDevice : RgbNetDevice
     {
         await base.ConfigureProvider(cancellationToken);
 
+        // normalise dll path
+        var relativeDllPath = "x64/CUESDK.x64_2019.dll";
+        var absoluteDllPath = Path.GetFullPath(relativeDllPath);
+        CorsairLegacyDeviceProvider.PossibleX64NativePaths.Clear();
+        CorsairLegacyDeviceProvider.PossibleX64NativePaths.Add(absoluteDllPath);
+
         var waitSessionUnlock = await DesktopUtils.WaitSessionUnlock();
         if (waitSessionUnlock)
         {
             Global.Logger.Information("Waiting for Corsair to load after unlock");
             await Task.Delay(5000, cancellationToken);
         }
-        
+
         var isIcueRunning = ProcessUtils.IsProcessRunning("icue");
         if (!isIcueRunning)
         {
