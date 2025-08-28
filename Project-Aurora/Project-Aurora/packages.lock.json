@@ -75,15 +75,21 @@
       },
       "Fody": {
         "type": "Direct",
-        "requested": "[6.9.2, )",
-        "resolved": "6.9.2",
-        "contentHash": "YBHobPGogb0vYhGYIxn/ndWqTjNWZveDi5jdjrcshL2vjwU3gQGyDeI7vGgye+2rAM5fGRvlLgNWLW3DpviS/w=="
+        "requested": "[6.9.3, )",
+        "resolved": "6.9.3",
+        "contentHash": "1CUGgFdyECDKgi5HaUBhdv6k+VG9Iy4OCforGfHyar3xQXAJypZkzymgKtWj/4SPd6nSG0Qi7NH71qHrDSZLaA=="
       },
       "Hardcodet.NotifyIcon.Wpf": {
         "type": "Direct",
         "requested": "[1.1.0, )",
         "resolved": "1.1.0",
         "contentHash": "FFEkdRSidMrbMfQVwhCzq6KtSyR1qQojqtiUrkCyjnOOuMf7W3TNQkzFnBBxYxFe7uLk5mz7M38wFh1qdWyfvg=="
+      },
+      "iCUE-ReverseEngineeredServer": {
+        "type": "Direct",
+        "requested": "[0.2.1, )",
+        "resolved": "0.2.1",
+        "contentHash": "RGjGS4jrSwc2rT7+0c3YVaZXKl/KGAKZDjIPJjGHKrLnkGNWvUJKrHlfQeG9J95gzwQpIhgssSgizpKMZwIy1g=="
       },
       "JetBrains.Annotations": {
         "type": "Direct",
@@ -116,11 +122,11 @@
       },
       "LibUsbDotNet": {
         "type": "Direct",
-        "requested": "[2.2.29, )",
-        "resolved": "2.2.29",
-        "contentHash": "kYXcaTDhoJlZP7yuh3yuBTYQxzw1p+QXpJnGRkdtGMq7Vy7NTD/DzBLnZR72gL7HEQUz+mpyRpq+ZOySwQb4Zw==",
+        "requested": "[2.2.75, )",
+        "resolved": "2.2.75",
+        "contentHash": "PRp2lYflUN/IrYJW8ZM6G/0hBKnX4ySOq9L+4mavqWIGH6KcEMPXKAxln6oVQ+dQK5Q2yNdYLDJhk7NfuP9+ww==",
         "dependencies": {
-          "Microsoft.Win32.Registry": "4.5.0"
+          "Microsoft.Win32.Registry": "5.0.0"
         }
       },
       "MdXaml": {
@@ -262,29 +268,29 @@
       },
       "Serilog.Sinks.Console": {
         "type": "Direct",
-        "requested": "[4.1.0, )",
-        "resolved": "4.1.0",
-        "contentHash": "K6N5q+5fetjnJPvCmkWOpJ/V8IEIoMIB1s86OzBrbxwTyHxdx3pmz4H+8+O/Dc/ftUX12DM1aynx/dDowkwzqg==",
+        "requested": "[6.0.0, )",
+        "resolved": "6.0.0",
+        "contentHash": "fQGWqVMClCP2yEyTXPIinSr5c+CBGUvBybPxjAGcf7ctDhadFhrQw03Mv8rJ07/wR5PDfFjewf2LimvXCDzpbA==",
         "dependencies": {
-          "Serilog": "2.10.0"
+          "Serilog": "4.0.0"
         }
       },
       "Serilog.Sinks.Debug": {
         "type": "Direct",
-        "requested": "[2.0.0, )",
-        "resolved": "2.0.0",
-        "contentHash": "Y6g3OBJ4JzTyyw16fDqtFcQ41qQAydnEvEqmXjhwhgjsnG/FaJ8GUqF5ldsC/bVkK8KYmqrPhDO+tm4dF6xx4A==",
+        "requested": "[3.0.0, )",
+        "resolved": "3.0.0",
+        "contentHash": "4BzXcdrgRX7wde9PmHuYd9U6YqycCC28hhpKonK7hx0wb19eiuRj16fPcPSVp0o/Y1ipJuNLYQ00R3q2Zs8FDA==",
         "dependencies": {
-          "Serilog": "2.10.0"
+          "Serilog": "4.0.0"
         }
       },
       "Serilog.Sinks.File": {
         "type": "Direct",
-        "requested": "[5.0.0, )",
-        "resolved": "5.0.0",
-        "contentHash": "uwV5hdhWPwUH1szhO8PJpFiahqXmzPzJT/sOijH/kFgUx+cyoDTMM8MHD0adw9+Iem6itoibbUXHYslzXsLEAg==",
+        "requested": "[7.0.0, )",
+        "resolved": "7.0.0",
+        "contentHash": "fKL7mXv7qaiNBUC71ssvn/dU0k9t0o45+qm2XgKAlSt19xF+ijjxyA3R6HmCgfKEKwfcfkwWjayuQtRueZFkYw==",
         "dependencies": {
-          "Serilog": "2.10.0"
+          "Serilog": "4.2.0"
         }
       },
       "SharpDX.Direct3D11": {
@@ -306,28 +312,11 @@
       },
       "SkiaSharp": {
         "type": "Direct",
-        "requested": "[2.88.8, )",
-        "resolved": "2.88.8",
-        "contentHash": "bRkp3uKp5ZI8gXYQT57uKwil1uobb2p8c69n7v5evlB/2JNcMAXVcw9DZAP5Ig3WSvgzGm2YSn27UVeOi05NlA==",
+        "requested": "[3.119.0, )",
+        "resolved": "3.119.0",
+        "contentHash": "gR9yVoOta2Mc1Rxt15LD65AckfHMfwjIs/3kkD59C9bT2nYYISsE6uz3t4aMPNHA6CgsIL0Ssn+jE5OVilZ1yw==",
         "dependencies": {
-          "SkiaSharp.NativeAssets.Win32": "2.88.8",
-          "SkiaSharp.NativeAssets.macOS": "2.88.8"
-        }
-      },
-      "SkiaSharp.NativeAssets.Win32": {
-        "type": "Direct",
-        "requested": "[2.88.8, )",
-        "resolved": "2.88.8",
-        "contentHash": "O9QXoWEXA+6cweR4h3BOnwMz+pO9vL9mXdjLrpDd0w1QzCgWmLQBxa1VgySDITiH7nQndrDG1h6937zm9pLj1Q=="
-      },
-      "SkiaSharp.Vulkan.SharpVk": {
-        "type": "Direct",
-        "requested": "[2.88.8, )",
-        "resolved": "2.88.8",
-        "contentHash": "2+LTWCLryUa/VfTGnb/XO3LwvgBs5CFGaSjoc3nmggKpYe0joCaliQ2IQ5VD2VYp1rFfxC1e50PXJE33trUnZA==",
-        "dependencies": {
-          "SharpVk": "0.4.2",
-          "SkiaSharp": "2.88.8"
+          "SkiaSharp.NativeAssets.Win32": "3.119.0"
         }
       },
       "System.Drawing.Common": {
@@ -809,8 +798,8 @@
       },
       "Serilog": {
         "type": "Transitive",
-        "resolved": "4.0.1",
-        "contentHash": "pzeDRXdpSLSsgBHpZcmpIDxqMy845Ab4s+dfnBg0sN9h8q/4Wo3vAoe0QCGPze1Q06EVtEPupS+UvLm8iXQmTQ=="
+        "resolved": "4.3.0",
+        "contentHash": "+cDryFR0GRhsGOnZSKwaDzRRl4MupvJ42FhCE4zhQRVanX0Jpg6WuCBk59OVhVDPmab1bB+nRykAnykYELA9qQ=="
       },
       "Serilog.Filters.Expressions": {
         "type": "Transitive",
@@ -839,19 +828,10 @@
           "SharpDX": "4.2.0"
         }
       },
-      "SharpVk": {
+      "SkiaSharp.NativeAssets.Win32": {
         "type": "Transitive",
-        "resolved": "0.4.2",
-        "contentHash": "0CzZJWKw6CTmxKOXzCCyTKCD7tZB6g2+tm2VSSCXWTHlIMHxlRzbH5BaqkYCGo9Y23wp0hPuz2U3NifMH1VI6w==",
-        "dependencies": {
-          "System.Runtime.CompilerServices.Unsafe": "4.4.0",
-          "System.ValueTuple": "4.4.0"
-        }
-      },
-      "SkiaSharp.NativeAssets.macOS": {
-        "type": "Transitive",
-        "resolved": "2.88.8",
-        "contentHash": "6Kn5TSkKlfyS6azWHF3Jk2sW5C4jCE5uSshM/5AbfFrR+5n6qM5XEnz9h4VaVl7LTxBvHvMkuPb/3bpbq0vxTw=="
+        "resolved": "3.119.0",
+        "contentHash": "IwC9yx36lOdXVT2DjgmWHl1qkVspfj8ctd4+li8CNnvqdfaTolXCOh6TLznURcPAvzatx9K/tLOB7zT6T8EA9w=="
       },
       "SmartThreadPool.dll": {
         "type": "Transitive",
@@ -1352,11 +1332,6 @@
           "System.Configuration.ConfigurationManager": "4.5.0"
         }
       },
-      "System.Runtime.CompilerServices.Unsafe": {
-        "type": "Transitive",
-        "resolved": "4.4.0",
-        "contentHash": "9dLLuBxr5GNmOfl2jSMcsHuteEg32BEfUotmmUkmZjpR3RpVHE8YQwt0ow3p6prwA1ME8WqDVZqrr8z6H8G+Kw=="
-      },
       "System.Runtime.Extensions": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -1722,7 +1697,7 @@
           "IronPython": "[3.4.1, )",
           "Microsoft.Win32.SystemEvents": "[9.0.0, )",
           "RGB.NET.Core": "[2.0.0-prerelease.111, )",
-          "Serilog": "[4.0.1, )",
+          "Serilog": "[4.3.0, )",
           "SmartThreadPool.dll": "[2.3.0, )",
           "System.Threading.AccessControl": "[9.0.0, )"
         }
@@ -1732,12 +1707,6 @@
       }
     },
     "net9.0-windows10.0.19041/win-x64": {
-      "SkiaSharp.NativeAssets.Win32": {
-        "type": "Direct",
-        "requested": "[2.88.8, )",
-        "resolved": "2.88.8",
-        "contentHash": "O9QXoWEXA+6cweR4h3BOnwMz+pO9vL9mXdjLrpDd0w1QzCgWmLQBxa1VgySDITiH7nQndrDG1h6937zm9pLj1Q=="
-      },
       "System.Management": {
         "type": "Direct",
         "requested": "[9.0.4, )",
@@ -2147,10 +2116,10 @@
           "System.Private.Uri": "4.3.0"
         }
       },
-      "SkiaSharp.NativeAssets.macOS": {
+      "SkiaSharp.NativeAssets.Win32": {
         "type": "Transitive",
-        "resolved": "2.88.8",
-        "contentHash": "6Kn5TSkKlfyS6azWHF3Jk2sW5C4jCE5uSshM/5AbfFrR+5n6qM5XEnz9h4VaVl7LTxBvHvMkuPb/3bpbq0vxTw=="
+        "resolved": "3.119.0",
+        "contentHash": "IwC9yx36lOdXVT2DjgmWHl1qkVspfj8ctd4+li8CNnvqdfaTolXCOh6TLznURcPAvzatx9K/tLOB7zT6T8EA9w=="
       },
       "System.Buffers": {
         "type": "Transitive",

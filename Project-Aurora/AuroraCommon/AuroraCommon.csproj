@@ -16,7 +16,7 @@
         <PackageReference Include="IronPython" Version="3.4.1" />
         <PackageReference Include="Microsoft.Win32.SystemEvents" Version="9.0.0" />
         <PackageReference Include="RGB.NET.Core" Version="2.0.0-prerelease.111" />
-        <PackageReference Include="Serilog" Version="4.0.1" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
         <PackageReference Include="SmartThreadPool.dll" Version="2.3.0" />
         <PackageReference Include="System.Threading.AccessControl" Version="9.0.0" />
     </ItemGroup>
