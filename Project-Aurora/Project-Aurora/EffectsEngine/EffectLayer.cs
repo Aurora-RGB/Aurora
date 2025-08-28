@@ -47,7 +47,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     public BitmapEffectLayer(string name)
     {
         _name = name;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, true);
+        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
         Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
     }
 
@@ -964,7 +964,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     private void InvalidateColorMap(object? sender, EventArgs args)
     {
         var oldBitmap = _colormap;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height, _readable);
+        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
         oldBitmap.Dispose();
         _ksChanged = true;
         Dimension.Height = Effects.Canvas.Height;
