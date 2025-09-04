@@ -23,7 +23,7 @@ public sealed class HardwareMonitorModule : AuroraModule
         if (Global.Configuration.AutoRemoveUnsecureDrivers is null)
         {
             var result = MessageBox.Show(PromptMessage, "AuroraRgb", MessageBoxButton.YesNo);
-            Global.Configuration.AutoInstallGsi = result switch
+            Global.Configuration.AutoRemoveUnsecureDrivers = result switch
             {
                 MessageBoxResult.Yes => true,
                 MessageBoxResult.No => false,
