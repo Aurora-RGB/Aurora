@@ -62,6 +62,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool EnableIpcListener { get; set; } = true;
     public bool EnableHardwareInfo { get; set; } = true;
     public bool EnableAmdCpuMonitor { get; set; }
+    public bool EnableWinRing0Monitor { get; set; }
     public bool EnableShutdownOnConflict { get; set; } = true;
 
     public int UpdateDelay { get; set; } = 30;

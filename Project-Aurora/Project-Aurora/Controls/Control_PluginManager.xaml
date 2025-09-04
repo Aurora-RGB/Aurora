@@ -37,7 +37,8 @@
                 <StackPanel Orientation="Vertical">
                     <TextBlock Text="Hardware Info" />
                     <CheckBox Content="Enabled" IsChecked="{Binding EnableHardwareInfo}" />
-                    <CheckBox Name="AmdMonitorToggle" Content="Enable CPU and GPU monitoring on AMD systems" IsChecked="{Binding EnableAmdCpuMonitor}" />
+                    <CheckBox Name="WinRing0Toggle" Content="Enable WinRing0 usage (Explicit permission for Hardware Info, temporarily)" IsChecked="{Binding EnableWinRing0Monitor}" />
+                    <CheckBox Name="AmdMonitorToggle" Content="Enable CPU and GPU monitoring on AMD systems (inpoutx64)" IsChecked="{Binding EnableAmdCpuMonitor}" />
                     <TextBlock>
                         CPU and GPU monitoring on AMD systems needs installing a non-secure driver that some anti-cheats don't like (most notably Vanguard).
                         Use at your own risk.
@@ -47,6 +48,11 @@
                         <TextBlock Margin="0, 0, 5, 0">inpoutx64:</TextBlock>
                         <TextBlock Margin="0, 0, 15, 0" Name="InpOut64Status">STATUS</TextBlock>
                         <Button Name="InpOutDeleteButton" Click="InpOutDeleteButton_OnClick">Remove</Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Margin="0, 0, 5, 0">WinRing0:</TextBlock>
+                        <TextBlock Margin="0, 0, 15, 0" Name="WinRing0Status">STATUS</TextBlock>
+                        <Button Name="WinRing0DeleteButton" Click="WinRing0DeleteButton_OnClick">Remove</Button>
                     </StackPanel>
                 </StackPanel>
 

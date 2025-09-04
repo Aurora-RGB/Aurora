@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using AuroraRgb.Settings;
+using AuroraRgb.Utils;
 using Microsoft.Win32;
 
 namespace AuroraRgb.Controls;
@@ -56,6 +55,7 @@ public partial class Control_PluginManager
         AmdMonitorToggle.Checked += AmdMonitorToggleButton_OnChecked;
 
         UpdateInpOutStatus();
+        UpdateWinRing0Status();
     }
 
     private void UpdateInpOutStatus()
@@ -75,6 +75,23 @@ public partial class Control_PluginManager
         }
     }
 
+    private void UpdateWinRing0Status()
+    {
+        using var r = Registry.LocalMachine.OpenSubKey("SYSTEM\\CurrentControlSet\\Services\\WinRing0x64");
+        if (r != null)
+        {
+            WinRing0Status.Foreground = Brushes.Coral;
+            WinRing0Status.Text = "Exists";
+            WinRing0DeleteButton.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            WinRing0Status.Foreground = Brushes.Green;
+            WinRing0Status.Text = "Not installed";
+            WinRing0DeleteButton.Visibility = Visibility.Hidden;
+        }
+    }
+
     private void Control_PluginManager_OnUnloaded(object sender, RoutedEventArgs e)
     {
         AmdMonitorToggle.Checked -= AmdMonitorToggleButton_OnChecked;
@@ -85,43 +102,20 @@ public partial class Control_PluginManager
         DeleteInpOut();
     }
 
+    private void WinRing0DeleteButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        DeleteWinRing0();
+    }
+
     private void DeleteInpOut()
     {
-        const string inpOutKey = @"SYSTEM\CurrentControlSet\Services\inpoutx64";
-
-        try
-        {
-            using var r = Registry.LocalMachine.OpenSubKey(inpOutKey);
-            if (r == null)
-            {
-                MessageBox.Show("Driver isn't installed", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var imagePath = r.GetValue("ImagePath");
-            var inpOutSysPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + Path.PathSeparator + imagePath;
-
-            Registry.LocalMachine.DeleteSubKeyTree(inpOutKey);
-
-            try
-            {
-                if (File.Exists(inpOutSysPath))
-                {
-                    File.Delete(inpOutSysPath);
-                }
-
-                MessageBox.Show("Deleted driver. Your system needs restart to fully take effect");
-            }
-            catch
-            {
-                Global.logger.Error("inpoutx64.sys could not be deleted");
-                MessageBox.Show("inpoutx64.sys could not be deleted. Restart your system and delete this file manually:\n" + inpOutSysPath);
-            }
-        }
-        catch(Exception e)
-        {
-            Global.logger.Error(e, "Could not delete input64 registry keys");
-        }
+        UnsecureDrivers.DeleteDriver(UnsecureDrivers.InpOutDriverName);
         UpdateInpOutStatus();
+    }
+
+    private void DeleteWinRing0()
+    {
+        UnsecureDrivers.DeleteDriver(UnsecureDrivers.WinRing0DriverName);
+        UpdateWinRing0Status();
     }
 }
