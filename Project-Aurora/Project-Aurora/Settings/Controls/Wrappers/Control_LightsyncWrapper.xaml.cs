@@ -89,22 +89,27 @@ public partial class Control_LightsyncWrapper
                 case LightsyncSdkState.Conflicted:
                     LightsyncConnectionStatusLabel.Content = "Conflicted";
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.Crimson);
+                    LightsyncCurrentApplicationLabel.Content = "-";
                     break;
                 case LightsyncSdkState.NotInstalled:
                     LightsyncConnectionStatusLabel.Content = "Not Installed";
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
+                    LightsyncCurrentApplicationLabel.Content = "-";
                     break;
                 case LightsyncSdkState.Waiting:
                     LightsyncConnectionStatusLabel.Content = "Waiting for game";
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.Chocolate);
+                    LightsyncCurrentApplicationLabel.Content = "-";
                     break;
                 case LightsyncSdkState.Connected:
                     LightsyncConnectionStatusLabel.Content = "Connected";
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.Green);
+                    LightsyncCurrentApplicationLabel.Content = logitechSdkListener.Application;
                     break;
                 case LightsyncSdkState.Disabled:
                     LightsyncConnectionStatusLabel.Content = "Disabled";
                     LightsyncConnectionStatusLabel.Foreground = new SolidColorBrush(Colors.PaleVioletRed);
+                    LightsyncCurrentApplicationLabel.Content = "-";
                     break;
                 default:
                     Global.logger.Error("LogitechSdkListener.State: {0} Unexpected Enum value", logitechSdkListener.State);

@@ -5,10 +5,10 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using AuroraRgb.Devices;
 using AuroraRgb.Modules.Logitech.Enums;
 using AuroraRgb.Modules.Logitech.Structs;
 using AuroraRgb.Modules.ProcessMonitor;
+using AuroraRgb.Settings;
 using AuroraRgb.Utils;
 using Common;
 using Common.Devices;
@@ -48,6 +48,7 @@ public sealed class LogitechSdkListener : IDisposable
 
     public IReadOnlyDictionary<DeviceKeys, Color> Colors => _colors;
     public SimpleColor BackgroundColor { get; private set; } = SimpleColor.Transparent;
+    public AuroraLightsyncSettings LightsyncSettings { get; private set; } = new();
 
     private LogiSetTargetDevice Device { get; set; } = LogiSetTargetDevice.All;
 
@@ -58,18 +59,10 @@ public sealed class LogitechSdkListener : IDisposable
     private Dictionary<DeviceKeys, Color> _savedColors = new();
     private SimpleColor _savedBackground = SimpleColor.Transparent;
 
-    private readonly HashSet<string> _blockedApps = [Global.AuroraExe, DeviceManager.DeviceManagerExe];
-
-    public async Task Initialize(Task<RunningProcessMonitor> runningProcessMonitor)
+    public async Task Initialize(Task<RunningProcessMonitor> runningProcessMonitor, AuroraLightsyncSettings config)
     {
         var runApproved = LgsInstallationUtils.IsLgsInstalled() && LgsInstallationUtils.LgsAutorunEnabled();
-        if (runApproved)
-        {
-            State = LightsyncSdkState.Conflicted;
-            return;
-        }
-
-        if ((await runningProcessMonitor).IsProcessRunning(LgsInstallationUtils.LgsExe))
+        if (runApproved || (await runningProcessMonitor).IsProcessRunning(LgsInstallationUtils.LgsExe))
         {
             State = LightsyncSdkState.Conflicted;
             return;
@@ -80,6 +73,8 @@ public sealed class LogitechSdkListener : IDisposable
         {
             await Task.Delay(1000);
         }
+
+        LightsyncSettings = config;
 
         var i = Kernel32.WtsGetActiveConsoleSessionId();
         var lgsPipeName = $"LGS_LED_SDK-{i:x8}";
@@ -249,7 +244,7 @@ public sealed class LogitechSdkListener : IDisposable
     private void Init(PipeListener pipeListener, ReadOnlySpan<byte> span)
     {
         var name = ReadNullTerminatedUnicodeString(span);
-        if (_blockedApps.Contains(Path.GetFileName(name)))
+        if (LightsyncSettings.DisabledApps.Contains(Path.GetFileName(name)))
         {
             pipeListener.Disconnect();
         }

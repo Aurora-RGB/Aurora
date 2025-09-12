@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Modules.ProcessMonitor;
+using AuroraRgb.Settings;
 
 namespace AuroraRgb.Modules;
 
@@ -9,9 +10,12 @@ public sealed class LogitechSdkModule(Task<RunningProcessMonitor> runningProcess
 {
     public static LogitechSdkListener LogitechSdkListener { get; } = new();
 
+    public static AuroraLightsyncSettings LightsyncConfig { get; private set; } = new();
+
     protected override async Task Initialize()
     {
         Global.Configuration.PropertyChanged += ConfigurationOnPropertyChanged;
+        LightsyncConfig = await ConfigManager.LoadLightsyncConfig();
 
         if (!Global.Configuration.EnableLightsyncTakeover)
         {
@@ -21,7 +25,7 @@ public sealed class LogitechSdkModule(Task<RunningProcessMonitor> runningProcess
         }
 
         Global.logger.Information("Initializing Lightsync...");
-        await LogitechSdkListener.Initialize(runningProcessMonitor);
+        await LogitechSdkListener.Initialize(runningProcessMonitor, LightsyncConfig);
         Global.logger.Information("Initialized Lightsync");
     }
 
@@ -34,7 +38,7 @@ public sealed class LogitechSdkModule(Task<RunningProcessMonitor> runningProcess
 
         if (Global.Configuration.EnableLightsyncTakeover)
         {
-            await LogitechSdkListener.Initialize(runningProcessMonitor);
+            await LogitechSdkListener.Initialize(runningProcessMonitor, LightsyncConfig);
         }
         else
         {

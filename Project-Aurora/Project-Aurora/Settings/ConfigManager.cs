@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.Gamebar;
+using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 using AuroraRgb.Utils.Json;
@@ -171,6 +172,36 @@ public static class ConfigManager
 
         var content = await File.ReadAllTextAsync(AuroraChromaSettings.ConfigFile, Encoding.UTF8);
         return JsonSerializer.Deserialize(content, ChromaSourceGenerationContext.Default.AuroraChromaSettings) ?? new AuroraChromaSettings();
+    }
+    
+    public static async Task<AuroraLightsyncSettings> LoadLightsyncConfig()
+    {
+        AuroraLightsyncSettings config;
+        try
+        {
+            config = await TryLoadLightsync();
+        }
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Exception loading AuroraLightsyncSettings. Error: ");
+            config = new AuroraLightsyncSettings();
+        }
+
+        return config;
+    }
+    
+    private static async Task<AuroraLightsyncSettings> TryLoadLightsync()
+    {
+        if (!File.Exists(AuroraLightsyncSettings.ConfigFile))
+        {
+            // first time start
+            var lightsyncSettings = new AuroraLightsyncSettings();
+            await SaveAsync(lightsyncSettings);
+            return lightsyncSettings;
+        }
+
+        var content = await File.ReadAllTextAsync(AuroraLightsyncSettings.ConfigFile, Encoding.UTF8);
+        return JsonSerializer.Deserialize(content, LightsyncSourceGenerationContext.Default.AuroraLightsyncSettings) ?? new AuroraLightsyncSettings();
     }
 
     public static void Save(IAuroraConfig configuration)
