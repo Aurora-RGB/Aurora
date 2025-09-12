@@ -42,6 +42,7 @@ public class GenericApplication : Application
         SettingsType = typeof(GenericApplicationSettings),
         ProfileType = typeof(GenericApplicationProfile),
         OverviewControlType = typeof(Control_GenericApplication),
+        Priority = 10,
     })
     {
         AllowLayer<WrapperLightsLayerHandler>();

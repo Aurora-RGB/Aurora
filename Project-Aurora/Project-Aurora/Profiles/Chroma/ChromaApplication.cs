@@ -16,6 +16,7 @@ public sealed class ChromaApplication() : Application(new LightEventConfig
     OverviewControlType = typeof(Control_Chroma),
     IconURI = "Resources/chroma.png",
     EnableByDefault = true,
+    Priority = 6,
 })
 {
     public override async Task<bool> Initialize(CancellationToken cancellationToken)

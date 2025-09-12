@@ -14,6 +14,7 @@ public class LogitechApplication : Application
         OverviewControlType = typeof(Control_Logitech),
         IconURI = "Resources/G-sync.png",
         EnableByDefault = true,
+        Priority = 4,
     })
     {
         LogitechSdkModule.LogitechSdkListener.ApplicationChanged += LogitechSdkListenerOnApplicationChanged;
