@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.ProcessMonitor;
 using iCUE_ReverseEngineer.Icue;
+using iCUE_ReverseEngineer.Icue.Gsi;
 
 namespace AuroraRgb.Modules.Icue;
 
@@ -81,15 +82,34 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
     private void OnGameConnected(object? sender, GameHandler gameHandler)
     {
         _gameHandler = gameHandler;
-        Gsi.SetGsiHandler(gameHandler.GsiHandler);
-        Sdk.SetSdkHandler(gameHandler.SdkHandler, gameHandler.GamePid);
+        gameHandler.SdkHandler.GameConnected += SdkHandlerOnGameConnected;
+        gameHandler.GsiHandler.GameConnected += GsiHandlerOnGameConnected;
 
         gameHandler.GameDisconnected += OnGameDisconnected;
     }
 
+    private void SdkHandlerOnGameConnected(object? sender, EventArgs e)
+    {
+        Sdk.SetSdkHandler(_gameHandler!.SdkHandler, _gameHandler.GamePid);
+    }
+
+    private void GsiHandlerOnGameConnected(object? sender, IcueGsiConnectionEventArgs e)
+    {
+        Gsi.SetGsiHandler(_gameHandler!.GsiHandler);
+    }
+
     private void OnGameDisconnected(object? sender, EventArgs e)
     {
-        _gameHandler?.Dispose();
+        if (_gameHandler != null)
+        {
+            _gameHandler.SdkHandler.GameConnected -= SdkHandlerOnGameConnected;
+            _gameHandler.GsiHandler.GameConnected -= GsiHandlerOnGameConnected;
+
+            _gameHandler.GameDisconnected -= OnGameDisconnected;
+            
+            _gameHandler.Dispose();
+        }
+        
         _gameHandler = null;
         Gsi.ClearGsiHandler();
         Sdk.ClearSdkHandler();
