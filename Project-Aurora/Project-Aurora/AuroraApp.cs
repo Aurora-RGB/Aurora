@@ -62,6 +62,7 @@ public sealed class AuroraApp : IDisposable
             _processesModule,
             new LogitechSdkModule(ProcessesModule.RunningProcessMonitor),
             new RazerSdkModule(),
+            new IcueModule(ProcessesModule.RunningProcessMonitor),
             new GamebarGamesModule(),
             PluginsModule,
             lightingStateManagerModule,

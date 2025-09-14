@@ -87,9 +87,9 @@
       },
       "iCUE-ReverseEngineeredServer": {
         "type": "Direct",
-        "requested": "[0.2.1, )",
-        "resolved": "0.2.1",
-        "contentHash": "RGjGS4jrSwc2rT7+0c3YVaZXKl/KGAKZDjIPJjGHKrLnkGNWvUJKrHlfQeG9J95gzwQpIhgssSgizpKMZwIy1g=="
+        "requested": "[0.2.5, )",
+        "resolved": "0.2.5",
+        "contentHash": "9KF30HWFWxOppcScLPL0Y7D+q/P7+L6GIrwPuociWFZl57+dqKgyPsUKJyinf2PzqLBppqOq7jGKWmTy/nBxhg=="
       },
       "JetBrains.Annotations": {
         "type": "Direct",

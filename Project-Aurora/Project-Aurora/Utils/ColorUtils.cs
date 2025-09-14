@@ -71,6 +71,15 @@ public static class ColorUtils
             format != PixelFormats.Bgra32 &&
             format != PixelFormats.Pbgra32)
         {
+            if (format == PixelFormats.Gray2 ||
+                format == PixelFormats.Gray4 ||
+                format == PixelFormats.Gray8 ||
+                format == PixelFormats.Gray16 ||
+                format == PixelFormats.Gray32Float)
+            {
+                return CommonColorUtils.FastColor(128, 128, 128);
+            }
+
             throw new InvalidOperationException("BitmapSource must have Bgr24, Bgr32, Bgra32 or Pbgra32 format");
         }
 

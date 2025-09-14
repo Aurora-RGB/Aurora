@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="AuroraRgb.Settings.Controls.Wrappers.ControlCorsairIcueWrapper"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:auroraRgb="clr-namespace:AuroraRgb"
+             xmlns:modules="clr-namespace:AuroraRgb.Modules"
+             xmlns:utils="clr-namespace:AuroraRgb.Utils"
+             mc:Ignorable="d"
+             Loaded="ControlCorsairIcueWrapper_OnLoaded"
+             Unloaded="ControlCorsairIcueWrapper_OnUnloaded"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <utils:EnumToDescriptionConverter x:Key="EnumToDescriptionConverter" />
+    </UserControl.Resources>
+    
+    <Grid DataContext="{x:Static auroraRgb:Global.Configuration}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="20*" />
+        </Grid.ColumnDefinitions>
+        
+        <TextBlock Foreground="LightGray">iCUE autostart is disabled</TextBlock>
+        <TextBlock Grid.Row="0" Grid.Column="1" Name="IcueAutostartStatus" Foreground="Green">✔</TextBlock>
+        <TextBlock Grid.Row="0" Grid.Column="2" Foreground="LightGray">Disabling from Task Manager may be needed</TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">iCUE is not running</TextBlock>
+        <TextBlock Grid.Row="1" Grid.Column="1" Name="IcueRunningStatus" Foreground="LightGray">‐</TextBlock>
+
+        <Label Grid.Row="2" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
+               VerticalAlignment="Center" />
+        <Label x:Name="IcueCurrentApplicationLabel" Grid.Row="2" Grid.Column="2" Width="300" Content="application name"
+               Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        
+        <CheckBox Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" IsChecked="{Binding EnableIcueTakeover}">Enable integration takeover</CheckBox>
+        <TextBlock Grid.Row="3" Grid.Column="2" Name="StatusTextBlock"
+                   Text="{Binding Source={x:Static modules:IcueModule.AuroraIcueServer}, Path=ServerStatus, Converter={StaticResource EnumToDescriptionConverter}}"
+        />
+    </Grid>
+</UserControl>

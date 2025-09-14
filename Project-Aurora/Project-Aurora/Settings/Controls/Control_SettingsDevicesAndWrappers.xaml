@@ -113,6 +113,9 @@
                 <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="Lightsync Game Integration" VerticalAlignment="Stretch">
                     <wrappers:Control_LightsyncWrapper />
                 </GroupBox>
+                <GroupBox DockPanel.Dock="Top" Height="Auto" Margin="0,10,0,0" Header="iCUE Game Integration (WIP)" VerticalAlignment="Stretch">
+                    <wrappers:ControlCorsairIcueWrapper />
+                </GroupBox>
                 <TextBlock DockPanel.Dock="Top">
                     These integrations are reverse-engineered and may not work as the original ones.
                 </TextBlock>

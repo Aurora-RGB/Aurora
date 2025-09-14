@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.Win32;
 using Microsoft.Win32.TaskScheduler;
 
 namespace AuroraRgb.Utils;
@@ -76,6 +78,49 @@ public static class AutoStartUtils
         catch (Exception exc)
         {
             Global.logger.Error(exc, "RunAtWinStartup_Checked Exception: ");
+        }
+    }
+
+    public static bool IsSoftwareInstalled(IEnumerable<string> registryNames)
+    {
+        const string runReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+        using var runKey = Registry.LocalMachine.OpenSubKey(runReg);
+        
+        if (runKey == null)
+            return false;
+        return registryNames.Any(RegistryAutoStart);
+
+        bool RegistryAutoStart(string keyValue)
+        {
+            var regValue = runKey.GetValue(keyValue);
+            return regValue != null;
+        }
+    }
+
+    public static bool IsAutorunEnabled(IEnumerable<string> registryNames)
+    {
+        const string runApprovedReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
+        using var runApprovedKey = Registry.LocalMachine.OpenSubKey(runApprovedReg);
+        
+        if (runApprovedKey == null)
+            return false;
+        return registryNames.Any(IsLgsRunEnabled);
+        
+        bool IsLgsRunEnabled(string keyValue)
+        {
+            var lgsLaunch = runApprovedKey.GetValue(keyValue);
+            var valueNull = lgsLaunch != null;
+            if (!valueNull)
+            {
+                return false;
+            }
+
+            if (lgsLaunch is not byte[] valueBytes || valueBytes.Length < 1)
+            {
+                return false;
+            }
+            var enabledFlag = valueBytes[0];
+            return enabledFlag == 2;
         }
     }
 }

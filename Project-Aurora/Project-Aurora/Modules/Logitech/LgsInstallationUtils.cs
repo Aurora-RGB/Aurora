@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using AuroraRgb.Utils;
 using Microsoft.Win32;
 
 namespace AuroraRgb.Modules.Logitech;
@@ -22,46 +23,12 @@ public static class LgsInstallationUtils
 
     public static bool IsLgsInstalled()
     {
-        const string runReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
-        using var runKey = Registry.LocalMachine.OpenSubKey(runReg);
-        
-        if (runKey == null)
-            return false;
-        return LgsAutoStartNames.Any(IsLgsRegistry);
-
-        bool IsLgsRegistry(string keyValue)
-        {
-            var lgsLaunch = runKey.GetValue(keyValue);
-            var lgsInstalled = lgsLaunch != null;
-            return lgsInstalled;
-        }
+        return AutoStartUtils.IsSoftwareInstalled(LgsAutoStartNames);
     }
 
     public static bool LgsAutorunEnabled()
     {
-        const string runApprovedReg = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run";
-        using var runApprovedKey = Registry.LocalMachine.OpenSubKey(runApprovedReg);
-        
-        if (runApprovedKey == null)
-            return false;
-        return LgsAutoStartNames.Any(IsLgsRunEnabled);
-        
-        bool IsLgsRunEnabled(string keyValue)
-        {
-            var lgsLaunch = runApprovedKey.GetValue(keyValue);
-            var valueNull = lgsLaunch != null;
-            if (!valueNull)
-            {
-                return false;
-            }
-
-            if (lgsLaunch is not byte[] valueBytes || valueBytes.Length < 1)
-            {
-                return false;
-            }
-            var enabledFlag = valueBytes[0];
-            return enabledFlag == 2;
-        }
+        return AutoStartUtils.IsAutorunEnabled(LgsAutoStartNames);
     }
 
     public static bool DllInstalled()

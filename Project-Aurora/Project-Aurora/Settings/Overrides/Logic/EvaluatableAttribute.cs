@@ -37,4 +37,5 @@ public enum EvaluatableCategory {
     [Description("Maths")] Maths,
     [Description("String")] String,
     [Description("Global Variable")] Global,
+    [Description("iCUE")] Icue,
 }

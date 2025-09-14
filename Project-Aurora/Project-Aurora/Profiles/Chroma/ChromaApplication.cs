@@ -25,10 +25,7 @@ public sealed class ChromaApplication() : Application(new LightEventConfig
 
         var chromaRegistrySettings = await GetChromaRegistrySettings();
         chromaRegistrySettings.ChromaAppsChanged += ChromaRegistrySettingsOnChromaAppsChanged;
-        Config.ProcessNames = chromaRegistrySettings.AllChromaApps
-            .Where(processName => !string.IsNullOrWhiteSpace(processName))
-            .Where(s => !chromaRegistrySettings.ExcludedPrograms.Contains(s))
-            .ToArray();
+        await SetProfileApplication(chromaRegistrySettings);
         return baseInit;
     }
 
@@ -39,12 +36,12 @@ public sealed class ChromaApplication() : Application(new LightEventConfig
 
     private async void ChromaRegistrySettingsOnChromaAppsChanged(object? sender, EventArgs e)
     {
-        await SetProfileApplication();
+        var chromaRegistrySettings = await GetChromaRegistrySettings();
+        await SetProfileApplication(chromaRegistrySettings);
     }
 
-    private async Task SetProfileApplication()
+    private async Task SetProfileApplication(ChromaRegistrySettings chromaRegistrySettings)
     {
-        var chromaRegistrySettings = await GetChromaRegistrySettings();
         Config.ProcessNames = chromaRegistrySettings.AllChromaApps
             .Where(processName => !string.IsNullOrWhiteSpace(processName))
             .Where(s => !chromaRegistrySettings.ExcludedPrograms.Contains(s))

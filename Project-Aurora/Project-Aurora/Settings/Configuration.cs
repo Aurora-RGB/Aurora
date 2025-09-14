@@ -39,6 +39,7 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool AllowTransparency { get; set; } = true;
     public bool ChromaDisableDeviceControl { get; set; }
     public bool EnableLightsyncTakeover { get; set; } = true;
+    public bool EnableIcueTakeover { get; set; } = true;
 
     [JsonProperty("global_brightness")]
     public float GlobalBrightness { get; set; } = 1.0f;

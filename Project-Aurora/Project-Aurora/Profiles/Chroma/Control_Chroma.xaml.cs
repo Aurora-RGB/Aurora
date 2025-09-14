@@ -48,14 +48,14 @@ public partial class Control_Chroma : INotifyPropertyChanged
         {
             var enabledApps = ChromaRegistrySettings().AllChromaApps
                 .Except(ChromaRegistrySettings().ExcludedPrograms);
-            var disabledApps = ChromaRegistrySettings().ExcludedPrograms;
 
             EnabledPrograms.Clear();
             EnabledPrograms.AddRange(enabledApps);
-
-            ExcludedPrograms.Clear();
-            ExcludedPrograms.AddRange(disabledApps);
         }, DispatcherPriority.Input);
+
+        var disabledApps = ChromaRegistrySettings().ExcludedPrograms;
+        ExcludedPrograms.Clear();
+        ExcludedPrograms.AddRange(disabledApps);
     }
 
     private void ExcludedAdd_Click(object? sender, RoutedEventArgs e)

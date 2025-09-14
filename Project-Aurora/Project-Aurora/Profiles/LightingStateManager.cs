@@ -215,6 +215,7 @@ public sealed class LightingStateManager : IDisposable
 
         PutProfileTop("games");
         PutProfileTop("logitech");
+        PutProfileTop("icue");
         PutProfileTop("chroma");
         PutProfileTop("desktop");
     }

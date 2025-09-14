@@ -81,7 +81,7 @@ public partial class Control_LightsyncWrapper
         var runningProcessMonitor = await ProcessesModule.RunningProcessMonitor;
         var lgsRunning = runningProcessMonitor.IsProcessRunning(LgsInstallationUtils.LgsExe);
 
-        Dispatcher.BeginInvoke(() =>
+        _ = Dispatcher.BeginInvoke(() =>
         {
             var logitechSdkListener = LogitechSdkModule.LogitechSdkListener;
             switch (logitechSdkListener.State)
