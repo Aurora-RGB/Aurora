@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.Updates;
 using Common.Utils;
@@ -79,8 +80,16 @@ public sealed class UpdateModule : AuroraModule
     {
         var versionTag = Path.GetFileNameWithoutExtension(changelogPath);
         var content = await File.ReadAllTextAsync(changelogPath);
+        content = ConvertUrlsClickable(content);
 
         return new AuroraChangelog(versionTag, content);
+    }
+    
+    private static string ConvertUrlsClickable(string mdContent)
+    {
+        // Simple regex to match URLs
+        const string urlPattern = @"(?<!\()https?:\/\/[^\s/$.?#].[^\s]*";
+        return Regex.Replace(mdContent, urlPattern, match => $"[{match.Value}]({match.Value})");
     }
 
     public override ValueTask DisposeAsync()

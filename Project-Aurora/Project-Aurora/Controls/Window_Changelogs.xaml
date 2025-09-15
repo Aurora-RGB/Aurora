@@ -16,6 +16,10 @@
                     <StackPanel>
                         <TextBlock FontSize="32" Text="{Binding VersionTag}" />
                         <mdXaml:MarkdownScrollViewer
+                            VerticalAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            ClickAction="DisplayWithRelativePath"
+                            OnHyperLinkClicked="OnLinkClicked"
                             MarkdownStyleName="Sasabune" Markdown="{Binding Content}" Margin="20, 20, 5, 50" />
                         <Separator />
                     </StackPanel>

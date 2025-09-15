@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Updates;
@@ -40,5 +42,22 @@ public sealed partial class Window_Changelogs : IDisposable
     {
         ScrollViewer.ScrollToVerticalOffset(ScrollViewer.VerticalOffset - e.Delta);
         e.Handled = true;
+    }
+
+    public void OnLinkClicked(string url)
+    {
+        try
+        {
+            ProcessStartInfo psi = new()
+            {
+                FileName = url,
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+        }
+        catch (Exception exc)
+        {
+            Global.logger.Error(exc, "Could not open link: {0}", url);
+        }
     }
 }
