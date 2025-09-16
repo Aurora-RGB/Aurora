@@ -34,25 +34,12 @@ public partial class Control_PluginManager
         (await _host).SetPluginEnabled(plugin.Key, (bool)chk.IsChecked);
     }
 
-    private void AmdMonitorToggleButton_OnChecked(object sender, RoutedEventArgs e)
-    {
-        var messageBoxResult = MessageBox.Show(
-            "Removing the drivers by this module can be annoying. Do you still want to continue?",
-            "Confirm action", MessageBoxButton.YesNo,
-            MessageBoxImage.Warning);
-        if (messageBoxResult == MessageBoxResult.Yes) return;
-        e.Handled = true;
-        Global.Configuration.EnableAmdCpuMonitor = false;
-    }
-
     private void Control_PluginManager_OnLoaded(object sender, RoutedEventArgs e)
     {
         if (!IsVisible)
         {
             return;
         }
-        AmdMonitorToggle.Checked -= AmdMonitorToggleButton_OnChecked;
-        AmdMonitorToggle.Checked += AmdMonitorToggleButton_OnChecked;
 
         UpdateInpOutStatus();
         UpdateWinRing0Status();
@@ -90,11 +77,6 @@ public partial class Control_PluginManager
             WinRing0Status.Text = "Not installed";
             WinRing0DeleteButton.Visibility = Visibility.Hidden;
         }
-    }
-
-    private void Control_PluginManager_OnUnloaded(object sender, RoutedEventArgs e)
-    {
-        AmdMonitorToggle.Checked -= AmdMonitorToggleButton_OnChecked;
     }
 
     private void InpOutDeleteButton_OnClick(object sender, RoutedEventArgs e)

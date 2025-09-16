@@ -16,7 +16,7 @@ public interface IHardwareMonitor : IDisposable
     
     List<string> NetworkAdapters { get; }
 }
-
+   
 public sealed class NoopHardwareMonitor : IHardwareMonitor
 {
     private readonly Lazy<HardwareMonitor.GpuUpdater> _gpu = new(() => new ([]));
@@ -62,12 +62,10 @@ public sealed partial class HardwareMonitor: IHardwareMonitor
     static HardwareMonitor()
 #pragma warning restore CA1810 // Initialize reference type static fields inline
     {
-        var isAmd = CpuBrandFinder.IsAmd();
-        var isCpuEnabled = !isAmd || Global.Configuration.EnableAmdCpuMonitor;
         _computer = new Computer
         {
-            IsCpuEnabled = isCpuEnabled,
-            IsGpuEnabled = isCpuEnabled,
+            IsCpuEnabled = true,
+            IsGpuEnabled = true,
             IsMemoryEnabled = true,
             IsNetworkEnabled = true
         };
@@ -78,7 +76,7 @@ public sealed partial class HardwareMonitor: IHardwareMonitor
         }
         catch (Exception e)
         {
-            Global.logger.Error("Error instantiating hardware monitor:", e);
+            Global.logger.Error(e, "Error instantiating hardware monitor");
         }
     }
 

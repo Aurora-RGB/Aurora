@@ -73,7 +73,7 @@
         <PackageReference Include="iCUE-ReverseEngineeredServer" Version="0.2.5" />
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
         <PackageReference Include="JsonSubTypes" Version="2.0.1"/>
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre396" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre454" />
         <PackageReference Include="LibUsbDotNet" Version="2.2.75" />
         <PackageReference Include="MdXaml" Version="1.27.0"/>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
@@ -99,7 +99,7 @@
         <PackageReference Include="SharpZipLib" Version="1.4.2"/>
         <PackageReference Include="SkiaSharp" Version="3.119.0" />
         <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
-        <PackageReference Include="System.Management" Version="9.0.4" />
+        <PackageReference Include="System.Management" Version="9.0.9" />
         <PackageReference Include="System.Net.NameResolution" Version="4.3.0"/>
         <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.4" />
         <PackageReference Include="System.Threading.AccessControl" Version="9.0.4" />

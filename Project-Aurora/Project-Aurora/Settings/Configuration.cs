@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.IO;
 using System.Windows;
+using Windows.Foundation.Metadata;
 using AuroraRgb.Modules.AudioCapture;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Utils;
@@ -62,7 +63,6 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public List<string> HttpListenInterfaceNames { get; set; } = [];
     public bool EnableIpcListener { get; set; } = true;
     public bool EnableHardwareInfo { get; set; } = true;
-    public bool EnableAmdCpuMonitor { get; set; }
     public bool EnableWinRing0Monitor { get; set; }
     public bool EnableShutdownOnConflict { get; set; } = true;
 
