@@ -147,6 +147,7 @@ public sealed class LightingStateManager : IDisposable
         await LoadPlugins();
 
         // Listen for profile keybind triggers
+        // TODO make this optional
         (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
 
         Initialized = true;
@@ -613,18 +614,35 @@ public sealed class LightingStateManager : IDisposable
         var profile = GetCurrentProfile();
 
         // Check profile is valid and do not switch profiles if the user is trying to enter a keybind
-        if (profile is not Application application || Control_Keybind._ActiveKeybind != null) return;
-        // Find all profiles that have their keybinds pressed
-        var possibleProfiles = application.Profiles
-            .Where(prof => prof.TriggerKeybind.IsPressed())
-            .ToList();
+        if (Control_Keybind._ActiveKeybind != null) return;
 
-        // If atleast one profile has it's key pressed
-        if (possibleProfiles.Count <= 0) return;
+        // Find all profiles that have their keybinds pressed
+        var currentIndex = -1;
+        var count = 0;
+        foreach (var prof in profile.Profiles)
+        {
+            if (!prof.TriggerKeybind.IsPressed()) continue;
+            if (currentIndex == -1 && prof == profile.Profile)
+                currentIndex = count;
+            count++;
+        }
+
+        // If at least one profile has it's key pressed\
+        if (count == 0) return;
         // The target profile is the NEXT valid profile after the currently selected one
         // (or the first valid one if the currently selected one doesn't share this keybind)
-        var trg = (possibleProfiles.IndexOf(application.Profile) + 1) % possibleProfiles.Count;
-        application.SwitchToProfile(possibleProfiles[trg]);
+        var nextIndex = (currentIndex + 1) % count;
+        var idx = 0;
+        foreach (var prof in profile.Profiles)
+        {
+            if (!prof.TriggerKeybind.IsPressed()) continue;
+            if (idx == nextIndex)
+            {
+                profile.SwitchToProfile(prof);
+                break;
+            }
+            idx++;
+        }
     }
 
     public void JsonGameStateUpdate(object? sender, JsonGameStateEventArgs eventArgs)

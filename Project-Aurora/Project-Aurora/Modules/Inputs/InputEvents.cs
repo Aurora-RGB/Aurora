@@ -149,8 +149,8 @@ public sealed class InputEvents : IInputEvents
 
     private bool HasNoListener()
     {
-        var noKeyDownListeners = KeyDown == null || KeyDown.GetInvocationList().Length == 0;
-        var noKeyUpListeners = KeyUp == null || KeyUp?.GetInvocationList().Length == 0;
+        var noKeyDownListeners = KeyDown == null;
+        var noKeyUpListeners = KeyUp == null;
         return noKeyDownListeners && noKeyUpListeners;
     }
 

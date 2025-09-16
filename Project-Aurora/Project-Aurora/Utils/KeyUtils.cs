@@ -58,7 +58,7 @@ public static partial class KeyUtils
     public static DeviceKeys GetDeviceKey(Keys formsKey, bool isExtendedKey = false)
     {
         var key = getDeviceKey(formsKey, isExtendedKey);
-        return Global.kbLayout.LayoutKeyConversion.ContainsKey(key) ? Global.kbLayout.LayoutKeyConversion[key] : key;
+        return Global.kbLayout.LayoutKeyConversion.GetValueOrDefault(key, key);
     }
 
     private static readonly Dictionary<uint, DeviceKeys> ScanCodeConversion = new()
