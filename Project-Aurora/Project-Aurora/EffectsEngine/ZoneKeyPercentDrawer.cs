@@ -272,13 +272,13 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
             case PercentEffectType.Highest_Key:
             {
                 effectLayer.Set(keys, in backgroundColor);
-                var highestKey = (int)progress;
+                var highestKey = Math.Clamp((int)progress, 0, keys.Length - 1);
                 effectLayer.Set(keys[highestKey], in foregroundColor);
                 break;
             }
             case PercentEffectType.Highest_Key_Blend:
             {
-                var highestKey = (int)progress;
+                var highestKey = Math.Clamp((int)progress, 0, keys.Length - 1);
                 var blendColor = ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progress);
                 effectLayer.Set(keys[highestKey], in blendColor);
                 break;
