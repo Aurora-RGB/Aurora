@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -12,11 +13,9 @@ using AuroraRgb.Modules.Razer;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls.Keycaps;
 using AuroraRgb.Settings.Layouts;
-using AuroraRgb.Utils;
-using Common;
 using Common.Devices;
 using Application = System.Windows.Application;
-using Color = System.Drawing.Color;
+using MediaColor = System.Windows.Media.Color;
 
 namespace AuroraRgb.Modules.Layouts;
 
@@ -362,7 +361,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         return keyboardControl;
     }
 
-    public void SetKeyboardColors(Dictionary<DeviceKeys, SimpleColor> keyLights, CancellationToken cancellationToken)
+    public void SetKeyboardColors(Dictionary<DeviceKeys, MediaColor> keyLights, CancellationToken cancellationToken)
     {
         foreach (var (key, value) in _virtualKeyboardMap)
         {
@@ -372,10 +371,7 @@ public sealed class KeyboardLayoutManager : IDisposable
             }
 
             if (!keyLights.TryGetValue(key, out var keyColor)) continue;
-            // cancel low priority calls when render stops
-            var opaqueColor = ColorUtils.MultiplyColorByScalar(keyColor, keyColor.A / 255.0D);
-            var drawingColor = Color.FromArgb(255, opaqueColor.R, opaqueColor.G, opaqueColor.B);
-            value.SetColor(ColorUtils.DrawingColorToMediaColor(drawingColor));
+            value.SetColor(keyColor);
         }
     }
 

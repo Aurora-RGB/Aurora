@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -15,6 +17,7 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using AuroraRgb.Controls;
 using AuroraRgb.Devices;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.Layouts;
@@ -24,10 +27,12 @@ using AuroraRgb.Settings.Controls;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Utils;
 using Common;
+using Common.Devices;
 using Common.Utils;
 using PropertyChanged;
 using Application = AuroraRgb.Profiles.Application;
 using Brushes = System.Windows.Media.Brushes;
+using MediaColor = System.Windows.Media.Color;
 
 namespace AuroraRgb;
 
@@ -120,8 +125,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
                 KeyboardViewBorder.BorderBrush = Brushes.Transparent;
             }
 
-            var keyLights = Global.effengine.GetKeyboardLights();
-            (await _layoutManager).SetKeyboardColors(keyLights, _keyboardUpdateCancel.Token);
+            (await _layoutManager).SetKeyboardColors(_uiKeyColors, _keyboardUpdateCancel.Token);
 
             _keyboardUpdating = false;
         };
@@ -218,7 +222,28 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         await CancelKeyboardUpdate();
 
         var dispatcherPriority = IsDragging ? DispatcherPriority.Background : DispatcherPriority.Render;
+        var keyLights = Global.effengine.GetKeyboardLights();
+        ConvertToMediaColors(keyLights);
         await Dispatcher.InvokeAsync(_updateKeyboardLayouts, dispatcherPriority, _keyboardUpdateCancel.Token);
+    }
+    
+    private void ConvertToMediaColors(Dictionary<DeviceKeys, SimpleColor> keyColors)
+    {
+        foreach (var (key, color) in keyColors)
+        {
+            if (color.A == 0)
+            {
+                _uiKeyColors[key] = MediaColor.FromArgb(255, 0, 0, 0);
+                continue;
+            }
+            _uiKeyColors[key] = ToMediaColor(color);
+        }
+    }
+
+    private static MediaColor ToMediaColor(SimpleColor color)
+    {
+        var opaqueColor = ColorUtils.MultiplyColorByScalar(color, color.A / 255.0D);
+        return MediaColor.FromArgb(opaqueColor.A, opaqueColor.R, opaqueColor.G, opaqueColor.B);
     }
 
     private async Task CancelKeyboardUpdate()
@@ -286,16 +311,16 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         
         (await _layoutManager).KeyboardLayoutUpdated += KbLayout_KeyboardLayoutUpdated;
 
-        if (windowHwndSource != null)
+        if (_windowHwndSource != null)
         {
-            windowHwndSource.RemoveHook(WndProcDrag);
-            windowHwndSource.Dispose();
-            windowHwndSource = null;
+            _windowHwndSource.RemoveHook(WndProcDrag);
+            _windowHwndSource.Dispose();
+            _windowHwndSource = null;
         }
         var handle = new WindowInteropHelper(this).Handle;
         // Subclass the window to intercept messages
-        windowHwndSource = HwndSource.FromHwnd(handle);
-        windowHwndSource?.AddHook(WndProcDrag);
+        _windowHwndSource = HwndSource.FromHwnd(handle);
+        _windowHwndSource?.AddHook(WndProcDrag);
 
         _runKeyboardUpdate = true;
         _virtualKeyboardTimer.Trigger();
@@ -374,9 +399,9 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
 
         (await _layoutManager).KeyboardLayoutUpdated -= KbLayout_KeyboardLayoutUpdated;
 
-        windowHwndSource?.RemoveHook(WndProcDrag);
-        windowHwndSource?.Dispose();
-        windowHwndSource = null;
+        _windowHwndSource?.RemoveHook(WndProcDrag);
+        _windowHwndSource?.Dispose();
+        _windowHwndSource = null;
     }
 
     private readonly Stopwatch _keyboardTimer = Stopwatch.StartNew();
@@ -567,7 +592,8 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     public Control? SelectedControl { get => _selectedControl; set => SetField(ref _selectedControl, value); }
     private Control? _selectedControl;
     private readonly Control_ProfilesStack _profilesStack;
-    private HwndSource? windowHwndSource;
+    private HwndSource? _windowHwndSource;
+    private readonly Dictionary<DeviceKeys, MediaColor> _uiKeyColors = new(Effects.MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
     #endregion
 
