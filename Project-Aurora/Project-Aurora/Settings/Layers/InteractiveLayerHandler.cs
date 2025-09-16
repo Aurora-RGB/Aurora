@@ -172,10 +172,11 @@ public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandl
 
     private void MouseKeyUp(object? sender, EventArgs mouseInputEventArgs)
     {
-        if (Properties.MouseEffectKey == DeviceKeys.NONE)
+        var mouseKey = Properties.MouseEffectKey;
+        if (mouseKey == DeviceKeys.NONE)
             return;
 
-        DeviceKeyUp(Properties.MouseEffectKey);
+        DeviceKeyUp(mouseKey);
     }
 
     private void InputEventsKeyUp(object? sender, KeyboardKeyEventArgs e)
@@ -199,10 +200,11 @@ public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandl
 
     private void MouseKeyDown(object? sender, EventArgs mouseInputEventArgs)
     {
-        if (Properties.MouseEffectKey == DeviceKeys.NONE)
+        var mouseKey = Properties.MouseEffectKey;
+        if (mouseKey == DeviceKeys.NONE)
             return;
 
-        DeviceKeyDown(Properties.MouseEffectKey);
+        DeviceKeyDown(mouseKey);
     }
 
     private void InputEventsKeyDown(object? sender, KeyboardKeyEventArgs e)
