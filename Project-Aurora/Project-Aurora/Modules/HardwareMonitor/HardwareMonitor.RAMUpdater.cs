@@ -24,8 +24,8 @@ public partial class HardwareMonitor
                 Global.logger.Error("[HardwareMonitor] Could not find hardware of type RAM or hardware monitoring is disabled");
                 return;
             }
-            _ramUsed = FindSensor("data/0");
-            _ramFree = FindSensor("data/1");
+            _ramUsed = FindSensorByName("Memory Used");
+            _ramFree = FindSensorByName("Memory Available");
         }
     }
 }

@@ -91,7 +91,21 @@ public partial class HardwareMonitor
             }
         }
 
-        protected ISensor FindSensor(string identifier)
+        protected ISensor? FindSensorByName(string name)
+        {
+            var result = hw.Sensors.OrderBy(s => s.Name).FirstOrDefault(s => s.Name.ToString().Contains(name));
+            if (result is null)
+            {
+                Global.logger.Error("[HardwareMonitor] Failed to find sensor by name \"{Name}\" in {HwName} of type {HwHardwareType}",
+                    name, hw.Name, hw.HardwareType);
+                return null;
+            }
+            result.ValuesTimeWindow = TimeSpan.Zero;
+            _queues.Add(result.Identifier, new Queue<float>(maxQueue));
+            return result;
+        }
+
+        protected ISensor? FindSensor(string identifier)
         {
             var result = hw.Sensors.OrderBy(s => s.Identifier).FirstOrDefault(s => s.Identifier.ToString().Contains(identifier));
             if (result is null)
@@ -105,7 +119,7 @@ public partial class HardwareMonitor
             return result;
         }
 
-        protected ISensor FindSensor(SensorType type)
+        protected ISensor? FindSensor(SensorType type)
         {
             var result = hw.Sensors.OrderBy(s => s.Identifier).FirstOrDefault(s => s.SensorType == type);
             if (result is null)
@@ -133,7 +147,7 @@ public partial class HardwareMonitor
             if (result.Count != 0) return result;
             Global.logger.Error("[HardwareMonitor] Failed to find sensor of type \"{Type}\" in {HwName} of type {HwHardwareType}",
                 type, hw.Name, hw.HardwareType);
-            return null;
+            return [];
 
         }
 
