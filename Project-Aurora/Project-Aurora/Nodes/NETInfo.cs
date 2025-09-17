@@ -2,7 +2,7 @@
 
 public class NETInfo : Node
 {
-    public float Usage => LocalPcInformation.HardwareMonitor.Net.BandwidthUsed;
-    public float UploadSpeed => LocalPcInformation.HardwareMonitor.Net.UploadSpeedBytes;
-    public float DownloadSpeed => LocalPcInformation.HardwareMonitor.Net.DownloadSpeedBytes;
+    public static float Usage => LocalPcInformation.HardwareMonitor.Net.BandwidthUsed;
+    public static float UploadSpeed => LocalPcInformation.HardwareMonitor.Net.UploadSpeedBytes;
+    public static float DownloadSpeed => LocalPcInformation.HardwareMonitor.Net.DownloadSpeedBytes;
 }
