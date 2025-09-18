@@ -61,7 +61,7 @@ public partial class HardwareMonitor
             inUse = true;
             _lastUsage.Reset();
 
-            float value = sensor?.Value ?? 0;
+            var value = sensor.Value ?? 0;
 
             if (!_queues.TryGetValue(sensor.Identifier, out var values))
                 return value;

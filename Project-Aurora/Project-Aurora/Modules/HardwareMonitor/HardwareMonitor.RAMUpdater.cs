@@ -18,14 +18,14 @@ public partial class HardwareMonitor
 
         public RamUpdater(IEnumerable<IHardware> hws)
         {
-            hw = hws.FirstOrDefault(h => h.HardwareType == HardwareType.Memory);
+            hw = hws.FirstOrDefault(h => h.Identifier.ToString() == "/ram");
             if (hw is null)
             {
                 Global.logger.Error("[HardwareMonitor] Could not find hardware of type RAM or hardware monitoring is disabled");
                 return;
             }
-            _ramUsed = FindSensorByName("Memory Used");
-            _ramFree = FindSensorByName("Memory Available");
+            _ramUsed = FindSensor("/ram/data/0");
+            _ramFree = FindSensor("/ram/data/1");
         }
     }
 }
