@@ -41,9 +41,20 @@ public partial class HardwareMonitor
             _updateTimer.Elapsed += (a, b) =>
             {
                 if (inUse)
-                    hw?.Update();
+                {
+                    try
+                    {
+                        hw?.Update();
+                    }
+                    catch (Exception ex)
+                    {
+                        Global.logger.Error(ex, "[HardwareMonitor] Exception during hardware update for {HwName} of type {HwHardwareType}",
+                            hw?.Name, hw?.HardwareType);
+                        _useTimer.Stop();
+                    }
+                }
 
-                if (_updateTimer.Interval != Global.Configuration.HardwareMonitorUpdateRate)
+                if ((int)_updateTimer.Interval != Global.Configuration.HardwareMonitorUpdateRate)
                     _updateTimer.Interval = Global.Configuration.HardwareMonitorUpdateRate;
             };
             _updateTimer.Start();
