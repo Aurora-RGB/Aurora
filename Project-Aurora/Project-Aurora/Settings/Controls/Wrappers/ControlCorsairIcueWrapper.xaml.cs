@@ -12,7 +12,7 @@ public partial class ControlCorsairIcueWrapper
 {
     private const string StatusConflict = """✗""";
     private const string StatusCheck = """✔""";
-    private const string StatusNoMatter = "‐";
+    private const string StatusNoMatter = """✔""";
     
     public ControlCorsairIcueWrapper()
     {
@@ -23,13 +23,17 @@ public partial class ControlCorsairIcueWrapper
     {
         IcueModule.AuroraIcueServer.StatusChanged += AuroraIcueServerOnStatusChanged;
         IcueModule.AuroraIcueServer.Sdk.GameChanged += SdkOnGameChanged;
+        IcueModule.AuroraIcueServer.Gsi.GameChanged += GsOnGameChanged;
         await UpdateIcueState();
-        UpdateConnectedGame();
+        UpdateSdkGame();
+        UpdateGsGame();
     }
 
     private void ControlCorsairIcueWrapper_OnUnloaded(object sender, RoutedEventArgs e)
     {
         IcueModule.AuroraIcueServer.StatusChanged -= AuroraIcueServerOnStatusChanged;
+        IcueModule.AuroraIcueServer.Sdk.GameChanged -= SdkOnGameChanged;
+        IcueModule.AuroraIcueServer.Gsi.GameChanged -= GsOnGameChanged;
     }
 
     private void AuroraIcueServerOnStatusChanged(object? sender, EventArgs e)
@@ -42,7 +46,12 @@ public partial class ControlCorsairIcueWrapper
 
     private void SdkOnGameChanged(object? sender, EventArgs e)
     {
-        Dispatcher.BeginInvoke(UpdateConnectedGame);
+        Dispatcher.BeginInvoke(UpdateSdkGame);
+    }
+
+    private void GsOnGameChanged(object? sender, EventArgs e)
+    {
+        Dispatcher.BeginInvoke(UpdateGsGame);
     }
 
     private async Task UpdateIcueState()
@@ -84,12 +93,19 @@ public partial class ControlCorsairIcueWrapper
         }, DispatcherPriority.Loaded);
     }
     
-    private void UpdateConnectedGame()
+    private void UpdateSdkGame()
     {
         var sdkGamePid = (int)IcueModule.AuroraIcueServer.Sdk.GamePid;
         var gameName = IcueModule.AuroraIcueServer.Sdk.GameProcess;
         
-        IcueCurrentApplicationLabel.Content = $"{gameName} ({sdkGamePid})";
+        IcueCurrentSdkApplicationLabel.Content = $"{gameName} ({sdkGamePid})";
+    }
+    
+    private void UpdateGsGame()
+    {
+        var gameName = IcueModule.AuroraIcueServer.Gsi.GameName;
+        
+        IcueCurrentGsApplicationLabel.Content = gameName;
     }
 
     private void SetAutostartLabel(bool isInstalled, bool isAutorunEnabled)

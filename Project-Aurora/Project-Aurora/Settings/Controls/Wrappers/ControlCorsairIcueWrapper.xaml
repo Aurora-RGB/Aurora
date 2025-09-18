@@ -9,7 +9,7 @@
              mc:Ignorable="d"
              Loaded="ControlCorsairIcueWrapper_OnLoaded"
              Unloaded="ControlCorsairIcueWrapper_OnUnloaded"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="600">
     <UserControl.Resources>
         <utils:EnumToDescriptionConverter x:Key="EnumToDescriptionConverter" />
     </UserControl.Resources>
@@ -20,26 +20,29 @@
             <RowDefinition Height="20" />
             <RowDefinition Height="20" />
             <RowDefinition Height="20" />
+            <RowDefinition Height="20" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="220" />
             <ColumnDefinition Width="10*" />
             <ColumnDefinition Width="20*" />
         </Grid.ColumnDefinitions>
-        
+
         <TextBlock Foreground="LightGray">iCUE autostart is disabled</TextBlock>
         <TextBlock Grid.Row="0" Grid.Column="1" Name="IcueAutostartStatus" Foreground="Green">✔</TextBlock>
-        <TextBlock Grid.Row="0" Grid.Column="2" Foreground="LightGray">Disabling from Task Manager may be needed</TextBlock>
+        <TextBlock Grid.Row="0" Grid.Column="2" Foreground="LightGray">iCUE does not need to be installed</TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="0" Foreground="LightGray">iCUE is not running</TextBlock>
         <TextBlock Grid.Row="1" Grid.Column="1" Name="IcueRunningStatus" Foreground="LightGray">‐</TextBlock>
 
-        <Label Grid.Row="2" Grid.Column="0" Content="Current Application:" Margin="5 0 5 0" Padding="0"
-               VerticalAlignment="Center" />
-        <Label x:Name="IcueCurrentApplicationLabel" Grid.Row="2" Grid.Column="2" Width="300" Content="application name"
+        <Label Grid.Row="2" Grid.Column="0" Content="Current SDK Application:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" />
+        <Label x:Name="IcueCurrentSdkApplicationLabel" Grid.Row="2" Grid.Column="2" Width="300" Content="application name"
+               Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
+        <Label Grid.Row="3" Grid.Column="0" Content="Current GS Application:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" />
+        <Label x:Name="IcueCurrentGsApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300" Content="application name"
                Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         
-        <CheckBox Grid.Row="3" Grid.ColumnSpan="3" Grid.Column="0" IsChecked="{Binding EnableIcueTakeover}">Enable integration takeover</CheckBox>
-        <TextBlock Grid.Row="3" Grid.Column="2" Name="StatusTextBlock"
+        <CheckBox Grid.Row="4" Grid.ColumnSpan="3" Grid.Column="0" IsChecked="{Binding EnableIcueTakeover}">Enable integration takeover</CheckBox>
+        <TextBlock Grid.Row="4" Grid.Column="2" Name="StatusTextBlock"
                    Text="{Binding Source={x:Static modules:IcueModule.AuroraIcueServer}, Path=ServerStatus, Converter={StaticResource EnumToDescriptionConverter}}"
         />
     </Grid>
