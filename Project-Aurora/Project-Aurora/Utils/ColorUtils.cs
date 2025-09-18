@@ -18,7 +18,8 @@ public static class MediaColorExt
     {
         return ColorUtils.MediaColorToDrawingColor(self);
     }
-}   
+}
+
 public static class DrawingColorExt
 {
     public static MediaColor ToMediaColor(this DrawingColor self)
@@ -30,7 +31,7 @@ public static class DrawingColorExt
     {
         return CommonColorUtils.CloneColor(clr);
     }
-}   
+}
 
 /// <summary>
 /// Various color utilities
@@ -65,24 +66,38 @@ public static class ColorUtils
     public static DrawingColor GetAverageColor(BitmapSource bitmap)
     {
         var format = bitmap.Format;
-
-        if (format != PixelFormats.Bgr24 &&
-            format != PixelFormats.Bgr32 &&
-            format != PixelFormats.Bgra32 &&
-            format != PixelFormats.Pbgra32)
+        if (format == PixelFormats.Bgr24 ||
+            format == PixelFormats.Bgr32 ||
+            format == PixelFormats.Bgra32 ||
+            format == PixelFormats.Pbgra32)
         {
-            if (format == PixelFormats.Gray2 ||
-                format == PixelFormats.Gray4 ||
-                format == PixelFormats.Gray8 ||
-                format == PixelFormats.Gray16 ||
-                format == PixelFormats.Gray32Float)
-            {
-                return CommonColorUtils.FastColor(128, 128, 128);
-            }
-
-            throw new InvalidOperationException("BitmapSource must have Bgr24, Bgr32, Bgra32 or Pbgra32 format");
+            return GetRgbaAverageColor(bitmap);
         }
 
+        if (format == PixelFormats.Gray2 ||
+            format == PixelFormats.Gray4 ||
+            format == PixelFormats.Gray8 ||
+            format == PixelFormats.Gray16 ||
+            format == PixelFormats.Gray32Float)
+        {
+            return CommonColorUtils.FastColor(128, 128, 128);
+        }
+
+        if (format == PixelFormats.Indexed1 ||
+            format == PixelFormats.Indexed2 ||
+            format == PixelFormats.Indexed4 ||
+            format == PixelFormats.Indexed8
+            )
+        {
+            return GetIndexedAverageColor(bitmap);
+        }
+
+        throw new InvalidOperationException("BitmapSource must have Bgr24, Bgr32, Bgra32 or Pbgra32 format");
+    }
+
+    private static DrawingColor GetRgbaAverageColor(BitmapSource bitmap)
+    {
+        var format = bitmap.Format;
         var width = bitmap.PixelWidth;
         var height = bitmap.PixelHeight;
         var numPixels = width * height;
@@ -95,7 +110,7 @@ public static class ColorUtils
         long green = 0;
         long red = 0;
 
-        for (int i = 0; i < pixelBuffer.Length; i += bytesPerPixel)
+        for (var i = 0; i < pixelBuffer.Length; i += bytesPerPixel)
         {
             blue += pixelBuffer[i];
             green += pixelBuffer[i + 1];
@@ -103,6 +118,26 @@ public static class ColorUtils
         }
 
         return CommonColorUtils.FastColor((byte)(red / numPixels), (byte)(green / numPixels), (byte)(blue / numPixels));
+    }
+
+    private static DrawingColor GetIndexedAverageColor(BitmapSource bitmap)
+    {
+        var paletteColors = bitmap.Palette.Colors;
+        if (paletteColors.Count <= 0)
+            return CommonColorUtils.FastColor(128, 128, 128);
+        long red = 0;
+        long green = 0;
+        long blue = 0;
+
+        foreach (var color in paletteColors)
+        {
+            red += color.R;
+            green += color.G;
+            blue += color.B;
+        }
+
+        var numColors = paletteColors.Count;
+        return CommonColorUtils.FastColor((byte)(red / numColors), (byte)(green / numColors), (byte)(blue / numColors));
     }
 
     public static DrawingColor BlendColors(in DrawingColor background, in DrawingColor foreground, double percent)
@@ -150,7 +185,8 @@ public static class ColorUtils
 /// <summary>
 /// Converts a <see cref="DrawingColor"/> to a <see cref="System.Windows.Media.Color"/> and back.
 /// </summary>
-public class DrawingMediaColorConverter : IValueConverter {
+public class DrawingMediaColorConverter : IValueConverter
+{
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ColorUtils.DrawingColorToMediaColor((DrawingColor)value);
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => ColorUtils.MediaColorToDrawingColor((MediaColor)value);
 }
@@ -158,7 +194,8 @@ public class DrawingMediaColorConverter : IValueConverter {
 /// <summary>
 /// Converts between a RealColor and Media color so that the RealColor class can be used with the Xceed Color Picker
 /// </summary>
-public class RealColorConverter : IValueConverter {
+public class RealColorConverter : IValueConverter
+{
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((RealColor)value).GetMediaColor();
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new RealColor((MediaColor)value);
 }
@@ -167,7 +204,8 @@ public class RealColorConverter : IValueConverter {
 /// Class to convert between a <see cref="EffectsEngine.EffectBrush"></see> and a <see cref="System.Windows.Media.Brush"></see> so that it can be
 /// used with the ColorBox gradient editor control.
 /// </summary>
-public class EffectMediaBrushConverter : IValueConverter {
+public class EffectMediaBrushConverter : IValueConverter
+{
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture) => ((EffectBrush)value).GetMediaBrush();
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => new EffectBrush((Brush)value);
 }
