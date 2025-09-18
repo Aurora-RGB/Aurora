@@ -81,6 +81,7 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
 
     private void OnGameConnected(object? sender, GameHandler gameHandler)
     {
+        Global.logger.Information("[iCUE] Game connected: PID {Pid}", gameHandler.GamePid);
         _gameHandler = gameHandler;
         gameHandler.SdkHandler.GameConnected += SdkHandlerOnGameConnected;
         gameHandler.GsiHandler.GameConnected += GsiHandlerOnGameConnected;
@@ -90,12 +91,14 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
 
     private void SdkHandlerOnGameConnected(object? sender, EventArgs e)
     {
+        Global.logger.Information("[iCUE] SDK connected: PID {Pid}", _gameHandler!.GamePid);
         Sdk.SetSdkHandler(_gameHandler!.SdkHandler, _gameHandler.GamePid);
     }
 
     private void GsiHandlerOnGameConnected(object? sender, IcueGsiConnectionEventArgs e)
     {
-        Gsi.SetGsiHandler(_gameHandler!.GsiHandler);
+        Global.logger.Information("[iCUE] GSI connected: PID {Pid}, Game {GameName}", _gameHandler!.GamePid, e.GameName);
+        Gsi.SetGsiHandler(_gameHandler!.GsiHandler, e);
     }
 
     private void OnGameDisconnected(object? sender, EventArgs e)

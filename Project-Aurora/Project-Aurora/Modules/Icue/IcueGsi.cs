@@ -6,21 +6,23 @@ namespace AuroraRgb.Modules.Icue;
 
 public class IcueGsi
 {
-    public event EventHandler<IcueGsiConnectionEventArgs>? GameChanged;
+    public event EventHandler<EventArgs>? GameChanged;
     public event EventHandler<IcueStateEventArgs>? EventReceived;
     public HashSet<string> States { get; } = [];
     public string GameName { get; private set; } = string.Empty;
 
     private GsiHandler? _gsiHandler;
 
-    public void SetGsiHandler(GsiHandler gsiHandler)
+    public void SetGsiHandler(GsiHandler gsiHandler, IcueGsiConnectionEventArgs e)
     {
         _gsiHandler = gsiHandler;
-        _gsiHandler.GameConnected += GsiHandlerOnGameConnected;
         _gsiHandler.StateAdded += OnStateAdded;
         _gsiHandler.StateRemoved += OnStateRemoved;
         _gsiHandler.StatesCleared += OnStatesCleared;
         _gsiHandler.EventAdded += OnEventAdded;
+
+        GameName = e.GameName;
+        GameChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void ClearGsiHandler()
@@ -31,6 +33,7 @@ public class IcueGsi
         }
         
         GameName = string.Empty;
+        GameChanged?.Invoke(this, EventArgs.Empty);
 
         _gsiHandler.StateAdded -= OnStateAdded;
         _gsiHandler.StateRemoved -= OnStateRemoved;
@@ -38,12 +41,6 @@ public class IcueGsi
         _gsiHandler.EventAdded -= OnEventAdded;
 
         _gsiHandler = null;
-    }
-
-    private void GsiHandlerOnGameConnected(object? sender, IcueGsiConnectionEventArgs e)
-    {
-        GameName = e.GameName;
-        GameChanged?.Invoke(this, e);
     }
 
     private void OnStateAdded(object? sender, IcueStateEventArgs icueStateEventArgs)
