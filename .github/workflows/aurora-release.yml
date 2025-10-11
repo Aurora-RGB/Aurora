@@ -61,7 +61,7 @@ jobs:
       
       # Create the app package by building and packaging the Windows Application Packaging project
       - name: Building the installer
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: Installer\installer.iss
           options: /DEXTERNAL_VERSION=${{steps.buildnumber.outputs.build_number}}
