@@ -234,19 +234,34 @@ public sealed class LightingStateManager : IDisposable
 
         foreach (var exe in application.Config.ProcessNames)
         {
-            if (!EventProcesses.TryGetValue(exe, out var applicationList))
-            {
-                applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
-                EventProcesses[exe] = applicationList;
-            }
-            applicationList.Add(application);
+            AddEventProcess(exe, application);
         }
 
-        SortedSet<Application> eventProcessList = new(new ApplicationPriorityComparer()) { application };
-        EventProcesses[application.Config.ID] = eventProcessList;
+        AddEventProcess(profileId, application);
 
-        application.Config.ProcessNamesChanged += (_, _) =>
+        application.Config.ProcessNamesChanged += ConfigOnProcessNamesChanged(application);
+
+        if (application.Config.ProcessTitles != null)
+            foreach (var titleRx in application.Config.ProcessTitles)
+                EventTitles.Add(titleRx, application);
+
+        if (!string.IsNullOrWhiteSpace(profileId))
+            EventAppIDs.Add(profileId, application);
+
+        if (!Global.Configuration.ProfileOrder.Contains(profileId))
         {
+            Global.Configuration.ProfileOrder.Add(profileId);
+        }
+
+        if (Initialized)
+            await application.Initialize(_initializeCancelSource.Token);
+    }
+
+    private EventHandler<EventArgs> ConfigOnProcessNamesChanged(Application application)
+    {
+        return (_, _) =>
+        {
+            var profileId = application.Config.ID;
             var keysToRemove = new List<string>();
             foreach (var (s, applications) in EventProcesses)
             {
@@ -268,29 +283,21 @@ public sealed class LightingStateManager : IDisposable
             {
                 if (exe.Equals(profileId)) continue;
                 var processKey = exe.ToLower();
-                if (!EventProcesses.TryGetValue(processKey, out var applicationList))
-                {
-                    applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
-                    EventProcesses[processKey] = applicationList;
-                }
-                applicationList.Add(application);
+                AddEventProcess(processKey, application);
             }
+            AddEventProcess(profileId, application);
         };
+    }
 
-        if (application.Config.ProcessTitles != null)
-            foreach (var titleRx in application.Config.ProcessTitles)
-                EventTitles.Add(titleRx, application);
-
-        if (!string.IsNullOrWhiteSpace(application.Config.AppID))
-            EventAppIDs.Add(application.Config.AppID, application);
-
-        if (!Global.Configuration.ProfileOrder.Contains(profileId))
+    private void AddEventProcess(string processKey, Application application)
+    {
+        if (!EventProcesses.TryGetValue(processKey, out var applicationList))
         {
-            Global.Configuration.ProfileOrder.Add(profileId);
+            applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
+            EventProcesses[processKey] = applicationList;
         }
 
-        if (Initialized)
-            await application.Initialize(_initializeCancelSource.Token);
+        applicationList.Add(application);
     }
 
     public void RemoveGenericProfile(string key)
@@ -336,7 +343,8 @@ public sealed class LightingStateManager : IDisposable
 
     private Application? GetProfileFromProcessName(string process)
     {
-        return EventProcesses.GetValueOrDefault(process)?.First();
+        return EventProcesses.GetValueOrDefault(process)?
+            .FirstOrDefault(a => a.Settings?.IsEnabled ?? false);
     }
 
     /// <summary>

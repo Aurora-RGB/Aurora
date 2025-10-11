@@ -13,12 +13,6 @@ public class ApplicationPriorityComparer : IComparer<Application>
         if (y == null)
             return -1;
 
-        // Compare by EnableByDefault first
-        if (x.Config.EnableByDefault && !y.Config.EnableByDefault)
-            return -1;
-        if (!x.Config.EnableByDefault && y.Config.EnableByDefault)
-            return 1;
-
         // Then compare by Priority
         return Comparer<int>.Default.Compare(y.Config.Priority, x.Config.Priority);
     }
