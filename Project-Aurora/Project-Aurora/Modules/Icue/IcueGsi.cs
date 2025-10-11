@@ -9,6 +9,7 @@ public class IcueGsi
     public event EventHandler<EventArgs>? GameChanged;
     public event EventHandler<IcueStateEventArgs>? EventReceived;
     public HashSet<string> States { get; } = [];
+    public Dictionary<string, long> EventTimestamps { get; } = [];
     public string GameName { get; private set; } = string.Empty;
 
     private GsiHandler? _gsiHandler;
@@ -60,6 +61,7 @@ public class IcueGsi
 
     private void OnEventAdded(object? sender, IcueStateEventArgs icueStateEventArgs)
     {
+        EventTimestamps[icueStateEventArgs.StateName] = DateTimeOffset.Now.ToUnixTimeMilliseconds();
         EventReceived?.Invoke(this, icueStateEventArgs);
     }
 }

@@ -13,7 +13,7 @@ public class IcueSdk
     public event EventHandler<EventArgs>? ColorsUpdated;
     public Dictionary<IcueLedId, IcueColor> Colors { get; private set; } = [];
     public bool IsGameConnected { get; private set; }
-    public long GamePid { get; private set; }
+    public int GamePid { get; private set; }
     public string GameProcess { get; private set; } = string.Empty;
 
     private SdkHandler? _sdkHandler;
@@ -22,14 +22,12 @@ public class IcueSdk
 
     public void SetSdkHandler(SdkHandler gameHandlerSdkHandler, int gamePid)
     {
-        var process = Process.GetProcessById(gamePid);
-        GameProcess = process.ProcessName + ".exe";
-
         IsGameConnected = true;
         GamePid = gamePid;
         _sdkHandler = gameHandlerSdkHandler;
-        _sdkHandler.GameConnected += SdkHandlerOnGameConnected;
-        _sdkHandler.ColorsUpdated += OnColorsUpdated;
+        gameHandlerSdkHandler.ColorsUpdated += OnColorsUpdated;
+        
+        SdkHandlerOnGameConnected();
     }
 
     public void ClearSdkHandler()
@@ -40,7 +38,6 @@ public class IcueSdk
         }
 
         IsGameConnected = false;
-        _sdkHandler.GameConnected -= SdkHandlerOnGameConnected;
         _sdkHandler.ColorsUpdated -= OnColorsUpdated;
         _sdkHandler = null;
 
@@ -60,9 +57,11 @@ public class IcueSdk
         ColorsUpdated?.Invoke(this, e);
     }
 
-    private void SdkHandlerOnGameConnected(object? sender, EventArgs e)
+    private void SdkHandlerOnGameConnected()
     {
+        var process = Process.GetProcessById(GamePid);
+        GameProcess = process.ProcessName + ".exe";
         IsGameConnected = true;
-        GameChanged?.Invoke(this, e);
+        GameChanged?.Invoke(this, EventArgs.Empty);
     }
 }

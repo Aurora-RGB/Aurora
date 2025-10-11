@@ -70,7 +70,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="iCUE-ReverseEngineeredServer" Version="0.2.8" />
+        <PackageReference Include="iCUE-ReverseEngineeredServer" Version="0.2.9" />
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
         <PackageReference Include="JsonSubTypes" Version="2.0.1"/>
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre454" />

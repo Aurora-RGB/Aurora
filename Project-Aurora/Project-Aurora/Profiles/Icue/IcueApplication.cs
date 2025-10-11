@@ -20,7 +20,7 @@ public sealed class IcueApplication() : Application(new LightEventConfig
     public override async Task<bool> Initialize(CancellationToken cancellationToken)
     {
         var baseInit = await base.Initialize(cancellationToken);
-        
+
         IcueModule.AuroraIcueServer.Sdk.GameChanged += IcueSdkGameChanged;
         SetProfileApplication();
 
@@ -37,7 +37,7 @@ public sealed class IcueApplication() : Application(new LightEventConfig
         var sdkGameProcess = IcueModule.AuroraIcueServer.Sdk.GameProcess;
         if (string.IsNullOrWhiteSpace(sdkGameProcess))
         {
-            Config.ProcessNames = ["icue"];
+            Config.ProcessNames = [];
             return;
         }
 

@@ -95,7 +95,7 @@ public partial class ControlCorsairIcueWrapper
     
     private void UpdateSdkGame()
     {
-        var sdkGamePid = (int)IcueModule.AuroraIcueServer.Sdk.GamePid;
+        var sdkGamePid = IcueModule.AuroraIcueServer.Sdk.GamePid;
         var gameName = IcueModule.AuroraIcueServer.Sdk.GameProcess;
         
         IcueCurrentSdkApplicationLabel.Content = $"{gameName} ({sdkGamePid})";
