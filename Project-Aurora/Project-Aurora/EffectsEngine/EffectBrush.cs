@@ -170,13 +170,13 @@ public sealed class EffectBrush : IDisposable
                         ColorGradients = Enumerable.Range(0, lgb.InterpolationColors.Colors.Length)
                             .Where(i => lgb.InterpolationColors.Positions[i] >= 0.0f && lgb.InterpolationColors.Positions[i] <= 1.0f)
                             .OrderBy(i => lgb.InterpolationColors.Positions[i])
-                            .ToDictionary(i => (double)lgb.InterpolationColors.Positions[i], i => lgb.InterpolationColors.Colors[i]);
+                            .ToImmutableSortedDictionary(i => (double)lgb.InterpolationColors.Positions[i], i => lgb.InterpolationColors.Colors[i]);
                     }
                 }
                 catch (Exception)
                 {
                     ColorGradients = Enumerable.Range(0, lgb.LinearColors.Length)
-                        .ToDictionary(i => i / (double)(lgb.LinearColors.Length - 1), i => lgb.LinearColors[i]);
+                        .ToImmutableSortedDictionary(i => i / (double)(lgb.LinearColors.Length - 1), i => lgb.LinearColors[i]);
                 }
 
                 break;
@@ -205,13 +205,13 @@ public sealed class EffectBrush : IDisposable
                         ColorGradients = Enumerable.Range(0, pgb.InterpolationColors.Colors.Length)
                             .Where(i => pgb.InterpolationColors.Positions[i] >= 0.0f && pgb.InterpolationColors.Positions[i] <= 1.0f)
                             .OrderBy(i => pgb.InterpolationColors.Positions[i])
-                            .ToDictionary(i => (double)pgb.InterpolationColors.Positions[i], i => pgb.InterpolationColors.Colors[i]);
+                            .ToImmutableSortedDictionary(i => (double)pgb.InterpolationColors.Positions[i], i => pgb.InterpolationColors.Colors[i]);
                     }
                 }
                 catch (Exception)
                 {
                     ColorGradients = Enumerable.Range(0, pgb.SurroundColors.Length)
-                        .ToDictionary(i => i / (double)(pgb.SurroundColors.Length - 1), i => pgb.SurroundColors[i]);
+                        .ToImmutableSortedDictionary(i => i / (double)(pgb.SurroundColors.Length - 1), i => pgb.SurroundColors[i]);
                 }
 
                 break;
@@ -226,12 +226,19 @@ public sealed class EffectBrush : IDisposable
             };
             return;
         }
-
-        if (!ColorGradients.ContainsKey(0.0f))
-            ((Dictionary<double, Color>)ColorGradients).Add(0.0f, ColorGradients.FirstOrDefault().Value);
-
-        if (!ColorGradients.ContainsKey(1.0f))
-            ((Dictionary<double, Color>)ColorGradients).Add(1.0f, ColorGradients.LastOrDefault().Value);
+        
+        var addFirstColor = !ColorGradients.ContainsKey(0.0f);
+        var addLastColor = !ColorGradients.ContainsKey(1.0f);
+        
+        if (addFirstColor || addLastColor)
+        {
+            var dict = new Dictionary<double, Color>(ColorGradients);
+            if (addFirstColor)
+                dict[0.0] = ColorGradients.FirstOrDefault().Value;
+            if (addLastColor)
+                dict[1.0] = ColorGradients.LastOrDefault().Value;
+            ColorGradients = dict.ToImmutableSortedDictionary();
+        }
     }
 
     public EffectBrush(System.Windows.Media.Brush brush)
@@ -268,7 +275,7 @@ public sealed class EffectBrush : IDisposable
                     .Where(stop => (float)stop.Offset >= 0.0f && (float)stop.Offset <= 1.0f)
                     .DistinctBy(e => e.Offset)
                     .OrderBy(e => e.Offset)
-                    .ToDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
+                    .ToImmutableSortedDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
                 break;
             case RadialGradientBrush rgb:
                 Type = BrushType.Radial;
@@ -291,7 +298,7 @@ public sealed class EffectBrush : IDisposable
                 ColorGradients = rgb.GradientStops
                     .Where(stop => (float)stop.Offset >= 0.0f && (float)stop.Offset <= 1.0f)
                     .OrderBy(e => e.Offset)
-                    .ToDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
+                    .ToImmutableSortedDictionary(stop => stop.Offset, stop => ColorUtils.MediaColorToDrawingColor(stop.Color));
                 break;
         }
 
@@ -304,12 +311,19 @@ public sealed class EffectBrush : IDisposable
             };
             return;
         }
-
-        if (!ColorGradients.ContainsKey(0.0f))
-            ((Dictionary<double, Color>)ColorGradients).Add(0.0f, ColorGradients.FirstOrDefault().Value);
-
-        if (!ColorGradients.ContainsKey(1.0f))
-            ((Dictionary<double, Color>)ColorGradients).Add(1.0f, ColorGradients.LastOrDefault().Value);
+        
+        var addFirstColor = !ColorGradients.ContainsKey(0.0f);
+        var addLastColor = !ColorGradients.ContainsKey(1.0f);
+        
+        if (addFirstColor || addLastColor)
+        {
+            var dict = new Dictionary<double, Color>(ColorGradients);
+            if (addFirstColor)
+                dict[0.0] = ColorGradients.FirstOrDefault().Value;
+            if (addLastColor)
+                dict[1.0] = ColorGradients.LastOrDefault().Value;
+            ColorGradients = dict.ToImmutableSortedDictionary();
+        }
     }
 
     public Brush GetDrawingBrush()
@@ -327,36 +341,7 @@ public sealed class EffectBrush : IDisposable
 
     private LinearGradientBrush GetLinearBrush()
     {
-        var brushColors = new List<Color>();
-        var brushPositions = new List<float>();
-
-        foreach (var kvp in ColorGradients)
-        {
-            brushPositions.Add((float)kvp.Key);
-            brushColors.Add(kvp.Value);
-        }
-
-        var colorBlend = new ColorBlend
-        {
-            Colors = brushColors.ToArray(),
-            Positions = brushPositions.ToArray()
-        };
-        var brush = new LinearGradientBrush(
-            Start,
-            End,
-            Color.Red,
-            Color.Red
-        );
-        brush.InterpolationColors = colorBlend;
-
-        brush.WrapMode = Wrap switch
-        {
-            BrushWrap.Repeat => WrapMode.Tile,
-            BrushWrap.Reflect => WrapMode.TileFlipXY,
-            _ => brush.WrapMode
-        };
-
-        return brush;
+        return BrushUtils.GetLinearBrush(ColorGradients, Start, End, Wrap);
     }
 
     private PathGradientBrush GetRadialBrush()

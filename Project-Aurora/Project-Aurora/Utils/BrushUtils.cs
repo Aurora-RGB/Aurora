@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
 using System.Windows.Data;
+using AuroraRgb.EffectsEngine;
 using D = System.Drawing;
 using M = System.Windows.Media;
 
@@ -13,242 +13,38 @@ namespace AuroraRgb.Utils
 {
     public static class BrushUtils
     {
-        public static D.Brush MediaBrushToDrawingBrush(M.Brush in_brush)
+        public static LinearGradientBrush GetLinearBrush(IReadOnlyDictionary<double, D.Color> colorGradients, D.PointF start, D.PointF end, EffectBrush.BrushWrap wrap = EffectBrush.BrushWrap.None)
         {
-            if (in_brush is M.SolidColorBrush)
+            var brushColors = new List<D.Color>();
+            var brushPositions = new List<float>();
+
+            foreach (var kvp in colorGradients)
             {
-                D.SolidBrush brush = new D.SolidBrush(
-                    ColorUtils.MediaColorToDrawingColor((in_brush as M.SolidColorBrush).Color)
-                    );
-
-                return brush;
+                brushPositions.Add((float)kvp.Key);
+                brushColors.Add(kvp.Value);
             }
-            else if (in_brush is M.LinearGradientBrush)
+
+            var colorBlend = new ColorBlend
             {
-                M.LinearGradientBrush lgb = (in_brush as M.LinearGradientBrush);
+                Colors = brushColors.ToArray(),
+                Positions = brushPositions.ToArray()
+            };
+            var brush = new LinearGradientBrush(
+                start,
+                end,
+                D.Color.Red,
+                D.Color.Red
+            );
+            brush.InterpolationColors = colorBlend;
 
-                D.PointF starting_point = new D.PointF(
-                    (float)lgb.StartPoint.X,
-                    (float)lgb.StartPoint.Y
-                    );
-
-                D.PointF ending_point = new D.PointF(
-                    (float)lgb.EndPoint.X,
-                    (float)lgb.EndPoint.Y
-                    );
-
-                LinearGradientBrush brush = new LinearGradientBrush(
-                    starting_point,
-                    ending_point,
-                    D.Color.Red,
-                    D.Color.Red
-                    );
-
-                /*
-                switch(lgb.SpreadMethod)
-                {
-                    case System.Windows.Media.GradientSpreadMethod.Pad:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
-                        break;
-                    case System.Windows.Media.GradientSpreadMethod.Reflect:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.TileFlipXY;
-                        break;
-                    case System.Windows.Media.GradientSpreadMethod.Repeat:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Tile;
-                        break;
-                }
-                */
-
-                SortedDictionary<float, D.Color> brush_blend = new SortedDictionary<float, D.Color>();
-
-                foreach (var grad_stop in lgb.GradientStops)
-                {
-                    if (!brush_blend.ContainsKey((float)grad_stop.Offset))
-                        brush_blend.Add((float)grad_stop.Offset, ColorUtils.MediaColorToDrawingColor(grad_stop.Color));
-                }
-
-                List<D.Color> brush_colors = new List<D.Color>();
-                List<float> brush_positions = new List<float>();
-
-                foreach (var kvp in brush_blend)
-                {
-                    brush_colors.Add(kvp.Value);
-                    brush_positions.Add(kvp.Key);
-                }
-
-                ColorBlend color_blend = new ColorBlend();
-                color_blend.Colors = brush_colors.ToArray();
-                color_blend.Positions = brush_positions.ToArray();
-                brush.InterpolationColors = color_blend;
-
-                return brush;
-            }
-            else if (in_brush is M.RadialGradientBrush)
+            brush.WrapMode = wrap switch
             {
-                M.RadialGradientBrush rgb = (in_brush as M.RadialGradientBrush);
+                EffectBrush.BrushWrap.Repeat => WrapMode.Tile,
+                EffectBrush.BrushWrap.Reflect => WrapMode.TileFlipXY,
+                _ => brush.WrapMode
+            };
 
-                D.RectangleF brush_region = new D.RectangleF(
-                    0.0f,
-                    0.0f,
-                    2.0f * (float)rgb.RadiusX,
-                    2.0f * (float)rgb.RadiusY
-                    );
-
-                D.PointF center_point = new D.PointF(
-                    (float)rgb.Center.X,
-                    (float)rgb.Center.Y
-                    );
-
-                GraphicsPath g_path = new GraphicsPath();
-                g_path.AddEllipse(brush_region);
-
-                PathGradientBrush brush = new PathGradientBrush(g_path);
-
-                brush.CenterPoint = center_point;
-
-                /*
-                switch (rgb.SpreadMethod)
-                {
-                    case System.Windows.Media.GradientSpreadMethod.Pad:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Clamp;
-                        break;
-                    case System.Windows.Media.GradientSpreadMethod.Reflect:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.TileFlipXY;
-                        break;
-                    case System.Windows.Media.GradientSpreadMethod.Repeat:
-                        brush.WrapMode = System.Drawing.Drawing2D.WrapMode.Tile;
-                        break;
-                }
-                */
-
-                SortedDictionary<float, D.Color> brush_blend = new SortedDictionary<float, D.Color>();
-
-                foreach (var grad_stop in rgb.GradientStops)
-                {
-                    if (!brush_blend.ContainsKey((float)grad_stop.Offset))
-                        brush_blend.Add((float)grad_stop.Offset, ColorUtils.MediaColorToDrawingColor(grad_stop.Color));
-                }
-
-                List<D.Color> brush_colors = new List<D.Color>();
-                List<float> brush_positions = new List<float>();
-
-                foreach (var kvp in brush_blend)
-                {
-                    brush_colors.Add(kvp.Value);
-                    brush_positions.Add(kvp.Key);
-                }
-
-                ColorBlend color_blend = new ColorBlend();
-                color_blend.Colors = brush_colors.ToArray();
-                color_blend.Positions = brush_positions.ToArray();
-                brush.InterpolationColors = color_blend;
-
-                return brush;
-            }
-            else
-            {
-                return new D.SolidBrush(D.Color.Red); //Return error color
-            }
-        }
-
-        public static M.Brush DrawingBrushToMediaBrush(D.Brush in_brush)
-        {
-            if (in_brush is D.SolidBrush)
-            {
-                M.SolidColorBrush brush = new M.SolidColorBrush(
-                    ColorUtils.DrawingColorToMediaColor((in_brush as D.SolidBrush).Color)
-                    );
-
-                return brush;
-            }
-            else if (in_brush is LinearGradientBrush)
-            {
-                LinearGradientBrush lgb = (in_brush as LinearGradientBrush);
-
-                Point starting_point = new Point(
-                    lgb.Rectangle.X,
-                    lgb.Rectangle.Y
-                    );
-
-                Point ending_point = new Point(
-                    lgb.Rectangle.Right,
-                    lgb.Rectangle.Bottom
-                    );
-
-                M.GradientStopCollection collection = new M.GradientStopCollection();
-
-                try
-                {
-                    if (lgb.InterpolationColors != null && lgb.InterpolationColors.Colors.Length == lgb.InterpolationColors.Positions.Length)
-                    {
-                        for (int x = 0; x < lgb.InterpolationColors.Colors.Length; x++)
-                        {
-                            collection.Add(
-                                new M.GradientStop(
-                                    ColorUtils.DrawingColorToMediaColor(lgb.InterpolationColors.Colors[x]),
-                                    lgb.InterpolationColors.Positions[x]
-                                    )
-                                );
-                        }
-                    }
-                }
-                catch (Exception exc)
-                {
-                    for (int x = 0; x < lgb.LinearColors.Length; x++)
-                    {
-                        collection.Add(
-                            new M.GradientStop(
-                                ColorUtils.DrawingColorToMediaColor(lgb.LinearColors[x]),
-                                x / (double)(lgb.LinearColors.Length - 1)
-                                )
-                            );
-                    }
-                }
-
-                M.LinearGradientBrush brush = new M.LinearGradientBrush(
-                    collection,
-                    starting_point,
-                    ending_point
-                    );
-
-                return brush;
-            }
-            else if (in_brush is PathGradientBrush)
-            {
-                PathGradientBrush pgb = (in_brush as PathGradientBrush);
-
-                Point starting_point = new Point(
-                    pgb.CenterPoint.X,
-                    pgb.CenterPoint.Y
-                    );
-
-                M.GradientStopCollection collection = new M.GradientStopCollection();
-
-                if (pgb.InterpolationColors != null && pgb.InterpolationColors.Colors.Length == pgb.InterpolationColors.Positions.Length)
-                {
-                    for (int x = 0; x < pgb.InterpolationColors.Colors.Length; x++)
-                    {
-                        collection.Add(
-                            new M.GradientStop(
-                                ColorUtils.DrawingColorToMediaColor(pgb.InterpolationColors.Colors[x]),
-                                pgb.InterpolationColors.Positions[x]
-                                )
-                            );
-                    }
-                }
-
-                M.RadialGradientBrush brush = new M.RadialGradientBrush(
-                    collection
-                    );
-
-                brush.Center = starting_point;
-
-                return brush;
-            }
-            else
-            {
-                return new M.SolidColorBrush(M.Color.FromArgb(255, 255, 0, 0)); //Return error color
-            }
+            return brush;
         }
     }
 
