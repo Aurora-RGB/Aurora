@@ -93,8 +93,12 @@ public class BooleanConstant : Evaluatable<bool> {
 
     /// <summary>Creates a new constant true boolean.</summary>
     public BooleanConstant() { }
+
     /// <summary>Creates a new constant boolean with the given state.</summary>
-    public BooleanConstant(bool state) { }
+    public BooleanConstant(bool state)
+    {
+        State = state;
+    }
 
     /// <summary>The value held by this constant value.</summary>
     public bool State { get; set; }

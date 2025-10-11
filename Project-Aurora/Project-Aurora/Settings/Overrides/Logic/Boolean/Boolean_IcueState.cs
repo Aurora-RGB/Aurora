@@ -22,6 +22,14 @@ public class BooleanIcueState : Evaluatable<bool>
         StateName = variableName;
     }
 
+    public BooleanIcueState(string variableName)
+    {
+        StateName = new StringConstant
+        {
+            Value = variableName
+        };
+    }
+
     protected override bool Execute(IGameState gameState)
     {
         var state = StateName.Evaluate(gameState);
