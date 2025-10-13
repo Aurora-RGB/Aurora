@@ -198,4 +198,3 @@ Type: filesandordirs; Name: "{pf}\Aurora"
 Type: files; Name: "{app}\*"; 
 Type: filesandordirs; Name: "{app}"
 
-
