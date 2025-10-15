@@ -38,6 +38,7 @@
         <Label x:Name="IcueCurrentSdkApplicationLabel" Grid.Row="2" Grid.Column="2" Width="300" Content="application name"
                Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <Label Grid.Row="3" Grid.Column="0" Content="Current GS Application:" Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" />
+        <Button Grid.Row="3" Grid.Column="1" Width="100" Click="VariablesButton_OnClick">State/Events</Button>
         <Label x:Name="IcueCurrentGsApplicationLabel" Grid.Row="3" Grid.Column="2" Width="300" Content="application name"
                Margin="5 0 5 0" Padding="0" VerticalAlignment="Center" HorizontalAlignment="Left" />
         

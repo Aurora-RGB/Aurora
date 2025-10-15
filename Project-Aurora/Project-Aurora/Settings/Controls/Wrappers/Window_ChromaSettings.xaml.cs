@@ -4,7 +4,7 @@ using System.Windows;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 
-namespace AuroraRgb.Settings.Controls;
+namespace AuroraRgb.Settings.Controls.Wrappers;
 
 public partial class Window_ChromaSettings : IDisposable
 {

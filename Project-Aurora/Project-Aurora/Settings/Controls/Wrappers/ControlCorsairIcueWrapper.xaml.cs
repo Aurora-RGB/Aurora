@@ -143,4 +143,10 @@ public partial class ControlCorsairIcueWrapper
             IcueRunningStatus.Foreground = Brushes.Green;
         }
     }
+
+    private void VariablesButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        var window = new Window_IcueVariables();
+        window.Show();
+    }
 }

@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="AuroraRgb.Settings.Controls.Wrappers.Control_IcueGameVariables"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:icue="clr-namespace:AuroraRgb.Modules.Icue"
+             mc:Ignorable="d"
+             Unloaded="Control_IcueGameVariables_OnUnloaded"
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance icue:IcueGsiStateStore }">
+    <StackPanel>
+        <TextBlock Text="{Binding GameName}" />
+        <StackPanel Orientation="Horizontal">
+            <Border BorderBrush="BlueViolet" BorderThickness="1" Margin="4">
+                <StackPanel>
+                    <TextBlock>State Variables</TextBlock>
+                    <Separator/>
+                    <StackPanel Name="StatesList" />
+                </StackPanel>
+            </Border>
+            <Border BorderBrush="BlueViolet" BorderThickness="1" Margin="4">
+                <StackPanel>
+                    <TextBlock>Event Variables</TextBlock>
+                    <Separator/>
+                    <StackPanel Name="EventsList" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

@@ -1,0 +1,26 @@
+﻿<fluentWpf:AcrylicWindow x:Class="AuroraRgb.Settings.Controls.Wrappers.Window_IcueVariables"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:AuroraRgb.Settings.Controls.Wrappers"
+        xmlns:icue="clr-namespace:AuroraRgb.Modules.Icue"
+        xmlns:fluentWpf="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+        mc:Ignorable="d"
+        Title="Window_IcueVariables" Height="450" Width="800" d:DataContext="{d:DesignInstance local:Window_IcueVariables}">
+    <Grid>
+        <TextBlock Name="EmptyText">iCUE integration's state and event names will appear as supported games are run.</TextBlock>
+        <ListView ItemsSource="{Binding StateStore}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Focusable" Value="false"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate DataType="{x:Type icue:IcueGsiStateStore}">
+                    <local:Control_IcueGameVariables GameStorage="{Binding}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</fluentWpf:AcrylicWindow>

@@ -1,4 +1,4 @@
-﻿<fluentWpf:AcrylicWindow x:Class="AuroraRgb.Settings.Controls.Window_ChromaSettings"
+﻿<fluentWpf:AcrylicWindow x:Class="AuroraRgb.Settings.Controls.Wrappers.Window_ChromaSettings"
                          xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                          xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

@@ -11,6 +11,7 @@ public class IcueGsi
     public HashSet<string> States { get; } = [];
     public Dictionary<string, long> EventTimestamps { get; } = [];
     public string GameName { get; private set; } = string.Empty;
+    public Dictionary<string, IcueGsiStateStore> StateStore { get; } = new();
 
     private GsiHandler? _gsiHandler;
 
@@ -24,6 +25,8 @@ public class IcueGsi
 
         GameName = e.GameName;
         GameChanged?.Invoke(this, EventArgs.Empty);
+        
+        StateStore.TryAdd(GameName, new IcueGsiStateStore(GameName));
     }
 
     public void ClearGsiHandler()
@@ -47,6 +50,7 @@ public class IcueGsi
     private void OnStateAdded(object? sender, IcueStateEventArgs icueStateEventArgs)
     {
         States.Add(icueStateEventArgs.StateName);
+        StateStore[GameName].AddState(icueStateEventArgs.StateName);
     }
 
     private void OnStateRemoved(object? sender, IcueStateEventArgs icueStateEventArgs)
@@ -62,6 +66,7 @@ public class IcueGsi
     private void OnEventAdded(object? sender, IcueStateEventArgs icueStateEventArgs)
     {
         EventTimestamps[icueStateEventArgs.StateName] = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        StateStore[GameName].AddEvent(icueStateEventArgs.StateName);
         EventReceived?.Invoke(this, icueStateEventArgs);
     }
 }
