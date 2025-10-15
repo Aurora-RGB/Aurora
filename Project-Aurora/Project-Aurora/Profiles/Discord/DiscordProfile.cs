@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;

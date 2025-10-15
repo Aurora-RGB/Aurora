@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.Json.Serialization;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Nodes;
 using AuroraRgb.Utils;
 using FastMember;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Witcher3.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;

@@ -22,7 +22,7 @@ public sealed class AutomaticGsiPatcher : AuroraModule
 
         var lsm = await LightingStateManagerModule.LightningStateManager;
 
-        lsm.EventAdded += (_, args) =>
+        lsm.ApplicationManager.EventAdded += (_, args) =>
         {
             var lightEvent = args.Application;
             Task.Run(async () =>
@@ -30,7 +30,7 @@ public sealed class AutomaticGsiPatcher : AuroraModule
                 await RunInstallation(userPromptTcs, lightEvent);
             });
         };
-        foreach (var application in lsm.Events.Values)
+        foreach (var application in lsm.ApplicationManager.Events.Values)
         {
             _ = Task.Run(async () =>
             {

@@ -68,7 +68,7 @@ public partial class Control_GenericApplication
         var eventName = Path.GetFileNameWithoutExtension(filename);
 
         var lightingStateManager = Global.LightingStateManager!;
-        if (lightingStateManager.Events.TryGetValue(eventName, out _))
+        if (lightingStateManager.ApplicationManager.Events.TryGetValue(eventName, out _))
         {
             MessageBox.Show("Profile for this application already exists.");
             return;

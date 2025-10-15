@@ -86,7 +86,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         set
         {
             SetValue(FocusedApplicationProperty, value);
-            _lightingStateManager.Result.PreviewProfileKey = value != null ? value.Config.ID : string.Empty;
+            _lightingStateManager.Result.ApplicationManager.PreviewProfileKey = value != null ? value.Config.ID : string.Empty;
         }
     }
 
@@ -448,7 +448,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         }
 
         var lightingStateManager = await _lightingStateManager;
-        lightingStateManager.PreviewProfileKey = string.Empty;
+        lightingStateManager.ApplicationManager.PreviewProfileKey = string.Empty;
 
         switch (Global.Configuration.CloseMode)
         {

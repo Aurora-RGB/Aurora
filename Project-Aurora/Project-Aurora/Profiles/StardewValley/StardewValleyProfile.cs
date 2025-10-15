@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.EffectsEngine.Animations;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;

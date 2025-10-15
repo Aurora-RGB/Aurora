@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Globalization;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using FastMember;
 

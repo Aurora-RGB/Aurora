@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Payday_2.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;

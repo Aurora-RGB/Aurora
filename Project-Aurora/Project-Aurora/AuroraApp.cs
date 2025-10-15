@@ -108,7 +108,7 @@ public sealed class AuroraApp : IDisposable
         }
 
         var lsm = await LightingStateManagerModule.LightningStateManager;
-        lsm.InitializeApps();
+        lsm.ApplicationManager.InitializeApps();
 
         //Debug Windows on Startup
         if (Global.Configuration.BitmapWindowOnStartUp)

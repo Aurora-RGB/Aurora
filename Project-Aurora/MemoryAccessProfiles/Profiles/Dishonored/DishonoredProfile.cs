@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using AuroraRgb.Profiles;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using Common.Devices;

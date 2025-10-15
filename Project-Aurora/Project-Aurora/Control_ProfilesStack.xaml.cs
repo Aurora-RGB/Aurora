@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Profiles;
 using AuroraRgb.Profiles.Generic_Application;
@@ -85,8 +86,8 @@ public partial class Control_ProfilesStack
 
         var lightingStateManager = await _lightingStateManager;
         var profileLoadTasks = Global.Configuration.ProfileOrder
-            .Where(profileName => lightingStateManager.Events.ContainsKey(profileName))
-            .Select(profileName => lightingStateManager.Events[profileName])
+            .Where(profileName => lightingStateManager.ApplicationManager.Events.ContainsKey(profileName))
+            .Select(profileName => lightingStateManager.ApplicationManager.Events[profileName])
             .OrderBy(item => item.Settings is { Hidden: false } ? 0 : 1)
             .Select(application => InsertApplicationImage(focusedKey, application, focusedSetTaskCompletion, cancellationToken))
             .Select(x => x.Task);
@@ -145,7 +146,7 @@ public partial class Control_ProfilesStack
         var name = application.Config.ID;
 
         var lightingStateManager = await _lightingStateManager;
-        if (!lightingStateManager.Events.TryGetValue(name, out var value)) return;
+        if (!lightingStateManager.ApplicationManager.Events.TryGetValue(name, out var value)) return;
         var applicationName = value.Config.ProcessNames[0];
 
         var cancelled = MessageBox.Show(
@@ -153,7 +154,7 @@ public partial class Control_ProfilesStack
             MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes;
         if (cancelled) return;
 
-        lightingStateManager.RemoveGenericProfile(name);
+        lightingStateManager.ApplicationManager.RemoveGenericProfile(name);
 
         Dispatcher.InvokeAsync(async () => await GenerateProfileStack());
     }
@@ -167,7 +168,7 @@ public partial class Control_ProfilesStack
         var filename = Path.GetFileName(dialog.ChosenExecutablePath.ToLowerInvariant());
 
         var lightingStateManager = await _lightingStateManager;
-        if (lightingStateManager.Events.ContainsKey(filename))
+        if (lightingStateManager.ApplicationManager.Events.ContainsKey(filename))
         {
             MessageBox.Show("Profile for this application already exists.");
             return;
@@ -188,7 +189,7 @@ public partial class Control_ProfilesStack
 
         ico.Dispose();
 
-        await lightingStateManager.RegisterEvent(genAppPm);
+        await lightingStateManager.ApplicationManager.RegisterEvent(genAppPm);
         await ConfigManager.SaveAsync(Global.Configuration);
         await GenerateProfileStack(filename);
     }
@@ -247,12 +248,12 @@ public partial class Control_ProfilesStack
 
     private async void Control_ProfilesStack_OnLoaded(object sender, RoutedEventArgs e)
     {
-        (await _lightingStateManager).EventAdded += LightingStateManagerOnEventAdded;
+        (await _lightingStateManager).ApplicationManager.EventAdded += LightingStateManagerOnEventAdded;
     }
 
     private async void Control_ProfilesStack_OnUnloaded(object sender, RoutedEventArgs e)
     {
-        (await _lightingStateManager).EventAdded -= LightingStateManagerOnEventAdded;
+        (await _lightingStateManager).ApplicationManager.EventAdded -= LightingStateManagerOnEventAdded;
     }
 
     private void FocusApplication(Application application)

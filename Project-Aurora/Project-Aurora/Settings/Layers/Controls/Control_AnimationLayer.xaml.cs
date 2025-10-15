@@ -6,7 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using AuroraRgb.Controls;
-using AuroraRgb.Profiles;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Utils;
 using Application = AuroraRgb.Profiles.Application;

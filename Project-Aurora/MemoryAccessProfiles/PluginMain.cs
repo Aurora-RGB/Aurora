@@ -1,4 +1,5 @@
-﻿using AuroraRgb.Profiles;
+﻿using AuroraRgb.EffectsEngine;
+using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using MemoryAccessProfiles.Profiles.Borderlands2;
 using MemoryAccessProfiles.Profiles.CloneHero;
@@ -36,6 +37,6 @@ public class PluginMain : IPlugin
         
         // Register all Application types in the assembly
         foreach (var inst in profiles)
-            lightingStateManager.RegisterEvent(inst);
+            lightingStateManager.ApplicationManager.RegisterEvent(inst);
     }
 }

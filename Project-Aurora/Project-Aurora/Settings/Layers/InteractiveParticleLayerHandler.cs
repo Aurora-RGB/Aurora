@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.Inputs;
-using AuroraRgb.Profiles;
 using Common.Devices;
 
 namespace AuroraRgb.Settings.Layers;

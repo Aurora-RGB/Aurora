@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Minecraft.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;

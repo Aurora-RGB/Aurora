@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.LeagueOfLegends.GSI.Nodes;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;

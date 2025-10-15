@@ -27,8 +27,8 @@ public static partial class HttpEndpointFactory
         response.ContentType = "application/json";
         response.Headers = WebHeaderCollection;
 
-        var activeProfile = ConvertProfile(LightingStateManagerModule.LightningStateManager.Result.GetCurrentProfile());
-        var activeOverlays = LightingStateManagerModule.LightningStateManager.Result.GetOverlayActiveProfiles()
+        var activeProfile = ConvertProfile(LightingStateManagerModule.LightningStateManager.Result.ApplicationManager.GetCurrentProfile());
+        var activeOverlays = LightingStateManagerModule.LightningStateManager.Result.ApplicationManager.GetOverlayActiveProfiles()
             .Select(ConvertProfile);
         var responseJson = new ProfilesResponse(activeProfile, activeOverlays);
 

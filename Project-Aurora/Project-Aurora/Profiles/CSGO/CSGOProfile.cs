@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.CSGO.GSI.Nodes;
 using AuroraRgb.Profiles.CSGO.Layers;
 using AuroraRgb.Settings;
