@@ -65,7 +65,7 @@ public class TypeAnnotatedObjectConverter : JsonConverter
             case JsonToken.StartObject:
                 return serializer.Deserialize(valueReader, type);
             default:
-                var s = value.ToString();
+                var s = value is JValue jValue ? jValue.ToString(CultureInfo.InvariantCulture) : value.ToString();
                 if (type == typeof(bool) || type == typeof(Color))
                 {
                     var colorString = value.ToString();
@@ -117,7 +117,7 @@ public class TypeAnnotatedObjectConverter : JsonConverter
             case JsonToken.Null:
                 return existingValue;
         }
-
+        
         return JsonConvert.DeserializeObject(json, objectType) ?? existingValue;
     }
 }
