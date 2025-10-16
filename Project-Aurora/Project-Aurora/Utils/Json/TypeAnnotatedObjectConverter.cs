@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -99,11 +100,11 @@ public class TypeAnnotatedObjectConverter : JsonConverter
                     ? JsonConvert.DeserializeObject(json, objectType)
                     : JsonConvert.DeserializeObject("\"" + json + "\"", objectType);
             case JsonToken.Integer:
-                return long.TryParse(json, out var intResult)
+                return long.TryParse(json, CultureInfo.InvariantCulture, out var intResult)
                     ? Convert.ChangeType(intResult, objectType) 
                     : existingValue;
             case JsonToken.Float:
-                return double.TryParse(json, out var result) 
+                return double.TryParse(json, CultureInfo.InvariantCulture, out var result) 
                     ? Convert.ChangeType(result, objectType) 
                     : existingValue;
             case JsonToken.Boolean:
