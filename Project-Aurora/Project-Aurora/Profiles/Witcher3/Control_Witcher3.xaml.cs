@@ -81,7 +81,7 @@ public partial class Control_Witcher3
         }
         catch (Exception e)
         {
-            Global.logger.Error("Error installing the Witcher 3 mod", e);
+            Global.logger.Error(e, "Error installing the Witcher 3 mod");
             MessageBox.Show("Witcher 3 directory is not found.\r\nCould not install the mod.");
         }
     }
@@ -156,7 +156,7 @@ public partial class Control_Witcher3
         }
         catch (Exception e)
         {
-            Global.logger.Error("Error uninstalling witcher 3 mod", e);
+            Global.logger.Error(e, "Error uninstalling witcher 3 mod");
             MessageBox.Show("Witcher 3 mod uninstall failed!");
         }
     }

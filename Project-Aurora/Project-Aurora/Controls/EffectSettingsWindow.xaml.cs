@@ -55,7 +55,7 @@ namespace AuroraRgb.Controls
             }
             catch(Exception exc)
             {
-                Global.logger.Error("Could not set brush:", exc);
+                Global.logger.Error(exc, "Could not set brush");
             }
 
             gradient_editor.BrushChanged += Gradient_editor_BrushChanged;

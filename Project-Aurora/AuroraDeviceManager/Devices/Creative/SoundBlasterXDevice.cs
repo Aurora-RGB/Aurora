@@ -55,7 +55,7 @@ public class SoundBlasterXDevice : DefaultDevice
         }
         catch (Exception exc)
         {
-            Global.Logger.Error("There was an error scanning for SoundBlasterX devices", exc);
+            Global.Logger.Error(exc, "There was an error scanning for SoundBlasterX devices");
             IsInitialized = false;
             return Task.FromResult(false);
         }

@@ -359,7 +359,7 @@ namespace AuroraRgb.Vorons
 								}
 								catch (Exception exc)
 								{
-									Global.logger.Error(exc, "IntervalPerformanceCounter exception in {0}/{1}/{2}/{3}: {4}",
+									Global.logger.Error(exc, "IntervalPerformanceCounter exception in {0}/{1}/{2}/{3}",
 										counter.CategoryName, counter.CounterName, counter.InstanceName, counter.UpdateInterval);
 								}
 								counter._counterUsage--;

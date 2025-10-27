@@ -67,7 +67,7 @@ public class UnifiedHIDDevice : DefaultDevice
         }
         catch (Exception e)
         {
-            Global.Logger.Error($"[UnifiedHID] device could not be initialized:", e);
+            Global.Logger.Error(e, $"[UnifiedHID] device could not be initialized");
         }
 
         return Task.FromResult(IsInitialized);
@@ -98,7 +98,7 @@ public class UnifiedHIDDevice : DefaultDevice
         }
         catch (Exception ex)
         {
-            Global.Logger.Error("[UnifiedHID] there was an error shutting down devices", ex);
+            Global.Logger.Error(ex, "[UnifiedHID] there was an error shutting down devices");
         }
 
         return Task.CompletedTask;
@@ -157,7 +157,7 @@ public class UnifiedHIDDevice : DefaultDevice
         }
         catch (Exception ex)
         {
-            Global.Logger.Error("[UnifiedHID] error when updating device:", ex);
+            Global.Logger.Error(ex, "[UnifiedHID] error when updating device:");
             return Task.FromResult(false);
         }
     }
