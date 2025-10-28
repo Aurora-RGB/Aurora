@@ -87,7 +87,6 @@ public sealed class LightingStateManager : IDisposable
         foreach (var (type, meta) in layerTypes)
             LayerHandlers.Add(type, new LayerHandlerMeta(type, meta));
         
-        // TODO ApplicationManager.Initialize();
         await ApplicationManager.Initialize();
 
         await LoadPlugins();

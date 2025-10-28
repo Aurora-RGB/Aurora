@@ -15,16 +15,8 @@ using Color = System.Drawing.Color;
 
 namespace AuroraRgb.Profiles.BlackOps6;
 
-[JsonObject(ItemTypeNameHandling = TypeNameHandling.None)]
 public class Bo6Profile : ApplicationProfile
 {
-    [OnDeserialized]
-    void OnDeserialized(StreamingContext context)
-    {
-        if (Layers.Any(lyr => lyr.Handler is IcueSdkLayerHandler)) return;
-        Layers.Add(new Layer("iCUE Lighting", new IcueSdkLayerHandler()));
-    }
-
     public override void Reset()
     {
         base.Reset();

@@ -25,6 +25,15 @@ public class NumberIcueEventFade : Evaluatable<double>
         TimeoutSeconds = timeoutSeconds;
     }
 
+    public NumberIcueEventFade(string eventName, int timeoutSeconds)
+    {
+        EventName = new StringConstant
+        {
+            Value = eventName
+        };
+        TimeoutSeconds = new NumberConstant(timeoutSeconds);
+    }
+
     protected override double Execute(IGameState gameState)
     {
         var eventName = EventName.Evaluate(gameState);
