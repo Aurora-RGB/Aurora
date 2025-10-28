@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using AuroraRgb.Utils;
 using Linearstar.Windows.RawInput;
 using Linearstar.Windows.RawInput.Native;
+using Microsoft.Win32;
 using User32 = AuroraRgb.Utils.User32;
 
 namespace AuroraRgb.Modules.Inputs;
@@ -55,6 +56,7 @@ public sealed class InputEvents : IInputEvents
     public bool Windows { get; private set; }
 
     private delegate nint WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+
     // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable to keep reference for garbage collector
     private readonly WndProc? _fnWndProcHook;
     private readonly nint _originalWndProc;
@@ -73,8 +75,34 @@ public sealed class InputEvents : IInputEvents
         _fnWndProcHook = Hook;
         var newLong = Marshal.GetFunctionPointerForDelegate(_fnWndProcHook);
         User32.SetWindowLongPtr(_hWnd, -4, newLong);
+
+        // can't detect Win + L, just clear when it happens
+        SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
     }
-    
+
+    private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
+    {
+        switch (e.Reason)
+        {
+            case SessionSwitchReason.SessionLock:
+            case SessionSwitchReason.SessionUnlock:
+                ClearButtons();
+                break;
+        }
+    }
+
+    private void ClearButtons()
+    {
+        var pressedKeys = new List<Keys>(_pressedKeySequence);
+        pressedKeys.Reverse();
+        _pressedKeySequence.Clear();
+        PressedKeys = [];
+        foreach (var pressedKey in pressedKeys)
+        {
+            KeyUp?.Invoke(this, new KeyboardKeyEventArgs(pressedKey, false, pressedKeys));
+        }
+    }
+
     private nint Hook(IntPtr hwnd, uint msg, IntPtr wparam, IntPtr lparam)
     {
         const int wmInput = 0x00FF;
@@ -163,12 +191,13 @@ public sealed class InputEvents : IInputEvents
                 // this key is already processed
                 return false;
             }
+
             _pressedKeySequence.Add(key);
         }
         else
         {
             var removed = _pressedKeySequence.Remove(key);
-            return removed;   // return if key is removed
+            return removed; // return if key is removed
         }
 
         return true;
@@ -242,7 +271,8 @@ public sealed class InputEvents : IInputEvents
         return mouseKeyEvent.Intercepted;
     }
 
-    public TimeSpan GetTimeSinceLastInput() {
+    public TimeSpan GetTimeSinceLastInput()
+    {
         var inf = new User32.TagLastInputInfo { cbSize = (uint)Marshal.SizeOf<User32.TagLastInputInfo>() };
         return !User32.GetLastInputInfo(ref inf) ?
             new TimeSpan(0) :
@@ -253,5 +283,6 @@ public sealed class InputEvents : IInputEvents
     {
         if (_disposed) return;
         _disposed = true;
+        SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
     }
 }
