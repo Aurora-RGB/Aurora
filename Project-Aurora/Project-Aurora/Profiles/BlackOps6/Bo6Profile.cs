@@ -7,6 +7,7 @@ using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Settings.Overrides.Logic.Boolean;
+using AuroraRgb.Settings.Overrides.Logic.Number;
 using AuroraRgb.Utils;
 using Common.Devices;
 using Common.Utils;
@@ -157,6 +158,16 @@ public class Bo6Profile : ApplicationProfile
                 new OverrideLogicBuilder()
                     .SetDynamicBoolean("_Enabled", new BooleanIcueState("BO6_NearDeath"))
             ),
+            new Layer("WZ Circle Alert", new SolidFillLayerHandler
+                {
+                    Properties =
+                    {
+                        PrimaryColor = Color.FromArgb(93, 226, 215)
+                    }
+                },
+                new OverrideLogicBuilder()
+                    .SetDynamicFloat("_LayerOpacity", new NumberIcueEventFade("BO6_CircleAlert", 1))
+            ),
             new Layer("On Kill", new SimpleParticleLayerHandler
                 {
                     Properties = new SimpleParticleLayerProperties
@@ -250,11 +261,44 @@ public class Bo6Profile : ApplicationProfile
                 new OverrideLogicBuilder()
                     .SetDynamicBoolean("_Enabled", new BooleanIcueState("BO6_ThemeMain"))
             ),
+            new Layer("WZ Cinematic", new SimpleParticleLayerHandler
+                {
+                    Properties =
+                    {
+                        MinSpawnTime = 0.1f,
+                        MaxSpawnTime = 0.1f,
+                        MinSpawnAmount = 1,
+                        MaxSpawnAmount = 1,
+                        MinInitialVelocityX = 0.0f,
+                        MaxInitialVelocityX = 0.0f,
+                        MinInitialVelocityY = -1.0f,
+                        MaxInitialVelocityY = -1.0f,
+                        MinLifetime = 0.0f,
+                        MaxLifetime = 2.0f,
+                        AccelerationX = 0.0f,
+                        AccelerationY = 0.5f,
+                        DragX = 0.0f,
+                        DragY = 0.0f,
+                        MinSize = 6.0f,
+                        MaxSize = 6.0f,
+                        DeltaSize = 0.0f,
+                        SpawnLocation = ParticleSpawnLocations.BottomEdge,
+                        ParticleColorStops = new ColorStopCollection
+                        {
+                            { 0f, Color.FromArgb(250, 104, 0) },
+                            { 1f, Color.FromArgb(0, 0, 0, 0) }
+                        },
+                        Sequence = new KeySequence(Effects.Canvas.WholeFreeForm),
+                    }
+                },
+                new OverrideLogicBuilder()
+                    .SetDynamicBoolean("SpawningEnabled", new BooleanIcueState("BO6_Cinematic"))
+            ),
             new Layer("Background", new SolidColorLayerHandler
                 {
                     Properties = new LayerHandlerProperties
                     {
-                        _PrimaryColor = Color.FromArgb(250, 104, 0),
+                        _PrimaryColor = Color.FromArgb(171, 0, 110),
                         _Sequence = new KeySequence(Effects.Canvas.WholeFreeForm),
                     },
                 },
