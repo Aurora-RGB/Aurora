@@ -72,6 +72,10 @@ internal static class Program
             return;
         }
         var versionToCheck = VersionParser.ParseVersion(fileVersion);
+        if (versionToCheck is { Major: 0, Minor: 0, Patch: 0 })
+        {
+            _isSilent = false;
+        }
 
         var owner = FileVersionInfo.GetVersionInfo(auroraPath).CompanyName;
         var repository = FileVersionInfo.GetVersionInfo(auroraPath).ProductName;
