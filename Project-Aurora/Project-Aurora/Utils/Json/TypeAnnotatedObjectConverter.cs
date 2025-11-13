@@ -76,7 +76,7 @@ public class TypeAnnotatedObjectConverter : JsonConverter
                     return JsonConvert.DeserializeObject("\"" + value + "\"", type);
                 }
                 if (objectType.FullName != typeof(Color).FullName && type.FullName != typeof(Color).FullName)
-                    return ReadToken(s, type, null, valueReader.TokenType);
+                    return serializer.Deserialize(valueReader, type);
                 if (s.StartsWith('\"'))
                 {
                     return JsonConvert.DeserializeObject(s, type);
