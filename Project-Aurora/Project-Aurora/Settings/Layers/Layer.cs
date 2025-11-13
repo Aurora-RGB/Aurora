@@ -64,38 +64,39 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 
     public EffectLayer Render(IGameState gs)
     {
-        if (OverrideLogic != null)
-        {
-            // For every property which has an override logic assigned
-            foreach (var (key, overrideLogic) in OverrideLogic)
-                // Set the value of the logic evaluation as the override for this property
-            {
-                var value = overrideLogic.Evaluate(gs);
-                try
-                {
-                    if (overrideLogic.VarType is { IsEnum: true })
-                    {
-                        Handler.Properties.SetOverride(key,
-                            value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
-                    }
-                    else
-                    {
-                        Handler.Properties.SetOverride(key, value);
-                    }
-                }
-                catch (OverrideNameRefactoredException)
-                {
-                    OverrideLogic.Remove(key);
-                    OverrideLogic.Add(key[1..], overrideLogic);
-                    break;
-                }
-            }
-        }
-
-        if (!Handler.Properties.Enabled)
-            return EmptyLayer.Instance;
         try
         {
+            if (OverrideLogic != null)
+            {
+                // For every property which has an override logic assigned
+                foreach (var (key, overrideLogic) in OverrideLogic)
+                    // Set the value of the logic evaluation as the override for this property
+                {
+                    var value = overrideLogic.Evaluate(gs);
+                    try
+                    {
+                        if (overrideLogic.VarType is { IsEnum: true })
+                        {
+                            Handler.Properties.SetOverride(key,
+                                value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
+                        }
+                        else
+                        {
+                            Handler.Properties.SetOverride(key, value);
+                        }
+                    }
+                    catch (OverrideNameRefactoredException)
+                    {
+                        OverrideLogic.Remove(key);
+                        OverrideLogic.Add(key[1..], overrideLogic);
+                        break;
+                    }
+                }
+            }
+
+            if (!Handler.Properties.Enabled)
+                return EmptyLayer.Instance;
+ 
             var effectLayer = Handler.PostRenderFX(Handler.Render(gs));
             _renderErrors = 0;
             Error = false;
