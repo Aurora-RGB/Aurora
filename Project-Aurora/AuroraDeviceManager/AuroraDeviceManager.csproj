@@ -124,6 +124,7 @@
         <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
         <PackageReference Include="System.Drawing.Primitives" Version="4.3.0"/>
         <PackageReference Include="System.Management" Version="9.0.5" />
+        <PackageReference Include="System.ServiceProcess.ServiceController" Version="9.0.0" />
         <PackageReference Include="Vulcan.NET" Version="2.2.0"/>
 
         <PackageReference Include="Serilog.Aggregating.Filter" Version="1.1.0"/>
