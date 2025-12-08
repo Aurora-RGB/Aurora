@@ -91,7 +91,8 @@ public sealed class DeviceManager : IDisposable
             .Where(dc => dc.Device.IsInitialized ^ DeviceEnabled(dc))
             .Select(deviceContainer => deviceContainer.Device.IsInitialized
                 ? deviceContainer.Disable()
-                : deviceContainer.Enable());
+                : deviceContainer.Enable())
+            .ToList();
 
         if (!initializeTasks.Any())
             return;
@@ -101,7 +102,7 @@ public sealed class DeviceManager : IDisposable
 
     private static bool DeviceEnabled(DeviceContainer dc)
     {
-        return Global.DeviceConfig.EnabledDevices.Contains(dc.Device.DeviceName);
+        return Global.DeviceConfig.EnabledControllers.Contains(dc.Device.DeviceName);
     }
 
     public Task ShutdownDevices()
@@ -296,6 +297,16 @@ public sealed class DeviceManager : IDisposable
     public async Task Disable(string deviceController)
     {
         await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).Disable();
+    }
+
+    public async Task EnableDevice(string deviceController, string deviceId)
+    {
+        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).EnableDevice(deviceId);
+    }
+
+    public async Task DisableDevice(string deviceController, string deviceId)
+    {
+        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).DisableDevice(deviceId);
     }
 
     private readonly byte[] _end = "\n"u8.ToArray();
