@@ -4,10 +4,11 @@ using Common;
 using Common.Data;
 using Common.Devices;
 using Common.Utils;
+using Nito.AsyncEx;
 
 namespace AuroraDeviceManager.Devices;
 
-public sealed class DeviceContainer : IDisposable
+public sealed partial class DeviceContainer : IDisposable
 {
     public IDevice Device { get; }
 
@@ -15,7 +16,7 @@ public sealed class DeviceContainer : IDisposable
 
     private DeviceColorComposition _currentComp = new(new Dictionary<DeviceKeys, SimpleColor>());
 
-    private readonly SemaphoreSlim _actionLock = new(1);
+    private readonly AsyncLock _actionLock = new();
 
     private readonly MemorySharedStruct<DeviceInformation> _deviceInformation;
     private MemorySharedArray<DeviceVariable> _deviceVariables;
@@ -91,13 +92,14 @@ public sealed class DeviceContainer : IDisposable
         return deviceVariables;
     }
 
-    private Task WorkerOnDoWork(DoWorkEventArgs doWorkEventArgs)
+    private async Task WorkerOnDoWork(DoWorkEventArgs doWorkEventArgs)
     {
-        using (_actionLock)
+        using (await _actionLock.LockAsync())
         {
             if (Device is { IsInitialized: false, IsDoingWork: false })
             {
-                Device.Initialize();
+                UpdateSharedMemory();
+                await Device.Initialize();
                 UpdateSharedMemory();
             }
 
@@ -111,8 +113,6 @@ public sealed class DeviceContainer : IDisposable
                 UpdateSharedMemory();
             }
         }
-
-        return Task.CompletedTask;
     }
 
     public void UpdateDevice(Dictionary<DeviceKeys, SimpleColor> keyColors)
@@ -124,10 +124,11 @@ public sealed class DeviceContainer : IDisposable
         }
     }
 
-    public async Task EnableDevice()
+    public async Task Enable()
     {
-        using (_actionLock)
+        using (await _actionLock.LockAsync())
         {
+            UpdateSharedMemory();
             var initTask = Device.Initialize();
             UpdateSharedMemory();
             if (await initTask)
@@ -142,11 +143,13 @@ public sealed class DeviceContainer : IDisposable
         }
     }
 
-    public async Task DisableDevice()
+    public async Task Disable()
     {
-        using (_actionLock)
+        UpdateSharedMemory();
+        // needs to be out of lock as it can cancel initialization which also uses the lock
+        var shutdownTask = Device.ShutdownDevice();
+        using (await _actionLock.LockAsync())
         {
-            var shutdownTask = Device.ShutdownDevice();
             UpdateSharedMemory();
             await shutdownTask;
             Global.Logger.Information("[Device][{DeviceName}] Shutdown", Device.DeviceName);

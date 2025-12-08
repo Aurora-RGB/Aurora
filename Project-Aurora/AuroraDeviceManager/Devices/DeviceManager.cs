@@ -90,9 +90,12 @@ public sealed class DeviceManager : IDisposable
             .Where(dc => dc.Device is { IsDoingWork: false })
             .Where(dc => dc.Device.IsInitialized ^ DeviceEnabled(dc))
             .Select(deviceContainer => deviceContainer.Device.IsInitialized
-                ? deviceContainer.DisableDevice()
-                : deviceContainer.EnableDevice());
+                ? deviceContainer.Disable()
+                : deviceContainer.Enable());
 
+        if (!initializeTasks.Any())
+            return;
+        
         await Task.WhenAny(initializeTasks);
     }
 
@@ -104,7 +107,7 @@ public sealed class DeviceManager : IDisposable
     public Task ShutdownDevices()
     {
         var startingDevices = DeviceContainers.Where(dc => dc.Device is { IsInitialized: false, IsDoingWork: true });
-        var shutdownTasks = InitializedDeviceContainers.Union(startingDevices).Select(dc => dc.DisableDevice());
+        var shutdownTasks = InitializedDeviceContainers.Union(startingDevices).Select(dc => dc.Disable());
 
         return Task.WhenAll(shutdownTasks);
     }
@@ -285,14 +288,14 @@ public sealed class DeviceManager : IDisposable
         return rgbNetConfigDevice;
     }
 
-    public async Task Enable(string deviceId)
+    public async Task Enable(string deviceController)
     {
-        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceId).EnableDevice();
+        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).Enable();
     }
 
-    public async Task Disable(string deviceId)
+    public async Task Disable(string deviceController)
     {
-        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceId).DisableDevice();
+        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).Disable();
     }
 
     private readonly byte[] _end = "\n"u8.ToArray();

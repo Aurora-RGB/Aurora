@@ -65,14 +65,14 @@ public sealed class AuroraPipe : IDisposable
                     return;
                 case DeviceCommands.Enable:
                 {
-                    var deviceId = splits.Next();
-                    await _deviceManager.Enable(deviceId);
+                    var deviceController = splits.Next();
+                    await _deviceManager.Enable(deviceController);
                     break;
                 }
                 case DeviceCommands.Disable:
                 {
-                    var deviceId = splits.Next();
-                    await _deviceManager.Disable(deviceId);
+                    var deviceController = splits.Next();
+                    await _deviceManager.Disable(deviceController);
                     break;
                 }
                 case DeviceCommands.Blink:
@@ -112,7 +112,7 @@ public sealed class AuroraPipe : IDisposable
                 }
                 default:
                 {
-                    Global.Logger.Warning("Uknown command: {Command}", command);
+                    Global.Logger.Warning("Unknown command: {Command}", command);
                     break;
                 }
             }
