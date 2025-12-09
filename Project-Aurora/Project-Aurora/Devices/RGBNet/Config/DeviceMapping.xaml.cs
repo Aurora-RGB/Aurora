@@ -24,6 +24,8 @@ public partial class DeviceMapping
 
     private readonly Lazy<DeviceMappingConfig> _config = new(() => DeviceMappingConfig.Config);
 
+    private RemappableDevice? _remappableDevice;
+
     public DeviceMapping(Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
     {
         _deviceManager = deviceManager;
@@ -80,6 +82,7 @@ public partial class DeviceMapping
 
     private async Task ReloadDevices()
     {
+        _remappableDevice = null;
         var deviceManager = await _deviceManager;
 
         if (!await deviceManager.IsDeviceManagerUp())
@@ -110,7 +113,7 @@ public partial class DeviceMapping
                 // create a new button for the ui
                 var button = new Button
                 {
-                    Content = device.DeviceSummary
+                    Content = device.DeviceSummary + (device.IsEnabled ? "" : " (Disabled)"),
                 };
 
                 button.Click += async (_, _) =>
@@ -137,11 +140,17 @@ public partial class DeviceMapping
 
     private async Task DeviceSelect(RemappableDevice remappableDevice)
     {
+        DeviceEnabledChckBox.Click -= DeviceEnabledChckBox_OnClicked;
         // Rebuild the key area
         RemappableDeviceKeys.Children.Clear();
         NotRemappableTextBlock.Visibility = remappableDevice.RemapEnabled ? Visibility.Collapsed : Visibility.Visible;
         SetAllNoneBtn.IsEnabled = remappableDevice.RemapEnabled;
         SetAllLogoBtn.IsEnabled = remappableDevice.RemapEnabled;
+        DeviceEnabledChckBox.IsChecked = remappableDevice.IsEnabled;
+
+        _remappableDevice = remappableDevice;
+
+        DeviceEnabledChckBox.Click += DeviceEnabledChckBox_OnClicked;
 
         await Task.Run(async () =>
         {
@@ -249,4 +258,23 @@ public partial class DeviceMapping
     }
 
     #endregion
+
+    private async void DeviceEnabledChckBox_OnClicked(object sender, RoutedEventArgs e)
+    {
+        if (_remappableDevice == null)
+        {
+            return;
+        }
+ 
+        var isEnabled = DeviceEnabledChckBox.IsChecked ?? false;
+        var deviceManager = await _deviceManager;
+        if (isEnabled)
+        {
+            await deviceManager.DevicesPipe.EnableDevice(_remappableDevice.DeviceId);
+        }
+        else
+        {
+            await deviceManager.DevicesPipe.DisableDevice(_remappableDevice.DeviceId);
+        }
+    }
 }

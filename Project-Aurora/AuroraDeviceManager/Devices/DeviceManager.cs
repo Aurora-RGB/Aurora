@@ -226,10 +226,12 @@ public sealed class DeviceManager : IDisposable
         var remappableDevices = (
             from rgbNetController in rgbNetControllers
             from device in rgbNetController.DeviceList
-            let calibration = Global.DeviceConfig.DeviceCalibrations.GetValueOrDefault(device.DeviceInfo.DeviceName, SimpleColor.White)
-            let deviceSummary = $"{rgbNetController.DeviceName}: [{device.DeviceInfo.DeviceType}] {device.DeviceInfo.DeviceName}"
+            let deviceId = device.DeviceInfo.DeviceName
+            let isEnabled = !Global.DeviceConfig.DisabledControllerDevices.Contains(deviceId)
+            let calibration = Global.DeviceConfig.DeviceCalibrations.GetValueOrDefault(deviceId, SimpleColor.White)
+            let deviceSummary = $"{rgbNetController.DeviceName}: [{device.DeviceInfo.DeviceType}] {deviceId}"
             let rgbNetLeds = device.Select(l => l.Id).ToList()
-            select new RemappableDevice(device.DeviceInfo.DeviceName, deviceSummary, rgbNetLeds, calibration, !rgbNetController.NeedsLayout())
+            select new RemappableDevice(isEnabled, deviceId, deviceSummary, rgbNetLeds, calibration, !rgbNetController.NeedsLayout())
         ).ToList();
 
         var currentDevices = new CurrentDevices(remappableDevices);
@@ -299,14 +301,18 @@ public sealed class DeviceManager : IDisposable
         await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).Disable();
     }
 
-    public async Task EnableDevice(string deviceController, string deviceId)
+    public async Task EnableDevice(string deviceId)
     {
-        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).EnableDevice(deviceId);
+        Global.DeviceConfig.DisabledControllerDevices.Remove(deviceId);
+        await ShareRemappableDevices();
+        await ConfigManager.SaveDeviceConfig();
     }
 
-    public async Task DisableDevice(string deviceController, string deviceId)
+    public async Task DisableDevice(string deviceId)
     {
-        await DeviceContainers.First(dc => dc.Device.DeviceName == deviceController).DisableDevice(deviceId);
+        Global.DeviceConfig.DisabledControllerDevices.Add(deviceId);
+        await ShareRemappableDevices();
+        await ConfigManager.SaveDeviceConfig();
     }
 
     private readonly byte[] _end = "\n"u8.ToArray();

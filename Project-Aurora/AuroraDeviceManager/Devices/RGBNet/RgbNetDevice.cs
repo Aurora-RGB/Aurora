@@ -118,6 +118,7 @@ public abstract class RgbNetDevice : DefaultDevice
                 }
                 catch (TaskCanceledException)
                 {
+                    ErrorMessage = null;
                     return false;
                 }
             }
@@ -222,6 +223,7 @@ public abstract class RgbNetDevice : DefaultDevice
         Provider.DevicesChanged -= ProviderOnDevicesChanged;
 
         IsInitialized = false;
+        ErrorMessage = null;
         return Task.CompletedTask;
     }
 
@@ -261,6 +263,10 @@ public abstract class RgbNetDevice : DefaultDevice
         {
             foreach (var device in DeviceList)
             {
+                if (Global.DeviceConfig.DisabledControllerDevices.Contains(device.DeviceInfo.DeviceName))
+                {
+                    continue;
+                }
                 _updater.UpdateDevice(keyColors, device);
             }
         }

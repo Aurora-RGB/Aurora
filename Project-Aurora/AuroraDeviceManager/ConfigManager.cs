@@ -100,7 +100,7 @@ public sealed class ConfigManager: IDisposable
 
         var migratedConfig = new DeviceConfig
         {
-            EnabledDevices = new ObservableCollection<string>(auroraConfig.EnabledDevices.Values),
+            EnabledControllers = new ObservableCollection<string>(auroraConfig.EnabledDevices.Values),
             DeviceCalibrations = new Dictionary<string, SimpleColor>(auroraConfig.DeviceCalibrations.Values),
             AllowPeripheralDevices = auroraConfig.AllowPeripheralDevices,
             DevicesDisableHeadset = auroraConfig.DevicesDisableHeadset,
@@ -114,6 +114,11 @@ public sealed class ConfigManager: IDisposable
             File.Delete(auroraConfigFile);
         }catch{ /* ignore */ }
         return migratedConfig;
+    }
+
+    public static Task SaveDeviceConfig()
+    {
+        return Save(Global.DeviceConfig, DeviceConfig.ConfigFile);
     }
 
     private static Task Save(object configuration, string path)

@@ -75,10 +75,10 @@ public partial class Control_DeviceItem
 
     private void btnToggleEnableDisable_Click(object? sender, EventArgs e)
     {
-        var deviceEnabled = !_deviceConfigs.EnabledDevices.Contains(_device.Device.DeviceName);
+        var deviceEnabled = !_deviceConfigs.EnabledControllers.Contains(_device.Device.DeviceName);
         if (deviceEnabled)
         {
-            _deviceConfigs.EnabledDevices.Add(_device.Device.DeviceName);
+            _deviceConfigs.EnabledControllers.Add(_device.Device.DeviceName);
             var device = _device;
             Task.Run(async () =>
             {
@@ -87,7 +87,7 @@ public partial class Control_DeviceItem
         }
         else
         {
-            _deviceConfigs.EnabledDevices.Remove(_device.Device.DeviceName);
+            _deviceConfigs.EnabledControllers.Remove(_device.Device.DeviceName);
         }
         UpdateDynamic();
 
@@ -206,7 +206,7 @@ public partial class Control_DeviceItem
         DeviceDetails.Text = _device.Device.DeviceDetails;
         DevicePerformance.Text = _device.Device.DeviceUpdatePerformance;
 
-        if (!_deviceConfigs.EnabledDevices.Contains(_device.Device.DeviceName))
+        if (!_deviceConfigs.EnabledControllers.Contains(_device.Device.DeviceName))
         {
             BtnEnable.Content = "Enable";
             BtnStart.IsEnabled = false;

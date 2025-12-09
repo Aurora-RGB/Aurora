@@ -75,6 +75,18 @@ public sealed class AuroraPipe : IDisposable
                     await _deviceManager.Disable(deviceController);
                     break;
                 }
+                case DeviceCommands.EnableDevice:
+                {
+                    var deviceId = splits.Next();
+                    await _deviceManager.EnableDevice(deviceId);
+                    break;
+                }
+                case DeviceCommands.DisableDevice:
+                {
+                    var deviceId = splits.Next();
+                    await _deviceManager.DisableDevice(deviceId);
+                    break;
+                }
                 case DeviceCommands.Blink:
                 {
                     var deviceId = splits.Next();

@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Common.Devices;
 
-public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
+public sealed partial class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
 {
     public const string FileName = "DeviceConfig.json";
 
@@ -32,11 +32,19 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
     
     public bool DangerousOpenRgbNonDirectEnable { get; set; }
 
-    private ObservableCollection<string>? _enabledDevices;
-    public ObservableCollection<string> EnabledDevices
+    private ObservableCollection<string>? _enabledControllers;
+    [JsonPropertyName("EnabledDevices")]
+    public ObservableCollection<string> EnabledControllers
     {
-        get => _enabledDevices ??= new ObservableCollection<string>(DefaultEnabledDevices);
-        set => _enabledDevices = value;
+        get => _enabledControllers ??= new ObservableCollection<string>(DefaultEnabledControllers);
+        set => _enabledControllers = value;
+    }
+
+    private ObservableCollection<string>? _disabledControllerDevices;
+    public ObservableCollection<string> DisabledControllerDevices
+    {
+        get => _disabledControllerDevices ??= [];
+        set => _disabledControllerDevices = value;
     }
 
     private static readonly Dictionary<string,string> Migrations = new()
@@ -74,7 +82,7 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
         {"Wooting", "Wooting (RGB.NET)"},
     };
 
-    private static HashSet<string> DefaultEnabledDevices =>
+    private static HashSet<string> DefaultEnabledControllers =>
     [
         "Corsair (RGB.NET)",
         "Logitech (RGB.NET)",
@@ -85,32 +93,32 @@ public sealed class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
 
     public void OnPostLoad()
     {
-        _enabledDevices ??= new ObservableCollection<string>(DefaultEnabledDevices);
+        _enabledControllers ??= new ObservableCollection<string>(DefaultEnabledControllers);
 
         MigrateDevices();
 
         PrioritizeDevice("Logitech (RGB.NET)", "Logitech");
 
-        EnabledDevices.CollectionChanged += (_, _) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EnabledDevices)));
+        EnabledControllers.CollectionChanged += (_, _) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EnabledControllers)));
     }
 
     private void MigrateDevices()
     {
-        foreach (var loadedDeviceString in EnabledDevices.ToArray())
+        foreach (var loadedDeviceString in EnabledControllers.ToArray())
         {
             var typeName = loadedDeviceString.Split(",")[0];
             if (!Migrations.TryGetValue(typeName, out var migratedValue)) continue;
-            EnabledDevices.Remove(loadedDeviceString);
-            EnabledDevices.Add(migratedValue);
+            EnabledControllers.Remove(loadedDeviceString);
+            EnabledControllers.Add(migratedValue);
         }
     }
 
     private void PrioritizeDevice(string primary, string secondary)
     {
-        if (EnabledDevices.Contains(primary))
+        if (EnabledControllers.Contains(primary))
         {
-            EnabledDevices.Remove(secondary);
+            EnabledControllers.Remove(secondary);
         }
     }
 }

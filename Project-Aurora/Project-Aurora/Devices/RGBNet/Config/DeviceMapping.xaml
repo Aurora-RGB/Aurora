@@ -35,9 +35,10 @@
                     VerticalAlignment="Stretch"
                     Height="auto">
                     <StackPanel Orientation="Vertical">
+                        <CheckBox Name="DeviceEnabledChckBox">Enabled</CheckBox>
                         <StackPanel Orientation="Horizontal" > 
-                            <Button Name="SetAllNoneBtn" Content="Set All None" DockPanel.Dock="Top" Click="SetAllNone_Click" ToolTip="Set all of the lights to NONE"/>
-                            <Button Name="SetAllLogoBtn" Content="Set All Logo" DockPanel.Dock="Top" Click="SetAllLogo_Click" ToolTip="Set all of the lights to PERIPHERAL_LOGO"/>
+                            <Button Margin="8 4" Name="SetAllNoneBtn" Content="Set All None" DockPanel.Dock="Top" Click="SetAllNone_Click" ToolTip="Set all of the lights to NONE"/>
+                            <Button Margin="8 4" Name="SetAllLogoBtn" Content="Set All Logo" DockPanel.Dock="Top" Click="SetAllLogo_Click" ToolTip="Set all of the lights to PERIPHERAL_LOGO"/>
                         </StackPanel>
                         <Separator DockPanel.Dock="Top" Height="10"/>
                         <TextBlock Name="NotRemappableTextBlock" Visibility="Collapsed" Foreground="Red">This device cannot be remapped. You need to choose a correct layout.</TextBlock>

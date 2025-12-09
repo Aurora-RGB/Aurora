@@ -57,19 +57,31 @@ public sealed class DevicesPipe
 
     public async Task RequestRemappableDevices()
     {
-        await SendCommand( DeviceCommands.Share);
+        await SendCommand(DeviceCommands.Share);
     }
 
-    public async Task EnableDevice(string deviceDeviceName)
+    public async Task EnableController(string controllerName)
     {
-        var command = DeviceCommands.Enable + Constants.StringSplit + deviceDeviceName;
-        await SendCommand( command);
+        var command = DeviceCommands.Enable + Constants.StringSplit + controllerName;
+        await SendCommand(command);
     }
 
-    public async Task DisableDevice(string deviceDeviceName)
+    public async Task DisableController(string controllerName)
     {
-        var command = DeviceCommands.Disable + Constants.StringSplit + deviceDeviceName;
-        await SendCommand( command);
+        var command = DeviceCommands.Disable + Constants.StringSplit + controllerName;
+        await SendCommand(command);
+    }
+    
+    public async Task EnableDevice(string deviceName)
+    {
+        var command = DeviceCommands.EnableDevice + Constants.StringSplit + deviceName;
+        await SendCommand(command);
+    }
+    
+    public async Task DisableDevice(string deviceName)
+    {
+        var command = DeviceCommands.DisableDevice + Constants.StringSplit + deviceName;
+        await SendCommand(command);
     }
 
     public async Task Recalibrate(string deviceName, SimpleColor color)
