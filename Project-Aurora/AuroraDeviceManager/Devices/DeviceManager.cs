@@ -8,6 +8,7 @@ using Common;
 using Common.Data;
 using Common.Devices;
 using Common.Devices.RGBNet;
+using Common.Utils;
 using Microsoft.Win32;
 using RGB.NET.Core;
 using RgbNetColor = RGB.NET.Core.Color;
@@ -236,7 +237,7 @@ public sealed class DeviceManager : IDisposable
 
         var currentDevices = new CurrentDevices(remappableDevices);
 
-        var json = JsonSerializer.Serialize(currentDevices, SourceGenerationContext.Default.CurrentDevices);
+        var json = JsonSerializer.Serialize(currentDevices, DevicesJsonContext.Default.CurrentDevices);
         var command = DeviceCommands.RemappableDevices + Constants.StringSplit + json;
 
         await SendCommand(command);

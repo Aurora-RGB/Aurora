@@ -201,7 +201,7 @@ public static class ConfigManager
 
         LastSaveTimes[path] = currentTime;
 
-        var content = JsonSerializer.Serialize(configuration);
+        var content = JsonSerializer.Serialize(configuration, DevicesJsonContext.Default.GetTypeInfo(configuration.GetType()));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         File.WriteAllText(path, content, Encoding.UTF8);
@@ -216,7 +216,7 @@ public static class ConfigManager
 
         LastSaveTimes[path] = currentTime;
 
-        var content = JsonSerializer.Serialize(configuration);
+        var content = JsonSerializer.Serialize(configuration, DevicesJsonContext.Default.GetTypeInfo(configuration.GetType()));
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
         await File.WriteAllTextAsync(path, content, Encoding.UTF8);
@@ -253,7 +253,7 @@ public static class ConfigManager
 
     public static void SaveSensitiveData()
     {
-        var content = JsonSerializer.Serialize(Global.SensitiveData);
+        var content = JsonSerializer.Serialize(Global.SensitiveData, SettingsJsonContext.Default.SensitiveData);
         var encryptedContent = Encryption.Encrypt(content);
         File.WriteAllBytes(SensitiveData.ConfigFile, encryptedContent);
     }

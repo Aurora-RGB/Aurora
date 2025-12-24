@@ -2,11 +2,11 @@
 using Common.Devices;
 using Common.Devices.RGBNet;
 
-namespace AuroraDeviceManager.Utils;
+namespace Common.Utils;
 
-[JsonSourceGenerationOptions(WriteIndented = false)]
+[JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(DeviceConfig))]
 [JsonSerializable(typeof(CurrentDevices))]
 [JsonSerializable(typeof(DeviceMappingConfig))]
 [JsonSerializable(typeof(VariableRegistryItem))]
-public partial class SourceGenerationContext : JsonSerializerContext;
+public partial class DevicesJsonContext : JsonSerializerContext;
