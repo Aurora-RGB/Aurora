@@ -217,7 +217,9 @@ public static class ConfigManager
 
         var content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
         {
-            TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
+            TypeNameHandling = TypeNameHandling.Auto,
+            SerializationBinder = new AuroraSerializationBinder(),
+            ContractResolver = new SystemTextJsonContractResolver(),
         });
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
@@ -235,7 +237,9 @@ public static class ConfigManager
 
         var content = JsonConvert.SerializeObject(configuration, Formatting.Indented, new JsonSerializerSettings
         {
-            TypeNameHandling = TypeNameHandling.Auto, SerializationBinder = new AuroraSerializationBinder()
+            TypeNameHandling = TypeNameHandling.Auto,
+            SerializationBinder = new AuroraSerializationBinder(),
+            ContractResolver = new SystemTextJsonContractResolver(),
         });
 
         Directory.CreateDirectory(Path.GetDirectoryName(path));
