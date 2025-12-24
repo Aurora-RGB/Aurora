@@ -5,7 +5,6 @@ using AuroraRgb.Profiles.Generic_Application;
 
 namespace AuroraRgb.Settings;
 
-[JsonSerializable(typeof(SensitiveData))]
 [JsonSerializable(typeof(ApplicationSettings))]
 [JsonSerializable(typeof(FirstTimeApplicationSettings))]
 [JsonSerializable(typeof(NewJsonApplicationSettings))]

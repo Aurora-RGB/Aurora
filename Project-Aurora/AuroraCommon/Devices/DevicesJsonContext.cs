@@ -2,7 +2,7 @@
 using Common.Devices;
 using Common.Devices.RGBNet;
 
-namespace AuroraRgb.Settings;
+namespace Common.Utils;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(DeviceConfig))]
