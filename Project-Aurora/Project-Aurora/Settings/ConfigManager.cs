@@ -242,7 +242,7 @@ public static class ConfigManager
         {
             var encryptedContent = await File.ReadAllBytesAsync(SensitiveData.ConfigFile);
             var content = Encryption.Decrypt(encryptedContent);
-            return JsonSerializer.Deserialize<SensitiveData>(content) ?? new SensitiveData();
+            return JsonSerializer.Deserialize<SensitiveData>(content, SettingsJsonContext.Default.SensitiveData) ?? new SensitiveData();
         }
         catch (Exception e)
         {
