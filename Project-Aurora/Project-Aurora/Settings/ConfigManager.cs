@@ -10,6 +10,7 @@ using AuroraRgb.Modules.Logitech;
 using AuroraRgb.Modules.Razer;
 using AuroraRgb.Utils;
 using AuroraRgb.Utils.Json;
+using CloudNimble.EasyAF.NewtonsoftJson.Compatibility;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
@@ -73,6 +74,7 @@ public static class ConfigManager
                 {
                     ObjectCreationHandling = ObjectCreationHandling.Replace,
                     TypeNameHandling = TypeNameHandling.All,
+                    ContractResolver = new SystemTextJsonContractResolver(),
                 }) ?? await CreateDefaultConfigurationFile();
     }
 
@@ -257,6 +259,7 @@ public static class ConfigManager
             {
                 ObjectCreationHandling = ObjectCreationHandling.Replace,
                 SerializationBinder = new AuroraSerializationBinder(),
+                ContractResolver = new SystemTextJsonContractResolver(),
             }) ?? new DeviceConfig();
         File.Copy(Configuration.ConfigFile, Configuration.ConfigFile + ".v194", true);
         return config;

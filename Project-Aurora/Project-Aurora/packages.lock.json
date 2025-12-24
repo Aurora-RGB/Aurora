@@ -55,6 +55,15 @@
           "Microsoft.Extensions.Logging.Abstractions": "7.0.0"
         }
       },
+      "EasyAF.NewtonsoftJson.Compatibility": {
+        "type": "Direct",
+        "requested": "[4.0.0, )",
+        "resolved": "4.0.0",
+        "contentHash": "q0Tn1H85mz//VF2OaIG4avcmSl1vZ/JdgF01z5nmy4Vy3lLhMCLXfQdVLI1aVKlGU4W1X99KbUr1/ilFiB/unA==",
+        "dependencies": {
+          "Newtonsoft.Json": "[13.0.1, 14.0.0)"
+        }
+      },
       "Extended.Wpf.Toolkit": {
         "type": "Direct",
         "requested": "[4.5.1, )",
