@@ -11,6 +11,7 @@
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <PublishSelfContained>true</PublishSelfContained>
         <PublishSingleFile>true</PublishSingleFile>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

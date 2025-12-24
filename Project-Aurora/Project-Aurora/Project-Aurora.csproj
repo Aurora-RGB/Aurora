@@ -5,6 +5,7 @@
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Platforms>x64</Platforms>
         <OutputType>WinExe</OutputType>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>

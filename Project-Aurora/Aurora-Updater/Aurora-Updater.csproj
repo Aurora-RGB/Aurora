@@ -6,6 +6,7 @@
     <OutputType>WinExe</OutputType>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
 
     <SelfContained>true</SelfContained>
     <UseWindowsForms>true</UseWindowsForms>
