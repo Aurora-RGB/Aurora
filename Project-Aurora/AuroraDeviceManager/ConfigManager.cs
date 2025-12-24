@@ -96,7 +96,7 @@ public sealed class ConfigManager: IDisposable
 
         var varRegistryVariables = auroraConfig.VarRegistry.Variables
             .Where(pair => pair.Value.GetValueKind() == JsonValueKind.Object)
-            .ToDictionary(pair => pair.Key, pair => pair.Value.Deserialize(DevicesJsonContext.Default.VariableRegistryItem)!);
+            .ToDictionary(pair => pair.Key, pair => pair.Value.Deserialize(SourceGenerationContext.Default.VariableRegistryItem)!);
 
         var migratedConfig = new DeviceConfig
         {
