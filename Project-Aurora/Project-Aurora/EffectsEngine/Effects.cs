@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 using AuroraRgb.Bitmaps;
 using AuroraRgb.Devices;
@@ -36,7 +35,8 @@ internal class EnumHashGetter: IEqualityComparer<Enum>
 public class Effects(Task<DeviceManager> deviceManager)
 {
     //Optimization: used to mitigate dictionary resizing
-    public static readonly int MaxDeviceId = Enum.GetValues(typeof(DeviceKeys)).Cast<int>().Max() + 1;
+    //TODO https://github.com/skarllot/EnumUtilities/issues/469
+    public const int MaxDeviceId = 2000;
 
     private static readonly DeviceKeys[] PossiblePeripheralKeys =
     [
@@ -152,7 +152,7 @@ public class Effects(Task<DeviceManager> deviceManager)
         }
     }
 
-    private readonly Dictionary<DeviceKeys, SimpleColor> _keyColors = new(MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
+    private readonly DeviceKeyStore _keyColors = new();
 
     private RuntimeChangingLayer Background { get; } = new("Background Layer");
     private readonly Color _backgroundColor = Color.Black;
@@ -205,7 +205,7 @@ public class Effects(Task<DeviceManager> deviceManager)
         frame.Dispose();
     }
 
-    public Dictionary<DeviceKeys, SimpleColor> GetKeyboardLights()
+    public DeviceKeyStore GetKeyboardLights()
     {
         return _keyColors;
     }

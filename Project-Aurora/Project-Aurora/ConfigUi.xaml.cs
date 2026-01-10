@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -21,7 +20,6 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Modules.GameStateListen;
 using AuroraRgb.Modules.Layouts;
-using AuroraRgb.Profiles;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
 using AuroraRgb.Settings.Layers;
@@ -226,8 +224,8 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
         ConvertToMediaColors(keyLights);
         await Dispatcher.InvokeAsync(_updateKeyboardLayouts, dispatcherPriority, _keyboardUpdateCancel.Token);
     }
-    
-    private void ConvertToMediaColors(Dictionary<DeviceKeys, SimpleColor> keyColors)
+
+    private void ConvertToMediaColors(IDictionary<DeviceKeys, SimpleColor> keyColors)
     {
         foreach (var (key, color) in keyColors)
         {

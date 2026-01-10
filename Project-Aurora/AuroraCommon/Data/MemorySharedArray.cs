@@ -10,7 +10,7 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
     private const bool CheckFileSize = false;
     public int Count { get; }
 
-    private static readonly int ElementSize = Marshal.SizeOf(typeof(T));
+    private static readonly int ElementSize = Marshal.SizeOf<T>();
 
     private readonly MemoryMappedFile _mmf;
     private readonly MemoryMappedViewAccessor _accessor;
@@ -153,6 +153,21 @@ public sealed class MemorySharedArray<T> : SignaledMemoryObject, IEnumerable<T> 
 
             // Write the data at the calculated offset
             WriteObject(HeaderOffset() + offset, e);
+        }
+
+        SignalUpdated();
+    }
+    
+    public void WriteArray(T[] array)
+    {
+        // Write the data at the calculated offset
+        var offset = HeaderOffset();
+        // Marshal the struct to a byte array
+        Marshal.StructureToPtr(array, _writePointer, true);
+
+        if (_accessor.CanWrite && !Disposed)
+        {
+            _accessor.WriteArray(offset, _writeBuffer, 0, _writeBuffer.Length);
         }
 
         SignalUpdated();

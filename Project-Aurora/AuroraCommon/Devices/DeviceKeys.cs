@@ -824,12 +824,6 @@ public enum DeviceKeys
     G19 = 126,
 
     /// <summary>
-    /// Macrokey 20 key
-    /// </summary>
-    [Description("G20")]
-    G20 = 127,
-
-    /// <summary>
     /// Brand Logo
     /// </summary>
     [Description("Brand Logo")]
@@ -1953,5 +1947,5 @@ public enum DeviceKeys
     /// None
     /// </summary>
     [Description("None")]
-    NONE = -1,
+    NONE = 127, //TODO this is a temporary fix for DeviceKeyStore being an array
 };

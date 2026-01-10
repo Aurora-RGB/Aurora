@@ -7,7 +7,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
+using AuroraRgb.Utils;
 using Common;
 using Common.Data;
 using Common.Devices;
@@ -46,7 +48,7 @@ public sealed class DeviceManager : IDisposable
     public DeviceManager(AuroraControlInterface auroraControlInterface)
     {
         _auroraControlInterface = auroraControlInterface;
-        _sharedDeviceColor = new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap, Constants.MaxKeyId);
+        _sharedDeviceColor = new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap, Effects.MaxDeviceId);
 
         _deviceManagerInfo = new MemorySharedStruct<DeviceManagerInfo>(Constants.DeviceInformations);
         _deviceManagerInfo.Updated += OnDeviceManagerInfoOnUpdated;
@@ -179,9 +181,9 @@ public sealed class DeviceManager : IDisposable
         _detached = true;
     }
 
-    public void UpdateDevices(Dictionary<DeviceKeys, SimpleColor> keyColors)
+    public void UpdateDevices(DeviceKeyStore keyColors)
     {
-        _sharedDeviceColor.WriteDictionary(keyColors);
+        _sharedDeviceColor.WriteArray(keyColors.ColorArray);
     }
 
     public void Dispose()
