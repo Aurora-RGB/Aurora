@@ -38,6 +38,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public float WidthCenter { get; init; }
     public float HeightCenter { get; init; }
 
+    private readonly BitmapRectangle _emptyRectangle = BitmapRectangle.EmptyRectangle;
     private readonly BitmapRectangle[] _keyRectangles = Enumerable.Range(0, Effects.MaxDeviceId + 1)
         .Select(_ => BitmapRectangle.EmptyRectangle)
         .ToArray();
@@ -81,6 +82,11 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
 
     public ref readonly BitmapRectangle GetRectangle(DeviceKeys key)
     {
+        if (key == DeviceKeys.NONE)
+        {
+            return ref _emptyRectangle;
+        }
+ 
         return ref _keyRectangles[(int)key];
     }
 
