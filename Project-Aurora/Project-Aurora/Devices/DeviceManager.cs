@@ -35,7 +35,7 @@ public sealed class DeviceManager : IDisposable
     public List<DeviceContainer> DeviceContainers { get; } = [];
 
     private readonly AuroraControlInterface _auroraControlInterface;
-    private readonly MemorySharedArray<SimpleColor> _sharedDeviceColor;
+    private readonly MemorySharedArrayWrite<SimpleColor> _sharedDeviceColor;
 
     private int _dmStartCount;
 
@@ -48,7 +48,7 @@ public sealed class DeviceManager : IDisposable
     public DeviceManager(AuroraControlInterface auroraControlInterface)
     {
         _auroraControlInterface = auroraControlInterface;
-        _sharedDeviceColor = new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap, Effects.MaxDeviceId);
+        _sharedDeviceColor = new MemorySharedArrayWrite<SimpleColor>(Constants.DeviceLedMap, Effects.MaxDeviceId);
 
         _deviceManagerInfo = new MemorySharedStruct<DeviceManagerInfo>(Constants.DeviceInformations);
         _deviceManagerInfo.Updated += OnDeviceManagerInfoOnUpdated;

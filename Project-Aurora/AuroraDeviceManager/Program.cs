@@ -34,7 +34,7 @@ var pipe = new AuroraPipe(deviceManager);
 pipe.Shutdown += (_, _) => endTaskSource.TrySetResult();
 measurer.Measure("new AuroraPipe(deviceManager)");
 
-var colors = new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap);
+var colors = new MemorySharedArrayRead<SimpleColor>(Constants.DeviceLedMap);
 var deviceKeys = new Dictionary<DeviceKeys, SimpleColor>();
 measurer.Measure("new MemorySharedArray<SimpleColor>(Constants.DeviceLedMap)");
 colors.Updated += OnColorsOnUpdated;

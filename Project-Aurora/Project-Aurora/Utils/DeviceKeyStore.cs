@@ -7,7 +7,7 @@ using Common.Devices;
 
 namespace AuroraRgb.Utils;
 
-public class DeviceKeyStore : IDictionary<DeviceKeys, SimpleColor>
+public sealed class DeviceKeyStore : IDictionary<DeviceKeys, SimpleColor>
 {
     public readonly SimpleColor[] ColorArray = new SimpleColor[Effects.MaxDeviceId];
     private readonly bool[] _keyExists = new bool[Effects.MaxDeviceId];

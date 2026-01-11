@@ -22,7 +22,7 @@ public sealed class MemorySharedDevice : IDevice
     public VariableRegistry RegisteredVariables { get; } = new();
 
     private readonly MemorySharedStruct<DeviceInformation> _sharedDeviceInfo;
-    private readonly MemorySharedArray<DeviceVariable> _deviceVariables;
+    private readonly MemorySharedArrayRead<DeviceVariable> _deviceVariables;
 
     public MemorySharedDevice(string memoryName)
     {
@@ -30,7 +30,7 @@ public sealed class MemorySharedDevice : IDevice
         _sharedDeviceInfo.Updated += OnSharedDeviceInfoOnUpdated;
         UpdateInformation();
 
-        _deviceVariables = new MemorySharedArray<DeviceVariable>(memoryName + "-vars");
+        _deviceVariables = new MemorySharedArrayRead<DeviceVariable>(memoryName + "-vars");
         _deviceVariables.Updated += DeviceVariablesOnUpdated;
         _deviceVariables.RequestUpdate();
         UpdateVariables();

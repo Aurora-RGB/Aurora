@@ -19,7 +19,7 @@ public sealed partial class DeviceContainer : IDisposable
     private readonly AsyncLock _actionLock = new();
 
     private readonly MemorySharedStruct<DeviceInformation> _deviceInformation;
-    private MemorySharedArray<DeviceVariable> _deviceVariables;
+    private MemorySharedArrayWrite<DeviceVariable> _deviceVariables;
 
     private string SharedObjectName => Device.DeviceName;
 
@@ -34,7 +34,7 @@ public sealed partial class DeviceContainer : IDisposable
         _deviceInformation.UpdateRequested += (_, _) => { UpdateSharedMemory(); };
 
         var deviceVariables = CreateSharedDeviceVariables();
-        _deviceVariables = new MemorySharedArray<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
+        _deviceVariables = new MemorySharedArrayWrite<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
         _deviceVariables.WriteCollection(deviceVariables);
     }
 
@@ -163,7 +163,7 @@ public sealed partial class DeviceContainer : IDisposable
 
         _deviceVariables.Dispose();
         var deviceVariables = CreateSharedDeviceVariables();
-        _deviceVariables = new MemorySharedArray<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
+        _deviceVariables = new MemorySharedArrayWrite<DeviceVariable>(SharedObjectName + "-vars", deviceVariables.Count);
         _deviceVariables.WriteCollection(deviceVariables);
     }
 
