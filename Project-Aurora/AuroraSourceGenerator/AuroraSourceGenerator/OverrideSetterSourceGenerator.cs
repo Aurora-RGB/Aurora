@@ -9,12 +9,13 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace AuroraSourceGenerator;
 
-internal class PropertySetter(string accessPath, ITypeSymbol valueType, INamedTypeSymbol baseType, bool propertyIsOverride)
+internal class PropertySetter(string accessPath, ITypeSymbol valueType, INamedTypeSymbol baseType, bool propertyIsOverride, bool hasSetter)
 {
     public string AccessPath { get; } = accessPath;
     public ITypeSymbol ValueType { get; } = valueType;
     public INamedTypeSymbol BaseType { get; } = baseType;
     public bool IsOverride { get; } = propertyIsOverride;
+    public bool HasSetter { get; } = hasSetter;
 }
 
 [Generator(LanguageNames.CSharp)]
@@ -168,7 +169,7 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
                        
                                private static readonly Dictionary<string, Action<AuroraRgb.Settings.Layers.LayerHandlerPropertiesLogic, object?>> InnerSetters = new()
                                {
-                       {{string.Join(",\n", properties.Select((Func<PropertySetter, string>)SetMethodSource))}}
+                       {{string.Join(",\n", properties.Where(p => p.HasSetter).Select((Func<PropertySetter, string>)SetMethodSource))}}
                                };
                                [GeneratedCode("AuroraRGB", "1.0.0")]
                                public override IReadOnlyDictionary<string, Action<AuroraRgb.Settings.Layers.LayerHandlerPropertiesLogic, object?>> SetterMap => InnerSetters;
@@ -268,18 +269,33 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
 
         var propertySources = properties.Distinct()
             .Except([fieldName])
-            .Select(p => $$"""
-                           [GeneratedCode("AuroraRGB", "1.0.0")]
-                           public {{propertyType}} {{p}}
-                           {
-                               get => {{fieldName}};
-                               set
-                               {
-                                   {{fieldName}} = value;
-                               }
-                           }
+            .Select(p =>
+            {
+                if (!valueTuple.HasSetter)
+                {
+                    return $$"""
+                             [GeneratedCode("AuroraRGB", "1.0.0")]
+                             public {{propertyType}} {{p}}
+                             {
+                                 get => {{fieldName}};
+                             }
 
-                           """);
+                             """;
+                }
+   
+                return $$"""
+                         [GeneratedCode("AuroraRGB", "1.0.0")]
+                         public {{propertyType}} {{p}}
+                         {
+                             get => {{fieldName}};
+                             set
+                             {
+                                 {{fieldName}} = value;
+                             }
+                         }
+
+                         """;
+            });
 
         return $"""
                 // field
@@ -361,7 +377,13 @@ public class OverrideSetterSourceGenerator : IIncrementalGenerator
 
     private static PropertySetter GetMemberSetter(IPropertySymbol property, INamedTypeSymbol baseType)
     {
-        return new PropertySetter(property.Name, property.Type, baseType, !SymbolEqualityComparer.IncludeNullability.Equals(property.ContainingType, baseType));
+        var propertyName = property.Name;
+        var propertyType = property.Type;
+        var propertyIsOverride = !SymbolEqualityComparer.IncludeNullability.Equals(property.ContainingType, baseType);
+        var hasPublicSetter = property.SetMethod != null &&
+                              (property.SetMethod.DeclaredAccessibility.HasFlag(Accessibility.Public) ||
+                               property.SetMethod.DeclaredAccessibility.HasFlag(Accessibility.Internal));
+        return new PropertySetter(propertyName, propertyType, baseType, propertyIsOverride, hasPublicSetter);
     }
 
     private static bool IsAuroraClass(INamedTypeSymbol? namedTypeSymbol)
