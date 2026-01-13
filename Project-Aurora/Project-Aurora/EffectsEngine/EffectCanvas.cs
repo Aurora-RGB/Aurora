@@ -82,7 +82,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
 
     public ref readonly BitmapRectangle GetRectangle(DeviceKeys key)
     {
-        if (key == DeviceKeys.NONE)
+        if (key < 0)
         {
             return ref _emptyRectangle;
         }

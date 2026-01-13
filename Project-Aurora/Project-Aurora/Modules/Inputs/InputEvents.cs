@@ -112,16 +112,24 @@ public sealed class InputEvents : IInputEvents
         // Create an RawInputData from the handle stored in lParam.
         var data = RawInputData.FromHandle(lparam);
 
-        // The data will be an instance of either RawInputMouseData, RawInputKeyboardData, or RawInputHidData.
-        // They contain the raw input data in their properties.
-        var intercepted = data switch
+        try
         {
-            RawInputMouseData mouse => DeviceOnMouseInput(mouse.Mouse),
-            RawInputKeyboardData keyboard => DeviceOnKeyboardInput(keyboard.Keyboard),
-            _ => false,
-        };
+            // The data will be an instance of either RawInputMouseData, RawInputKeyboardData, or RawInputHidData.
+            // They contain the raw input data in their properties.
+            var intercepted = data switch
+            {
+                RawInputMouseData mouse => DeviceOnMouseInput(mouse.Mouse),
+                RawInputKeyboardData keyboard => DeviceOnKeyboardInput(keyboard.Keyboard),
+                _ => false,
+            };
 
-        return intercepted ? IntPtr.Zero : User32.CallWindowProc(_originalWndProc, _hWnd, msg, wparam, lparam);
+            return intercepted ? IntPtr.Zero : User32.CallWindowProc(_originalWndProc, _hWnd, msg, wparam, lparam);
+        }
+        catch(Exception e)
+        {
+            Global.logger.Error(e, "Exception while handling input");
+        }
+        return  IntPtr.Zero;
     }
 
     /// <param name="keyboardData"></param>
