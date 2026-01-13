@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using AuroraRgb.Settings;
 using Common.Devices;
 
@@ -41,11 +40,6 @@ public sealed class EmptyLayer : EffectLayer
     }
 
     public void Set(KeySequence sequence, ref readonly Color color)
-    {
-    }
-
-    public void PercentEffect(Color foregroundColor, Color backgroundColor, IReadOnlyList<DeviceKeys> keys, double value, double total,
-        PercentEffectType percentEffectType = PercentEffectType.Progressive, double flashPast = 0, bool flashReversed = false, bool blinkBackground = false)
     {
     }
 

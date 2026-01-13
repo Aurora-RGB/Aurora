@@ -32,7 +32,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 
     public bool Enabled { get; set; } = true;
 
-    public Dictionary<string, IOverrideLogic>? OverrideLogic { get; set; }
+    public Dictionary<string, IOverrideLogic> OverrideLogic { get; set; } = [];
     // private void OnOverrideLogicChanged() => // Make the logic collection changed event trigger a property change to ensure it gets saved?
 
     #region Constructors
@@ -66,31 +66,37 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
     {
         try
         {
-            if (OverrideLogic != null)
+            // first check Enabled override, if it exists, and if it says disabled, return an empty layer
+            if (OverrideLogic.TryGetValue(nameof(LayerHandlerProperties.Enabled), out var enabledLogic) ||
+                OverrideLogic.TryGetValue(nameof(LayerHandlerProperties._Enabled), out enabledLogic))
             {
-                // For every property which has an override logic assigned
-                foreach (var (key, overrideLogic) in OverrideLogic)
-                    // Set the value of the logic evaluation as the override for this property
+                var enabledValue = enabledLogic.Evaluate(gs);
+                if (enabledValue is false)
+                    return EmptyLayer.Instance;
+            }
+
+            // For every property which has an override logic assigned
+            foreach (var (key, overrideLogic) in OverrideLogic)
+            {
+                // Set the value of the logic evaluation as the override for this property
+                var value = overrideLogic.Evaluate(gs);
+                try
                 {
-                    var value = overrideLogic.Evaluate(gs);
-                    try
+                    if (overrideLogic.VarType is { IsEnum: true })
                     {
-                        if (overrideLogic.VarType is { IsEnum: true })
-                        {
-                            Handler.Properties.SetOverride(key,
-                                value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
-                        }
-                        else
-                        {
-                            Handler.Properties.SetOverride(key, value);
-                        }
+                        Handler.Properties.SetOverride(key,
+                            value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
                     }
-                    catch (OverrideNameRefactoredException)
+                    else
                     {
-                        OverrideLogic.Remove(key);
-                        OverrideLogic.Add(key[1..], overrideLogic);
-                        break;
+                        Handler.Properties.SetOverride(key, value);
                     }
+                }
+                catch (OverrideNameRefactoredException)
+                {
+                    OverrideLogic.Remove(key);
+                    OverrideLogic.Add(key[1..], overrideLogic);
+                    break;
                 }
             }
 
