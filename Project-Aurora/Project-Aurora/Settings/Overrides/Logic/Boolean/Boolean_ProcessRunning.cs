@@ -13,7 +13,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Evaluatable that returns true/false depending on whether the given process name is running.
 /// </summary>
 [Evaluatable("Process Running", category: EvaluatableCategory.Misc)]
-public class BooleanProcessRunning : Evaluatable<bool> {
+public class BooleanProcessRunning : BoolEvaluatable {
 
     public string ProcessName { get; set; } = "";
 

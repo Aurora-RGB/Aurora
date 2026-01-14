@@ -12,7 +12,7 @@ namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 /// While the given input is true, the state of the flip-flop is toggled.
 /// </summary>
 [Evaluatable("Flip-flop (Toggle)", category: EvaluatableCategory.Logic)]
-public class Boolean_FlipFlopT : Evaluatable<bool> {
+public class Boolean_FlipFlopT : BoolEvaluatable {
 
     private bool state = false;
 
@@ -43,7 +43,7 @@ public class Boolean_FlipFlopT : Evaluatable<bool> {
 /// When 'Set' is true, the gate will start outputting true until 'Reset' becomes true.
 /// </summary>
 [Evaluatable("Flip-flop (Set-Reset)", category: EvaluatableCategory.Logic)]
-public class Boolean_FlipFlopSR : Evaluatable<bool> {
+public class Boolean_FlipFlopSR : BoolEvaluatable {
 
     private bool state;
 

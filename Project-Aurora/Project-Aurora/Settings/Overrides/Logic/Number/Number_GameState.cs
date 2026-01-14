@@ -1,4 +1,5 @@
-﻿using System.Windows.Data;
+﻿using System;
+using System.Windows.Data;
 using System.Windows.Media;
 using AuroraRgb.Controls;
 using AuroraRgb.EffectsEngine;
@@ -29,6 +30,15 @@ public class NumberGSINumeric : GsiEvaluatable<double> {
 
     /// <summary>Parses the numbers, compares the result, and returns the result.</summary>
     protected override double Execute(IGameState gameState) => gameState.GetNumber(VariablePath);
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState) => Execute(gameState);
 
     public override Evaluatable<double> Clone() => new NumberGSINumeric { VariablePath = VariablePath };
 }

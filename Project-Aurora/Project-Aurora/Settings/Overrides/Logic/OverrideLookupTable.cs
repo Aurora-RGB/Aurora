@@ -2,10 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
+using DrawingColor = System.Drawing.Color;
 using System.Windows.Media;
 using AuroraRgb.Profiles;
 using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
+using Color = System.Windows.Media.Color;
 
 namespace AuroraRgb.Settings.Overrides.Logic;
 
@@ -23,16 +26,16 @@ public class OverrideLookupTable : IOverrideLogic {
     /// </summary>
     /// <param name="varType">The type of variable being edited (e.g. float, System.Drawing.Color, etc.)</param>
     [JsonConstructor]
-    public OverrideLookupTable(Type varType) : this(varType, null) { }
+    public OverrideLookupTable(Type varType) : this(varType, []) { }
 
     /// <summary>
     /// Creates a new LookupTable.
     /// </summary>
     /// <param name="type">The type of variable being edited (e.g. float, System.Drawing.Color, etc.)</param>
     /// <param name="lookupTable">Optionally a collection of existing LookupTableEntries to add to the new table.</param>
-    public OverrideLookupTable(Type type, IEnumerable<LookupTableEntry>? lookupTable = null) {
+    public OverrideLookupTable(Type type, IEnumerable<LookupTableEntry> lookupTable) {
         VarType = type;
-        LookupTable = lookupTable == null ? [] : new ObservableCollection<LookupTableEntry>(lookupTable);
+        LookupTable = new ObservableCollection<LookupTableEntry>(lookupTable);
         LookupTable.CollectionChanged += (_, _) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(LookupTable)));
     }
 
@@ -57,6 +60,60 @@ public class OverrideLookupTable : IOverrideLogic {
             if (entry.Condition.Evaluate(gameState))
                 return entry.Value;
         return null;
+    }
+    
+    public bool EvaluateBool(IGameState gameState, out bool overridden) {
+        foreach (var entry in LookupTable)
+            if (entry.Condition.Evaluate(gameState)) {
+                overridden = true;
+                if (entry.Value is bool b)
+                    return b;
+                return Convert.ToBoolean(entry.Value);
+            }
+        overridden = false;
+        return false;
+    }
+    
+    public double EvaluateDouble(IGameState gameState, out bool overridden) {
+        foreach (var entry in LookupTable)
+            if (entry.Condition.Evaluate(gameState)) {
+                overridden = true;
+                if (entry.Value is double d)
+                    return d;
+                return Convert.ToDouble(entry.Value);
+            }
+        overridden = false;
+        return 0;
+    }
+    
+    public Rectangle EvaluateRectangle(IGameState gameState, out bool overridden) {
+        foreach (var entry in LookupTable)
+            if (entry.Condition.Evaluate(gameState)) {
+                overridden = true;
+                return entry.Value switch
+                {
+                    Rectangle r => r,
+                    null => default,
+                    _ => (Rectangle)Convert.ChangeType(entry.Value, typeof(Rectangle))
+                };
+            }
+        overridden = false;
+        return default;
+    }
+    
+    public DrawingColor EvaluateColor(IGameState gameState, out bool overridden) {
+        foreach (var entry in LookupTable)
+            if (entry.Condition.Evaluate(gameState)) {
+                overridden = true;
+                return entry.Value switch
+                {
+                    DrawingColor c => c,
+                    null => default,
+                    _ => (DrawingColor)Convert.ChangeType(entry.Value, typeof(Color))
+                };
+            }
+        overridden = false;
+        return default;
     }
 
     /// <summary>

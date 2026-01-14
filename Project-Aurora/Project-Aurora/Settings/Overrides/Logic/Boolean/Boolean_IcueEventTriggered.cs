@@ -10,7 +10,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Icue Event Triggered", category: EvaluatableCategory.Icue)]
-public class BooleanIcueEventTriggered : Evaluatable<bool>
+public class BooleanIcueEventTriggered : BoolEvaluatable
 {
     public Evaluatable<string> EventName { get; set; } = new StringConstant();
     public Evaluatable<double> TimeoutSeconds { get; set; } = new NumberConstant(2);

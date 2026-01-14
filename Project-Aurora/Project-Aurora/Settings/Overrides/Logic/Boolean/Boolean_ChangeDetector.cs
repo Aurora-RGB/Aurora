@@ -12,7 +12,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// <para>Can be used in conjunction with the <see cref="BooleanExtender"/> to make the 'true' last longer than a single eval tick.</para>
 /// </summary>
 [Evaluatable("Number Change Detector", category: EvaluatableCategory.Maths)]
-public class NumericChangeDetector : Evaluatable<bool> {
+public class NumericChangeDetector : BoolEvaluatable {
 
     private double? lastValue;
 
@@ -27,7 +27,7 @@ public class NumericChangeDetector : Evaluatable<bool> {
     public Evaluatable<double> Evaluatable { get; set; } = EvaluatableDefaults.Get<double>();
     public bool DetectRising { get; set; } = true;
     public bool DetectFalling { get; set; } = true;
-    public double DetectionThreshold { get; set; } = 0;
+    public double DetectionThreshold { get; set; }
 
     public override Visual GetControl() => new StackPanel()
         .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(double) }
@@ -65,7 +65,7 @@ public class NumericChangeDetector : Evaluatable<bool> {
 /// Evaluatable that detects when a boolean value changes.
 /// </summary>
 [Evaluatable("Boolean Change Detector", category: EvaluatableCategory.Logic)]
-public class BooleanChangeDetector : Evaluatable<bool> {
+public class BooleanChangeDetector : BoolEvaluatable {
 
     private bool? lastValue;
 

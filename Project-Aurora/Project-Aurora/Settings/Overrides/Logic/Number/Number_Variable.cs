@@ -10,7 +10,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Number;
 
 [Evaluatable("Number Global Variable", category: EvaluatableCategory.Global)]
-public class Number_Variable : Evaluatable<double>
+public class Number_Variable : DoubleEvaluatable
 {
     public Evaluatable<double> DefaultValue { get; set; } = new NumberConstant();
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();

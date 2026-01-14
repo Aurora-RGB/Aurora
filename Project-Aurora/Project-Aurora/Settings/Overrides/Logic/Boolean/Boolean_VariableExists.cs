@@ -9,7 +9,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Global Variable Exists", category: EvaluatableCategory.Global)]
-public class Boolean_VariableExists : Evaluatable<bool>
+public class Boolean_VariableExists : BoolEvaluatable
 {
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();
     

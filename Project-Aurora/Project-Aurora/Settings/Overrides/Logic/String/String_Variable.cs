@@ -10,7 +10,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic;
 
 [Evaluatable("String Global Variable", category: EvaluatableCategory.Global)]
-public class String_Variable : Evaluatable<string>
+public class String_Variable : StringEvaluatable
 {
     public Evaluatable<string> DefaultValue { get; set; } = new StringConstant();
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();

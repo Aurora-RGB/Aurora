@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -41,13 +42,22 @@ public class NumberIcueEventFade : Evaluatable<double>
         if (string.IsNullOrWhiteSpace(eventName) || timeoutSeconds <= 0)
             return 0.0;
         var timeout = (long)(timeoutSeconds * 1000);
-        var currentTimeMillis = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var currentTimeMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var lastEventTimeMillis = IcueModule.AuroraIcueServer.Gsi.EventTimestamps.GetValueOrDefault(eventName, 0);
         var timeSinceEvent = currentTimeMillis - lastEventTimeMillis;
         if (timeSinceEvent > timeout)
             return 0.0;
         return 1.0 - (double)timeSinceEvent / timeout;
     }
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState) => Execute(gameState);
 
     public override Visual GetControl()
     {

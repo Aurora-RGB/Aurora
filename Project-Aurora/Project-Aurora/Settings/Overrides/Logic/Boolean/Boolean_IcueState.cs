@@ -9,7 +9,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Icue State", category: EvaluatableCategory.Icue)]
-public class BooleanIcueState : Evaluatable<bool>
+public class BooleanIcueState : BoolEvaluatable
 {
     public Evaluatable<string> StateName { get; set; } = new StringConstant();
 

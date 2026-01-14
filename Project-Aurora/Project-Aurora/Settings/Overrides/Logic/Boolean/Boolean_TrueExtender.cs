@@ -14,9 +14,9 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// signal while already extending an existing signal will restart the timer.
 /// </summary>
 [Evaluatable("True Extender", category: EvaluatableCategory.Logic)]
-public class BooleanExtender : Evaluatable<bool> {
+public class BooleanExtender : BoolEvaluatable {
 
-    private Stopwatch sw = new Stopwatch();
+    private readonly Stopwatch _sw = new();
 
     public BooleanExtender() { }
     public BooleanExtender(Evaluatable<bool> evaluatable) { Evaluatable = evaluatable; }
@@ -39,12 +39,12 @@ public class BooleanExtender : Evaluatable<bool> {
 
     protected override bool Execute(IGameState gameState) {
         var res = Evaluatable.Evaluate(gameState);
-        if (res) sw.Restart();
+        if (res) _sw.Restart();
         switch (TimeUnit) {
-            case TimeUnit.Milliseconds: return sw.IsRunning && sw.Elapsed.TotalMilliseconds < ExtensionTime;
-            case TimeUnit.Seconds: return sw.IsRunning && sw.Elapsed.TotalSeconds < ExtensionTime;
-            case TimeUnit.Minutes: return sw.IsRunning && sw.Elapsed.TotalMinutes < ExtensionTime;
-            case TimeUnit.Hours: return sw.IsRunning && sw.Elapsed.TotalHours < ExtensionTime;
+            case TimeUnit.Milliseconds: return _sw.IsRunning && _sw.Elapsed.TotalMilliseconds < ExtensionTime;
+            case TimeUnit.Seconds: return _sw.IsRunning && _sw.Elapsed.TotalSeconds < ExtensionTime;
+            case TimeUnit.Minutes: return _sw.IsRunning && _sw.Elapsed.TotalMinutes < ExtensionTime;
+            case TimeUnit.Hours: return _sw.IsRunning && _sw.Elapsed.TotalHours < ExtensionTime;
             default: return false;
         }
     }

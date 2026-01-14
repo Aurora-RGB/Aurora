@@ -12,7 +12,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Condition that accesses a specific game state variable (of boolean type) and returns the state.
 /// </summary>
 [Evaluatable("Boolean State Variable", category: EvaluatableCategory.State)]
-public class BooleanGSIBoolean : Evaluatable<bool> {
+public class BooleanGSIBoolean : BoolEvaluatable {
 
     /// <summary>Creates an empty boolean state variable lookup.</summary>
     public BooleanGSIBoolean() { }
@@ -44,7 +44,7 @@ public class BooleanGSIBoolean : Evaluatable<bool> {
 /// Condition that accesses some specified game state variables (of numeric type) and returns a comparison between them.
 /// </summary>
 [Evaluatable("Numeric State Variable", category: EvaluatableCategory.State)]
-public class BooleanGSINumeric : Evaluatable<bool> {
+public class BooleanGSINumeric : BoolEvaluatable {
 
     /// <summary>Creates a blank numeric game state lookup evaluatable.</summary>
     public BooleanGSINumeric() { }
@@ -133,14 +133,24 @@ public class BooleanGSIEnum : GsiEvaluatable<bool> {
     public Enum EnumValue { get; set; }
 
     // Control
-    private Control_BooleanGSIEnum control;
-    public override Visual GetControl() => control ?? (control = new Control_BooleanGSIEnum(this));
+    private Control_BooleanGSIEnum? _control;
+    public override Visual GetControl() => _control ??= new Control_BooleanGSIEnum(this);
 
     /// <summary>Parses the numbers, compares the result, and returns the result.</summary>
     protected override bool Execute(IGameState gameState) {
         var @enum = gameState.GetEnum(VariablePath);
         return @enum != null && @enum.Equals(EnumValue);
     }
-        
+
+    protected override bool ExecuteBool(IGameState gameState) => Execute(gameState);
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+
     public override Evaluatable<bool> Clone() => new BooleanGSIEnum { VariablePath = VariablePath, EnumValue = EnumValue };
 }

@@ -15,7 +15,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Condition that checks a set of subconditions for atleast one of them being true.
 /// </summary>
 [Evaluatable("Or", category: EvaluatableCategory.Logic)]
-public class BooleanOr : Evaluatable<bool>, IHasSubConditons {
+public class BooleanOr : BoolEvaluatable, IHasSubConditons {
 
     /// <summary>Creates a new Or evaluatable with no subconditions.</summary>
     public BooleanOr() { }
@@ -29,7 +29,7 @@ public class BooleanOr : Evaluatable<bool>, IHasSubConditons {
 
     public override Visual GetControl() => new Control_SubconditionHolder(this, "Or");
 
-    protected override bool Execute(IGameState gameState) => SubConditions.Any(subcondition => subcondition?.Evaluate(gameState) ?? false);
+    protected override bool Execute(IGameState gameState) => SubConditions.Any(subcondition => subcondition.Evaluate(gameState));
         
     public override Evaluatable<bool> Clone() => new BooleanOr { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => e.Clone())) };
 }
@@ -39,7 +39,7 @@ public class BooleanOr : Evaluatable<bool>, IHasSubConditons {
 /// Condition that checks a set of subconditions and requires them all to be true.
 /// </summary>
 [Evaluatable("And", category: EvaluatableCategory.Logic)]
-public class BooleanAnd : Evaluatable<bool>, IHasSubConditons {
+public class BooleanAnd : BoolEvaluatable, IHasSubConditons {
 
     /// <summary>Creates a new And evaluatable with no subconditions.</summary>
     public BooleanAnd() { }
@@ -52,7 +52,9 @@ public class BooleanAnd : Evaluatable<bool>, IHasSubConditons {
 
     public override Visual GetControl() => new Control_SubconditionHolder(this, "And");
 
-    protected override bool Execute(IGameState gameState) => SubConditions.All(subcondition => subcondition?.Evaluate(gameState) ?? false);
+    protected override bool Execute(IGameState gameState) => SubConditions.All(subcondition => subcondition.Evaluate(gameState));
+    protected override bool ExecuteBool(IGameState gameState) => SubConditions.All(subcondition => subcondition.Evaluate(gameState));
+
     public override Evaluatable<bool> Clone() => new BooleanAnd { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => { var x = e.Clone(); return x; })) };
 }
 
@@ -61,7 +63,7 @@ public class BooleanAnd : Evaluatable<bool>, IHasSubConditons {
 /// Condition that inverts another condition.
 /// </summary>
 [Evaluatable("Not", category: EvaluatableCategory.Logic)]
-public class BooleanNot : Evaluatable<bool> {
+public class BooleanNot : BoolEvaluatable {
 
     /// <summary>Creates a new NOT evaluatable with the default BooleanTrue subcondition.</summary>
     public BooleanNot() { }
@@ -89,7 +91,7 @@ public class BooleanNot : Evaluatable<bool> {
 /// the layer will always be visible.
 /// </summary>
 [Evaluatable("Boolean Constant", category: EvaluatableCategory.Logic)]
-public class BooleanConstant : Evaluatable<bool> {
+public class BooleanConstant : BoolEvaluatable {
 
     /// <summary>Creates a new constant true boolean.</summary>
     public BooleanConstant() { }
@@ -104,7 +106,7 @@ public class BooleanConstant : Evaluatable<bool> {
     public bool State { get; set; }
 
     // Create a checkbox to use to set the constant value
-    public override Visual GetControl() => new CheckBox { Content = "True/False", VerticalAlignment = System.Windows.VerticalAlignment.Center }
+    public override Visual GetControl() => new CheckBox { Content = "True/False", VerticalAlignment = VerticalAlignment.Center }
         .WithBinding(CheckBox.IsCheckedProperty, new Binding("State") { Source = this, Mode = BindingMode.TwoWay });
 
     // Simply return the current state

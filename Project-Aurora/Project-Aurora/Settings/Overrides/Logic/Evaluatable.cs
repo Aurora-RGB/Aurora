@@ -21,6 +21,12 @@ public interface IEvaluatable {
 
     /// <summary>Should evaluate the operand and return the evaluation result.</summary>
     object Evaluate(IGameState gameState);
+    
+    bool EvaluateBool(IGameState gameState);
+
+    int EvaluateInt(IGameState gameState);
+
+    double EvaluateDouble(IGameState gameState);
 
     /// <summary>Should return a control that is bound to this logic element.</summary>
     Visual GetControl();
@@ -39,11 +45,17 @@ public abstract class Evaluatable<T> : IEvaluatable, INotifyPropertyChanged {
 
     /// <summary>Should evaluate the operand and return the evaluation result.</summary>
     protected abstract T Execute(IGameState gameState);
+    protected abstract bool ExecuteBool(IGameState gameState);
+    protected abstract int ExecuteInt(IGameState gameState);
+    protected abstract double ExecuteDouble(IGameState gameState);
 
     /// <summary>Evaluates the result of this evaluatable with the given gamestate and returns the result.</summary>
     // Execute the evaluatable logic, store the latest value and return this value
     public T Evaluate(IGameState gameState) => (LastValue = Execute(gameState));
     object IEvaluatable.Evaluate(IGameState gameState) => Evaluate(gameState);
+    public bool EvaluateBool(IGameState gameState) => ExecuteBool(gameState);
+    public int EvaluateInt(IGameState gameState) => ExecuteInt(gameState);
+    public double EvaluateDouble(IGameState gameState) => ExecuteDouble(gameState);
 
     /// <summary>Should return a control that is bound to this logic element.</summary>
     public abstract Visual GetControl();
@@ -51,6 +63,61 @@ public abstract class Evaluatable<T> : IEvaluatable, INotifyPropertyChanged {
     /// <summary>Creates a copy of this IEvaluatable.</summary>
     public abstract Evaluatable<T> Clone();
     IEvaluatable IEvaluatable.Clone() => Clone();
+}
+
+public abstract class BoolEvaluatable : Evaluatable<bool>
+{
+    protected override bool ExecuteBool(IGameState gameState) => Execute(gameState);
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+}
+
+public abstract class DoubleEvaluatable : Evaluatable<double>
+{
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState) => Execute(gameState);
+}
+
+public abstract class StringEvaluatable : Evaluatable<string>
+{
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override int ExecuteInt(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override double ExecuteDouble(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+}
+
+public abstract class IntEvaluatable : Evaluatable<int>
+{
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
+    protected override int ExecuteInt(IGameState gameState) => Execute(gameState);
+    protected override double ExecuteDouble(IGameState gameState)
+    {
+        throw new InvalidOperationException();
+    }
 }
 
 public abstract class GsiEvaluatable<T> : Evaluatable<T>

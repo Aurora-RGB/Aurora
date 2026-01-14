@@ -15,7 +15,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Condition that is true when a specific keyboard button is held down.
 /// </summary>
 [Evaluatable("Key Held", category: EvaluatableCategory.Input)]
-public class BooleanKeyDown : Evaluatable<bool> {
+public class BooleanKeyDown : BoolEvaluatable {
 
     /// <summary>Creates a new key held condition with the default key (Space) as the trigger key.</summary>
     public BooleanKeyDown() { }
@@ -42,7 +42,7 @@ public class BooleanKeyDown : Evaluatable<bool> {
 /// Condition that is true when any keyboard button is held down
 /// </summary>
 [Evaluatable("Any Key Held", category: EvaluatableCategory.Input)]
-public class BooleanAnyKeyDown : Evaluatable<bool> {
+public class BooleanAnyKeyDown : BoolEvaluatable {
     /// <summary>Creates a new any key held condition.</summary>
     public BooleanAnyKeyDown() { }
 
@@ -58,8 +58,8 @@ public class BooleanAnyKeyDown : Evaluatable<bool> {
 /// Condition that is true when a specific keyboard button is held down.
 /// </summary>
 [Evaluatable("Key Press (Retain for duration)", category: EvaluatableCategory.Input)]
-public class BooleanKeyDownWithTimer : Evaluatable<bool> {
-    private readonly Stopwatch watch = new Stopwatch();
+public class BooleanKeyDownWithTimer : BoolEvaluatable {
+    private readonly Stopwatch _watch = new();
 
     /// <summary>Creates a new key held condition with the default key (Space) as the trigger key.</summary>
     public BooleanKeyDownWithTimer() { }
@@ -85,15 +85,15 @@ public class BooleanKeyDownWithTimer : Evaluatable<bool> {
     /// <summary>True if the global event bus's pressed key list contains the target key.</summary>
     protected override bool Execute(IGameState gameState) {
         if (InputsModule.InputEvents.Result.PressedKeys.Contains(TargetKey)) {
-            watch.Restart();
+            _watch.Restart();
             return true;
         }
 
-        if (watch.IsRunning && watch.Elapsed.TotalSeconds <= Seconds) {
+        if (_watch.IsRunning && _watch.Elapsed.TotalSeconds <= Seconds) {
             return true;
         }
 
-        watch.Stop();
+        _watch.Stop();
 
         return false;
     }
@@ -106,7 +106,7 @@ public class BooleanKeyDownWithTimer : Evaluatable<bool> {
 /// Condition that is true when a specific mouse button is held down.
 /// </summary>
 [Evaluatable("Mouse Button Held", category: EvaluatableCategory.Input)]
-public class BooleanMouseDown : Evaluatable<bool> {
+public class BooleanMouseDown : BoolEvaluatable {
 
     /// <summary>Creates a new key held condition with the default mouse button (Left) as the trigger button.</summary>
     public BooleanMouseDown() { }
@@ -134,7 +134,7 @@ public class BooleanMouseDown : Evaluatable<bool> {
 /// Condition that is true when the specified lock key (e.g. caps lock) is active.
 /// </summary>
 [Evaluatable("Lock Key Active", category: EvaluatableCategory.Input)]
-public class BooleanLockKeyActive : Evaluatable<bool> {
+public class BooleanLockKeyActive : BoolEvaluatable {
 
     /// <summary>Creates a new key held condition with the default lock type (CapsLock) as the lock type.</summary>
     public BooleanLockKeyActive() { }
@@ -160,7 +160,7 @@ public class BooleanLockKeyActive : Evaluatable<bool> {
 /// An evaluatable that returns true when the specified time has elapsed without the user pressing a keyboard button or clicking the mouse.
 /// </summary>
 [Evaluatable("Away Timer", category: EvaluatableCategory.Input)]
-public class BooleanAwayTimer : Evaluatable<bool> {
+public class BooleanAwayTimer : BoolEvaluatable {
 
     /// <summary>Gets or sets the time before this timer starts returning true after there has been no user input.</summary>
     public double InactiveTime { get; set; }
@@ -196,7 +196,7 @@ public class BooleanAwayTimer : Evaluatable<bool> {
             case TimeUnit.Minutes: return idleTime.TotalMinutes > InactiveTime;
             case TimeUnit.Hours: return idleTime.TotalHours > InactiveTime;
             default: return false;
-        };
+        }
     }
 
     public override Evaluatable<bool> Clone() => new BooleanAwayTimer { InactiveTime = InactiveTime, TimeUnit = TimeUnit };

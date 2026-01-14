@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using AuroraRgb.Profiles;
 using AuroraRgb.Utils;
-using Common;
 using Common.Utils;
 using Newtonsoft.Json;
 
@@ -97,6 +96,44 @@ public class OverrideDynamicValue : IOverrideLogic
 
         return null;
     }
+    
+    public bool EvaluateBool(IGameState gameState, out bool overridden)
+    {
+        overridden = true;
+        return ConstructorParameters[Value].EvaluateBool(gameState);
+    }
+    
+    public double EvaluateDouble(IGameState gameState, out bool overridden)
+    {
+        overridden = true;
+        return ConstructorParameters[Value].EvaluateDouble(gameState);
+    }
+    
+    public System.Drawing.Rectangle EvaluateRectangle(IGameState gameState, out bool overridden)
+    {
+        var rectangle = (System.Drawing.Rectangle)_value.Value;
+        var p = ConstructorParameters;
+
+        rectangle.X = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.X)].Evaluate(gameState));
+        rectangle.Y = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Y)].Evaluate(gameState));
+        rectangle.Width = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Width)].Evaluate(gameState));
+        rectangle.Height = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Height)].Evaluate(gameState));
+
+        overridden = true;
+        return rectangle;
+    }
+
+    public System.Drawing.Color EvaluateColor(IGameState gameState, out bool overridden)
+    {
+        var p = ConstructorParameters;
+        overridden = true;
+        return System.Drawing.Color.FromArgb(
+            ToColorComp(p["Alpha"].Evaluate(gameState)),
+            ToColorComp(p["Red"].Evaluate(gameState)),
+            ToColorComp(p["Green"].Evaluate(gameState)),
+            ToColorComp(p["Blue"].Evaluate(gameState))
+        );
+    }
 
     /// <summary>
     /// Creates the control that is used to edit the IEvaluatables used as parameters for this DynamicValue logic
@@ -116,28 +153,12 @@ public class OverrideDynamicValue : IOverrideLogic
     internal static readonly IReadOnlyDictionary<Type, Func<IGameState, OverrideDynamicValue, object?>> Creators =
         new Dictionary<Type, Func<IGameState, OverrideDynamicValue, object?>>
         {
-            // Boolean
-            { typeof(bool), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
-
             // Numeric
             { typeof(int), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
             { typeof(long), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
             { typeof(float), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
-            { typeof(double), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
 
-            // Special
-            {
-                typeof(System.Drawing.Color), (state, evaluator) =>
-                {
-                    var p = evaluator.ConstructorParameters;
-                    return System.Drawing.Color.FromArgb(
-                        ToColorComp(p["Alpha"].Evaluate(state)),
-                        ToColorComp(p["Red"].Evaluate(state)),
-                        ToColorComp(p["Green"].Evaluate(state)),
-                        ToColorComp(p["Blue"].Evaluate(state))
-                    );
-                }
-            },
+            // objects
             {
                 typeof(KeySequence), (state, evaluator) =>
                 {
@@ -153,31 +174,9 @@ public class OverrideDynamicValue : IOverrideLogic
                     return keySequence;
                 }
             },
-            {
-                typeof(System.Drawing.Rectangle), (state, evaluator) =>
-                {
-                    var rectangle = (System.Drawing.Rectangle)evaluator._value.Value;
-                    var p = evaluator.ConstructorParameters;
-
-                    rectangle.X = Convert.ToInt32(p["X"].Evaluate(state));
-                    rectangle.Y = Convert.ToInt32(p["Y"].Evaluate(state));
-                    rectangle.Width = Convert.ToInt32(p["Width"].Evaluate(state));
-                    rectangle.Height = Convert.ToInt32(p["Height"].Evaluate(state));
-                    return rectangle;
-                }
-            },
-            {
-                typeof(SimpleColor), (state, evaluator) =>
-                {
-                    var p = evaluator.ConstructorParameters;
-
-                    var a = Convert.ToByte(p["A"].Evaluate(state));
-                    var r = Convert.ToByte(p["R"].Evaluate(state));
-                    var g = Convert.ToByte(p["G"].Evaluate(state));
-                    var b = Convert.ToByte(p["B"].Evaluate(state));
-                    return new SimpleColor(r, g, b, a);
-                }
-            },
+            
+            // for some reason happens
+            { typeof(Type), (state, evaluator) => null },
         };
 
     /// <summary>

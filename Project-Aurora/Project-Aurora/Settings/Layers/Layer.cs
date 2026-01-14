@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using AuroraRgb.Bitmaps;
@@ -57,6 +58,50 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 
     private int _renderErrors;
 
+    private static readonly Dictionary<Type, Action<Layer, IGameState, string, IOverrideLogic>> OverrideTypeFuncs = new()
+    {
+        {
+            typeof(bool), (layer, gs, key, overrideLogic) =>
+            {
+                var logicBoolVal = overrideLogic.EvaluateBool(gs, out var overridden);
+                if (!overridden)
+                    return;
+
+                layer.Handler.Properties.SetOverride(key, logicBoolVal);
+            }
+        },
+        {
+            typeof(double), (layer, gs, key, overrideLogic) =>
+            {
+                var logicDoubleVal = overrideLogic.EvaluateDouble(gs, out var overridden);
+                if (!overridden)
+                    return;
+
+                layer.Handler.Properties.SetOverride(key, logicDoubleVal);
+            }
+        },
+        {
+            typeof(Rectangle), (layer, gs, key, overrideLogic) =>
+            {
+                var logicRectangleVal = overrideLogic.EvaluateRectangle(gs, out var overridden);
+                if (!overridden)
+                    return;
+
+                layer.Handler.Properties.SetOverride(key, logicRectangleVal);
+            }
+        },
+        {
+            typeof(Color), (layer, gs, key, overrideLogic) =>
+            {
+                var logicColorVal = overrideLogic.EvaluateColor(gs, out var overridden);
+                if (!overridden)
+                    return;
+
+                layer.Handler.Properties.SetOverride(key, logicColorVal);
+            }
+        }
+    };
+
     private void OnHandlerChanged() {
         if (AssociatedApplication != null)
             Handler.SetApplication(AssociatedApplication);
@@ -70,26 +115,34 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             if (OverrideLogic.TryGetValue(nameof(LayerHandlerProperties.Enabled), out var enabledLogic) ||
                 OverrideLogic.TryGetValue(nameof(LayerHandlerProperties._Enabled), out enabledLogic))
             {
-                var enabledValue = enabledLogic.Evaluate(gs);
-                if (enabledValue is false)
+                var logicEnabled = enabledLogic.EvaluateBool(gs, out var overridden);
+                if (overridden && !logicEnabled)
                     return EmptyLayer.Instance;
             }
 
             // For every property which has an override logic assigned
             foreach (var (key, overrideLogic) in OverrideLogic)
             {
-                // Set the value of the logic evaluation as the override for this property
-                var value = overrideLogic.Evaluate(gs);
                 try
                 {
-                    if (overrideLogic.VarType is { IsEnum: true })
+                    if (OverrideTypeFuncs.TryGetValue(overrideLogic.VarType, out var overrideFunc))
                     {
-                        Handler.Properties.SetOverride(key,
-                            value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
+                        overrideFunc(this, gs, key, overrideLogic);
+                        continue;
                     }
-                    else
+
+                    // !!! THIS PATH GENERATES BOXING OVERHEAD !!!
+                    // non-object values will generate lots of garbage memory allocations
+                    var value = overrideLogic.Evaluate(gs);
+                    switch (overrideLogic.VarType)
                     {
-                        Handler.Properties.SetOverride(key, value);
+                        case { IsEnum: true }:
+                            Handler.Properties.SetOverride(key,
+                                value == null ? null : Enum.ToObject(overrideLogic.VarType, value));
+                            break;
+                        default:
+                            Handler.Properties.SetOverride(key, value);
+                            break;
                     }
                 }
                 catch (OverrideNameRefactoredException)
