@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using AuroraRgb.Bitmaps;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Exceptions;
+using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Utils.Json;
 using Newtonsoft.Json;
@@ -18,7 +20,7 @@ namespace AuroraRgb.Settings.Layers;
 /// <summary>
 /// A class representing a default settings layer
 /// </summary>
-public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
+public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 {
     [DoNotNotify, JsonIgnore]
     public Application? AssociatedApplication { get; private set; }
@@ -36,8 +38,14 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
     public Dictionary<string, IOverrideLogic> OverrideLogic { get; set; } = [];
     // private void OnOverrideLogicChanged() => // Make the logic collection changed event trigger a property change to ensure it gets saved?
 
+    internal List<LayerPropertyViewModel> CachedPropertyList { get; private set; }
+
     #region Constructors
-    public Layer() { }
+
+    public Layer()
+    {
+        CachedPropertyList = CreateOverridablePropertiesInternal();
+    }
 
     public Layer(string name, ILayerHandler? handler = null) : this() {
         Name = name;
@@ -50,13 +58,27 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 
     public Layer(string name, ILayerHandler handler, OverrideLogicBuilder builder) : this(name, handler, new Dictionary<string, IOverrideLogic>(builder.Create())) { }
     #endregion
-
-    public event PropertyChangedEventHandler? PropertyChanged;
     
     [JsonIgnore]
     public bool Error { get; private set; }
 
     private int _renderErrors;
+
+    private List<LayerPropertyViewModel> CreateOverridablePropertiesInternal()
+    {
+        // Get a list of any members that should be ignored as per the LogicOverrideIgnorePropertyAttribute on the properties class
+        var ignoredProperties = GetType().GetCustomAttributes(typeof(LogicOverrideIgnorePropertyAttribute), false)
+            .Cast<LogicOverrideIgnorePropertyAttribute>()
+            .Select(attr => attr.PropertyName);
+
+        return Handler.Properties.GetType()
+            .GetProperties() // Get all properties on the layer handler's property list
+            .Where(prop => prop.GetCustomAttributes(typeof(LogicOverridableAttribute), true).Length > 0) // Filter to only return the PropertyInfos that have Overridable
+            .Where(prop => !ignoredProperties.Contains(prop.Name)) // Only select things that are NOT on the ignored properties list
+            .Select(prop => new LayerPropertyViewModel(prop, this))
+            .OrderBy(tup => tup.DisplayName)
+            .ToList();
+    }
 
     private static readonly Dictionary<Type, Action<Layer, IGameState, string, IOverrideLogic>> OverrideTypeFuncs = new()
     {
@@ -105,6 +127,7 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
     private void OnHandlerChanged() {
         if (AssociatedApplication != null)
             Handler.SetApplication(AssociatedApplication);
+        CachedPropertyList = CreateOverridablePropertiesInternal();
     }
 
     public EffectLayer Render(IGameState gs)
@@ -199,6 +222,23 @@ public class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 
     public void SetGameState(IGameState newGameState) => Handler.SetGameState(newGameState);
     public void Dispose() => Handler.Dispose();
+    
+    public void RemoveOverrideLogic(string propertyName)
+    {
+        OverrideLogic.Remove(propertyName);
+        Handler.Properties.SetOverride(propertyName, null);
+
+        // fire property changed
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OverrideLogic)));
+    }
+
+    public void SetOverrideLogic(string propertyName, IOverrideLogic overrideLogic)
+    {
+        OverrideLogic[propertyName] = overrideLogic;
+
+        // fire property changed
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(OverrideLogic)));
+    }
 }
 
 /// <summary>

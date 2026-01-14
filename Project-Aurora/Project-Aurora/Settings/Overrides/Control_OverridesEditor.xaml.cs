@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
-using AuroraRgb.Utils;
 using PropertyChanged;
 using Application = AuroraRgb.Profiles.Application;
 using Color = System.Drawing.Color;
@@ -44,26 +42,7 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     /// For the given layer, returns a list of all properties on the handler of that layer that have the OverridableAttribute 
     /// applied (i.e. have been marked overridable for the overrides system).
     /// </summary>
-    public List<Tuple<string, string, Type>> AvailableLayerProperties {
-        get {
-            // Get a list of any members that should be ignored as per the LogicOverrideIgnorePropertyAttribute on the properties class
-            var ignoredProperties = Layer?.Handler.GetType().GetCustomAttributes(typeof(LogicOverrideIgnorePropertyAttribute), false)
-                .Cast<LogicOverrideIgnorePropertyAttribute>()
-                .Select(attr => attr.PropertyName);
-
-            return Layer?.Handler.Properties.GetType().GetProperties() // Get all properties on the layer handler's property list
-                .Where(prop => prop.GetCustomAttributes(typeof(LogicOverridableAttribute), true).Length > 0) // Filter to only return the PropertyInfos that have Overridable
-                .Where(prop => !ignoredProperties.Contains(prop.Name)) // Only select things that are NOT on the ignored properties list
-                .Select(prop => new Tuple<string, string, Type>( // Return the name and type of these properties.
-                    prop.Name, // The actual C# property name
-                    ((LogicOverridableAttribute)prop.GetCustomAttributes(typeof(LogicOverridableAttribute), true)[0]).Name // Get the name specified in the attribute (so it is prettier for the user),
-                    ?? prop.Name.TrimStart('_').CamelCaseToSpaceCase(), //  but if one wasn't provided, pretty-print the code name
-                    Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType // If the property is a nullable type (e.g. bool?), will instead return the non-nullable type (bool)
-                ))
-                .OrderBy(tup => tup.Item2)
-                .ToList();
-        }
-    }
+    public List<LayerPropertyViewModel> AvailableLayerProperties => Layer.CachedPropertyList;
 
     // List of all IOverrideLogic types that the user can select
     public Dictionary<string, Type?> OverrideTypes { get; } = new()
@@ -80,8 +59,8 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     }
 
     // The name of the selected property that is being edited
-    private Tuple<string, string, Type>? _selectedProperty;
-    public Tuple<string, string, Type>? SelectedProperty {
+    private LayerPropertyViewModel? _selectedProperty;
+    public LayerPropertyViewModel? SelectedProperty {
         get => _selectedProperty;
         set {
             _selectedProperty = value;
@@ -90,9 +69,9 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     }
 
     // The override logic for the currently selected property
-    public IOverrideLogic? SelectedLogic => _selectedProperty == null || !Layer.OverrideLogic.ContainsKey(_selectedProperty.Item1)
+    public IOverrideLogic? SelectedLogic => _selectedProperty == null || !Layer.OverrideLogic.ContainsKey(_selectedProperty.PropertyName)
         ? null // Return nothing if nothing in the list is selected or there is no logic for this property
-        : Layer.OverrideLogic[_selectedProperty.Item1];
+        : Layer.OverrideLogic[_selectedProperty.PropertyName];
 
     // The type of logic in use by the selected property
     public Type? SelectedLogicType {
@@ -104,10 +83,9 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
             // If there is a property selected in the list and the logic type is not set to the same value as it already was
             if (_selectedProperty == null || SelectedLogic?.GetType() == value) return;
             if (value == null) { // If the value is null, that means the user selected the "None" option, so remove the override for this property. Also force reset the override to null so that it doesn't persist after removing the logic.
-                Layer.OverrideLogic.Remove(_selectedProperty.Item1);
-                Layer.Handler.Properties.SetOverride(_selectedProperty.Item1, null);
+                Layer.RemoveOverrideLogic(_selectedProperty.PropertyName);
             }  else // Else if the user selected a non-"None" option, create a new instance of that OverrideLogic and assign it to this property
-                Layer.OverrideLogic[_selectedProperty.Item1] = (IOverrideLogic)Activator.CreateInstance(value, _selectedProperty.Item3);
+                Layer.SetOverrideLogic(_selectedProperty.PropertyName, (IOverrideLogic)Activator.CreateInstance(value, _selectedProperty.PropertyType));
             OnPropertyChanged(nameof(SelectedLogic), nameof(SelectedLogicType), nameof(SelectedLogicControl)); // Raise an event to update the control
         }
     }
@@ -116,7 +94,7 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     public Visual SelectedLogicControl => SelectedLogic?.GetControl();
 
     // Application context for logic
-    public Application? Application => Layer?.AssociatedApplication;
+    public Application? Application => Layer.AssociatedApplication;
     #endregion
 
     #region Dependency Objects
@@ -130,14 +108,14 @@ public partial class Control_OverridesEditor : INotifyPropertyChanged {
     }
 
     public static readonly DependencyProperty LayerProperty = DependencyProperty.Register(nameof(Layer), typeof(Layer),
-        typeof(Control_OverridesEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnLayerChange));
+        typeof(Control_OverridesEditor), new FrameworkPropertyMetadata(new Layer(), FrameworkPropertyMetadataOptions.AffectsRender, OnLayerChange));
     #endregion
 
     #region Methods
     public void ForcePropertyListUpdate() {
         // Inform bindings that the available properties list has changed.
         // This may also change the selected property, and therefore the selected logic etc.
-        OnPropertyChanged("AvailableLayerProperties", "SelectedProperty", "SelectedLogic", "SelectedLogicType", "SelectedLogicControl");
+        OnPropertyChanged(nameof(AvailableLayerProperties), nameof(SelectedProperty), nameof(SelectedLogic), nameof(SelectedLogicType), nameof(SelectedLogicControl));
     }
 
     private void HelpButton_Click(object? sender, RoutedEventArgs e) {

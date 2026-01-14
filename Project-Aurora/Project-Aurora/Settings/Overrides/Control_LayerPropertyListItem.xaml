@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="AuroraRgb.Settings.Overrides.Control_LayerPropertyListItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:overrides="clr-namespace:AuroraRgb.Settings.Overrides"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=overrides:LayerPropertyViewModel, IsDesignTimeCreatable=True}"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+        <overrides:PrettyTypeNameConverter x:Key="PrettyTypeNameConv" />
+        <overrides:TypeToIconConverter x:Key="TypeToIconConv" />
+        <overrides:OverrideTypeToColorConverter x:Key="OverrideTypeToColorConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border Width="8" Background="{Binding OverrideType, Converter={StaticResource OverrideTypeToColorConverter}}" />
+        <Image Source="{Binding PropertyType, Converter={StaticResource TypeToIconConv}}"
+               ToolTip="{Binding PropertyType, Converter={StaticResource PrettyTypeNameConv}, Mode=OneTime}"
+               Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4"
+               Grid.Column="1" />
+        <TextBlock Text="{Binding PropertyName, Mode=OneTime}" Margin="8,1,0,0"
+                   Grid.Column="2" />
+        <TextBlock Text="{Binding PropertyType, Converter={StaticResource PrettyTypeNameConv}, Mode=OneTime}" Margin="8,16,0,0" Opacity="0.3"
+                   Grid.Column="2" />
+    </Grid>
+</UserControl>
