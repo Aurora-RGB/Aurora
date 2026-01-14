@@ -23,7 +23,7 @@
                ToolTip="{Binding PropertyType, Converter={StaticResource PrettyTypeNameConv}, Mode=OneTime}"
                Width="30" Height="30" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4"
                Grid.Column="1" />
-        <TextBlock Text="{Binding PropertyName, Mode=OneTime}" Margin="8,1,0,0"
+        <TextBlock Text="{Binding DisplayName, Mode=OneTime}" Margin="8,1,0,0"
                    Grid.Column="2" />
         <TextBlock Text="{Binding PropertyType, Converter={StaticResource PrettyTypeNameConv}, Mode=OneTime}" Margin="8,16,0,0" Opacity="0.3"
                    Grid.Column="2" />
