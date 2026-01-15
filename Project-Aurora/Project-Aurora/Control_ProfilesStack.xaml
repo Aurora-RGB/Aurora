@@ -14,8 +14,8 @@
             <ScrollViewer HorizontalAlignment="Left" Width="56" Height="Auto" UseLayoutRounding="False" CanContentScroll="True"
                           PanningMode="VerticalOnly"
                           HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,6,0">
-                <StackPanel x:Name="ProfilesStack" RenderTransformOrigin="0.5,0" MinHeight="542" MaxHeight="542" MinWidth="40" MaxWidth="40"
-                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="6,0,0,0">
+                <StackPanel x:Name="ProfilesStack" RenderTransformOrigin="0.5,0" MinHeight="542" MaxHeight="542" MinWidth="46" MaxWidth="46"
+                            HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,0">
                     <StackPanel.ContextMenu>
                         <ContextMenu x:Name="CmenuProfiles" Opened="ContextMenu_Opened" Closed="CmenuProfiles_OnClosed" ContextMenuOpening="cmenuProfiles_ContextMenuOpening">
                             <MenuItem Header="Enabled" IsCheckable="True" IsChecked="{Binding Settings.IsEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

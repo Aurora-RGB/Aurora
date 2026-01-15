@@ -6,14 +6,20 @@
              xmlns:local="clr-namespace:AuroraRgb"
              MouseEnter="Control_ProfileImage_OnMouseEnter"
              MouseLeave="Control_ProfileImage_OnMouseLeave"
+             Loaded="Control_ProfileImage_OnLoaded"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:Control_ProfileImage}">
     <Grid Margin="0 5 0 0">
-        <Image Name="Image" Width="40" Height="40"
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Border Name="FocusIndicator" Width="6" Background="Transparent" />
+        <Image Grid.Column="1" Name="Image" Width="40" Height="40"
                MouseDown="ProfileImage_MouseDown"
                Source="{Binding Application.Icon, Mode=OneTime}"
                Margin="0 5 0 0" />
-        <Image Name="RemoveButton"
+        <Image Grid.Column="1" Name="RemoveButton"
                MouseDown="RemoveButton_OnMouseDown"
                Visibility="Collapsed"
                Source="/AuroraRgb;component/Resources/removeprofile_icon.png"
@@ -22,7 +28,7 @@
                VerticalAlignment="Bottom"
                Height="16"
                Width="16" />
-        <Image Name="IsDisabledButton"
+        <Image Grid.Column="1" Name="IsDisabledButton"
                Source="/AuroraRgb;component/Resources/disabled.png"
                ToolTip="Remove {application.Config.ProcessNames[0]} Profile"
                HorizontalAlignment="Left"

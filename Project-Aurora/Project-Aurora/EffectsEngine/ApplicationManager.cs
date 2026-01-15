@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,6 +28,8 @@ public sealed class ApplicationInitializedEventArgs(Application application) : E
 public sealed class ApplicationManager : IAsyncDisposable, IDisposable
 {
     public event EventHandler<ApplicationInitializedEventArgs>? EventAdded;
+    public event EventHandler? OverlayProfilesChanged;
+
     public Dictionary<string, Application> Events { get; } = new() { { "desktop", new Desktop() } };
 
     public Desktop DesktopProfile => (Desktop)Events["desktop"];
@@ -42,6 +45,7 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     private Dictionary<string, SortedSet<Application>> EventProcesses { get; } = new();
     private Dictionary<Regex, Application> EventTitles { get; } = new();
     private Dictionary<string, Application> EventAppIDs { get; } = new();
+    public ImmutableHashSet<string> OverlayActiveProfiles { get; private set; } = [];
 
     private readonly CancellationTokenSource _initializeCancelSource = new();
     private readonly ConcurrentQueue<Func<Task>> _initTaskQueue = new();
@@ -338,6 +342,19 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     /// <returns></returns>
     public IEnumerable<Application> GetOverlayActiveProfiles()
     {
+        // if previous overlay profiles are different from current, raise event
+        var newOverlayProfiles = Events.Values
+            .Where(_isOverlayActiveProfile)
+            .Select(p => p.Config.ID);
+        if (!OverlayActiveProfiles.SequenceEqual(newOverlayProfiles))
+        {
+            OverlayActiveProfiles = Events.Values
+                .Where(_isOverlayActiveProfile)
+                .Select(p => p.Config.ID)
+                .ToImmutableHashSet();
+            OverlayProfilesChanged?.Invoke(this, EventArgs.Empty);
+        }
+        
         return Events.Values.Where(_isOverlayActiveProfile);
     }
 

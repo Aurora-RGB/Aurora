@@ -12,7 +12,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.GameStateListen;
-using AuroraRgb.Profiles;
 using AuroraRgb.Profiles.Generic_Application;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls;
@@ -101,9 +100,10 @@ public partial class Control_ProfilesStack
     private DispatcherOperation InsertApplicationImage(string focusedKey, Application application,
         TaskCompletionSource focusedSetTaskCompletion, CancellationToken cancellationToken)
     {
-        return Dispatcher.BeginInvoke(() =>
+        return Dispatcher.BeginInvoke(async () =>
         {
-            var profileImage = CreateApplication(focusedKey, application);
+            var lightingStateManager = await _lightingStateManager;
+            var profileImage = CreateApplication(focusedKey, application, lightingStateManager);
             var setHidden = application.Settings?.Hidden ?? false;
             profileImage.Visibility = setHidden && !ShowHidden ? Visibility.Collapsed : Visibility.Visible;
 
@@ -116,7 +116,7 @@ public partial class Control_ProfilesStack
 
             if (!application.Config.ID.Equals(focusedKey)) return;
 
-            Dispatcher.BeginInvoke(() =>
+            _ = Dispatcher.BeginInvoke(() =>
             {
                 FocusedAppChanged?.Invoke(this, new FocusedAppChangedEventArgs(application, (BitmapSource)application.Icon));
 
@@ -125,9 +125,9 @@ public partial class Control_ProfilesStack
         }, DispatcherPriority.Loaded);
     }
 
-    private FrameworkElement CreateApplication(string focusedKey, Application application)
+    private FrameworkElement CreateApplication(string focusedKey, Application application, LightingStateManager lightingStateManager)
     {
-        var ctrl = new Control_ProfileImage(application);
+        var ctrl = new Control_ProfileImage(application, this, lightingStateManager);
         ctrl.ProfileRemoved += (_, e) =>
         {
             Task.Run(async () => await RemoveApplication(e.Application)).Wait();
