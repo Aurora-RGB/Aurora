@@ -1947,5 +1947,5 @@ public enum DeviceKeys
     /// None
     /// </summary>
     [Description("None")]
-    NONE = 127, //TODO this is a temporary fix for DeviceKeyStore being an array
+    NONE = -1,
 };

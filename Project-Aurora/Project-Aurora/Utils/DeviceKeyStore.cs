@@ -91,7 +91,7 @@ public sealed class DeviceKeyStore : IDictionary<DeviceKeys, SimpleColor>
     public bool TryGetValue(DeviceKeys key, out SimpleColor value)
     {
         var index = GetEnumHash(key);
-        if (index == -1)
+        if (index < 0)
         {
             value = SimpleColor.Black;
             return true;

@@ -48,7 +48,7 @@ public static partial class KeyUtils
 
         var sb = new StringBuilder(2);
         var scanCode = GetScanCode(associatedKey);
-        if (scanCode == -1)
+        if (scanCode < 0)
             return null;
 
         GetKeyNameTextW((uint)scanCode << 16, sb, 2);
