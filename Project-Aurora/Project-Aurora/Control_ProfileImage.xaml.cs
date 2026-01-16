@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles.Dota_2;
 using AuroraRgb.Profiles.Generic_Application;
@@ -85,9 +86,6 @@ public sealed partial class Control_ProfileImage : IDisposable, IAsyncDisposable
         {
             IsDisabledButton.Visibility = Visibility.Collapsed;
         }
-
-        _profilesStack.FocusedAppChanged += OnFocusedAppChanged;
-        _lightingStateManager.ApplicationManager.OverlayProfilesChanged += ApplicationManagerOnOverlayProfilesChanged;
     }
 
     private void ProfileImage_MouseDown(object? sender, MouseButtonEventArgs e)
@@ -141,7 +139,15 @@ public sealed partial class Control_ProfileImage : IDisposable, IAsyncDisposable
 
     private void Control_ProfileImage_OnLoaded(object sender, RoutedEventArgs e)
     {
+        _profilesStack.FocusedAppChanged += OnFocusedAppChanged;
+        _lightingStateManager.ApplicationManager.OverlayProfilesChanged += ApplicationManagerOnOverlayProfilesChanged;
         UpdateIndicatorBackground();
+    }
+
+    private void Control_ProfileImage_OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        _profilesStack.FocusedAppChanged -= OnFocusedAppChanged;
+        _lightingStateManager.ApplicationManager.OverlayProfilesChanged -= ApplicationManagerOnOverlayProfilesChanged;
     }
 
     private void OnFocusedAppChanged(object? sender, FocusedAppChangedEventArgs e)
@@ -159,6 +165,6 @@ public sealed partial class Control_ProfileImage : IDisposable, IAsyncDisposable
         Dispatcher.InvokeAsync(() =>
         {
             FocusIndicator.Background = GetIndicatorBackground();
-        });
+        }, DispatcherPriority.DataBind);
     }
 }
