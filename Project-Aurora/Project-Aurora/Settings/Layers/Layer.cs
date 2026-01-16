@@ -87,7 +87,10 @@ public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             {
                 var logicBoolVal = overrideLogic.EvaluateBool(gs, out var overridden);
                 if (!overridden)
+                {
+                    layer.Handler.Properties.SetOverride(key, null);
                     return;
+                }
 
                 layer.Handler.Properties.SetOverride(key, logicBoolVal);
             }
@@ -97,7 +100,10 @@ public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             {
                 var logicDoubleVal = overrideLogic.EvaluateDouble(gs, out var overridden);
                 if (!overridden)
+                {
+                    layer.Handler.Properties.SetOverride(key, null);
                     return;
+                }
 
                 layer.Handler.Properties.SetOverride(key, logicDoubleVal);
             }
@@ -107,7 +113,10 @@ public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             {
                 var logicRectangleVal = overrideLogic.EvaluateRectangle(gs, out var overridden);
                 if (!overridden)
+                {
+                    layer.Handler.Properties.SetOverride(key, null);
                     return;
+                }
 
                 layer.Handler.Properties.SetOverride(key, logicRectangleVal);
             }
@@ -117,7 +126,10 @@ public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
             {
                 var logicColorVal = overrideLogic.EvaluateColor(gs, out var overridden);
                 if (!overridden)
+                {
+                    layer.Handler.Properties.SetOverride(key, null);
                     return;
+                }
 
                 layer.Handler.Properties.SetOverride(key, logicColorVal);
             }
