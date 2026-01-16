@@ -51,27 +51,19 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     private readonly ConcurrentQueue<Func<Task>> _initTaskQueue = new();
     
     private readonly Task<RunningProcessMonitor> _runningProcessMonitor;
-    private readonly Task<IpcListener?> _ipcListener;
     private readonly Task<ActiveProcessMonitor> _activeProcessMonitor;
 
-    private readonly Func<Application, bool> _isOverlayActiveProfile;
+    private Func<Application, bool> _isOverlayActiveProfile = _ => false; // Initialized after _runningProcessMonitor is ready
     private readonly SingleConcurrentThread _profileInitThread;
 
     private bool Initialized { get; set; }
 
-    public ApplicationManager(Task<RunningProcessMonitor> runningProcessMonitor, Task<IpcListener?> ipcListener, Task<ActiveProcessMonitor> activeProcessMonitor)
+    public ApplicationManager(Task<RunningProcessMonitor> runningProcessMonitor, Task<ActiveProcessMonitor> activeProcessMonitor)
     {
         _runningProcessMonitor = runningProcessMonitor;
-        _ipcListener = ipcListener;
         _activeProcessMonitor = activeProcessMonitor;
 
-        Predicate<string> processRunning = ProcessRunning;
-        _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
-                                         Array.Exists(evt.Config.ProcessNames, processRunning);
-
         _profileInitThread = new SingleConcurrentThread("ProfileInit", ProfileInitAction, ProfileInitExceptionCallback);
-
-        bool ProcessRunning(string name) => _runningProcessMonitor.Result.IsProcessRunning(name);
     }
 
     public async Task Initialize()
@@ -81,6 +73,7 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
 
         if (_initializeCancelSource.IsCancellationRequested)
             return;
+
         var cancellationToken = _initializeCancelSource.Token;
         var defaultApps = EnumerateDefaultApps();
         var userApps = EnumerateUserApps();
@@ -93,11 +86,18 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
         await DesktopProfile.Initialize(cancellationToken);
         LoadSettings();
 
+        var runningProcessMonitor = await _runningProcessMonitor;
+        Predicate<string> processRunning = ProcessRunning;
+        _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
+                                         Array.Exists(evt.Config.ProcessNames, processRunning);
+
         // Listen for profile keybind triggers
         // TODO make this optional
         (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
 
         Initialized = true;
+
+        bool ProcessRunning(string name) => runningProcessMonitor.IsProcessRunning(name);
     }
 
     private static IEnumerable<Application> EnumerateDefaultApps()
@@ -114,7 +114,7 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
         var additionalProfilesPath = Path.Combine(Global.AppDataDirectory, "AdditionalProfiles");
         if (!Directory.Exists(additionalProfilesPath))
         {
-            return Array.Empty<Application>();
+            return [];
         }
 
         var userApps = from dir in Directory.EnumerateDirectories(additionalProfilesPath)

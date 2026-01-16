@@ -53,14 +53,14 @@ public sealed class LightingStateManager : IDisposable
 
     private bool Initialized { get; set; }
 
-    public LightingStateManager(Task<PluginManager> pluginManager, Task<IpcListener?> ipcListener,
+    public LightingStateManager(Task<PluginManager> pluginManager,
         Task<DeviceManager> deviceManager, Task<ActiveProcessMonitor> activeProcessMonitor, Task<RunningProcessMonitor> runningProcessMonitor)
     {
         _pluginManager = pluginManager;
         _deviceManager = deviceManager;
         _activeProcessMonitor = activeProcessMonitor;
         
-        ApplicationManager = new ApplicationManager(runningProcessMonitor, ipcListener, activeProcessMonitor);
+        ApplicationManager = new ApplicationManager(runningProcessMonitor, activeProcessMonitor);
 
         _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate, ExceptionCallback);
     }

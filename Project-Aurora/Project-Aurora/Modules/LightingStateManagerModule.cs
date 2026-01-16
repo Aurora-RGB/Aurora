@@ -27,7 +27,7 @@ public sealed class LightingStateManagerModule(
     protected override async Task Initialize()
     {
         Global.logger.Information("Loading Applications");
-        var lightingStateManager = new LightingStateManager(pluginManager, listener, deviceManager, activeProcessMonitor, runningProcessMonitor);
+        var lightingStateManager = new LightingStateManager(pluginManager, deviceManager, activeProcessMonitor, runningProcessMonitor);
         _manager = lightingStateManager;
 
         Global.LightingStateManager = lightingStateManager;
