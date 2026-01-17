@@ -12,13 +12,16 @@ namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 public class Boolean_VariableExists : BoolEvaluatable
 {
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();
-    
-    public Boolean_VariableExists() { }
-    
-    public Boolean_VariableExists(Evaluatable<string> variableName) {
+
+    public Boolean_VariableExists()
+    {
+    }
+
+    public Boolean_VariableExists(Evaluatable<string> variableName)
+    {
         VariableName = variableName;
     }
- 
+
     protected override bool Execute(IGameState gameState)
     {
         var key = VariableName.Evaluate(gameState);
@@ -31,7 +34,7 @@ public class Boolean_VariableExists : BoolEvaluatable
     {
         return new StackPanel { Orientation = Orientation.Horizontal }
             .WithChild(new TextBlock
-                { Text = "Name", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
+                { Text = "Variable Name", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
             .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(string) }
                 .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, new Binding(nameof(VariableName)) { Source = this, Mode = BindingMode.TwoWay }));
     }
