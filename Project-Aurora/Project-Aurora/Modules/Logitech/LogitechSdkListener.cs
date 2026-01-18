@@ -384,6 +384,7 @@ public sealed class LogitechSdkListener : IDisposable
         _colors.Clear();
         Device = LogiSetTargetDevice.All;
         BackgroundColor = SimpleColor.Transparent;
+        Application = null;
     }
 
     public void Dispose()
