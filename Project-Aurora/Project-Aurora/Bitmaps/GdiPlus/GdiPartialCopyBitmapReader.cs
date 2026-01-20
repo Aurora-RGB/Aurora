@@ -17,6 +17,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 
     // ReSharper disable once CollectionNeverQueried.Local //to keep reference
     private static readonly Dictionary<Size, int[]> BitmapBuffers = new(20);
+    private static readonly Vector256<int> FullVector = Vector256.Create(0xFF);
 
     private readonly Bitmap _bitmap;
     private readonly RectangleF _dimension;
@@ -25,8 +26,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 
     private readonly Color _transparentColor = Color.Transparent;
     private Color _currentColor = Color.Black;
-
-    private readonly int[] _emptySmallestBuffer = new int[SmallestBufferLength];
 
     public GdiPartialCopyBitmapReader(Bitmap bitmap, double opacity)
     {
@@ -46,6 +45,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             return ref _transparentColor;
 
         var area = rectangle.Width * rectangle.Height;
+        var divider = area / _opacity;
         var size = rectangle.Size;
         if (!Bitmaps.TryGetValue(size, out var buff))
         {
@@ -53,11 +53,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             Bitmaps[size] = buff;
         }
 
-        if (area < SmallestBufferLength)
-        {
-            // clear the padded array
-            Array.Copy(_emptySmallestBuffer, 0, BitmapBuffers[size], 0, _emptySmallestBuffer.Length);
-        }
+        Array.Clear(BitmapBuffers[size]);
 
         var srcData = _bitmap.LockBits(
             rectangle,
@@ -70,7 +66,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 
         _bitmap.UnlockBits(srcData);
 
-        var divider = area / _opacity;
         _currentColor = CommonColorUtils.FastColor(
             (byte)(totals.R / divider),
             (byte)(totals.G / divider),
@@ -94,7 +89,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             var vectorSumA = _zeroVector;
 
             // Process 32 pixels at a time (32 * 4 bytes = 128 bytes)
-            var fullVector = Vector256.Create(0xFF);
             var vectorCount = area / 32;
             for (var i = 0; i < vectorCount; i++)
             {
@@ -104,26 +98,25 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
                 var vector3 = Avx.LoadVector256((int*)(p + offset + 64));
                 var vector4 = Avx.LoadVector256((int*)(p + offset + 96));
 
-                vectorSumB = Avx2.Add(vectorSumB, Avx2.And(vector1, fullVector));
-                vectorSumG = Avx2.Add(vectorSumG, Avx2.And(Avx2.ShiftRightLogical(vector1, 8), fullVector));
-                vectorSumR = Avx2.Add(vectorSumR, Avx2.And(Avx2.ShiftRightLogical(vector1, 16), fullVector));
-                vectorSumA = Avx2.Add(vectorSumA, Avx2.And(Avx2.ShiftRightLogical(vector1, 24), fullVector));
+                vectorSumB = vectorSumB + Avx2.And(vector1, FullVector)
+                                        + Avx2.And(vector2, FullVector)
+                                        + Avx2.And(vector3, FullVector)
+                                        + Avx2.And(vector4, FullVector);
 
-                // Repeat for other vectors...
-                vectorSumB = Avx2.Add(vectorSumB, Avx2.And(vector2, fullVector));
-                vectorSumG = Avx2.Add(vectorSumG, Avx2.And(Avx2.ShiftRightLogical(vector2, 8), fullVector));
-                vectorSumR = Avx2.Add(vectorSumR, Avx2.And(Avx2.ShiftRightLogical(vector2, 16), fullVector));
-                vectorSumA = Avx2.Add(vectorSumA, Avx2.And(Avx2.ShiftRightLogical(vector2, 24), fullVector));
+                vectorSumG = vectorSumG + Avx2.And(Avx2.ShiftRightLogical(vector1, 8), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 8), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 8), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 8), FullVector);
 
-                vectorSumB = Avx2.Add(vectorSumB, Avx2.And(vector3, fullVector));
-                vectorSumG = Avx2.Add(vectorSumG, Avx2.And(Avx2.ShiftRightLogical(vector3, 8), fullVector));
-                vectorSumR = Avx2.Add(vectorSumR, Avx2.And(Avx2.ShiftRightLogical(vector3, 16), fullVector));
-                vectorSumA = Avx2.Add(vectorSumA, Avx2.And(Avx2.ShiftRightLogical(vector3, 24), fullVector));
+                vectorSumR = vectorSumR + Avx2.And(Avx2.ShiftRightLogical(vector1, 16), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 16), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 16), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 16), FullVector);
 
-                vectorSumB = Avx2.Add(vectorSumB, Avx2.And(vector4, fullVector));
-                vectorSumG = Avx2.Add(vectorSumG, Avx2.And(Avx2.ShiftRightLogical(vector4, 8), fullVector));
-                vectorSumR = Avx2.Add(vectorSumR, Avx2.And(Avx2.ShiftRightLogical(vector4, 16), fullVector));
-                vectorSumA = Avx2.Add(vectorSumA, Avx2.And(Avx2.ShiftRightLogical(vector4, 24), fullVector));
+                vectorSumA = vectorSumA + Avx2.And(Avx2.ShiftRightLogical(vector1, 24), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 24), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 24), FullVector)
+                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 24), FullVector);
             }
 
             // Sum up the vector lanes
@@ -141,12 +134,12 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
 
         // Process remaining pixels or all pixels if AVX2 is not supported
         var end = area * 4;
-        for (var j = 0; j < end;)
+        for (var j = 0; j < end; j += 4)
         {
-            sumB += p[j++];
-            sumG += p[j++];
-            sumR += p[j++];
-            sumA += p[j++];
+            sumB += p[j + 0];
+            sumG += p[j + 1];
+            sumR += p[j + 2];
+            sumA += p[j + 3];
         }
 
         return (sumR, sumG, sumB, sumA);
