@@ -51,7 +51,7 @@ public partial class Control_GenericGames : INotifyPropertyChanged
         Dispatcher.Invoke(() =>
         {
             var excludedPrograms = GamebarGamesModule.GamebarConfigManager?.GetExcludedPrograms() ?? [];
-            var enabledApps = GamebarGamesList.GetGameExes()
+            var enabledApps = GamebarGamesModule.GamebarGames.GameExes
                 .Except(excludedPrograms);
 
             EnabledPrograms.Clear();

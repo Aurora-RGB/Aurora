@@ -10,6 +10,7 @@ namespace AuroraRgb.Modules.Gamebar;
 public sealed class GamebarGamesList : IDisposable
 {
     public event EventHandler? GameListChanged;
+    public List<string> GameExes { get; } = new(25);
 
     private const string GamebarConfigStoreKey = @"System\GameConfigStore\Children";
 
@@ -33,7 +34,7 @@ public sealed class GamebarGamesList : IDisposable
         _query = new WqlEventQuery(queryString);
     }
 
-    public static IEnumerable<string> GetGameExes()
+    private static IEnumerable<string> GetGameExes()
     {
         using var gamebarProfiles = Registry.CurrentUser.OpenSubKey(GamebarConfigStoreKey);
         if (gamebarProfiles == null)
@@ -80,6 +81,8 @@ public sealed class GamebarGamesList : IDisposable
 
     private void KeyWatcherOnEventArrived(object? sender, EventArrivedEventArgs e)
     {
+        GameExes.Clear();
+        GameExes.AddRange(GetGameExes());
         GameListChanged?.Invoke(this, EventArgs.Empty);
     }
 

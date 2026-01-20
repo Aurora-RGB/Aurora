@@ -23,7 +23,7 @@ public class EvaluatableAttribute : Attribute {
     public string Name { get; }
 
     /// <summary>The category this condition belongs to (items will be grouped by this in the dropdown list).</summary>
-    public EvaluatableCategory Category { get; }
+    public EvaluatableCategory Category { get; init; }
 
     /// <summary>Gets the description of the category as a string.</summary>
     public string CategoryStr => Category.GetDescription();
@@ -37,5 +37,6 @@ public enum EvaluatableCategory {
     [Description("Maths")] Maths,
     [Description("String")] String,
     [Description("Global Variable")] Global,
-    [Description("iCUE")] Icue,
+    [Description("Chroma, Lightsync & iCUE")] Icue,
+    [Description("My Templates")] Custom,
 }

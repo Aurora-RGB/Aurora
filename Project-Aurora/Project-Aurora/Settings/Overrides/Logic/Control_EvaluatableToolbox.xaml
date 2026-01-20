@@ -28,7 +28,7 @@
     <TabControl ItemsSource="{Binding AvailableTabs, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}" TabStripPlacement="Top" AllowDrop="True" DragEnter="EvaluatableTemplateList_DragEnter" Drop="EvaluatableTemplateList_Drop" >
         <TabControl.ItemContainerStyle>
             <Style TargetType="{x:Type TabItem}" BasedOn="{StaticResource {x:Type TabItem}}">
-                <Setter Property="Header" Value="{Binding Key}" />
+                <Setter Property="Header" Value="{Binding Metadata.CategoryStr}" />
                 <Setter Property="ContentTemplateSelector" Value="{StaticResource TabContentTemplateSelector}" />
             </Style>
         </TabControl.ItemContainerStyle>

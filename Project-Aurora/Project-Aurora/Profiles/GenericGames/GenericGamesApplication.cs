@@ -24,7 +24,7 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
         var baseInit = await base.Initialize(cancellationToken);
 
         var excludedPrograms = GamebarGamesModule.GamebarConfigManager?.GetExcludedPrograms() ?? [];
-        Config.ProcessNames = GamebarGamesList.GetGameExes()
+        Config.ProcessNames = GamebarGamesModule.GamebarGames.GameExes
             .Except(excludedPrograms)
             .ToArray();
 
@@ -40,7 +40,7 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
     private void GamebarGamesOnGameListChanged(object? sender, EventArgs e)
     {
         var excludedPrograms = GamebarGamesModule.GamebarConfigManager?.GetExcludedPrograms() ?? [];
-        Config.ProcessNames = GamebarGamesList.GetGameExes()
+        Config.ProcessNames = GamebarGamesModule.GamebarGames.GameExes
             .Except(excludedPrograms)
             .ToArray();
     }

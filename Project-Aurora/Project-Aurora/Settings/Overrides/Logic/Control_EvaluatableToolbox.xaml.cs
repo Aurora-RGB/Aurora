@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -13,18 +13,23 @@ using TemplateContext = System.Collections.Generic.KeyValuePair<string, AuroraRg
 
 namespace AuroraRgb.Settings.Overrides.Logic {
 
-    public partial class Control_EvaluatableToolbox : UserControl {
+    public partial class Control_EvaluatableToolbox
+    {
+        private readonly EvaluatableRegistry.EvaluatableTypeContainer _customEvaluatableTypeContainer = new() { Metadata = new EvaluatableAttribute("My Templates", EvaluatableCategory.Custom)};
 
         public Control_EvaluatableToolbox() {
             InitializeComponent();
         }
 
         /// <summary>Returns a list of all detected evaluatables grouped by their category and also a special marker for the custom templates tab.</summary>
-        public IEnumerable AvailableTabs {
-            get {
-                foreach (var group in EvaluatableRegistry.Get().GroupBy(x => x.Metadata.Category).OrderBy(x => (int)x.Key))
-                    yield return group;
-                yield return new { Key = "My Templates" };
+        public IEnumerable<IGrouping<EvaluatableCategory, EvaluatableRegistry.EvaluatableTypeContainer?>> AvailableTabs
+        {
+            get
+            {
+                return EvaluatableRegistry.Get()
+                    .Append(_customEvaluatableTypeContainer)
+                    .GroupBy(x => x.Metadata.Category)
+                    .OrderBy(x => (int)x.Key);
             }
         }
 
@@ -118,8 +123,16 @@ namespace AuroraRgb.Settings.Overrides.Logic {
     /// Data template selector for selecting the tab content (since the template evaluatables and default evaluatables require different data templates)
     /// </summary>
     public class TabContentTemplateSelector : DataTemplateSelector {
-        public override DataTemplate SelectTemplate(object item, DependencyObject container) =>
-            ((FrameworkElement)container).FindResource(item is IGrouping<EvaluatableCategory, EvaluatableRegistry.EvaluatableTypeContainer> ? "DefaultEvaluatableDT" : "TemplateEvaluatableDT") as DataTemplate;
+        public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
+        {
+            if (item is not IGrouping<EvaluatableCategory, EvaluatableRegistry.EvaluatableTypeContainer> grouping)
+            {
+                return null;
+            }
+            var category = grouping.Key;
+            var key = category == EvaluatableCategory.Custom ? "TemplateEvaluatableDT" : "DefaultEvaluatableDT";
+            return ((FrameworkElement)container).FindResource(key) as DataTemplate;
+        }
     }
 
 
