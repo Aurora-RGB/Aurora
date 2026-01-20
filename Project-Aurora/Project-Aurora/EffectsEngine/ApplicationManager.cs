@@ -342,6 +342,12 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     /// <returns></returns>
     public IEnumerable<Application> GetOverlayActiveProfiles()
     {
+        if (OverlayProfilesChanged?.GetInvocationList() == null || OverlayProfilesChanged?.GetInvocationList().Length == 0)
+        {
+            // skip checking for changes if there are no listeners
+            return Events.Values.Where(_isOverlayActiveProfile);
+        }
+
         // if previous overlay profiles are different from current, raise event
         var newOverlayProfiles = Events.Values
             .Where(_isOverlayActiveProfile)
