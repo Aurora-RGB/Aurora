@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AuroraRgb.Settings;
@@ -19,8 +19,6 @@ public sealed class NoRenderLayer : EffectLayer
     private double _opacity = 1;
     private bool _isOpaque = true;
 
-    private Color _lastColor = Color.Transparent;
-    private double _percentProgress = -1;
     private Color _colorCache;
     
     // TODO optimize a lot by reducing the result of this
@@ -66,7 +64,7 @@ public sealed class NoRenderLayer : EffectLayer
         _keyColors[(int)key] = color;
     }
 
-    public void Set(DeviceKeys[] keys, ref readonly Color color)
+    public void Set(ICollection<DeviceKeys> keys, ref readonly Color color)
     {
         foreach (var deviceKeys in keys)
         {

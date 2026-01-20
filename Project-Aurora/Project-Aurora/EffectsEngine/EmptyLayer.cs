@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using AuroraRgb.Settings;
 using Common.Devices;
 
@@ -35,7 +36,7 @@ public sealed class EmptyLayer : EffectLayer
     {
     }
 
-    public void Set(DeviceKeys[] keys, ref readonly Color color)
+    public void Set(ICollection<DeviceKeys> keys, ref readonly Color color)
     {
     }
 

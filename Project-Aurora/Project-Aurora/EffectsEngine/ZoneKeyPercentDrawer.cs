@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Rock;
 using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
@@ -32,7 +34,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
     }
 
     private void PercentEffectOnFreeForm(Color foregroundColor, Color backgroundColor, FreeFormObject freeform,
-        DeviceKeys[] keys, double value, double total, PercentEffectType percentEffectType,
+        ICollection<DeviceKeys> keys, double value, double total, PercentEffectType percentEffectType,
         double flashPast, bool flashReversed, bool blinkBackground)
     {
         switch (percentEffectType)
@@ -65,7 +67,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
     }
 
     private static void PercentEffectOnFreeForm(Color foregroundColor, Color backgroundColor, FreeFormObject freeform,
-        DeviceKeys[] keys, double value, double total,
+        ICollection<DeviceKeys> keys, double value, double total,
         double flashPast, bool flashReversed, bool blinkBackground, EffectLayer effectLayer, bool gradual)
     {
         // Calculate progress
@@ -222,12 +224,12 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                dot2 >= 0 && dot2 <= vector2.X * vector2.X + vector2.Y * vector2.Y;
     }
 
-    private void PercentEffectOnKeys(Color foregroundColor, Color backgroundColor, DeviceKeys[] keys, double value,
+    private void PercentEffectOnKeys(Color foregroundColor, Color backgroundColor, OrderedHashSet<DeviceKeys> keys, double value,
         double total, PercentEffectType percentEffectType, double flashPast, bool flashReversed, bool blinkBackground)
     {
         // Previous implementation for non-freeform sequences
         var progressTotal = Math.Clamp(value / total, 0.0, 1.0);
-        var progress = progressTotal * keys.Length;
+        var progress = progressTotal * keys.Count;
 
         // Flash effect logic
         if (flashPast > 0.0 && ((flashReversed && progressTotal >= flashPast) || (!flashReversed && progressTotal <= flashPast)))
@@ -245,7 +247,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 effectLayer.Set(keys, ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progressTotal));
                 break;
             case PercentEffectType.Progressive_Gradual:
-                for (var i = 0; i < keys.Length; i++)
+                for (var i = 0; i < keys.Count; i++)
                 {
                     var currentKey = keys[i];
                     if (i == (int)progress)
@@ -262,7 +264,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
 
                 break;
             case PercentEffectType.Progressive:
-                for (var i = 0; i < keys.Length; i++)
+                for (var i = 0; i < keys.Count; i++)
                 {
                     var currentKey = keys[i];
                     effectLayer.Set(currentKey, i < (int)progress ? foregroundColor : backgroundColor);
@@ -272,13 +274,13 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
             case PercentEffectType.Highest_Key:
             {
                 effectLayer.Set(keys, in backgroundColor);
-                var highestKey = Math.Clamp((int)progress, 0, keys.Length - 1);
+                var highestKey = Math.Clamp((int)progress, 0, keys.Count - 1);
                 effectLayer.Set(keys[highestKey], in foregroundColor);
                 break;
             }
             case PercentEffectType.Highest_Key_Blend:
             {
-                var highestKey = Math.Clamp((int)progress, 0, keys.Length - 1);
+                var highestKey = Math.Clamp((int)progress, 0, keys.Count - 1);
                 var blendColor = ColorUtils.BlendColors(in backgroundColor, in foregroundColor, progress);
                 effectLayer.Set(keys[highestKey], in blendColor);
                 break;
@@ -321,10 +323,10 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 {
                     return;
                 }
-                for (var i = 0; i < keys.Length; i++)
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    var position = (double)i * keys.Length / (keys.Length - 1);
-                    var keyProgress = Math.Clamp(position/keys.Length, 0, 1);
+                    var position = (double)i * keys.Count / (keys.Count - 1);
+                    var keyProgress = Math.Clamp(position/keys.Count, 0, 1);
                     if (keyProgress > progressTotal)
                     {
                         return;
@@ -341,11 +343,11 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 {
                     return;
                 }
-                var delta = 1.0 / keys.Length;
-                for (var i = 0; i < keys.Length; i++)
+                var delta = 1.0 / keys.Count;
+                for (var i = 0; i < keys.Count; i++)
                 {
-                    var position = (double)i * keys.Length / (keys.Length - 1);
-                    var keyProgress = Math.Clamp(position/keys.Length, 0, 1) * (keys.Length - 1) / keys.Length;
+                    var position = (double)i * keys.Count / (keys.Count - 1);
+                    var keyProgress = Math.Clamp(position/keys.Count, 0, 1) * (keys.Count - 1) / keys.Count;
                     var key = keys[i];
                     var color = spectrum.GetColorAt(keyProgress, 1.0f, flashAmount);
                     
@@ -371,7 +373,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
                 {
                     return;
                 }
-                var highestKey = Math.Clamp((int)(progressTotal * keys.Length), 0, keys.Length - 1);
+                var highestKey = Math.Clamp((int)(progressTotal * keys.Count), 0, keys.Count - 1);
                 
                 var key = keys[highestKey];
                 var color = spectrum.GetColorAt(progressTotal, 1.0f, flashAmount);
@@ -387,7 +389,7 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
     }
 
     private static void PercentEffectOnFreeForm(ColorSpectrum spectrum, FreeFormObject freeform,
-        DeviceKeys[] keys, double value, double total,
+        ICollection<DeviceKeys> keys, double value, double total,
         double flashPast, bool flashReversed, EffectLayer effectLayer)
     {
         // Calculate progress

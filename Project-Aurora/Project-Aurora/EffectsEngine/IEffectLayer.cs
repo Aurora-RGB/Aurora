@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using AuroraRgb.Settings;
 using Common.Devices;
@@ -37,7 +38,7 @@ public interface EffectLayer : IDisposable
     /// </summary>
     /// <param name="keys">Array of DeviceKeys to be set</param>
     /// <param name="color">Color to be used</param>
-    void Set(DeviceKeys[] keys, ref readonly Color color);
+    void Set(ICollection<DeviceKeys> keys, ref readonly Color color);
 
     /// <summary>
     /// Sets a specific KeySequence on the bitmap with a specified color.

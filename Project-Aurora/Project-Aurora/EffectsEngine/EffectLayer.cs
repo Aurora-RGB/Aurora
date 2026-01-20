@@ -325,7 +325,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     }
 
     /// <inheritdoc />
-    public void Set(DeviceKeys[] keys, ref readonly Color color)
+    public void Set(ICollection<DeviceKeys> keys, ref readonly Color color)
     {
         foreach (var key in keys)
             SetOneKey(key, in color);

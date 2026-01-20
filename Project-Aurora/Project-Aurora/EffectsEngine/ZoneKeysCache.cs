@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuroraRgb.Settings;
+using AuroraRgb.Utils.Rock;
 using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
@@ -10,7 +11,7 @@ public sealed class ZoneKeysCache : IDisposable
 {
     public event EventHandler? KeysChanged;
     
-    private DeviceKeys[] _zoneKeys = [];
+    private OrderedHashSet<DeviceKeys> _zoneKeys = [];
     private KeySequence? _lastKeySequence;
     private KeySequenceType _lastKeySequenceType = KeySequenceType.Sequence;
     private FreeFormObject? _lastFreeForm;
@@ -35,7 +36,7 @@ public sealed class ZoneKeysCache : IDisposable
         _invalidated = false;
     }
 
-    public DeviceKeys[] GetKeys()
+    public OrderedHashSet<DeviceKeys> GetKeys()
     {
         if (_invalidated)
         {
@@ -48,17 +49,17 @@ public sealed class ZoneKeysCache : IDisposable
         return _zoneKeys;
     }
 
-    private DeviceKeys[] GetKeys(KeySequence keySequence)
+    private OrderedHashSet<DeviceKeys> GetKeys(KeySequence keySequence)
     {
         return keySequence.Type switch
         {
-            KeySequenceType.Sequence => keySequence.Keys.ToArray(),
+            KeySequenceType.Sequence => new OrderedHashSet<DeviceKeys>(keySequence.Keys),
             KeySequenceType.FreeForm => GetKeys(keySequence.Freeform),
             _ => throw new ArgumentOutOfRangeException(nameof(keySequence))
         };
     }
 
-    private DeviceKeys[] GetKeys(FreeFormObject freeFormObject)
+    private OrderedHashSet<DeviceKeys> GetKeys(FreeFormObject freeFormObject)
     {
         // Store the new FreeFormObject and subscribe to its changes
         if (_lastFreeForm != null)
@@ -75,7 +76,7 @@ public sealed class ZoneKeysCache : IDisposable
         return _zoneKeys;
     }
 
-    private static DeviceKeys[] CalculateKeys(FreeFormObject freeForm)
+    private static OrderedHashSet<DeviceKeys> CalculateKeys(FreeFormObject freeForm)
     {
         var canvas = Effects.Canvas;
 
@@ -97,7 +98,7 @@ public sealed class ZoneKeysCache : IDisposable
             return PolygonContainsPolygon(corners, keyCorners);
         });
 
-        return matchingKeys.ToArray();
+        return new OrderedHashSet<DeviceKeys>(matchingKeys);
     }
 
     private static PointF[] GetCorners(FreeFormObject freeForm)
