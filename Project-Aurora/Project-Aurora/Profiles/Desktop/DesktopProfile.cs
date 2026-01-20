@@ -6,6 +6,7 @@ using AuroraRgb.EffectsEngine;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
+using AuroraRgb.Settings.Overrides.Logic.String;
 using Common.Devices;
 using Common.Utils;
 
@@ -299,6 +300,9 @@ public class DesktopProfile : ApplicationProfile
                         .AddEntry(false, new BooleanKeyDown(Keys.LControlKey))
                         .AddEntry(false, new BooleanKeyDown(Keys.LWin))
                         .AddEntry(false, new BooleanKeyDown(Keys.LMenu))
+                        .AddEntry(false, new StringComparison(new String_ChromaSdkGame(), "", StringComparisonOperator.NotEqual))
+                        .AddEntry(false, new StringComparison(new String_LightsyncGame(), "", StringComparisonOperator.NotEqual))
+                        .AddEntry(false, new StringComparison(new String_IcueSdkGame(), "", StringComparisonOperator.NotEqual))
                 )
             ),
 
@@ -357,6 +361,10 @@ public class DesktopProfile : ApplicationProfile
                     EffectWidth = 4
                 }
             }),
+
+            new("Chroma Integration", new RazerLayerHandler()),
+            new ("Lightsync Integration", new LogitechLayerHandler()),
+            new ("iCUE Integration", new IcueSdkLayerHandler()),
 
             new("Gradient Wave", new GradientLayerHandler
             {

@@ -15,6 +15,15 @@ public class StringConstant : StringEvaluatable {
     /// <summary>The value of the constant.</summary>
     public string Value { get; set; } = "";
 
+    public StringConstant()
+    {
+    }
+
+    public StringConstant(string value)
+    {
+        Value = value;
+    }
+
     /// <summary>A control for setting the string value</summary>
     public override Visual GetControl() => new TextBox { MinWidth = 40, VerticalAlignment = System.Windows.VerticalAlignment.Center }
         .WithBinding(TextBox.TextProperty, new Binding("Value") { Source = this, Mode = BindingMode.TwoWay });

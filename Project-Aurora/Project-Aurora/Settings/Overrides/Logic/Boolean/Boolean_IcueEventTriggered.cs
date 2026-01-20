@@ -27,10 +27,7 @@ public class BooleanIcueEventTriggered : BoolEvaluatable
 
     public BooleanIcueEventTriggered(string eventName, double timeoutSeconds)
     {
-        EventName = new StringConstant
-        {
-            Value = eventName
-        };
+        EventName = new StringConstant(eventName);
         TimeoutSeconds = new NumberConstant(timeoutSeconds);
     }
 

@@ -24,10 +24,7 @@ public class BooleanIcueState : BoolEvaluatable
 
     public BooleanIcueState(string variableName)
     {
-        StateName = new StringConstant
-        {
-            Value = variableName
-        };
+        StateName = new StringConstant(variableName);
     }
 
     protected override bool Execute(IGameState gameState)

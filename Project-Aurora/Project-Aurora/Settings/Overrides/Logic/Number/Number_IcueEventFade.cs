@@ -28,10 +28,7 @@ public class NumberIcueEventFade : Evaluatable<double>
 
     public NumberIcueEventFade(string eventName, int timeoutSeconds)
     {
-        EventName = new StringConstant
-        {
-            Value = eventName
-        };
+        EventName = new StringConstant(eventName);
         TimeoutSeconds = new NumberConstant(timeoutSeconds);
     }
 

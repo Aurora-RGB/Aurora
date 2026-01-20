@@ -16,7 +16,26 @@ public class StringComparison : BoolEvaluatable {
     public Evaluatable<string> Operand1 { get; set; } = new StringConstant();
     public Evaluatable<string> Operand2 { get; set; } = new StringConstant();
     public StringComparisonOperator Operator { get; set; } = StringComparisonOperator.Equal;
-    public bool CaseInsensitive { get; set; } = false;
+    public bool CaseInsensitive { get; set; }
+
+    public StringComparison()
+    {
+    }
+
+    public StringComparison(Evaluatable<string> operand1, string operand2Val, StringComparisonOperator op = StringComparisonOperator.Equal, bool caseInsensitive = false)
+    {
+        Operand1 = operand1;
+        Operand2 = new StringConstant(operand2Val);
+        Operator = op;
+        CaseInsensitive = caseInsensitive;
+    }
+
+    public StringComparison(Evaluatable<string> operand1, Evaluatable<string> operand2, StringComparisonOperator op = StringComparisonOperator.Equal)
+    {
+        Operand1 = operand1;
+        Operand2 = operand2;
+        Operator = op;
+    }
 
     // Control allowing the user to edit the comparison
     public override Visual GetControl() => new StackPanel()

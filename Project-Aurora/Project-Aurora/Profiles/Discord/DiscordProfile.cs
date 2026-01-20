@@ -27,12 +27,12 @@ public class DiscordProfile : ApplicationProfile
                     _Sequence = new KeySequence(new[] { DeviceKeys.PAUSE_BREAK })
                 }
             }, new OverrideLogicBuilder()
-                .SetDynamicBoolean("_Enabled", new StringComparison
-                {
-                    Operand1 = new StringGSIString { VariablePath = new VariablePath("Voice/Name") },
-                    Operand2 = new StringConstant { Value = "" },
-                    Operator = StringComparisonOperator.NotEqual,
-                }).SetLookupTable("_PrimaryColor", overrideLookupTableBuilder)),
+                .SetDynamicBoolean("_Enabled", new StringComparison(
+                        new StringGSIString { VariablePath = new VariablePath("Voice/Name") },
+                        "",
+                        StringComparisonOperator.NotEqual
+                    )
+                ).SetLookupTable("_PrimaryColor", overrideLookupTableBuilder)),
 
             new("Mentions", new SolidColorLayerHandler
             {
