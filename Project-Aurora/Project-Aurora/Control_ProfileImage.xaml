@@ -10,16 +10,16 @@
              Unloaded="Control_ProfileImage_OnUnloaded"
              mc:Ignorable="d"
              d:DataContext="{d:DesignInstance local:Control_ProfileImage}">
-    <Grid Margin="0 5 0 0">
+    <Grid Margin="0 6 0 0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"></ColumnDefinition>
             <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        <Border Name="FocusIndicator" Width="6" Background="Transparent" Margin="0, 5, 0, 0" />
+        <Border Name="FocusIndicator" Width="6" Background="Transparent" Margin="0, 4, 0, 0" />
         <Image Grid.Column="1" Name="Image" Width="40" Height="40"
                MouseDown="ProfileImage_MouseDown"
                Source="{Binding Application.Icon, Mode=OneTime}"
-               Margin="0 5 0 0" />
+               Margin="0 4 0 0" />
         <Image Grid.Column="1" Name="RemoveButton"
                MouseDown="RemoveButton_OnMouseDown"
                Visibility="Collapsed"
