@@ -181,13 +181,14 @@ public sealed class ZoneKeysCache : IDisposable
             rectangleCorners[3].Y - rectangleCorners[0].Y
         );
 
-        // Calculate dot products to determine if point is inside
+        // Calculate dot products to determine if the point is inside
         var dot1 = translatedPoint.X * vector1.X + translatedPoint.Y * vector1.Y;
         var dot2 = translatedPoint.X * vector2.X + translatedPoint.Y * vector2.Y;
 
         // Check if the point is within the rectangle's side lengths
-        return dot1 >= 0 && dot1 <= vector1.X * vector1.X + vector1.Y * vector1.Y &&
-               dot2 >= 0 && dot2 <= vector2.X * vector2.X + vector2.Y * vector2.Y;
+        const int delta = 50;
+        return dot1 + delta >= 0 && dot1 - delta <= vector1.X * vector1.X + vector1.Y * vector1.Y &&
+               dot2 + delta >= 0 && dot2 - delta <= vector2.X * vector2.X + vector2.Y * vector2.Y;
     }
 
     private void FreeFormObjectOnValuesChanged(object? sender, FreeFormChangedEventArgs e)
