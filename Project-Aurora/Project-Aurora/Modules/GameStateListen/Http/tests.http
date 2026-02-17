@@ -1,0 +1,125 @@
+﻿# These tests can be run using Jetbrains HTTP Client plugin
+
+### New GSI endpoint (/gameState/{gameName})
+POST http://localhost:9088/gameState/someGame HTTP/1.1
+
+{
+    "provider": {
+        "name": "someGame",
+        "appid": "1234567890",
+    },
+    "clock": 123456,
+    "mode": "Battle Royale",
+    "players": [
+        {
+            "name": "Player1",
+            "team": 1,
+        },
+        {
+            "name": "Player2",
+            "team": 1,
+        }
+    ]
+}
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+});
+%}
+
+### Legacy GSI endpoint (root)
+POST http://localhost:9088/ HTTP/1.1
+
+{
+    "provider": {
+        "name": "someGame",
+        "appid": "1234567890",
+    },
+    "clock": 123456,
+    "mode": "Battle Royale",
+    "players": [
+        {
+            "name": "Player1",
+            "team": 1,
+        },
+        {
+            "name": "Player2",
+            "team": 1,
+        }
+    ]
+}
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+});
+%}
+
+### Invalid endpoint with POST (should return 404)
+POST http://localhost:9088/someGame HTTP/1.1
+
+{
+    "provider": {
+        "name": "someGame",
+        "appid": "1234567890",
+    },
+    "clock": 123456,
+    "mode": "Battle Royale",
+    "players": [
+        {
+            "name": "Player1",
+            "team": 1,
+        },
+        {
+            "name": "Player2",
+            "team": 1,
+        }
+    ]
+}
+> {%
+client.test("Response should be 404", function() {
+    client.assert(response.status === 405, "Expected status code 405, but got " + response.status);
+});
+%}
+
+
+### Invalid method
+PATCH http://localhost:9088/gameState/someGame HTTP/1.1
+
+> {%
+client.test("Response should be 405", function() {
+    client.assert(response.status === 405, "Expected status code 405, but got " + response.status);
+});
+%}
+
+### OPTIONS returns 200 OK
+OPTIONS http://localhost:9088/gameState/someGame HTTP/1.1
+
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+});
+%}
+
+### GET global variables
+GET http://localhost:9088/variables HTTP/1.1
+
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+%}
+
+### POST global variables
+POST http://localhost:9088/variables HTTP/1.1
+
+{
+    "someString": "someValue",
+    "someNumber": 12345,
+    "someBoolean": true
+}
+
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+%}

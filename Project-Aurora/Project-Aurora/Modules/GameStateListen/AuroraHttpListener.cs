@@ -30,23 +30,24 @@ public sealed class AuroraHttpListener
     private bool _isRunning;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly CancellationToken _cancellationToken;
-    private IGameState _currentGameState = new NewtonsoftGameState("{}");
     private readonly HttpListener _netListener;
     private readonly int _port;
     private readonly SingleConcurrentThread _readThread;
     private readonly SingleConcurrentThread _readThread2;
+    
     private readonly FrozenDictionary<string, AuroraEndpoint> _endpoints;
     private readonly FrozenDictionary<Regex, AuroraRegexEndpoint> _regexEndpoints;
+    private readonly HashSet<string> _allowedMethods;
 
     public IGameState CurrentGameState
     {
-        get => _currentGameState;
+        get;
         internal set
         {
-            _currentGameState = value;
+            field = value;
             NewGameState?.Invoke(this, value);
         }
-    }
+    } = new NewtonsoftGameState("{}");
 
     /// <summary>
     ///  Event for handing a newly received game state
@@ -55,7 +56,7 @@ public sealed class AuroraHttpListener
 
     public event EventHandler<JsonGameStateEventArgs>? NewJsonGameState;
 
-     /// <summary>
+    /// <summary>
     /// A GameStateListener that listens for connections on http://127.0.0.1:port/
     /// </summary>
     public AuroraHttpListener(int port, IEnumerable<string> listenIps)
@@ -76,6 +77,10 @@ public sealed class AuroraHttpListener
 
         _endpoints = HttpEndpointFactory.CreateEndpoints(this);
         _regexEndpoints = HttpEndpointFactory.CreateRegexEndpoints(this);
+        _allowedMethods = _endpoints.Values
+            .Union<IAuroraEndpoint>(_regexEndpoints.Values)
+            .SelectMany(endpoint => endpoint.AvailableMethods)
+            .ToHashSet();
     }
 
     private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
@@ -98,15 +103,16 @@ public sealed class AuroraHttpListener
         catch (HttpListenerException exc)
         {
             Global.logger.Error(exc, "Could not start HttpListener");
-            
-            if (exc.ErrorCode == 5)//Access Denied
+
+            if (exc.ErrorCode == 5) //Access Denied
                 MessageBox.Show("Access error during start of network listener.\r\n\r\n" +
                                 "To fix this issue, please run the following commands as admin in Command Prompt:r\n" +
-                                $"   netsh http add urlacl url=http://127.0.0.1:{_port}/ user=Everyone listen=yes", 
+                                $"   netsh http add urlacl url=http://127.0.0.1:{_port}/ user=Everyone listen=yes",
                     "Aurora - Error");
 
             return false;
         }
+
         _isRunning = true;
 
         _readThread.Trigger();
@@ -122,6 +128,7 @@ public sealed class AuroraHttpListener
             {
                 _readThread2.Trigger();
             }
+
             ProcessContext(context);
         }
         catch (TaskCanceledException)
@@ -139,6 +146,7 @@ public sealed class AuroraHttpListener
             {
                 _readThread.Trigger();
             }
+
             ProcessContext(context);
         }
         catch (TaskCanceledException)
@@ -163,34 +171,43 @@ public sealed class AuroraHttpListener
     private void ProcessContext(HttpListenerContext context)
     {
         var path = context.Request.Url!.LocalPath;
-        
-        // find exact path match
-        if (_endpoints.TryGetValue(path, out var endpoint))
-        {
-            endpoint.HandleRequest(context);
-            return;
-        }
 
-        // find regex path match
+        // find the exact path match
+        if (_endpoints.TryGetValue(path, out var endpoint) && endpoint.HandleRequest(context))
+            return;
+
+        // find a regex path match
         try
         {
-            var (match, regexEndpoint) = _regexEndpoints
+            var regexHandled = _regexEndpoints
                 .Select(kv => (kv.Key.Match(path), kv.Value))
-                .First(kv => kv.Item1.Success);
-            regexEndpoint.HandleRequest(context, match);
+                .Where(kv => kv.Item1.Success)
+                .Select(kv => kv.Value.HandleRequest(context, kv.Item1))
+                .FirstOrDefault(k => k);
+
+            if (regexHandled) return;
+            var ctxResponse = context.Response;
+            ctxResponse.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            ctxResponse.Close();
             return;
-        }catch(InvalidOperationException)
+        }
+        catch (InvalidOperationException)
         {
             // no match
         }
         
+        var method = context.Request.HttpMethod;
+        if (!_allowedMethods.Contains(method))
+        {
+            var ctxResponse = context.Response;
+            ctxResponse.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+            ctxResponse.Close();
+            return;
+        }
+
         // no match
         var response = context.Response;
-        response.StatusCode = context.Request.HttpMethod switch
-        {
-             "OPTIONS" => (int)HttpStatusCode.OK,
-            _ => (int)HttpStatusCode.NotFound
-        };
+        response.StatusCode = (int)HttpStatusCode.NotFound;
         response.Headers = WebHeaderCollection;
         response.Close([], true);
     }

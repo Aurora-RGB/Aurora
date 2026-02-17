@@ -29,6 +29,7 @@ public static partial class HttpEndpointFactory
         return ((AuroraRegexEndpoint[])
             [
                 GsiEndpoint(listener),
+                OptionsMethod(),
             ])
             .ToFrozenDictionary(endpoint => endpoint.Path, endpoint => endpoint);
     }
