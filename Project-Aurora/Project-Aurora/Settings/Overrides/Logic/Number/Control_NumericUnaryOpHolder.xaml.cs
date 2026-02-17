@@ -27,7 +27,7 @@ namespace AuroraRgb.Settings.Overrides.Logic {
             StaticOperator = operatorName;
         }
 
-        public Dictionary<string, object> OperatorList { get; set; } = null;
+        public Dictionary<string, Enum> OperatorList { get; set; } = null;
         public string StaticOperator { get; set; } = null;
 
         /// <summary>The dependency property that can be used to access the single operand for this operation.</summary>
