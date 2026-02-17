@@ -7,6 +7,7 @@ using AuroraRgb.Controls;
 using Button = System.Windows.Controls.Button;
 using ComboBox = System.Windows.Controls.ComboBox;
 using HorizontalAlignment = System.Windows.HorizontalAlignment;
+using MenuItem = System.Windows.Controls.MenuItem;
 
 namespace AuroraRgb.Settings.Layers.Controls;
 
@@ -71,7 +72,7 @@ public partial class ControlShortcutAssistantLayer
         layer.Properties.ShortcutKeys = shortcut switch
         {
             ShortcutNode shortcutNode => shortcutNode.GetShortcuts(),
-            ShortcutGroup shortcutGroup => shortcutGroup.Shortcuts,
+            ShortcutGroup shortcutGroup => shortcutGroup.Shortcuts ?? [],
             _ => layer.Properties.ShortcutKeys
         };
         SetSettings();
