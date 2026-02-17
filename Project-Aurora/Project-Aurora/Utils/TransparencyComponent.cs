@@ -129,8 +129,9 @@ public sealed class TransparencyComponent : IDisposable
         }
         else
         {
-            _window.TintColor = Color.FromArgb(240, 128, 128, 128);
-            _window.FallbackColor = Color.FromArgb(64, 0, 0, 0);
+            _window.TintColor = Color.FromArgb(32, 128, 128, 128);
+            _window.FallbackColor = Color.FromArgb(255, 0, 0, 0);
+            _window.Background = Brushes.Black;
         }
     }
 
