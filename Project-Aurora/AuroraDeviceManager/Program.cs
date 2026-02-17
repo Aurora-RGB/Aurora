@@ -54,10 +54,10 @@ return;
 
 void OnColorsOnUpdated(object? o, EventArgs eventArgs)
 {
-    for (var i = 0; i < colors.Count; i++)
+    var index = 0;
+    foreach (var color in colors)
     {
-        var color = colors.ReadElement(i);
-        deviceKeys[(DeviceKeys)i] = color;
+        deviceKeys[(DeviceKeys)index++] = color;
     }
 
     deviceManager.UpdateDevices(deviceKeys);
