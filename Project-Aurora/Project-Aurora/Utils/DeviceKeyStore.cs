@@ -9,18 +9,18 @@ namespace AuroraRgb.Utils;
 
 public sealed class DeviceKeyStore : IDictionary<DeviceKeys, SimpleColor>
 {
-    public readonly SimpleColor[] ColorArray = new SimpleColor[Effects.MaxDeviceId];
-    private readonly bool[] _keyExists = new bool[Effects.MaxDeviceId];
+    public readonly SimpleColor[] ColorArray = new SimpleColor[Constants.MaxKeyId];
+    private readonly bool[] _keyExists = new bool[Constants.MaxKeyId];
 
     public ICollection<DeviceKeys> Keys => Enum.GetValues<DeviceKeys>();
     public ICollection<SimpleColor> Values => ColorArray;
 
-    public int Count => Effects.MaxDeviceId;
+    public int Count => Constants.MaxKeyId;
     public bool IsReadOnly => false;
 
     public IEnumerator<KeyValuePair<DeviceKeys, SimpleColor>> GetEnumerator()
     {
-        for (var i = 0; i < Effects.MaxDeviceId; i++)
+        for (var i = 0; i < Constants.MaxKeyId; i++)
         {
             if (_keyExists[i])
                 yield return new KeyValuePair<DeviceKeys, SimpleColor>((DeviceKeys)i, ColorArray[i]);

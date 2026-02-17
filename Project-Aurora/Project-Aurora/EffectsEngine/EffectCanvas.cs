@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using AuroraRgb.Settings;
+using Common;
 using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
@@ -39,7 +40,7 @@ public sealed class EffectCanvas : IEqualityComparer<EffectCanvas>, IEquatable<E
     public float HeightCenter { get; init; }
 
     private readonly BitmapRectangle _emptyRectangle = BitmapRectangle.EmptyRectangle;
-    private readonly BitmapRectangle[] _keyRectangles = Enumerable.Range(0, Effects.MaxDeviceId + 1)
+    private readonly BitmapRectangle[] _keyRectangles = Enumerable.Range(0, Constants.MaxKeyId + 1)
         .Select(_ => BitmapRectangle.EmptyRectangle)
         .ToArray();
 

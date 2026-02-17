@@ -582,6 +582,11 @@
           "System.Xml.XDocument": "4.3.0"
         }
       },
+      "Raiqub.Generators.EnumUtilities": {
+        "type": "Transitive",
+        "resolved": "1.13.4",
+        "contentHash": "U70O3uC7DVoL5BG62RtiQgBCvy74+gDizuKajsCgFTOpTAnAzNA46znxH5KgD7g2cgksXmlIpsp+PRAt8z+Yyw=="
+      },
       "RAMSPDToolkit-NDD": {
         "type": "Transitive",
         "resolved": "1.3.1",
@@ -1715,6 +1720,7 @@
           "IronPython": "[3.4.1, )",
           "Microsoft.Win32.SystemEvents": "[9.0.0, )",
           "RGB.NET.Core": "[2.0.0-prerelease.111, )",
+          "Raiqub.Generators.EnumUtilities": "[1.13.4, )",
           "Serilog": "[4.3.0, )",
           "SmartThreadPool.dll": "[2.3.0, )",
           "System.Threading.AccessControl": "[9.0.0, )"

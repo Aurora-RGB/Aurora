@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules;
 using AuroraRgb.Utils;
 using Common;
@@ -48,7 +47,7 @@ public sealed class DeviceManager : IDisposable
     public DeviceManager(AuroraControlInterface auroraControlInterface)
     {
         _auroraControlInterface = auroraControlInterface;
-        _sharedDeviceColor = new MemorySharedArrayWrite<SimpleColor>(Constants.DeviceLedMap, Effects.MaxDeviceId);
+        _sharedDeviceColor = new MemorySharedArrayWrite<SimpleColor>(Constants.DeviceLedMap, Constants.MaxKeyId);
 
         _deviceManagerInfo = new MemorySharedStruct<DeviceManagerInfo>(Constants.DeviceInformations);
         _deviceManagerInfo.Updated += OnDeviceManagerInfoOnUpdated;

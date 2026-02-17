@@ -13,6 +13,7 @@ using AuroraRgb.Modules.Razer;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Controls.Keycaps;
 using AuroraRgb.Settings.Layouts;
+using Common;
 using Common.Devices;
 using Application = System.Windows.Application;
 using MediaColor = System.Windows.Media.Color;
@@ -280,7 +281,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         double widthMax = 1;
         double heightMax = 1;
         var bitmapMap =
-            new Dictionary<DeviceKeys, BitmapRectangle>(Effects.MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
+            new Dictionary<DeviceKeys, BitmapRectangle>(Constants.MaxKeyId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
         foreach (var key in virtualKeyboardGroup.GroupedKeys)
         {

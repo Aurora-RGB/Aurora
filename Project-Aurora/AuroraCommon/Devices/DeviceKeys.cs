@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
+using Raiqub.Generators.EnumUtilities;
 
 namespace Common.Devices;
 
 /// <summary>
 /// Enum definition, representing everysingle supported device key
 /// </summary>
+[EnumGenerator]
 public enum DeviceKeys
 {
     /// <summary>

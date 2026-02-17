@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using AuroraRgb.Settings;
+using Common;
 using Common.Devices;
 using Common.Utils;
 
@@ -13,9 +14,9 @@ public sealed class NoRenderLayer : EffectLayer
 {
     private static readonly Color Transparent = Color.Transparent;
     private static DeviceKeys[] AllKeys => Effects.Canvas.Keys;
-    private readonly Color[] _emptyKeyColors = new Color[Effects.MaxDeviceId + 1];
+    private readonly Color[] _emptyKeyColors = new Color[Constants.MaxKeyId + 1];
 
-    private readonly Color[] _keyColors = new Color[Effects.MaxDeviceId + 1];
+    private readonly Color[] _keyColors = new Color[Constants.MaxKeyId + 1];
     private double _opacity = 1;
     private bool _isOpaque = true;
 

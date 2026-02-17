@@ -591,7 +591,7 @@ sealed partial class ConfigUi : INotifyPropertyChanged, IDisposable
     private Control? _selectedControl;
     private readonly Control_ProfilesStack _profilesStack;
     private HwndSource? _windowHwndSource;
-    private readonly Dictionary<DeviceKeys, MediaColor> _uiKeyColors = new(Effects.MaxDeviceId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
+    private readonly Dictionary<DeviceKeys, MediaColor> _uiKeyColors = new(Constants.MaxKeyId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
 
     #endregion
 

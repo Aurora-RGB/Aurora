@@ -13,6 +13,7 @@ using AuroraRgb.Profiles.Desktop;
 using AuroraRgb.Settings.Layers.Controls;
 using AuroraRgb.Settings.Overrides;
 using AuroraRgb.Utils;
+using Common;
 using Common.Devices;
 using Common.Utils;
 using Newtonsoft.Json;
@@ -140,7 +141,7 @@ public sealed partial class InteractiveLayerHandlerProperties : LayerHandlerProp
 public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandlerProperties, BitmapEffectLayer>
 {
     private readonly Func<KeyValuePair<DeviceKeys, long>, bool> _keysToRemove;
-    private readonly ConcurrentDictionary<DeviceKeys, InputItem> _inputDictionary = new(new Dictionary<DeviceKeys, InputItem>(Effects.MaxDeviceId));
+    private readonly ConcurrentDictionary<DeviceKeys, InputItem> _inputDictionary = new(new Dictionary<DeviceKeys, InputItem>(Constants.MaxKeyId));
         
     private long _previousTime;
     private long _currentTime;

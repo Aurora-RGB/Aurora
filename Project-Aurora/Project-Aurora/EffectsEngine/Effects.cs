@@ -34,10 +34,6 @@ internal class EnumHashGetter: IEqualityComparer<Enum>
 
 public class Effects(Task<DeviceManager> deviceManager)
 {
-    //Optimization: used to mitigate dictionary resizing
-    //TODO https://github.com/skarllot/EnumUtilities/issues/469
-    public const int MaxDeviceId = 2000;
-
     private static readonly DeviceKeys[] PossiblePeripheralKeys =
     [
         DeviceKeys.Peripheral,
