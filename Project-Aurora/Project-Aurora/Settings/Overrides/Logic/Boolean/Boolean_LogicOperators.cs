@@ -52,8 +52,16 @@ public class BooleanAnd : BoolEvaluatable, IHasSubConditons {
 
     public override Visual GetControl() => new Control_SubconditionHolder(this, "And");
 
-    protected override bool Execute(IGameState gameState) => SubConditions.All(subcondition => subcondition.Evaluate(gameState));
-    protected override bool ExecuteBool(IGameState gameState) => SubConditions.All(subcondition => subcondition.Evaluate(gameState));
+    protected override bool Execute(IGameState gameState) => ExecuteBool(gameState);
+    protected override bool ExecuteBool(IGameState gameState)
+    {
+        foreach (var sub in SubConditions)
+        {
+            if (!sub.Evaluate(gameState))
+                return false;
+        }
+        return true;
+    }
 
     public override Evaluatable<bool> Clone() => new BooleanAnd { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => { var x = e.Clone(); return x; })) };
 }
