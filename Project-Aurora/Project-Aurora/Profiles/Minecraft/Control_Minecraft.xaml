@@ -3,6 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:minecraft="clr-namespace:AuroraRgb.Profiles.Minecraft"
+             Loaded="Control_Minecraft_OnLoaded"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="850" Height="Auto" Width="Auto">
     <Grid>
@@ -32,7 +34,7 @@
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
-                            <DataTemplate>
+                            <DataTemplate DataType="{x:Type minecraft:ModDetails}">
                                 <Grid Margin="0,0,0,2">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="1*" />
@@ -40,11 +42,11 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
 
-                                    <TextBlock Text="{Binding Path=Name}" FontWeight="SemiBold" HorizontalAlignment="Stretch" Grid.Column="0" />
+                                    <TextBlock Text="{Binding Path=Name, Mode=OneTime}" FontWeight="SemiBold" HorizontalAlignment="Stretch" Grid.Column="0" />
                                     <TextBlock Grid.Column="1">
-                                        <Run Text="{Binding Path=Version}" />
+                                        <Run Text="{Binding Path=Version, Mode=OneTime}" />
                                         <Run Text=" (" />
-                                        <Run Text="{Binding Path=Date}" FontStyle="Italic" />
+                                        <Run Text="{Binding Path=Date, Mode=OneTime}" FontStyle="Italic" />
                                         <Run Text=")" />
                                     </TextBlock>
                                     <Button Content="Download" Margin="10,0,0,0" Padding="5,0" Grid.Column="2" Click="GoToModDownloadPage_Click" />

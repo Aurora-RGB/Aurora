@@ -27,7 +27,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
             if (DataContext is MinecraftKeyConflictLayerHandler && !settingSet) {
                 NoConflict_ColorPicker.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties._PrimaryColor ?? System.Drawing.Color.Empty);
                 HardConflict_ColorPicker.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties.SecondaryColor);
-                SoftConflict_ColorPicker.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties._TertiaryColor ?? System.Drawing.Color.Empty);
+                SoftConflict_ColorPicker.SelectedColor = ColorUtils.DrawingColorToMediaColor(Context.Properties.TertiaryColor);
                 settingSet = true;
             }
         }
@@ -49,7 +49,7 @@ namespace AuroraRgb.Profiles.Minecraft.Layers {
 
         private void SoftConflict_ColorPicker_SelectedColorChanged(object? sender, RoutedPropertyChangedEventArgs<Color?> e) {
             if (CanSet && e.NewValue.HasValue)
-                Context.Properties._TertiaryColor = ColorUtils.MediaColorToDrawingColor(e.NewValue.Value);
+                Context.Properties.TertiaryColor = ColorUtils.MediaColorToDrawingColor(e.NewValue.Value);
         }
     }
 }

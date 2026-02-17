@@ -15,10 +15,7 @@ public partial class Minecraft : Application {
         GameStateType = typeof(GSI.GameStateMinecraft),
         IconURI = "Resources/minecraft_128x128.png"
     }) {
-        AllowLayer<MinecraftHealthBarLayerHandler>();
         AllowLayer<MinecraftBackgroundLayerHandler>();
-        AllowLayer<MinecraftRainLayerHandler>();
-        AllowLayer<MinecraftBurnLayerHandler>();
         AllowLayer<MinecraftKeyConflictLayerHandler>();
     }
 
