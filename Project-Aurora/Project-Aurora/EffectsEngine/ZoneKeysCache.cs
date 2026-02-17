@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using AuroraRgb.Settings;
@@ -17,6 +18,9 @@ public sealed class ZoneKeysCache : IDisposable
     private FreeFormObject? _lastFreeForm;
     
     private bool _invalidated;
+    
+    // reuse buckets to avoid mem allocs
+    private readonly OrderedHashSet<DeviceKeys> _hashSetReuse = new(4); // needs initial capacity for .Union to work
 
     public ZoneKeysCache()
     {
@@ -36,6 +40,13 @@ public sealed class ZoneKeysCache : IDisposable
         _invalidated = false;
     }
 
+    private OrderedHashSet<DeviceKeys> WithHashset(IEnumerable<DeviceKeys> keys)
+    {
+        _hashSetReuse.Clear();
+        _hashSetReuse.UnionWith(keys);
+        return _hashSetReuse;
+    }
+
     public OrderedHashSet<DeviceKeys> GetKeys()
     {
         if (_invalidated)
@@ -53,7 +64,7 @@ public sealed class ZoneKeysCache : IDisposable
     {
         return keySequence.Type switch
         {
-            KeySequenceType.Sequence => new OrderedHashSet<DeviceKeys>(keySequence.Keys),
+            KeySequenceType.Sequence => WithHashset(keySequence.Keys),
             KeySequenceType.FreeForm => GetKeys(keySequence.Freeform),
             _ => throw new ArgumentOutOfRangeException(nameof(keySequence))
         };
@@ -76,7 +87,7 @@ public sealed class ZoneKeysCache : IDisposable
         return _zoneKeys;
     }
 
-    private static OrderedHashSet<DeviceKeys> CalculateKeys(FreeFormObject freeForm)
+    private OrderedHashSet<DeviceKeys> CalculateKeys(FreeFormObject freeForm)
     {
         var canvas = Effects.Canvas;
 
@@ -98,7 +109,7 @@ public sealed class ZoneKeysCache : IDisposable
             return PolygonContainsPolygon(corners, keyCorners);
         });
 
-        return new OrderedHashSet<DeviceKeys>(matchingKeys);
+        return WithHashset(matchingKeys);
     }
 
     private static PointF[] GetCorners(FreeFormObject freeForm)
