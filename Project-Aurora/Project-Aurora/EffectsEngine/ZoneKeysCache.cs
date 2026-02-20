@@ -49,14 +49,13 @@ public sealed class ZoneKeysCache : IDisposable
 
     public OrderedHashSet<DeviceKeys> GetKeys()
     {
-        if (_invalidated)
+        if (!_invalidated) return _zoneKeys;
+        if (_lastKeySequence == null)
         {
-            if (_lastKeySequence == null)
-            {
-                return [];
-            }
-            _zoneKeys = GetKeys(_lastKeySequence);
+            _hashSetReuse.Clear();
+            return _hashSetReuse;
         }
+        _zoneKeys = GetKeys(_lastKeySequence);
         return _zoneKeys;
     }
 

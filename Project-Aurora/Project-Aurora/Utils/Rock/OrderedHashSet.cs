@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace AuroraRgb.Utils.Rock;
@@ -17,7 +16,6 @@ namespace AuroraRgb.Utils.Rock;
 /// </remarks>
 [Serializable]
 [DebuggerDisplay("Count = {Count}")]
-[SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification = "By design")]
 public class OrderedHashSet<T> : ICollection<T> where T : notnull
 {
     // factor used to increase hashset capacity
@@ -67,8 +65,6 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
 
         if (capacity > 0)
         {
-            Debug.Assert(_mBuckets == null, "Initialize was called but m_buckets was non-null");
-
             var size = HashHelpers.GetPrime(capacity);
 
             _mBuckets = new int[size];
@@ -96,11 +92,6 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     public OrderedHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
         : this(comparer)
     {
-        if (collection == null)
-        {
-            throw new ArgumentNullException(nameof(collection));
-        }
-
         // to avoid excess resizes, first set size based on collection's count.
         var suggestedCapacity = 0;
         if (collection is ICollection<T> coll)
@@ -119,10 +110,7 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     #endregion
 
     // index access
-    public T this[int index]
-    {
-        get => _mSlots[index].Value;
-    }
+    public T this[int index] => _mSlots[index].Value;
 
     #region ICollection<T> methods
 
@@ -201,19 +189,59 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     /// <param name="other">enumerable with items to add</param>
     public void UnionWith(IEnumerable<T> other)
     {
-        if (other == null)
+        // Fast path for ICollection<T> (List<T>, T[], HashSet<T>, etc.)
+        if (other is ICollection<T> { Count: > 0 } coll)
         {
-            throw new ArgumentNullException(nameof(other));
+            EnsureCapacityForUnion(coll.Count);
         }
 
+        // Enumerate and insert
         foreach (var item in other)
         {
-            Add(item);
+            AddFast(item);
         }
+    }
+
+    private void EnsureCapacityForUnion(int incomingCount)
+    {
+        var needed = Count + incomingCount;
+        if (needed <= _mSlots.Length)
+            return;
+
+        // Proactively grow to final size
+        var newSize = HashHelpers.GetPrime(needed);
+        ResizeTo(newSize);
+    }
+    
+    private void ResizeTo(int newSize)
+    {
+        var newSlots = new Slot[newSize];
+        Array.Copy(_mSlots, 0, newSlots, 0, _mLastIndex);
+
+        var newBuckets = new int[newSize];
+
+        for (var i = 0; i < _mLastIndex; i++)
+        {
+            var hash = newSlots[i].HashCode;
+            if (hash >= 0)
+            {
+                var bucket = hash % newSize;
+                newSlots[i].Next = newBuckets[bucket] - 1;
+                newBuckets[bucket] = i + 1;
+            }
+        }
+
+        _mSlots = newSlots;
+        _mBuckets = newBuckets;
     }
 
     private int InternalIndexOf(T item)
     {
+        if (_mBuckets.Length == 0)
+        {
+            return -1;
+        }
+
         var num = InternalGetHashCode(item);
         for (var i = _mBuckets[num % _mBuckets.Length] - 1; i >= 0; i = _mSlots[i].Next)
         {
@@ -344,11 +372,6 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     /// </summary>
     public void CopyTo(T[] array, int arrayIndex, int count)
     {
-        if (array == null)
-        {
-            throw new ArgumentNullException(nameof(array));
-        }
-
         // check array index valid index into array 
         if (arrayIndex < 0)
         {
@@ -555,11 +578,6 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     /// <returns></returns>
     public int RemoveWhere(Predicate<T> match)
     {
-        if (match == null)
-        {
-            throw new ArgumentNullException(nameof(match));
-        }
-
         var numRemoved = 0;
         for (var i = 0; i < _mLastIndex; i++)
         {
@@ -689,6 +707,54 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
         _mVersion++;
         return true;
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool AddFast(T value)
+    {
+        var hash = Comparer.GetHashCode(value);
+        var bucketIndex = hash % _mBuckets.Length;
+
+        // search for existing
+        for (var i = _mBuckets[bucketIndex] - 1; i >= 0; i = _mSlots[i].Next)
+        {
+            if (_mSlots[i].HashCode == hash && Comparer.Equals(_mSlots[i].Value, value))
+                return false;
+        }
+
+        int index;
+        if (_mFreeList >= 0)
+        {
+            index = _mFreeList;
+            _mFreeList = _mSlots[index].Next;
+        }
+        else
+        {
+            index = _mLastIndex++;
+        }
+
+        _mSlots[index].HashCode = hash;
+        _mSlots[index].Value = value;
+        _mSlots[index].Next = _mBuckets[bucketIndex] - 1;
+
+        // append to ordering
+        var last = _mLastOrderIndex;
+        if (last != -1)
+            _mSlots[last].NextOrder = index;
+
+        if (_mFirstOrderIndex == -1)
+            _mFirstOrderIndex = index;
+
+        _mSlots[index].PreviousOrder = last;
+        _mSlots[index].NextOrder = -1;
+
+        _mLastOrderIndex = index;
+
+        _mBuckets[bucketIndex] = index + 1;
+        Count++;
+        _mVersion++;
+
+        return true;
+    }
 
     /// <summary> 
     /// Workaround Comparers that throw ArgumentNullException for GetHashCode(null).
@@ -717,41 +783,27 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     /// Enumeration goes from specified element to last element in collection.
     /// Returns empty enumeration when specified item is not in collection.
     /// </summary>
-    public struct Range : IEnumerable<T>
+    public struct Range(OrderedHashSet<T> set, T startingItem) : IEnumerable<T>
     {
-        private readonly OrderedHashSet<T> _mSet;
-        private readonly T _mStartingItem;
-
-        public Range(OrderedHashSet<T> set, T startingItem)
-        {
-            _mSet = set;
-            _mStartingItem = startingItem;
-        }
-
-        public Enumerator GetEnumerator()
-        {
-            return new Enumerator(_mSet, _mSet.InternalIndexOf(_mStartingItem));
-        }
-
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return GetEnumerator();
+            return new Enumerator(set, set.InternalIndexOf(startingItem));
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return GetEnumerator();
+            return new Enumerator(set, set.InternalIndexOf(startingItem));
         }
     }
 
     [Serializable]
-    public struct Enumerator : IEnumerator<T?>
+    public sealed class Enumerator : IEnumerator<T>
     {
         private OrderedHashSet<T> _mSet;
         private int _mIndex;
         private int _mVersion;
 
-        public T? Current { get; private set; }
+        public T Current { get; private set; }
 
         internal Enumerator(OrderedHashSet<T> set)
             : this(set, set._mFirstOrderIndex)
@@ -763,7 +815,7 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
             _mSet = set;
             _mIndex = startIndex;
             _mVersion = set._mVersion;
-            Current = default;
+            Current = _mSet._mSlots[_mIndex].Value;
         }
 
         public bool MoveNext()
@@ -773,22 +825,21 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
                 throw new InvalidOperationException("InvalidOperation_EnumFailedVersion");
             }
 
-            while (_mIndex != -1)
+            if (_mIndex == -1)
             {
-                Current = _mSet._mSlots[_mIndex].Value;
-                _mIndex = _mSet._mSlots[_mIndex].NextOrder;
-                return true;
+                return false;
             }
 
-            Current = default;
-            return false;
+            Current = _mSet._mSlots[_mIndex].Value;
+            _mIndex = _mSet._mSlots[_mIndex].NextOrder;
+            return true;
         }
 
         void IDisposable.Dispose()
         {
         }
 
-        object? IEnumerator.Current
+        object IEnumerator.Current
         {
             get
             {
