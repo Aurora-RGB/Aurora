@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Utils;
 using Newtonsoft.Json;
 
@@ -198,7 +198,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             return this;
         }
 
-        public virtual void Draw(IAuroraBitmap g) { }
+        public virtual void Draw(GdiBitmap g) { }
         public virtual AnimationFrame BlendWith(AnimationFrame otherAnim, double amount)
         {
             amount = GetTransitionValue(amount);

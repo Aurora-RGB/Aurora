@@ -65,8 +65,4 @@ public sealed class EmptyLayer : EffectLayer
     {
         return TransparentColor;
     }
-
-    public void Close()
-    {
-    }
 }

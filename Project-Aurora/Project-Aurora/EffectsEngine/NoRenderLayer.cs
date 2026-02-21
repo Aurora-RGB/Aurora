@@ -164,10 +164,6 @@ public sealed class NoRenderLayer : EffectLayer
         return !_onlyIncludedZoneKeysCache.GetKeys().Contains(key);
     }
 
-    public void Close()
-    {
-    }
-
     public void Dispose()
     {
         _zoneKeysCache.Dispose();

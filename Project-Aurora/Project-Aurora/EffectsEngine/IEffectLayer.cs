@@ -73,6 +73,4 @@ public interface EffectLayer : IDisposable
     /// Retrieves a color of the specified DeviceKeys key from the bitmap
     /// </summary>
     Color Get(DeviceKeys key);
-
-    void Close();
 }

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations;
@@ -82,7 +82,7 @@ public sealed class AnimationMix: IEquatable<AnimationMix>
         return _tracks.Any(track => track.Value.ContainsAnimationAt(time));
     }
 
-    public void Draw(IAuroraBitmap g, float time, PointF offset = default)
+    public void Draw(GdiBitmap g, float time, PointF offset = default)
     {
         foreach (var track in _tracks)
         {

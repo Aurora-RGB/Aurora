@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using Newtonsoft.Json;
 
 namespace AuroraRgb.EffectsEngine.Animations
@@ -42,7 +42,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             _drawingBrush = _gradientBrush.GetDrawingBrush();
         }
 
-        public override void Draw(IAuroraBitmap g)
+        public override void Draw(GdiBitmap g)
         {
             if (_invalidated)
             {

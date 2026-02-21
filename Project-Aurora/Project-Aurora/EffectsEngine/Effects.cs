@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Threading.Tasks;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Devices;
 using AuroraRgb.Utils;
 using Common;
@@ -11,7 +11,7 @@ using Common.Utils;
 
 namespace AuroraRgb.EffectsEngine;
 
-public delegate void NewLayerRendered(IAuroraBitmap bitmap);
+public delegate void NewLayerRendered(GdiBitmap bitmap);
 
 internal class EnumHashGetter: IEqualityComparer<Enum>
 {
@@ -183,7 +183,6 @@ public class Effects(Task<DeviceManager> deviceManager)
 
         foreach (var key in renderCanvas.BitmapMap.Keys)
             _keyColors[key] = (SimpleColor)Background.Get(key);
-        Background.Close();
 
         var peripheralDarkness = 1.0f - Global.Configuration.PeripheralBrightness * Global.Configuration.GlobalBrightness;
         foreach (var key in PossiblePeripheralKeys)

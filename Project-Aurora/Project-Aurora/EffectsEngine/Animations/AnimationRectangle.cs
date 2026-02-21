@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using Common.Utils;
 
 namespace AuroraRgb.EffectsEngine.Animations
@@ -36,7 +36,7 @@ namespace AuroraRgb.EffectsEngine.Animations
             _duration = duration;
         }
 
-        public override void Draw(IAuroraBitmap g)
+        public override void Draw(GdiBitmap g)
         {
             if (_invalidated)
             {

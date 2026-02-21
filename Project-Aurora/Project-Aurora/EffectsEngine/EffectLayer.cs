@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows;
 using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.BrushAdapters;
 using AuroraRgb.Settings;
 using AuroraRgb.Utils;
@@ -31,9 +32,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     };
 
     private readonly string _name;
-    //TODO set readability based on GPU or not
-    private readonly bool _readable = true;
-    private IAuroraBitmap _colormap;
+    private GdiBitmap _colormap;
 
     private bool _invalidated = true;
 
@@ -47,7 +46,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     public BitmapEffectLayer(string name)
     {
         _name = name;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _colormap = new GdiBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
         Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
     }
 
@@ -80,12 +79,6 @@ public sealed class BitmapEffectLayer : EffectLayer
     {
         _bitmapReader ??= _colormap.CreateReader();
         return ref _bitmapReader.GetRegionColor(rectangle);
-    }
-
-    public void Close()
-    {
-        _bitmapReader?.Dispose();
-        _bitmapReader = null;
     }
 
     /// <summary>
@@ -504,7 +497,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     /// <param name="render">An action that receives a transformed graphics context and can render whatever it needs to.</param>
     /// <param name="sourceRegion">The source region of the rendered content. This is used when calculating the transformation matrix, so that this
     ///     rectangle in the render context is transformed to the keysequence bounds in the layer's context. Note that no clipping is performed.</param>
-    public void DrawTransformed(KeySequence sequence, Action<Matrix> configureMatrix, Action<IAuroraBitmap> render, RectangleF sourceRegion)
+    public void DrawTransformed(KeySequence sequence, Action<Matrix> configureMatrix, Action<GdiBitmap> render, RectangleF sourceRegion)
     {
         // The matrix represents the transformation that will be applied to the rendered content
         using var matrix = new Matrix();
@@ -556,7 +549,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     /// <param name="render">An action that receives a transformed graphics context and can render whatever it needs to.</param>
     /// <param name="sourceRegion">The source region of the rendered content. This is used when calculating the transformation matrix, so that this
     ///     rectangle in the render context is transformed to the keysequence bounds in the layer's context. Note that no clipping is performed.</param>
-    public void DrawTransformed(KeySequence sequence, Action<IAuroraBitmap> render, RectangleF sourceRegion)
+    public void DrawTransformed(KeySequence sequence, Action<GdiBitmap> render, RectangleF sourceRegion)
     {
         DrawTransformed(sequence, DefaultMatrixAction, render, sourceRegion);
     }
@@ -568,7 +561,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     /// </summary>
     /// <param name="sequence">The target sequence whose bounds will be used as the target location on the drawing canvas.</param>
     /// <param name="render">An action that receives a transformed graphics context and can render whatever it needs to.</param>
-    public void DrawTransformed(KeySequence sequence, Action<IAuroraBitmap> render)
+    public void DrawTransformed(KeySequence sequence, Action<GdiBitmap> render)
     {
         DrawTransformed(sequence, render, Dimension);
     }
@@ -632,14 +625,14 @@ public sealed class BitmapEffectLayer : EffectLayer
         }catch { /* ignore */}
     }
 
-    public IAuroraBitmap GetGraphics()
+    public GdiBitmap GetGraphics()
     {
         Invalidate();
         _colormap.Reset();
         return _colormap;
     }
 
-    public IAuroraBitmap GetBitmap()
+    public GdiBitmap GetBitmap()
     {
         return _colormap;
     }
@@ -958,13 +951,13 @@ public sealed class BitmapEffectLayer : EffectLayer
 
     public void Invalidate()
     {
-        _bitmapReader = null;
         _invalidated = true;
     }
+
     private void InvalidateColorMap(object? sender, EventArgs args)
     {
         var oldBitmap = _colormap;
-        _colormap = new RuntimeChangingBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _colormap = new GdiBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
         oldBitmap.Dispose();
         _ksChanged = true;
         Dimension.Height = Effects.Canvas.Height;

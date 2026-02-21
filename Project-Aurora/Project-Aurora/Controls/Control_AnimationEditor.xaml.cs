@@ -7,7 +7,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
-using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.EffectsEngine.Animations;
 using AuroraRgb.Settings.Controls.Keycaps;
@@ -116,8 +115,7 @@ public partial class Control_AnimationEditor
         }
         Dispatcher.Invoke(() =>
         {
-            var renderedBitmap = animationMixPresenter.RenderedBitmap!;
-            var gdiBitmap = GdiBitmap.GetGdiBitmap(renderedBitmap);
+            var gdiBitmap = animationMixPresenter.RenderedBitmap!;
                 
             using var memory = new MemoryStream();
             gdiBitmap.Bitmap.Save(memory, ImageFormat.Bmp);

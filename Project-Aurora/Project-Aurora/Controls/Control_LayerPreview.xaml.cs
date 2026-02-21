@@ -3,7 +3,6 @@ using System.IO;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using AuroraRgb.Bitmaps;
 using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Settings.Layers;
 
@@ -55,13 +54,12 @@ public partial class Control_LayerPreview
     }
 
     // Take the bitmap from the layer and transform it into a format that can be used by WPF
-    private void RenderLayerPreview(object? sender, IAuroraBitmap bitmap)
+    private void RenderLayerPreview(object? sender, GdiBitmap bitmap)
     {
-        var gdiBitmap = GdiBitmap.GetGdiBitmap(bitmap);
         Dispatcher.Invoke(() =>
         {
             using var ms = new MemoryStream();
-            gdiBitmap.Bitmap.Save(ms, ImageFormat.Png);
+            bitmap.Bitmap.Save(ms, ImageFormat.Png);
             ms.Position = 0;
             var bitmapImg = new BitmapImage();
             bitmapImg.BeginInit();

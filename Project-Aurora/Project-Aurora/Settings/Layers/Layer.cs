@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Exceptions;
@@ -258,5 +258,5 @@ public partial class Layer : INotifyPropertyChanged, ICloneable, IDisposable
 /// To use, the layer handler should call <code>LayerRender?.Invoke(this, layer.GetBitmap());</code> at the end of their <see cref="Layer.Render(IGameState)"/> method.
 /// </summary>
 public interface INotifyRender {
-    event EventHandler<IAuroraBitmap> LayerRender;
+    event EventHandler<GdiBitmap> LayerRender;
 }

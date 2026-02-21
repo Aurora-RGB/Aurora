@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 
 namespace AuroraRgb.EffectsEngine.Animations
 {
@@ -22,7 +22,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
         }
 
-        public override void Draw(IAuroraBitmap g)
+        public override void Draw(GdiBitmap g)
         {
             if (_invalidated)
             {

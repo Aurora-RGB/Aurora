@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Controls;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Controls;
@@ -40,7 +40,7 @@ public partial class GradientLayerHandlerProperties : LayerHandlerProperties2Col
 public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties, BitmapEffectLayer>
 {
     private readonly BitmapEffectLayer _tempLayerWrapped = new("GradientLayer - Colors", true);
-    private readonly Action<IAuroraBitmap> _gradientRenderFunc;
+    private readonly Action<GdiBitmap> _gradientRenderFunc;
 
     public GradientLayerHandler(): base("GradientLayer")
     {

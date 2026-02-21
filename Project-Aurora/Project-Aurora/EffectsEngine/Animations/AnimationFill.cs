@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 using AuroraRgb.Utils;
 
 namespace AuroraRgb.EffectsEngine.Animations
@@ -15,7 +15,7 @@ namespace AuroraRgb.EffectsEngine.Animations
         {
         }
 
-        public override void Draw(IAuroraBitmap g)
+        public override void Draw(GdiBitmap g)
         {
             // Offset has no effect on this. I think.
             if (_brush == null || _invalidated)

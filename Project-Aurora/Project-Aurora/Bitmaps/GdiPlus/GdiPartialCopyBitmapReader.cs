@@ -20,17 +20,17 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private static readonly Vector256<int> FullVector = Vector256.Create(0xFF);
 
     private readonly Bitmap _bitmap;
+    private readonly GdiBitmap _gdiBitmap;
     private readonly RectangleF _dimension;
-    private readonly double _opacity;
     private readonly Vector256<int> _zeroVector = Vector256<int>.Zero;
 
     private readonly Color _transparentColor = Color.Transparent;
     private Color _currentColor = Color.Black;
 
-    public GdiPartialCopyBitmapReader(Bitmap bitmap, double opacity)
+    public GdiPartialCopyBitmapReader(Bitmap bitmap, GdiBitmap gdiBitmap)
     {
         _bitmap = bitmap;
-        _opacity = opacity;
+        _gdiBitmap = gdiBitmap;
         var graphicsUnit = GraphicsUnit.Pixel;
         _dimension = bitmap.GetBounds(ref graphicsUnit);
     }
@@ -44,8 +44,9 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
         if (rectangle.Width == 0 || rectangle.Height == 0 || !_dimension.Contains(rectangle))
             return ref _transparentColor;
 
+        var opacity = _gdiBitmap.Opacity;
         var area = rectangle.Width * rectangle.Height;
-        var divider = area / _opacity;
+        var divider = area / opacity;
         var size = rectangle.Size;
         if (!Bitmaps.TryGetValue(size, out var buff))
         {
@@ -175,9 +176,5 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
             Stride = rectangle.Width * sizeof(int),
             Scan0 = buffer
         };
-    }
-
-    public void Dispose()
-    {
     }
 }

@@ -1,4 +1,4 @@
-﻿using AuroraRgb.Bitmaps;
+﻿using AuroraRgb.Bitmaps.GdiPlus;
 using Doner.Wrap;
 
 namespace AuroraRgb.EffectsEngine;
@@ -27,7 +27,7 @@ public sealed partial class RuntimeChangingLayer : EffectLayer
         _effectLayer = _bitmapEffectLayer;
     }
 
-    public IAuroraBitmap GetBitmap()
+    public GdiBitmap GetBitmap()
     {
         return _bitmapEffectLayer.GetBitmap();
     }

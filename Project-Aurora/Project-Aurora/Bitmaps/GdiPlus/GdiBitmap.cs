@@ -8,24 +8,22 @@ using AuroraRgb.Settings;
 
 namespace AuroraRgb.Bitmaps.GdiPlus;
 
-public sealed class GdiBitmap : IAuroraBitmap
+public sealed class GdiBitmap
 {
     public static readonly GdiBitmap EmptyBitmap = new(1, 1);
-    
-    //TODO expose SavePng method to interface and remove this
+
     public Bitmap Bitmap { get; }
 
-    private double _opacity = 1;
     public double Opacity
     {
-        get => _opacity;
+        get;
         set
         {
-            _opacity = value;
+            field = value;
             _colorMatrix.Matrix33 = (float)value;
             _imageAttributes.SetColorMatrix(_colorMatrix);
         }
-    }
+    } = 1;
 
     private TextureBrush? _textureBrush;
 
@@ -84,7 +82,7 @@ public sealed class GdiBitmap : IAuroraBitmap
 
     public IBitmapReader CreateReader()
     {
-        return new GdiPartialCopyBitmapReader(Bitmap, _opacity);
+        return new GdiPartialCopyBitmapReader(Bitmap, this);
     }
 
     public void Reset()
@@ -131,7 +129,7 @@ public sealed class GdiBitmap : IAuroraBitmap
     public void DrawRectangle(EffectLayer brush)
     {
         var bitmapEffectLayer = (BitmapEffectLayer)brush;
-        var gdiBitmap = GetGdiBitmap(bitmapEffectLayer.GetBitmap());
+        var gdiBitmap = bitmapEffectLayer.GetBitmap();
         DrawOver(gdiBitmap);
     }
 
@@ -257,16 +255,6 @@ public sealed class GdiBitmap : IAuroraBitmap
     public void SetClip(RectangleF boundsRaw) => _graphics.SetClip(boundsRaw);
 
     public void SetTransform(Matrix value) => _graphics.Transform = value;
-
-    public static GdiBitmap GetGdiBitmap(IAuroraBitmap bitmap)
-    {
-        return bitmap switch
-        {
-            GdiBitmap gdiBitmap => gdiBitmap,
-            RuntimeChangingBitmap runtimeChangingBitmap => runtimeChangingBitmap.GetGdiBitmap(),
-            _ => throw new NotSupportedException("Only GdiBitmaps are supported.")
-        };
-    }
 
     public void DrawEllipse(Pen pen, RectangleF dimension)
     {

@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using AuroraRgb.Bitmaps;
+using AuroraRgb.Bitmaps.GdiPlus;
 
 namespace AuroraRgb.EffectsEngine.Animations;
 
@@ -23,7 +24,7 @@ public class AnimationFilledCircle : AnimationCircle
     {
     }
 
-    public override void Draw(IAuroraBitmap g)
+    public override void Draw(GdiBitmap g)
     {
         if (_brush == null || _invalidated)
         {
