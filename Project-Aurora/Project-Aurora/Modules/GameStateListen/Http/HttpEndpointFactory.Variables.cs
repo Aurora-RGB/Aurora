@@ -34,8 +34,14 @@ public static partial class HttpEndpointFactory
 
         void ProcessPostVariables(HttpListenerContext context)
         {
-            var json = ReadContent(context);
-            var jsonNode = JsonSerializer.Deserialize<JsonElement>(json);
+            var request = context.Request;
+            var inputStream = request.InputStream;
+            // low mem-alloc process
+            var jsonNode = JsonSerializer.Deserialize<JsonElement>(inputStream);
+
+            // immediately respond, don't let it wait for response
+            CloseConnection(context.Response);
+
             switch (jsonNode.ValueKind)
             {
                 case JsonValueKind.Object:

@@ -46,11 +46,16 @@ public static partial class HttpEndpointFactory
 
         // immediately respond to the game, don't let it wait for response
         var response = context.Response;
+        CloseConnection(response);
+
+        return json;
+    }
+
+    private static void CloseConnection(HttpListenerResponse response)
+    {
         response.StatusCode = (int)HttpStatusCode.OK;
         response.ContentLength64 = 0;
         response.Headers = WebHeaderCollection;
         response.Close([], true);
-
-        return json;
     }
 }
