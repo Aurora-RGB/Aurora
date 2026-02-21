@@ -38,7 +38,7 @@ public interface IEvaluatable {
 public abstract class Evaluatable<T> : IEvaluatable, INotifyPropertyChanged {
 
     /// <summary>The most recent value that was output from the evaluatable.</summary>
-    [Newtonsoft.Json.JsonIgnore] public T LastValue { get; private set; } = default;
+    [Newtonsoft.Json.JsonIgnore] public object LastValue { get; private set; } = default;
     object IEvaluatable.LastValue => LastValue;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -51,7 +51,16 @@ public abstract class Evaluatable<T> : IEvaluatable, INotifyPropertyChanged {
 
     /// <summary>Evaluates the result of this evaluatable with the given gamestate and returns the result.</summary>
     // Execute the evaluatable logic, store the latest value and return this value
-    public T Evaluate(IGameState gameState) => (LastValue = Execute(gameState));
+    public T Evaluate(IGameState gameState)
+    {
+        var newVal = Execute(gameState);
+        if (PropertyChanged != null)
+        {
+            LastValue = newVal;
+        }
+        return newVal;
+    }
+
     object IEvaluatable.Evaluate(IGameState gameState) => Evaluate(gameState);
     public bool EvaluateBool(IGameState gameState) => ExecuteBool(gameState);
     public int EvaluateInt(IGameState gameState) => ExecuteInt(gameState);
