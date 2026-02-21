@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
 using NAudio.CoreAudioApi.Interfaces;
 using NAudio.Wave;
@@ -18,36 +15,6 @@ namespace AuroraRgb.Modules.AudioCapture;
 /// </summary>
 public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
 {
-    private static readonly BlockingCollection<Action> ThreadTasks = new();
-
-    private static readonly CancellationTokenSource ThreadCancelSource = new();
-    private static readonly Thread NAudioThread = new(() =>
-    {
-        if (ThreadCancelSource.IsCancellationRequested)
-            return;
-        var cancellationToken = ThreadCancelSource.Token;
-        while (!ThreadCancelSource.IsCancellationRequested)
-        {
-            try
-            {
-                ThreadTasks.Take(cancellationToken).Invoke();
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-        }
-    })
-    {
-        Name = "NAudioThread",
-        IsBackground = true,
-    };
-
-    static AudioDeviceProxy()
-    {
-        NAudioThread.Start();
-    }
-
     private static List<AudioDeviceProxy> Instances { get; } = [];
     private readonly MMDeviceEnumerator _deviceEnumerator = new();
 
@@ -69,10 +36,7 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     /// <summary>Creates a new reference to the audio device with the given ID with the given flow direction.</summary>
     public AudioDeviceProxy(string? deviceId, DataFlow flow)
     {
-        ThreadTasks.Add(() =>
-        {
-            _deviceEnumerator.RegisterEndpointNotificationCallback(this);
-        });
+        _deviceEnumerator.RegisterEndpointNotificationCallback(this);
         Flow = flow;
         DeviceId = deviceId ?? AudioDevices.DefaultDeviceId;
         
@@ -111,25 +75,7 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     public bool IsMuted { get; private set; }
     public float Volume { get; private set; }
 
-    public float MasterPeakValue
-    {
-        get
-        {
-            TaskCompletionSource<float> tcs = new();
-            ThreadTasks.Add(() =>
-            {
-                tcs.TrySetResult(Device?.AudioMeterInformation.MasterPeakValue ?? 0);
-            });
-            try
-            {
-                return tcs.Task.Result;
-            }
-            catch (OperationCanceledException)
-            {
-                return default;
-            }
-        }
-    }
+    public float MasterPeakValue => Device?.AudioMeterInformation.MasterPeakValue ?? 0;
 
     /// <summary>Gets the currently assigned direction of this device.</summary>
     public DataFlow Flow { get; set; }
@@ -152,26 +98,23 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     /// <summary>Gets a new MMDevice and wave in based on the current <see cref="DeviceId"/> and <see cref="Flow"/></summary>
     private void UpdateDevice()
     {
-        ThreadTasks.Add(() =>
+        // Release the current device (if any), removing any events as required
+        DisposeCurrentDevice();
+        if (_disposed) return;
+
+        // Get a new device with this ID and flow direction
+        var mmDevice = _deviceId == AudioDevices.DefaultDeviceId
+            ? GetDefaultAudioEndpoint() // Get default if no ID is provided
+            : _deviceEnumerator.EnumerateAudioEndPoints(Flow, DeviceState.Active)
+                .FirstOrDefault(d => d.ID == DeviceId); // Otherwise, get the one with this ID
+        if (mmDevice == null) return;
+        if (mmDevice.ID == Device?.ID)
         {
-            // Release the current device (if any), removing any events as required
-            DisposeCurrentDevice();
-            if (_disposed) return;
+            mmDevice.Dispose();
+            return;
+        }
 
-            // Get a new device with this ID and flow direction
-            var mmDevice = _deviceId == AudioDevices.DefaultDeviceId
-                ? GetDefaultAudioEndpoint() // Get default if no ID is provided
-                : _deviceEnumerator.EnumerateAudioEndPoints(Flow, DeviceState.Active)
-                    .FirstOrDefault(d => d.ID == DeviceId); // Otherwise, get the one with this ID
-            if (mmDevice == null) return;
-            if (mmDevice.ID == Device?.ID)
-            {
-                mmDevice.Dispose();
-                return;
-            }
-
-            SetDevice(mmDevice);
-        });
+        SetDevice(mmDevice);
     }
 
     private MMDevice? GetDefaultAudioEndpoint()
@@ -189,14 +132,7 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
 
     private void SetDevice(MMDevice? mmDevice)
     {
-        if (Thread.CurrentThread == NAudioThread)
-        {
-            SetDeviceOnThread(mmDevice);
-        }
-        else
-        {
-            ThreadTasks.Add(() => SetDeviceOnThread(mmDevice));
-        }
+        SetDeviceOnThread(mmDevice);
     }
 
     private void SetDeviceOnThread(MMDevice? mmDevice)
@@ -275,18 +211,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
 
     private void DisposeCurrentDevice()
     {
-        if (Thread.CurrentThread == NAudioThread)
-        {
-            DisposeCurrentDeviceOnThread();
-        }
-        else
-        {
-            ThreadTasks.Add(DisposeCurrentDeviceOnThread);
-        }
-    }
-
-    private void DisposeCurrentDeviceOnThread()
-    {
         if (WaveIn != null)
         {
             WaveIn.DataAvailable -= _waveInDataAvailable;
@@ -315,21 +239,9 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
         switch (newState)
         {
             case DeviceState.Active:
-                if (Thread.CurrentThread == NAudioThread)
-                {
-                    DisposeCurrentDevice();
-                    var mmDevice = _deviceEnumerator.GetDevice(DeviceId);
-                    SetDevice(mmDevice);
-                }
-                else
-                {
-                    ThreadTasks.Add(() =>
-                    {
-                        DisposeCurrentDevice();
-                        var mmDevice = _deviceEnumerator.GetDevice(DeviceId);
-                        SetDevice(mmDevice);
-                    });
-                }
+                DisposeCurrentDevice();
+                var mmDevice = _deviceEnumerator.GetDevice(DeviceId);
+                SetDevice(mmDevice);
                 break;
             case DeviceState.Disabled:
             case DeviceState.Unplugged:
@@ -382,13 +294,11 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
 
     public static void DisposeStatic()
     {
-        ThreadCancelSource.Cancel();
         foreach (var audioDeviceProxy in Instances)
         {
             audioDeviceProxy.Dispose();
         }
         Instances.Clear();
-        ThreadCancelSource.Dispose();
     }
 
     #region IDisposable Implementation
