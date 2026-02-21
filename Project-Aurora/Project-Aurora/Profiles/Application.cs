@@ -39,7 +39,7 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
     public bool Disposed { get; private set; }
     public ApplicationProfile? Profile { get; private set; }
     public ObservableCollection<ApplicationProfile> Profiles { get; set; }
-    public GameStateParameterLookup? ParameterLookup { get; }
+    public GameStateParameterLookup ParameterLookup { get; }
     public event EventHandler? ProfileChanged;
     public LightEventConfig Config { get; }
     public bool IsEnabled => Initialized && Settings.IsEnabled && !Disposed;
