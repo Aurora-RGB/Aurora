@@ -126,6 +126,11 @@ public class CSGOBackgroundLayerHandler() : LayerHandler<CSGOBackgroundLayerHand
             }
         }
 
+        if (Invalidated)
+        {
+            _currentColor = Color.Empty;
+             Invalidated = false;
+        }
         if (_currentColor == bgColor) return EffectLayer;
         _currentColor = bgColor;
         EffectLayer.Fill(bgColor);
