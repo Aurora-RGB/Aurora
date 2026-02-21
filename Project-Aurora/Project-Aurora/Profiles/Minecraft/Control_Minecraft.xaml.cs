@@ -50,19 +50,19 @@ public partial class Control_Minecraft
             var mcPlugins = await MinecraftPlugins.GetPlugins();
 
             var pluginVersion = mcPlugins.Version;
-            var pluginDate = mcPlugins.ReleaseDate;
 
             foreach (var plugin in mcPlugins.Plugins)
             {
                 var pluginName = plugin.Name;
                 var pluginLink = plugin.DownloadUrl;
+                var pluginDate = plugin.AssetUpdatedAt;
 
                 // Add an entry to the mod details list
                 _modList.Add(new ModDetails(
                     name: pluginName, // Get the project name (includes MC version)
                     version: pluginVersion, // Get the version string (e.g. "v0.1.2")
                     link: pluginLink, // Generate a link to the download page (e.g. "https://gitlab.com/aurora-gsi-minecraft/mc1.7.10/tags/v0.1.2")
-                    date: DateTime.Parse(pluginDate).ToShortDateString() // Show the date the latest version of the mod was released.
+                    date: pluginDate.Date.ToShortDateString() // Show the date the latest version of the mod was released.
                 ));
             }
         }
