@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using AuroraRgb.EffectsEngine;
+using System.Runtime.CompilerServices;
 using Common;
 using Common.Devices;
 
@@ -121,8 +121,8 @@ public sealed class DeviceKeyStore : IDictionary<DeviceKeys, SimpleColor>
         }
     }
 
-    private static int GetEnumHash(Enum obj)
+    private static int GetEnumHash(in DeviceKeys value)
     {
-        return Convert.ToInt32(obj);
+        return Unsafe.As<DeviceKeys, int>(ref Unsafe.AsRef(in value));
     }
 }
