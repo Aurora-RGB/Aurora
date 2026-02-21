@@ -53,6 +53,7 @@ public sealed class EffectBrush : IDisposable
 
     private Brush? _drawingBrush;
     private System.Windows.Media.Brush? _mediaBrush;
+    private ColorSpectrum? _spectrum;
 
     [JsonConstructor]
     public EffectBrush(BrushType type, BrushWrap wrap, SortedDictionary<double, Color> colorGradients,
@@ -483,19 +484,24 @@ public sealed class EffectBrush : IDisposable
 
     public ColorSpectrum GetColorSpectrum()
     {
-        var spectrum = new ColorSpectrum();
+        if (_spectrum != null)
+        {
+            return _spectrum;
+        }
+
+        _spectrum = new ColorSpectrum();
 
         if(Type == BrushType.Solid)
         {
-            spectrum = new ColorSpectrum(ColorGradients[0.0f]);
+            _spectrum = new ColorSpectrum(ColorGradients[0.0f]);
         }
         else
         {
             foreach (var color in ColorGradients)
-                spectrum.SetColorAt(color.Key, color.Value);
+                _spectrum.SetColorAt(color.Key, color.Value);
         }
 
-        return spectrum;
+        return _spectrum;
     }
 
     /// <summary>
