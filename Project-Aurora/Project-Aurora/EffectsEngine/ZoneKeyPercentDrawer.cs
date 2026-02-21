@@ -10,15 +10,16 @@ using Common.Devices;
 namespace AuroraRgb.EffectsEngine;
 
 // most of this file is created by AI and adjusted, idk what it does
-public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
+public sealed class ZoneKeyPercentDrawer(EffectLayer effectLayer) : IDisposable
 {
+    private readonly ZoneKeysCache _zoneKeysCache = new();
+
     public void PercentEffect(Color foregroundColor, Color backgroundColor, KeySequence sequence, double value,
         double total = 1.0D, PercentEffectType percentEffectType = PercentEffectType.Progressive,
         double flashPast = 0.0, bool flashReversed = false, bool blinkBackground = false)
     {
-        using var zoneKeysCache = new ZoneKeysCache();
-        zoneKeysCache.SetSequence(sequence);
-        var keys = zoneKeysCache.GetKeys();
+        _zoneKeysCache.SetSequence(sequence);
+        var keys = _zoneKeysCache.GetKeys();
 
         if (sequence.Type == KeySequenceType.FreeForm)
         {
@@ -299,9 +300,8 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
             _ => value / total
         };
         
-        using var zoneKeysCache = new ZoneKeysCache();
-        zoneKeysCache.SetSequence(sequence);
-        var keys = zoneKeysCache.GetKeys();
+        _zoneKeysCache.SetSequence(sequence);
+        var keys = _zoneKeysCache.GetKeys();
 
         var flashAmount = 1.0;
         if (flashPast > 0.0 && ((flashReversed && progressTotal >= flashPast) || (!flashReversed && progressTotal <= flashPast)))
@@ -463,5 +463,10 @@ public class ZoneKeyPercentDrawer(EffectLayer effectLayer)
             return 1 + keyColorPosition;
         }
         return keyColorPosition;
+    }
+
+    public void Dispose()
+    {
+        _zoneKeysCache.Dispose();
     }
 }

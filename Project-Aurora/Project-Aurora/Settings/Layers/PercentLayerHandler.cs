@@ -84,10 +84,16 @@ public partial class PercentLayerHandlerProperties : LayerHandlerProperties2Colo
     }
 }
 
-public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("PercentLayer")
+public class PercentLayerHandler<TProperty> : LayerHandler<TProperty>
     where TProperty : PercentLayerHandlerProperties
 {
     private double _value;
+    private ZoneKeyPercentDrawer _percentDrawer;
+
+    public PercentLayerHandler() : base("PercentLayer")
+    {
+        _percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+    }
 
     public override EffectLayer Render(IGameState gameState)
     {
@@ -97,9 +103,10 @@ public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("Percent
         {
             Invalidated = false;
             _value = -1;
+            _percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
         }
         var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
-        if (MathUtils.NearlyEqual(_value, value, 0.000001) && !Invalidated)
+        if (MathUtils.NearlyEqual(_value, value, 0.0001) && !Invalidated)
         {
             return EffectLayer;
         }
@@ -108,8 +115,7 @@ public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("Percent
         var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
         EffectLayer.Clear();
-        var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
-        percentDrawer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence, value, maxvalue,
+        _percentDrawer.PercentEffect(Properties.PrimaryColor, Properties.SecondaryColor, keySequence, value, maxvalue,
             Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection, Properties.BlinkBackground);
         return EffectLayer;
     }
@@ -128,6 +134,12 @@ public class PercentLayerHandler<TProperty>() : LayerHandler<TProperty>("Percent
            )
             Properties.MaxVariablePath = VariablePath.Empty;
         base.SetApplication(profile);
+    }
+
+    public override void Dispose()
+    {
+        _percentDrawer.Dispose();
+        base.Dispose();
     }
 }
 

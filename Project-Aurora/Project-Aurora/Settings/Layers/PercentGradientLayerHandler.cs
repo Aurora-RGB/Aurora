@@ -10,8 +10,8 @@ namespace AuroraRgb.Settings.Layers;
 
 public partial class PercentGradientLayerHandlerProperties : PercentLayerHandlerProperties
 {
-
     private EffectBrush? _gradient;
+
     [JsonProperty("_Gradient")]
     [LogicOverridable("Gradient")]
     public EffectBrush Gradient
@@ -30,8 +30,15 @@ public partial class PercentGradientLayerHandlerProperties : PercentLayerHandler
 [LogicOverrideIgnoreProperty("_PrimaryColor")]
 [LogicOverrideIgnoreProperty("SecondaryColor")]
 [LayerHandlerMeta(Name = "Percent (Gradient)", IsDefault = true)]
-public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradientLayerHandlerProperties>("PercentLayer")
+public sealed class PercentGradientLayerHandler : LayerHandler<PercentGradientLayerHandlerProperties>
 {
+    private ZoneKeyPercentDrawer _percentDrawer;
+
+    public PercentGradientLayerHandler() : base("PercentLayer")
+    {
+        _percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+    }
+
     protected override UserControl CreateControl()
     {
         return new Control_PercentGradientLayer(this);
@@ -40,13 +47,18 @@ public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradient
     public override EffectLayer Render(IGameState gameState)
     {
         EffectLayer.Clear();
-        Invalidated = false;
+
+        if (Invalidated)
+        {
+            _percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
+            Invalidated = false;
+        }
 
         var value = Properties.Logic?._Value ?? gameState.GetNumber(Properties.VariablePath);
         var maxvalue = Properties.Logic?._MaxValue ?? gameState.GetNumber(Properties.MaxVariablePath);
 
-        var percentDrawer = new ZoneKeyPercentDrawer(EffectLayer);
-        percentDrawer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType, Properties.BlinkThreshold, Properties.BlinkDirection);
+        _percentDrawer.PercentEffect(Properties.Gradient.GetColorSpectrum(), Properties.Sequence, value, maxvalue, Properties.PercentType,
+            Properties.BlinkThreshold, Properties.BlinkDirection);
         return EffectLayer;
     }
 
@@ -69,6 +81,7 @@ public sealed class PercentGradientLayerHandler() : LayerHandler<PercentGradient
     public override void Dispose()
     {
         EffectLayer.Dispose();
+        _percentDrawer.Dispose();
         base.Dispose();
     }
 }
