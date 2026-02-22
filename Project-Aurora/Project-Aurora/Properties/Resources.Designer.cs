@@ -8,6 +8,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.IO;
+
 namespace AuroraRgb.Properties {
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
@@ -654,6 +656,15 @@ namespace AuroraRgb.Properties {
             get {
                 object obj = ResourceManager.GetObject("worms_wmd", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] net10_extra_files {
+            get {
+                return (byte[])ResourceManager.GetObject("net10_extra_files", resourceCulture);
             }
         }
     }
