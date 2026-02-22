@@ -1,43 +1,46 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using AuroraRgb.Modules.GameStateListen.Http;
 using AuroraRgb.Profiles;
-using Common.Utils;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 
 namespace AuroraRgb.Modules.GameStateListen;
 
-public sealed class JsonGameStateEventArgs(string gameId, string json) : EventArgs
+public sealed class JsonGameStateEventArgs(string gameId, Stream json) : EventArgs
 {
     public string GameId { get; } = gameId;
-    public string Json { get; } = json;
+    public Stream Json { get; } = json;
 }
 
 public sealed class AuroraHttpListener
 {
-    private static readonly WebHeaderCollection WebHeaderCollection = new()
+    private static readonly FrozenDictionary<string, string> WebHeaderCollection = new Dictionary<string, string>
     {
         ["Access-Control-Allow-Origin"] = "*",
         ["Access-Control-Allow-Private-Network"] = "true",
-    };
+    }.ToFrozenDictionary();
 
     private bool _isRunning;
     private readonly CancellationTokenSource _cancellationTokenSource;
     private readonly CancellationToken _cancellationToken;
-    private readonly HttpListener _netListener;
     private readonly int _port;
-    private readonly SingleConcurrentThread _readThread;
-    private readonly SingleConcurrentThread _readThread2;
-    
+
     private readonly FrozenDictionary<string, AuroraEndpoint> _endpoints;
     private readonly FrozenDictionary<Regex, AuroraRegexEndpoint> _regexEndpoints;
     private readonly HashSet<string> _allowedMethods;
+
+    private readonly IWebHost _netListener;
 
     public IGameState CurrentGameState
     {
@@ -62,18 +65,13 @@ public sealed class AuroraHttpListener
     public AuroraHttpListener(int port, IEnumerable<string> listenIps)
     {
         _port = port;
-        _netListener = new HttpListener();
-        _netListener.Prefixes.Add($"http://127.0.0.1:{port}/");
-        foreach (var listenIp in listenIps)
-        {
-            _netListener.Prefixes.Add($"http://{listenIp}:{port}/");
-        }
+        _netListener = new WebHostBuilder()
+            .UseKestrel(options => { options.ListenAnyIP(port); })
+            .Configure(app => { app.Run(ProcessContext); })
+            .Build();
 
         _cancellationTokenSource = new CancellationTokenSource();
         _cancellationToken = _cancellationTokenSource.Token;
-
-        _readThread = new SingleConcurrentThread("Http Read Thread 1", AsyncRead1, ExceptionCallback);
-        _readThread2 = new SingleConcurrentThread("Http Read Thread 2", AsyncRead2, ExceptionCallback);
 
         _endpoints = HttpEndpointFactory.CreateEndpoints(this);
         _regexEndpoints = HttpEndpointFactory.CreateRegexEndpoints(this);
@@ -81,11 +79,6 @@ public sealed class AuroraHttpListener
             .Union<IAuroraEndpoint>(_regexEndpoints.Values)
             .SelectMany(endpoint => endpoint.AvailableMethods)
             .ToHashSet();
-    }
-
-    private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)
-    {
-        Global.logger.Error(eventArgs.Exception, "Error reading http response");
     }
 
     /// <summary>
@@ -114,63 +107,24 @@ public sealed class AuroraHttpListener
         }
 
         _isRunning = true;
-
-        _readThread.Trigger();
         return true;
-    }
-
-    private async Task AsyncRead1()
-    {
-        try
-        {
-            var context = await _netListener.GetContextAsync().WaitAsync(_cancellationToken);
-            if (!_cancellationToken.IsCancellationRequested)
-            {
-                _readThread2.Trigger();
-            }
-
-            ProcessContext(context);
-        }
-        catch (TaskCanceledException)
-        {
-            // stop
-        }
-    }
-
-    private async Task AsyncRead2()
-    {
-        try
-        {
-            var context = await _netListener.GetContextAsync().WaitAsync(_cancellationToken);
-            if (!_cancellationToken.IsCancellationRequested)
-            {
-                _readThread.Trigger();
-            }
-
-            ProcessContext(context);
-        }
-        catch (TaskCanceledException)
-        {
-            // stop
-        }
     }
 
     /// <summary>
     /// Stops listening for GameState requests
     /// </summary>
-    public Task Stop()
+    public async Task Stop()
     {
         _isRunning = false;
-        _cancellationTokenSource.Cancel();
+        await _cancellationTokenSource.CancelAsync();
         _cancellationTokenSource.Dispose();
 
-        _netListener.Close();
-        return Task.CompletedTask;
+        await _netListener.StopAsync(_cancellationToken);
     }
 
-    private void ProcessContext(HttpListenerContext context)
+    private async Task ProcessContext(HttpContext context)
     {
-        var path = context.Request.Url!.LocalPath;
+        var path = context.Request.Path.Value;
 
         // find the exact path match
         if (_endpoints.TryGetValue(path, out var endpoint) && endpoint.HandleRequest(context))
@@ -188,31 +142,54 @@ public sealed class AuroraHttpListener
             if (regexHandled) return;
             var ctxResponse = context.Response;
             ctxResponse.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            ctxResponse.Close();
             return;
         }
         catch (InvalidOperationException)
         {
             // no match
         }
-        
-        var method = context.Request.HttpMethod;
+
+        var method = context.Request.Method;
         if (!_allowedMethods.Contains(method))
         {
-            var ctxResponse = context.Response;
-            ctxResponse.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
-            ctxResponse.Close();
+            Respond405(context);
             return;
         }
 
         // no match
+        var response = Respond404(context);
+        AddResponseHeaders(response);
+    }
+
+    private static void Respond405(HttpContext context)
+    {
+        var ctxResponse = context.Response;
+        ctxResponse.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+    }
+
+    private static HttpResponse Respond404(HttpContext context)
+    {
         var response = context.Response;
         response.StatusCode = (int)HttpStatusCode.NotFound;
-        response.Headers = WebHeaderCollection;
-        response.Close([], true);
+        return response;
+    }
+
+    private static void AddResponseHeaders(HttpResponse response)
+    {
+        foreach (var keyValuePair in WebHeaderCollection)
+        {
+            response.Headers.Add(keyValuePair.Key, keyValuePair.Value);
+        }
     }
 
     public void OnNewJsonGameState(string gameId, string json)
+    {
+        var textStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var eventArgs = new JsonGameStateEventArgs(gameId, textStream);
+        NewJsonGameState?.Invoke(this, eventArgs);
+    }
+
+    public void OnNewJsonGameState(string gameId, Stream json)
     {
         var eventArgs = new JsonGameStateEventArgs(gameId, json);
         NewJsonGameState?.Invoke(this, eventArgs);

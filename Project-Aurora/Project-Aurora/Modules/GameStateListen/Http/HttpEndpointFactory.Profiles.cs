@@ -6,6 +6,7 @@ using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using AuroraRgb.Profiles;
+using Microsoft.AspNetCore.Http;
 
 namespace AuroraRgb.Modules.GameStateListen.Http;
 
@@ -13,32 +14,31 @@ public static partial class HttpEndpointFactory
 {
     private static AuroraEndpoint ProfilesEndpoint()
     {
-        Dictionary<string, Action<HttpListenerContext>> methods = new()
+        Dictionary<string, Action<HttpContext>> methods = new()
         {
             ["GET"] = ProcessGetProfiles,
         };
         return new AuroraEndpoint(methods, "/profiles");
     }
 
-    private static void ProcessGetProfiles(HttpListenerContext context)
+    private static void ProcessGetProfiles(HttpContext context)
     {
         var response = context.Response;
         response.StatusCode = (int)HttpStatusCode.OK;
         response.ContentType = "application/json";
-        response.Headers = WebHeaderCollection;
+        foreach (var (key, value) in WebHeaderCollection)
+        {
+            response.Headers[key] = value;
+        }
 
         var activeProfile = ConvertProfile(LightingStateManagerModule.LightningStateManager.Result.ApplicationManager.GetCurrentProfile());
         var activeOverlays = LightingStateManagerModule.LightningStateManager.Result.ApplicationManager.GetOverlayActiveProfiles()
             .Select(ConvertProfile);
         var responseJson = new ProfilesResponse(activeProfile, activeOverlays);
 
-        using (var sw = new StreamWriter(response.OutputStream))
-        {
-            JsonSerializer.Serialize(sw.BaseStream, responseJson, ProfilesJsonContext.Default.ProfilesResponse);
-        }
+        using var sw = new StreamWriter(response.Body);
+        JsonSerializer.Serialize(sw.BaseStream, responseJson, ProfilesJsonContext.Default.ProfilesResponse);
 
-        response.Close([], true);
-        
         ProfileResponse ConvertProfile(Application profile)
         {
             return new ProfileResponse(profile.Config.Name, profile.Config.ProcessNames, profile.Config.ProcessTitles?.Select(r => r.ToString()));

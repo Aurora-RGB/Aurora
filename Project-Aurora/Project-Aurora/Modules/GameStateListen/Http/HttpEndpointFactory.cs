@@ -1,17 +1,19 @@
 ﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 
 namespace AuroraRgb.Modules.GameStateListen.Http;
 
 public static partial class HttpEndpointFactory
 {
-    private static readonly WebHeaderCollection WebHeaderCollection = new()
+    private static readonly FrozenDictionary<string, string> WebHeaderCollection = new Dictionary<string, string>
     {
         ["Access-Control-Allow-Origin"] = "*",
         ["Access-Control-Allow-Private-Network"] = "true",
-    };
+    }.ToFrozenDictionary();
 
     public static FrozenDictionary<string, AuroraEndpoint> CreateEndpoints(AuroraHttpListener listener)
     {
@@ -34,12 +36,12 @@ public static partial class HttpEndpointFactory
             .ToFrozenDictionary(endpoint => endpoint.Path, endpoint => endpoint);
     }
 
-    private static string ReadContent(HttpListenerContext context)
+    private static string ReadContent(HttpContext context)
     {
         var request = context.Request;
         string json;
 
-        using (var sr = new StreamReader(request.InputStream))
+        using (var sr = new StreamReader(request.Body))
         {
             json = sr.ReadToEnd();
         }
@@ -51,11 +53,13 @@ public static partial class HttpEndpointFactory
         return json;
     }
 
-    private static void CloseConnection(HttpListenerResponse response)
+    private static void CloseConnection(HttpResponse response)
     {
         response.StatusCode = (int)HttpStatusCode.OK;
-        response.ContentLength64 = 0;
-        response.Headers = WebHeaderCollection;
-        response.Close([], true);
+        response.ContentLength = 0;
+        foreach (var (key, value) in WebHeaderCollection)
+        {
+            response.Headers[key] = value;
+        }
     }
 }

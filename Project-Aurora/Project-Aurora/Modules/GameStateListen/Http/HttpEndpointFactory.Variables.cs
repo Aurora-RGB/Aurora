@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Text.Json;
 using AuroraRgb.Nodes;
+using Microsoft.AspNetCore.Http;
 
 namespace AuroraRgb.Modules.GameStateListen.Http;
 
@@ -11,31 +12,30 @@ public static partial class HttpEndpointFactory
 {
     private static AuroraEndpoint VariablesEndpoint()
     {
-        var methods = new Dictionary<string, Action<HttpListenerContext>>
+        var methods = new Dictionary<string, Action<HttpContext>>
         {
             ["GET"] = ProcessGetVariables,
             ["POST"] = ProcessPostVariables
         };
         return new AuroraEndpoint(methods, "/variables");
 
-        void ProcessGetVariables(HttpListenerContext context)
+        void ProcessGetVariables(HttpContext context)
         {
             var response = context.Response;
             response.StatusCode = (int)HttpStatusCode.OK;
             response.ContentType = "application/json";
-            response.Headers = WebHeaderCollection;
-            using (var sw = new StreamWriter(response.OutputStream))
+            foreach (var (key, value) in WebHeaderCollection)
             {
-                JsonSerializer.Serialize<AuroraVariables>(sw.BaseStream, AuroraVariables.Instance, VariablesSourceGenContext.Default.AuroraVariables);
+                response.Headers[key] = value;
             }
 
-            response.Close([], true);
+            JsonSerializer.Serialize<AuroraVariables>(response.Body, AuroraVariables.Instance, VariablesSourceGenContext.Default.AuroraVariables);
         }
 
-        void ProcessPostVariables(HttpListenerContext context)
+        void ProcessPostVariables(HttpContext context)
         {
             var request = context.Request;
-            var inputStream = request.InputStream;
+            var inputStream = request.Body;
             // low mem-alloc process
             var jsonNode = JsonSerializer.Deserialize<JsonElement>(inputStream);
 

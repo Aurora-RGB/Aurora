@@ -78,6 +78,9 @@
         <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre454" />
         <PackageReference Include="LibUsbDotNet" Version="2.2.75" />
         <PackageReference Include="MdXaml" Version="1.27.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.9" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
         <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3" />
         <PackageReference Include="NAudio.Core" Version="2.2.1" />

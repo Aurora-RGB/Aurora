@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net;
 using AuroraRgb.Profiles;
+using Microsoft.AspNetCore.Http;
 
 namespace AuroraRgb.Modules.GameStateListen.Http;
 
@@ -9,13 +9,13 @@ public static partial class HttpEndpointFactory
 {
     private static AuroraEndpoint LegacyGsiEndpoint(AuroraHttpListener httpListener)
     {
-        var methods = new Dictionary<string, Action<HttpListenerContext>>
+        var methods = new Dictionary<string, Action<HttpContext>>
         {
             ["POST"] = ProcessPostGsi
         };
         return new AuroraEndpoint(methods, "/");
         
-        void ProcessPostGsi(HttpListenerContext context)
+        void ProcessPostGsi(HttpContext context)
         {
             var json = ReadContent(context);
             try
@@ -25,7 +25,7 @@ public static partial class HttpEndpointFactory
             }
             catch (Exception e)
             {
-                Global.logger.Error(e, "[NetworkListener] ReceiveGameState error on: {Path}", context.Request.Url!.LocalPath);
+                Global.logger.Error(e, "[NetworkListener] ReceiveGameState error on: {Path}", context.Request.Path);
                 Global.logger.Debug("JSON: {Json}", json);
             }
         }

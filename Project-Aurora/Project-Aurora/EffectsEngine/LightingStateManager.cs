@@ -314,10 +314,12 @@ public sealed class LightingStateManager : IDisposable
         }
 
         var gameStateType = profile.Config.GameStateType;
-        var json = eventArgs.Json;
+        var jsonStream = eventArgs.Json;
+        if (JsonSerializer.Deserialize(jsonStream, gameStateType, GameStateJsonSerializerOptions) is not IGameState gameState)
+        {
+            return;
+        }
 
-        var gameState = JsonSerializer.Deserialize(json, gameStateType, GameStateJsonSerializerOptions) as IGameState;
-        
         profile.SetGameState(gameState);
     }
 

@@ -16,6 +16,7 @@ namespace AuroraRgb.Settings.Controls;
 /// </summary>
 public partial class Window_GSIHttpDebug
 {
+    public static bool IsOpen => _httpDebugWindow != null;
     private static Window_GSIHttpDebug? _httpDebugWindow;
 
     private readonly AuroraHttpListener _httpListener;
