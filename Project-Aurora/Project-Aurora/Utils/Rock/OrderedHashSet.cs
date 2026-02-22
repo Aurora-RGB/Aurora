@@ -141,8 +141,8 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
 
             // clear the elements so that the gc can reclaim the references.
             // clear only up to m_lastIndex for m_slots
-            Array.Clear(_mSlots, 0, _mLastIndex);
-            Array.Clear(_mBuckets, 0, _mBuckets.Length);
+            Array.Clear(_mSlots);
+            Array.Clear(_mBuckets);
             _mLastIndex = 0;
             Count = 0;
             _mFreeList = -1;
@@ -189,13 +189,19 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     /// <param name="other">enumerable with items to add</param>
     public void UnionWith(IEnumerable<T> other)
     {
-        // Fast path for ICollection<T> (List<T>, T[], HashSet<T>, etc.)
-        if (other is ICollection<T> { Count: > 0 } coll)
+        if (other is not ICollection<T> { Count: > 0 } coll)
         {
-            EnsureCapacityForUnion(coll.Count);
+            foreach (var item in other)
+            {
+                Add(item);
+            }
+            return;
         }
 
-        // Enumerate and insert
+        // Fast path for ICollection<T> (List<T>, T[], HashSet<T>, etc.)
+        EnsureCapacityForUnion(coll.Count);
+
+        // fast add since we know the count
         foreach (var item in other)
         {
             AddFast(item);
@@ -708,7 +714,7 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
         return true;
     }
     
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AddFast(T value)
     {
         var hash = Comparer.GetHashCode(value);
