@@ -75,7 +75,7 @@
         <PackageReference Include="iCUE-ReverseEngineeredServer" Version="0.2.9" />
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
         <PackageReference Include="JsonSubTypes" Version="2.0.1" />
-        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.5-pre454" />
+        <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.7-pre642" />
         <PackageReference Include="LibUsbDotNet" Version="2.2.75" />
         <PackageReference Include="MdXaml" Version="1.27.0" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.3.9" />
