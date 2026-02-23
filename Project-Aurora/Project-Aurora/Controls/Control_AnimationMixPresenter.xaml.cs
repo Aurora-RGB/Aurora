@@ -156,7 +156,7 @@ public partial class Control_AnimationMixPresenter
 
             await Task.Run(() =>
             {
-                _newBitmap.Fill(Brushes.Black);
+                _newBitmap.Fill(Color.Black);
 
                 cm.Draw(_newBitmap, _currentPlaybackTime, new PointF(AnimationScale, AnimationScale));
 

@@ -303,7 +303,7 @@ public sealed class BitmapEffectLayer : EffectLayer
 
     public void Clear()
     {
-        _colormap.Fill(ClearingBrush);
+        _colormap.Fill(ClearingBrush.Color);
         _lastColor = Color.Empty;
         Invalidate();
     }

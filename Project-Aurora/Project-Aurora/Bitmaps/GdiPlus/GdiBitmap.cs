@@ -286,12 +286,11 @@ public sealed class GdiBitmap
         _graphics.DrawLine(pen, startPoint, endPoint);
     }
 
-    public void Fill(Brush brush)
+    public void Fill(Color color)
     {
         var graphicsState = _graphics.Save();
         Reset();
-        _graphics.CompositingMode = CompositingMode.SourceCopy;
-        _graphics.FillRectangle(brush, _graphics.VisibleClipBounds);
+        _graphics.Clear(color);
         _graphics.Restore(graphicsState);
     }
 

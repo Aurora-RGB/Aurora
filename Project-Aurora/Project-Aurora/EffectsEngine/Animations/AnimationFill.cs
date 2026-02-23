@@ -25,7 +25,7 @@ namespace AuroraRgb.EffectsEngine.Animations
                 _invalidated = false;
             }
  
-            g.Fill(_brush);
+            g.Fill(_color);
         }
 
         public override AnimationFrame BlendWith(AnimationFrame otherAnim, double amount)
