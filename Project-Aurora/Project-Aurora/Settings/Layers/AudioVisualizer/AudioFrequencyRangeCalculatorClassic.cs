@@ -13,6 +13,8 @@ public sealed class AudioFrequencyRangeCalculatorClassic : IAudioFrequencyRangeC
 
     public Complex[] Ffts { get; private set; }
 
+    public float PeakValue { get; private set; } = 1f;
+
     public AudioFrequencyRangeCalculatorClassic(int fftLength)
     {
         Ffts = new Complex[fftLength];
@@ -28,6 +30,7 @@ public sealed class AudioFrequencyRangeCalculatorClassic : IAudioFrequencyRangeC
         var bufferCount = waveBuffer.FloatBufferCount;
         var fftIndexRatio = (double)_fftLength / bufferCount;
         var buffer = waveBuffer.FloatBuffer;
+        PeakValue = 1;
 
         for (var freqPlusChannel = 0; freqPlusChannel < bufferCount; freqPlusChannel += Channels)
         {
@@ -41,6 +44,7 @@ public sealed class AudioFrequencyRangeCalculatorClassic : IAudioFrequencyRangeC
 
             var fftIndex = (int)Math.Floor(freqPlusChannel * fftIndexRatio);
             _sampleAggregator.Add(max, fftIndex);
+            PeakValue = Math.Max(PeakValue, max);
         }
 
         waveBuffer.Clear();

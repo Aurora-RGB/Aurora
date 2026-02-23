@@ -270,13 +270,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         if (deviceProxy.Device == null)
             return EmptyLayer.Instance;
 
-        // The system sound as a value between 0.0 and 1.0
-        var systemSoundNormalized = deviceProxy.Device?.AudioMeterInformation?.MasterPeakValue ?? 1f;
-
-        // Scale the Maximum amplitude with the system sound if enabled, so that at 100% volume the max_amp is unchanged.
-        // Replaces all Properties.MaxAmplitude calls with the scaled value
-        var scaledMaxAmplitude = Properties.MaxAmplitude * (Properties.ScaleWithSystemVolume ? systemSoundNormalized : 1);
-
         var freqs = Properties.Frequencies.ToArray(); //Defined Frequencies
 
         if (_previousFreqResults == null || _previousFreqResults.Length < freqs.Length)
@@ -318,6 +311,13 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         // Use the new transform render method to draw the equalizer layer
         EffectLayer.DrawTransformed(Properties.Sequence, g =>
         {
+            // The system sound as a value between 0.0 and 1.0
+            var systemSoundNormalized = _frequencyCalculatorClassic.PeakValue;
+
+            // Scale the Maximum amplitude with the system sound if enabled, so that at 100% volume the max_amp is unchanged.
+            // Replaces all Properties.MaxAmplitude calls with the scaled value
+            var scaledMaxAmplitude = Properties.MaxAmplitude * (Properties.ScaleWithSystemVolume ? systemSoundNormalized : 1);
+
             // Here we draw the equalizer relative to our source rectangle
             // and the DrawTransformed method handles sizing and positioning it correctly for us
             // Draw a rectangle background over the entire source rect if bg is enabled
