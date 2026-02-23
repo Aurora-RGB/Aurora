@@ -68,11 +68,14 @@ public class LightEvent : ILightEvent
     public virtual void UpdateOverlayLights(EffectFrame frame) {
         try
         {
-            var overlayLayers = Application.Profile.OverlayLayers
-                .Where(l => l.Enabled)
-                .Reverse()
-                .Select(l => l.Render(GameState));
-            frame.AddOverlayLayers(overlayLayers);
+            var appLayers = Application.Profile.OverlayLayers;
+            // Iterate through the layers in reverse order to ensure that the topmost layers are rendered last
+            for (var i = appLayers.Count - 1; i >= 0; i--)
+            {
+                var layer = appLayers[i];
+                if (layer.Enabled)
+                    frame.AddOverlayLayer(layer.Render(GameState));
+            }
         }
         catch(Exception e)
         {

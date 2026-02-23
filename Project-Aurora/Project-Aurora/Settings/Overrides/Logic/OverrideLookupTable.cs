@@ -63,32 +63,45 @@ public class OverrideLookupTable : IOverrideLogic {
     }
     
     public bool EvaluateBool(IGameState gameState, out bool overridden) {
-        foreach (var entry in LookupTable)
-            if (entry.Condition.Evaluate(gameState)) {
+        for (var i = 0; i < LookupTable.Count; i++)
+        {
+            var entry = LookupTable[i];
+            if (entry.Condition.Evaluate(gameState))
+            {
                 overridden = true;
                 if (entry.Value is bool b)
                     return b;
                 return Convert.ToBoolean(entry.Value);
             }
+        }
+
         overridden = false;
         return false;
     }
     
     public double EvaluateDouble(IGameState gameState, out bool overridden) {
-        foreach (var entry in LookupTable)
-            if (entry.Condition.Evaluate(gameState)) {
+        for (var i = 0; i < LookupTable.Count; i++)
+        {
+            var entry = LookupTable[i];
+            if (entry.Condition.Evaluate(gameState))
+            {
                 overridden = true;
                 if (entry.Value is double d)
                     return d;
                 return Convert.ToDouble(entry.Value);
             }
+        }
+
         overridden = false;
         return 0;
     }
     
     public Rectangle EvaluateRectangle(IGameState gameState, out bool overridden) {
-        foreach (var entry in LookupTable)
-            if (entry.Condition.Evaluate(gameState)) {
+        for (var i = 0; i < LookupTable.Count; i++)
+        {
+            var entry = LookupTable[i];
+            if (entry.Condition.Evaluate(gameState))
+            {
                 overridden = true;
                 return entry.Value switch
                 {
@@ -97,21 +110,26 @@ public class OverrideLookupTable : IOverrideLogic {
                     _ => (Rectangle)Convert.ChangeType(entry.Value, typeof(Rectangle))
                 };
             }
+        }
+
         overridden = false;
         return default;
     }
     
     public DrawingColor EvaluateColor(IGameState gameState, out bool overridden) {
-        foreach (var entry in LookupTable)
-            if (entry.Condition.Evaluate(gameState)) {
-                overridden = true;
-                return entry.Value switch
-                {
-                    DrawingColor c => c,
-                    null => default,
-                    _ => (DrawingColor)Convert.ChangeType(entry.Value, typeof(Color))
-                };
-            }
+        for (var i = 0; i < LookupTable.Count; i++)
+        {
+            var entry = LookupTable[i];
+            if (!entry.Condition.Evaluate(gameState)) continue;
+            overridden = true;
+            return entry.Value switch
+            {
+                DrawingColor c => c,
+                null => default,
+                _ => (DrawingColor)Convert.ChangeType(entry.Value, typeof(Color))
+            };
+        }
+
         overridden = false;
         return default;
     }
