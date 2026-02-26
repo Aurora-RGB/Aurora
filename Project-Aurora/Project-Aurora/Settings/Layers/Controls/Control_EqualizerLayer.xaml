@@ -15,7 +15,7 @@
         <aurora:Global x:Key="Global"/>
     </UserControl.Resources>
 
-    <Grid Width="700" Height="340" VerticalAlignment="Top" HorizontalAlignment="Left">
+    <Grid Width="700" Height="370" VerticalAlignment="Top" HorizontalAlignment="Left">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width=".5*" />
@@ -27,6 +27,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="28px" />
                 <RowDefinition Height="28px" />
                 <RowDefinition Height="28px" />
                 <RowDefinition Height="28px" />
@@ -77,10 +78,13 @@
                       ItemsSource="{x:Static audioCapture:AudioDevices.AllDevices}" DisplayMemberPath="Value" SelectedValuePath="Key" />
 
             <TextBlock Grid.Row="10" Grid.Column="0" Margin="3" Text="Max amplitude:" />
-            <xctk:IntegerUpDown Grid.Row="10" Grid.Column="1" Margin="3" x:Name="updown_max_amplitude_value" Value="1" Maximum="120" Minimum="1" MouseWheelActiveOnFocus="True" ValueChanged="updown_max_amplitude_value_ValueChanged" />
+            <xctk:DoubleUpDown Grid.Row="10" Grid.Column="1" Margin="3" x:Name="updown_max_amplitude_value" Value="1" Maximum="120" Minimum="1" Increment="0.01" MouseWheelActiveOnFocus="True" ValueChanged="updown_max_amplitude_value_ValueChanged" />
 
             <TextBlock Grid.Row="11" Grid.Column="0" Margin="3" Text="Scale with volume:" />
             <CheckBox Grid.Row="11" Grid.Column="1" Margin="3" x:Name="chkbox_scale_with_system_volume" Checked="chkbox_scale_with_system_sound_Checked" Unchecked="chkbox_scale_with_system_sound_Checked" />
+            
+            <TextBlock Grid.Row="12" Grid.Column="0">Decay:</TextBlock>
+            <xctk:DoubleUpDown Grid.Row="12" Grid.Column="1" Margin="3" x:Name="UpdownDecayInput" Maximum="1" Minimum="0" Increment="0.01" ValueChanged="Updown_decay_value_OnValueChanged" />
         </Grid>
         <Grid Grid.Column="1">
             <Grid.RowDefinitions>

@@ -67,6 +67,7 @@ public partial class ControlEqualizerLayer
         Clr_dim_color.SelectedColor = ColorUtils.DrawingColorToMediaColor(((EqualizerLayerHandler)DataContext).Properties.DimColor);
         lstbx_frequencies.ItemsSource = ((EqualizerLayerHandler)DataContext).Properties.Frequencies;
         chkbox_scale_with_system_volume.IsChecked = ((EqualizerLayerHandler)DataContext).Properties.ScaleWithSystemVolume;
+        UpdownDecayInput.Value = ((EqualizerLayerHandler)DataContext).Properties.Decay;
 
         _settingsSet = true;
     }
@@ -143,8 +144,8 @@ public partial class ControlEqualizerLayer
 
     private void updown_max_amplitude_value_ValueChanged(object? sender, RoutedPropertyChangedEventArgs<object> e)
     {
-        if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler && (sender as IntegerUpDown)?.Value != null)
-            ((EqualizerLayerHandler)DataContext).Properties.MaxAmplitude = ((IntegerUpDown)sender).Value.Value;
+        if (IsLoaded && _settingsSet && DataContext is EqualizerLayerHandler layerHandler && (sender as DoubleUpDown)?.Value is { } value)
+            layerHandler.Properties.MaxAmplitude = value;
     }
 
     private void chkbox_scale_with_system_sound_Checked(object? sender, RoutedEventArgs e)
@@ -300,5 +301,17 @@ public partial class ControlEqualizerLayer
                 DeviceComboBox.ItemsSource = AudioDevices.PlaybackDevices;
                 break;
         }
+    }
+
+    private void Updown_decay_value_OnValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+    {
+        var decayValue = UpdownDecayInput.Value;
+        if (decayValue == null || !IsLoaded)
+        {
+            return;
+        }
+
+        var layerHandler = (EqualizerLayerHandler)DataContext;
+        layerHandler.Properties.Decay = decayValue.Value;
     }
 }

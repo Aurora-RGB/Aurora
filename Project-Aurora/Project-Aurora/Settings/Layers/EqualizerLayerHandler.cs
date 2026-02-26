@@ -174,6 +174,22 @@ public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties
         set => _deviceId = value;
     }
 
+    private double? _decay;
+    [JsonProperty("_Falloff")]
+    [LogicOverridable("Decay Falloff")]
+    public double Decay    {
+        get => Logic?._decay ?? _decay ?? 0.06f;
+        set => _decay = value;
+    }
+
+    private double? _decayThreshold;
+    [JsonProperty("_DecayThreshold")]
+    [LogicOverridable("Decay Threshold")]
+    public double DecayThreshold    {
+        get => Logic?._decayThreshold ?? _decayThreshold ?? 0.02f;
+        set => _decayThreshold = value;
+    }
+
     public override void Default()
     {
         base.Default();
@@ -187,7 +203,7 @@ public partial class EqualizerLayerHandlerProperties : LayerHandlerProperties
         _scaleWithSystemVolume = false;
         _backgroundMode = EqualizerBackgroundMode.Disabled;
         _dimColor = Color.FromArgb(169, 0, 0, 0);
-        _frequencies = new SortedSet<float> { 50, 95, 130, 180, 250, 350, 500, 620, 700, 850, 1200, 1600, 2200, 3000, 4100, 5600, 7700, 10000 };
+        _frequencies = [50, 95, 130, 180, 250, 350, 500, 620, 700, 850, 1200, 1600, 2200, 3000, 4100, 5600, 7700, 10000];
         _deviceId = "";
     }
 }
@@ -384,8 +400,8 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
                         var fftVal = _fluxArray[fX] / scaledMaxAmplitude;
                         fftVal = Math.Min(1.0f, fftVal);
 
-                        if (_previousFreqResults[fX] - fftVal > 0.10)
-                            fftVal = _previousFreqResults[fX] - 0.15f;
+                        if (_previousFreqResults[fX] - fftVal > Properties.DecayThreshold)
+                            fftVal = _previousFreqResults[fX] - Properties.Decay;
 
                         var x = fX * barWidth;
                         var y = SourceRect.Height;
