@@ -22,6 +22,7 @@ public static partial class HttpEndpointFactory
                 VariablesEndpoint(),
                 LegacyGsiEndpoint(listener),
                 ProfilesEndpoint(),
+                FaviconMethod(),
             ])
             .ToFrozenDictionary(endpoint => endpoint.Path, endpoint => endpoint);
     }

@@ -88,6 +88,16 @@ namespace AuroraRgb.Properties {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static byte[] aurora_icon_bytes {
+            get {
+                object obj = ResourceManager.GetObject("aurora_icon_bytes", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
