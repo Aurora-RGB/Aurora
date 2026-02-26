@@ -100,16 +100,7 @@ client.test("Response should be 200 OK", function() {
 });
 %}
 
-### GET global variables
-GET http://localhost:9088/variables HTTP/1.1
-
-> {%
-client.test("Response should be 200 OK", function() {
-    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
-})
-%}
-
-### POST global variables
+### POST global variables, JSON body
 POST http://localhost:9088/variables HTTP/1.1
 
 {
@@ -121,5 +112,83 @@ POST http://localhost:9088/variables HTTP/1.1
 > {%
 client.test("Response should be 200 OK", function() {
     client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+%}
+
+### GET global variables and test JSON values
+GET http://localhost:9088/variables HTTP/1.1
+
+> {%
+const responseData = response.body;
+client.test("Response should be 200 OK and JSON values are set", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+client.test("someString should be 'someValue'", function () {
+    client.assert(responseData.Strings.someString === "someValue", responseData.Strings.someString);
+});
+client.test("someNumber should be 12345", function () {
+    client.assert(responseData.Numbers.someNumber === 12345, responseData.Numbers.someNumber);
+});
+client.test("someBoolean should be true", function () {
+    client.assert(responseData.Booleans.someBoolean === true, responseData.Booleans.someBoolean);
+});
+%}
+
+### POST global variables, URL encoded form data
+POST http://localhost:9088/variables?query_string=someValue&query_number=12345&query_bool=true HTTP/1.1
+
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+%}
+
+### GET global variables and test url query values
+GET http://localhost:9088/variables HTTP/1.1
+
+> {%
+const responseData = response.body;
+client.test("Response should be 200 OK and query values are set", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+client.test("query_string should be 'someValue'", function () {
+    client.assert(responseData.Strings.query_string === "someValue", responseData.Strings.query_string);
+});
+client.test("query_number should be 12345", function () {
+    client.assert(responseData.Numbers.query_number === 12345, responseData.Numbers.query_number);
+});
+client.test("query_bool should be true", function () {
+    client.assert(responseData.Booleans.query_bool === true, responseData.Booleans.query_bool);
+});
+%}
+
+### POST global variables, URL encoded form data
+POST http://localhost:9088/variables HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+form_string=someValue&form_number=12345&form_bool=true
+
+> {%
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, "Expected status code 200, but got " + response.status);
+})
+%}
+
+### GET global variables and test form query values
+GET http://localhost:9088/variables HTTP/1.1
+
+> {%
+const responseData = response.body;
+client.test("Response should be 200 OK", function() {
+    client.assert(response.status === 200, response.status);
+})
+client.test("Expect form_string to be 'someValue'", function() {
+    client.assert(responseData.Strings.form_string === "someValue", responseData.form_string);
+})
+client.test("Expect form_number to be 12345", function() {
+    client.assert(responseData.Numbers.form_number === 12345, responseData.form_number);
+})
+client.test("Expect form_bool to be true", function() {
+    client.assert(responseData.Booleans.form_bool === true, responseData.form_bool);
 })
 %}
