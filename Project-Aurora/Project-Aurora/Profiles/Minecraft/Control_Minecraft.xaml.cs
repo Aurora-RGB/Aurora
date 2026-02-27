@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Navigation;
 using AuroraRgb.Profiles.Minecraft.GSI;
 
 namespace AuroraRgb.Profiles.Minecraft;
@@ -166,6 +167,14 @@ public partial class Control_Minecraft
     private async void Control_Minecraft_OnLoaded(object sender, RoutedEventArgs e)
     {
         await PopulateModList();
+    }
+
+    /// <summary>
+    /// Listener for a HyperLink to open the Uri it has specified.
+    /// </summary>
+    private void Hyperlink_RequestNavigate(object? sender, RequestNavigateEventArgs e) {
+        Process.Start("explorer", e.Uri.AbsoluteUri);
+        e.Handled = true;
     }
 }
 

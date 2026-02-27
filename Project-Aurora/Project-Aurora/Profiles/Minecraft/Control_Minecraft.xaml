@@ -18,7 +18,7 @@
                         <Run Text="Currently this mod requires either Forge or Fabric mod loader, depending on the version of the game."/>
                         <LineBreak />
                         <LineBreak />
-                        <Run Text="These mods are not authored by the main Aurora developers and any issues with these mods should not be directed at them, but posted on the relevant GitLab repo for the mod." />
+                        <Hyperlink NavigateUri="https://github.com/Aurora-RGB/Minecraft-GSI" RequestNavigate="Hyperlink_RequestNavigate">https://github.com/Aurora-RGB/Minecraft-GSI</Hyperlink>
                     </TextBlock>
 
                     <Button Content="Minecraft Forge download" HorizontalAlignment="Left" Padding="10,2" Click="GoToForgePage_Click" />
