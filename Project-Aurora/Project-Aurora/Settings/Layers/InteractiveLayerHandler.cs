@@ -417,7 +417,6 @@ public sealed class InteractiveLayerHandler : LayerHandler<InteractiveLayerHandl
         inputEvents.MouseButtonDown -= MouseKeyDown;
         inputEvents.MouseButtonUp -= MouseKeyUp;
 
-        EffectLayer.Dispose();
         base.Dispose();
     }
 }

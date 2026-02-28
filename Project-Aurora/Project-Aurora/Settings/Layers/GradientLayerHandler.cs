@@ -88,7 +88,6 @@ public class GradientLayerHandler : LayerHandler<GradientLayerHandlerProperties,
     public override void Dispose()
     {
         Properties.PropertyChanged -= PropertiesChanged;
-        EffectLayer.Dispose();
         base.Dispose();
     }
 }

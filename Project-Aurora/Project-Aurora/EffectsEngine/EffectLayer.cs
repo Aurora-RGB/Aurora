@@ -958,6 +958,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     {
         var oldBitmap = _colormap;
         _colormap = new GdiBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _bitmapReader = null;
         oldBitmap.Dispose();
         _ksChanged = true;
         Dimension.Height = Effects.Canvas.Height;
