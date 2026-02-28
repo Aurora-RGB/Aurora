@@ -1,0 +1,101 @@
+﻿<fluentWpf:AcrylicWindow x:Class="AuroraRgb.Controls.WindowFirstTime"
+                         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:fluentWpf="clr-namespace:SourceChord.FluentWPF;assembly=FluentWPF"
+                         xmlns:controls="clr-namespace:AuroraRgb.Controls"
+                         mc:Ignorable="d"
+                         Title="WindowFirstTime"
+                         Loaded="WindowFirstTime_OnLoaded"
+                         Closing="WindowFirstTime_OnClosing"
+                         Height="600"
+                         Width="800">
+    <fluentWpf:AcrylicWindow.DataContext>
+        <controls:WindowFirstTimeViewModel />
+    </fluentWpf:AcrylicWindow.DataContext>
+    <Window.Resources>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="10, 4, 10, 4"></Setter>
+        </Style>
+        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <Style TargetType="ToggleButton" BasedOn="{StaticResource {x:Type ToggleButton}}">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="10,5"/>
+        </Style>
+        <Style TargetType="StackPanel">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </Window.Resources>
+
+    <ScrollViewer>
+        <StackPanel Orientation="Vertical" Margin="10">
+            <StackPanel Name="FirstTimePanel" Margin="2,0,2,5">
+                <TextBlock>
+                    You seem to be new around here...
+                </TextBlock>
+                <Separator Height="10"/>
+            </StackPanel>
+            <StackPanel Name="OfflineUsagePanel" Margin="2,0,2,5" Visibility="Collapsed">
+                <!-- TODO: implement this, maybe also bundle the files in installer while building?? -->
+                <TextBlock>
+                    If you need to use Aurora offline...
+                </TextBlock>
+                <Separator Height="10"/>
+            </StackPanel>
+            <StackPanel Name="PawnIoPanel" Margin="2,0,2,5">
+                <TextBlock>
+                    You need PawnIO for Aurora to read system sensors (CPU, GPU, RAM, etc.)
+                    <LineBreak/>
+                    It's optional. Driver status shown below will be updated when you install it.
+                </TextBlock>
+                <controls:ControlPawnIo />
+                <Separator Height="10"/>
+            </StackPanel>
+            <StackPanel Name="UnsafeDriversPanel" Margin="2,0,2,5">
+                <TextBlock>
+                    These infamous drivers were used in the past by Aurora for system sensors.
+                    <LineBreak/>
+                    They are no longer used by Aurora as PawnIO is used instead. They can be detected as malware/cheat by some software.
+                    <LineBreak/>
+                    It is recommended to uninstall them, but other software may already be using them.
+                </TextBlock>
+                <controls:Control_UnsecureDrivers />
+                <Separator Height="10"/>
+            </StackPanel>
+            <StackPanel Name="IntegrationsPanel" Margin="2,0,2,10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="0,0,10,0">
+                        Enable automatically installing game integrations: 
+                    </TextBlock>
+                    <ToggleButton
+                        IsChecked="{Binding AutoGsiYes, Mode=OneWay}"
+                        Command="{Binding SetAutoGsiYesCommand}"
+                        CommandParameter="true">
+                        Yes
+                    </ToggleButton>
+
+                    <ToggleButton
+                        IsChecked="{Binding AutoGsiNo, Mode=OneWay}"
+                        Command="{Binding SetAutoGsiNoCommand}"
+                        CommandParameter="false">
+                        No
+                    </ToggleButton>
+                </StackPanel>
+                <TextBlock>
+                    This includes game and profiles added later. Automatic installations are never intrusive to the game.
+                </TextBlock>
+                <Separator Height="10"/>
+            </StackPanel>
+            <StackPanel Margin="2,0,2,5" Visibility="{Binding CanContinueVisibility}">
+                <TextBlock>Close this window to continue with Aurora-RGB</TextBlock>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</fluentWpf:AcrylicWindow>

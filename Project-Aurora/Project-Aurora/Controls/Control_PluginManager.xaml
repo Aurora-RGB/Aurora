@@ -4,11 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+             xmlns:auroraControls="clr-namespace:AuroraRgb.Controls"
              xmlns:settings1="clr-namespace:AuroraRgb.Settings"
              xmlns:auroraRgb="clr-namespace:AuroraRgb"
              xmlns:utils1="clr-namespace:AuroraRgb.Utils"
              mc:Ignorable="d" 
-             Loaded="Control_PluginManager_OnLoaded"
              d:DesignHeight="300" d:DesignWidth="1200">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -37,17 +37,7 @@
                     <TextBlock Text="Hardware Info" />
                     <CheckBox Content="Enabled" IsChecked="{Binding EnableHardwareInfo}" />
 
-                    <TextBlock Margin="0, 28, 0, 0">Unsafe drivers:</TextBlock>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0, 0, 5, 0">inpoutx64:</TextBlock>
-                        <TextBlock Margin="0, 0, 15, 0" Name="InpOut64Status">STATUS</TextBlock>
-                        <Button Name="InpOutDeleteButton" Click="InpOutDeleteButton_OnClick">Remove</Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Margin="0, 0, 5, 0">WinRing0:</TextBlock>
-                        <TextBlock Margin="0, 0, 15, 0" Name="WinRing0Status">STATUS</TextBlock>
-                        <Button Name="WinRing0DeleteButton" Click="WinRing0DeleteButton_OnClick">Remove</Button>
-                    </StackPanel>
+                    <auroraControls:Control_UnsecureDrivers Margin="0 15 0 0"/>
                 </StackPanel>
 
                 <Grid Grid.Column="1" Grid.Row="0" Margin="7,0,0,0">

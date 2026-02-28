@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="AuroraRgb.Controls.Control_UnsecureDrivers"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             Loaded="Control_UnsecureDrivers_OnLoaded"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <StackPanel Orientation="Vertical">
+        <TextBlock>Unsafe drivers:</TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Margin="0, 0, 5, 0">inpoutx64:</TextBlock>
+            <TextBlock Margin="0, 0, 15, 0" Name="InpOut64Status">STATUS</TextBlock>
+            <Button Name="InpOutDeleteButton" Click="InpOutDeleteButton_OnClick">Remove</Button>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Margin="0, 0, 5, 0">WinRing0:</TextBlock>
+            <TextBlock Margin="0, 0, 15, 0" Name="WinRing0Status">STATUS</TextBlock>
+            <Button Name="WinRing0DeleteButton" Click="WinRing0DeleteButton_OnClick">Remove</Button>
+        </StackPanel>
+    </StackPanel>
+</UserControl>

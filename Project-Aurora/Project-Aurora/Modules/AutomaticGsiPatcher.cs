@@ -1,64 +1,38 @@
 ﻿using System;
 using System.Threading.Tasks;
-using System.Windows;
 using AuroraRgb.Profiles;
 using Application = AuroraRgb.Profiles.Application;
 
 namespace AuroraRgb.Modules;
 
-public sealed class AutomaticGsiPatcher : AuroraModule
+public sealed class AutomaticGsiPatcher(Task<bool> autoGsiSettingTask) : AuroraModule
 {
-    private const string InstallAutomaticallyPromptMessage = """
-                                                             Would you like Aurora to install integrations automatically?
-
-                                                             This includes game profiles that will be added later.
-
-                                                             You can change this later in Aurora settings.
-                                                             """;
-
     protected override async Task Initialize()
     {
-        var userPromptTcs = new TaskCompletionSource<bool>();
-
         var lsm = await LightingStateManagerModule.LightningStateManager;
+        var autoInstallGsi = await autoGsiSettingTask;
 
         lsm.ApplicationManager.EventAdded += (_, args) =>
         {
             var lightEvent = args.Application;
             Task.Run(async () =>
             {
-                await RunInstallation(userPromptTcs, lightEvent);
+                await RunInstallation(autoInstallGsi, lightEvent);
             });
         };
         foreach (var application in lsm.ApplicationManager.Events.Values)
         {
             _ = Task.Run(async () =>
             {
-                await RunInstallation(userPromptTcs, application);
+                await RunInstallation(autoInstallGsi, application);
             });
         }
-
-        if (Global.Configuration.AutoInstallGsi != null)
-        {
-            userPromptTcs.SetResult(Global.Configuration.AutoInstallGsi ?? false);
-            return;
-        }
-
-        var result = MessageBox.Show(InstallAutomaticallyPromptMessage, "AuroraRgb", MessageBoxButton.YesNo);
-        Global.Configuration.AutoInstallGsi = result switch
-        {
-            MessageBoxResult.Yes => true,
-            MessageBoxResult.No => false,
-            _ => null,
-        };
-        userPromptTcs.SetResult(Global.Configuration.AutoInstallGsi ?? false);
     }
 
-    private static async Task RunInstallation(TaskCompletionSource<bool> userPromptTcs, Application lightEvent)
+    private static async Task RunInstallation(bool installGsi, Application lightEvent)
     {
         try
         {
-            var installGsi = await userPromptTcs.Task;
             if (!installGsi)
             {
                 return;

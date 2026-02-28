@@ -19,6 +19,12 @@
           "System.Reflection.TypeExtensions": "4.7.0"
         }
       },
+      "CommunityToolkit.Mvvm": {
+        "type": "Direct",
+        "requested": "[8.4.0, )",
+        "resolved": "8.4.0",
+        "contentHash": "tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw=="
+      },
       "CoordinateSharp": {
         "type": "Direct",
         "requested": "[2.20.1.1, )",

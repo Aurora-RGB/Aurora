@@ -212,7 +212,6 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public IList<string> Migrations { get; set; } = [];
 
     public bool? AutoInstallGsi { get; set; }
-    public bool? AutoRemoveUnsecureDrivers { get; set; }
 
     /// <summary>
     /// Called after the configuration file has been deserialized or created for the first time.

@@ -9,10 +9,23 @@ public static class UnsecureDrivers
 {
     public const string InpOutDriverName = "inpoutx64";
     public const string WinRing0DriverName = "WinRing0x64";
+    private const string ServicesPath = @"SYSTEM\CurrentControlSet\Services\";
+
+    public static bool WinRing0DriverExists()
+    {
+        using var r = Registry.LocalMachine.OpenSubKey(ServicesPath + WinRing0DriverName);
+        return r != null;
+    }
+    
+    public static bool InpOutDriverExists()
+    {
+        using var r = Registry.LocalMachine.OpenSubKey(ServicesPath + InpOutDriverName);
+        return r != null;
+    }
 
     public static void DeleteDriver(string driverName, bool silent = false)
     {
-        var inpOutKey = @"SYSTEM\CurrentControlSet\Services\" + driverName;
+        var inpOutKey = ServicesPath + driverName;
 
         try
         {

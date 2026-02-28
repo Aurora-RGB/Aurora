@@ -26,6 +26,7 @@ public sealed class AuroraApp : IDisposable
     private readonly ProcessesModule _processesModule = new();
     private readonly DevicesModule _devicesModule;
     private readonly LayoutsModule _layoutsModule;
+    private readonly FirstTimeWizardModule _firstTimeWizardModule = new();
 
     private readonly List<AuroraModule> _modules;
 
@@ -69,7 +70,8 @@ public sealed class AuroraApp : IDisposable
             onlineSettings,
             _layoutsModule,
             new PerformanceMonitor(ProcessesModule.RunningProcessMonitor),
-            new AutomaticGsiPatcher(),
+            _firstTimeWizardModule,
+            new AutomaticGsiPatcher(_firstTimeWizardModule.AutoGsiValueTask),
         ];
 
         _trayIcon = new AuroraTrayIcon(ControlInterface);
