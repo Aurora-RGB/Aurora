@@ -34,7 +34,7 @@ public class Boolean_VariableExists : BoolEvaluatable
     {
         return new StackPanel { Orientation = Orientation.Horizontal }
             .WithChild(new TextBlock
-                { Text = "Variable Name", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
+                { Text = "Global Variable Exists:", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
             .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(string) }
                 .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, new Binding(nameof(VariableName)) { Source = this, Mode = BindingMode.TwoWay }));
     }

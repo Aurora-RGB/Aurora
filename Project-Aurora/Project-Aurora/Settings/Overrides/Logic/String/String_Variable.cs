@@ -33,7 +33,7 @@ public class String_Variable : StringEvaluatable
     public override Visual GetControl()
     {
         return new StackPanel { Orientation = Orientation.Horizontal }
-            .WithChild(new TextBlock { Text = "Name", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
+            .WithChild(new TextBlock { Text = "Global Variable", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
             .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(string) }
                 .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, new Binding(nameof(VariableName)) { Source = this, Mode = BindingMode.TwoWay }))
             .WithChild(new TextBlock { Text = "Default Value", FontWeight = FontWeights.Bold, Margin = new Thickness(2, 0, 6, 0), VerticalAlignment = VerticalAlignment.Center })
