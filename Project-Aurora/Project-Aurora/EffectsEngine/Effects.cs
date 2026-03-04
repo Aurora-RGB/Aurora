@@ -170,10 +170,17 @@ public class Effects(Task<DeviceManager> deviceManager)
         var overLayersArray = frame.GetOverlayLayers();
         var layersArray = frame.GetLayers();
 
-        foreach (var layer in layersArray)
-            Background.Add(layer);
-        foreach (var layer in overLayersArray)
-            Background.Add(layer);
+        try
+        {
+            foreach (var layer in layersArray)
+                Background.Add(layer);
+            foreach (var layer in overLayersArray)
+                Background.Add(layer);
+        }
+        catch (Exception e)
+        {
+            Global.logger.Error(e, "Error while rendering layers");
+        }
 
         var keyboardDarknessA = 1.0f - Global.Configuration.KeyboardBrightness * Global.Configuration.GlobalBrightness;
         var keyboardDarkness = CommonColorUtils.FastColor(0, 0, 0, (byte) (255.0f * keyboardDarknessA));
