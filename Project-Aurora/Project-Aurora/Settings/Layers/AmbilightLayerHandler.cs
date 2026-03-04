@@ -237,6 +237,7 @@ public sealed class AmbilightLayerHandler : LayerHandler<AmbilightLayerHandlerPr
     private readonly Stopwatch _captureStopwatch = new();
     private DateTime _lastProcessDetectTry = DateTime.UtcNow;
 
+    [JsonIgnore]
     public IEnumerable<string> Displays => _screenCapture.Value.GetDisplays();
 
     public AmbilightLayerHandler() : base("Ambilight Layer")
