@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 
 namespace AuroraRgb.Utils;
 
+public sealed class TemporaryLifecycleEventArgs<T>(T value) : EventArgs
+{
+    public T Value { get; } = value;
+}
+
 public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDisposable, IAsyncDisposable
     where T : class
 {
-    public event EventHandler? ValueCreated;
+    public event EventHandler<TemporaryLifecycleEventArgs<T>>? ValueCreated;
+    public event EventHandler<TemporaryLifecycleEventArgs<T>>? ValueDisposed;
 
     private readonly Lock _createLock = new();
     private volatile T? _value;
@@ -42,7 +47,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
                 var value = produce();
                 _value = value;
-                ValueCreated?.Invoke(this, EventArgs.Empty);
+                ValueCreated?.Invoke(this, new TemporaryLifecycleEventArgs<T>(value));
                 AddInstance(this);
 
                 _lastAccess = DateTime.UtcNow;
@@ -68,6 +73,11 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
         if (_value is IDisposable disposable)
         {
             disposable.Dispose();
+        }
+
+        if (_value != null)
+        {
+            ValueDisposed?.Invoke(this, new TemporaryLifecycleEventArgs<T>(_value));
         }
 
         _value = null;

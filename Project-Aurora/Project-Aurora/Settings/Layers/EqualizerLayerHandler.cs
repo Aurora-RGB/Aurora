@@ -264,6 +264,13 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         {
             DeviceChanged(this, EventArgs.Empty);
         };
+        _deviceProxy.ValueDisposed += (_, e) =>
+        {
+            var deviceProxy = e.Value;
+            deviceProxy.WaveInDataAvailable -= OnDataAvailable;
+            deviceProxy.DeviceChanged -= DeviceChanged; 
+            DeviceChanged(this, EventArgs.Empty);
+        };
     }
 
     protected override UserControl CreateControl()
@@ -489,15 +496,13 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
         base.Dispose();
 
         _disposed = true;
-        if (!_deviceProxy.HasValue) return;
-        var deviceProxy = _deviceProxy.Value;
-        deviceProxy.WaveInDataAvailable -= OnDataAvailable;
-        deviceProxy.DeviceChanged -= DeviceChanged; 
-        deviceProxy.Dispose();
 
         _backgroundBrush.Dispose();
         _solidBrush.Dispose();
         _primaryBrush.Dispose();
         _secondaryBrush.Dispose();
+
+        if (!_deviceProxy.HasValue) return;
+        _deviceProxy.Dispose();
     }
 }
