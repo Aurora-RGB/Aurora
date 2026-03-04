@@ -18,6 +18,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     // ReSharper disable once CollectionNeverQueried.Local //to keep reference
     private static readonly Dictionary<Size, int[]> BitmapBuffers = new(20);
     private static readonly Vector256<int> FullVector = Vector256.Create(0xFF);
+    private static GraphicsUnit _graphicsUnit = GraphicsUnit.Pixel;
 
     private readonly Bitmap _bitmap;
     private readonly GdiBitmap _gdiBitmap;
@@ -31,8 +32,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     {
         _bitmap = bitmap;
         _gdiBitmap = gdiBitmap;
-        var graphicsUnit = GraphicsUnit.Pixel;
-        _dimension = bitmap.GetBounds(ref graphicsUnit);
+        _dimension = bitmap.GetBounds(ref _graphicsUnit);
     }
 
     /**

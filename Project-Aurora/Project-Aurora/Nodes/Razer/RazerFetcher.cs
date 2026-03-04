@@ -11,7 +11,7 @@ namespace AuroraRgb.Nodes.Razer;
 
 internal abstract class RazerFetcher : IDisposable
 {
-    private const string? GLOBAL_RAZERLINKREADWRITEGUARDMUTEX = "Global\\RazerLinkReadWriteGuardMutex";
+    private const string GlobalRazerlinkreadwriteguardmutex = "Global\\RazerLinkReadWriteGuardMutex";
 
     private const int HidReqSetReport = 0x09;
     private const int HidReqGetReport = 0x01; // Add GET_REPORT request
@@ -23,15 +23,12 @@ internal abstract class RazerFetcher : IDisposable
     private const int UsbTypeRequestIn = UsbTypeClass | UsbRecipInterface | UsbDirIn;
     private const int RazerUsbReportLen = 90; // Example length, set this according to actual length
 
-    private readonly Mutex _mutex;
+    private static readonly Mutex Mutex;
 
     static RazerFetcher()
     {
         UsbDevice.ForceLibUsbWinBack = true;
-    }
 
-    protected RazerFetcher()
-    {
         var rule = new MutexAccessRule(new SecurityIdentifier(WellKnownSidType.WorldSid, null), 
             MutexRights.Synchronize | MutexRights.Modify | MutexRights.FullControl | MutexRights.ReadPermissions | MutexRights.TakeOwnership, 
             AccessControlType.Allow);
@@ -40,31 +37,16 @@ internal abstract class RazerFetcher : IDisposable
         mutexSecurity.AddAccessRule(rule);
         
         // Create a mutex with a well-known name use acl
-        _mutex = MutexAcl.Create(false, GLOBAL_RAZERLINKREADWRITEGUARDMUTEX, out _, mutexSecurity);
-
-        try
-        {
-            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
-            {
-                _mutex.ReleaseMutex();
-                return;
-            }
-        }
-        catch (AbandonedMutexException)
-        {
-            //continue
-        }
-
-        _mutex.ReleaseMutex();
+        Mutex = MutexAcl.Create(false, GlobalRazerlinkreadwriteguardmutex, out _, mutexSecurity);
     }
 
     protected byte[]? Update()
     {
         try
         {
-            if (!_mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
+            if (!Mutex.WaitOne(TimeSpan.FromMilliseconds(2000), false))
             {
-                _mutex.ReleaseMutex();
+                Mutex.ReleaseMutex();
                 return null;
             }
         }
@@ -74,7 +56,7 @@ internal abstract class RazerFetcher : IDisposable
         }
 
         var report = UpdateLocked();
-        _mutex.ReleaseMutex();
+        Mutex.ReleaseMutex();
 
         return report;
     }
@@ -169,9 +151,6 @@ internal abstract class RazerFetcher : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (!disposing) return;
-        _mutex.Close();
-        _mutex.Dispose();
     }
 
     public void Dispose()
