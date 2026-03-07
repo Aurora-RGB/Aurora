@@ -27,8 +27,14 @@ public class UserNode
         set => Status = GetStatus(value);
     }
 
+    [JsonPropertyName("mute")]
+    public bool Mute { get; set; }
+
     [JsonPropertyName("self_mute")]
     public bool SelfMute { get; set; }
+
+    [JsonPropertyName("deafen")]
+    public bool Deaf { get; set; }
 
     [JsonPropertyName("self_deafen")]
     public bool SelfDeafen { get; set; }

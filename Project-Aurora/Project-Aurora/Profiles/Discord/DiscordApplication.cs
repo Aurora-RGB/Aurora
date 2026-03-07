@@ -1,13 +1,21 @@
-﻿namespace AuroraRgb.Profiles.Discord;
+﻿using AuroraRgb.Profiles.Discord.Layers;
 
-public class Discord() : Application(new LightEventConfig
+namespace AuroraRgb.Profiles.Discord;
+
+public class Discord : Application
 {
-    Name = "Discord",
-    ID = "discord",
-    ProcessNames = ["Discord.exe", "DiscordPTB.exe", "DiscordCanary.exe"],
-    ProfileType = typeof(DiscordProfile),
-    OverviewControlType = typeof(Control_Discord),
-    GameStateType = typeof(GSI.GameStateDiscord),
-    IconURI = "Resources/betterdiscord.png",
-    EnableByDefault = false
-});
+    public Discord() : base(new LightEventConfig
+    {
+        Name = "Discord",
+        ID = "discord",
+        ProcessNames = ["Discord.exe", "DiscordPTB.exe", "DiscordCanary.exe"],
+        ProfileType = typeof(DiscordProfile),
+        OverviewControlType = typeof(Control_Discord),
+        GameStateType = typeof(GSI.GameStateDiscord),
+        IconURI = "Resources/betterdiscord.png",
+        EnableByDefault = false
+    })
+    {
+        AllowLayer<DiscordVoiceActivityLayerHandler>();
+    }
+}

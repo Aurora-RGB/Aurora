@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using AuroraRgb.EffectsEngine;
+using AuroraRgb.Profiles.Discord.Layers;
 using AuroraRgb.Settings;
 using AuroraRgb.Settings.Layers;
 using AuroraRgb.Settings.Overrides.Logic;
@@ -17,14 +18,14 @@ public class DiscordProfile : ApplicationProfile
         var overrideLookupTableBuilder = new OverrideLookupTableBuilder<Color>();
         overrideLookupTableBuilder.AddEntry(Color.Red, new BooleanGSIBoolean("User/SelfMute"));
 
-        OverlayLayers = new System.Collections.ObjectModel.ObservableCollection<Layer>
-        {
+        OverlayLayers =
+        [
             new("Mic Status", new SolidColorLayerHandler
             {
                 Properties = new LayerHandlerProperties
                 {
                     _PrimaryColor = Color.Lime,
-                    _Sequence = new KeySequence(new[] { DeviceKeys.PAUSE_BREAK })
+                    _Sequence = new KeySequence([DeviceKeys.PAUSE_BREAK])
                 }
             }, new OverrideLogicBuilder()
                 .SetDynamicBoolean("_Enabled", new StringComparison(
@@ -39,7 +40,7 @@ public class DiscordProfile : ApplicationProfile
                 Properties = new LayerHandlerProperties
                 {
                     _PrimaryColor = Color.Yellow,
-                    _Sequence = new KeySequence(new[] { DeviceKeys.PRINT_SCREEN })
+                    _Sequence = new KeySequence([DeviceKeys.PRINT_SCREEN])
                 }
             }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled", new BooleanGSIBoolean("User/Mentions"))),
 
@@ -48,9 +49,19 @@ public class DiscordProfile : ApplicationProfile
                 Properties = new LayerHandlerProperties
                 {
                     _PrimaryColor = Color.LightBlue,
-                    _Sequence = new KeySequence(new[] { DeviceKeys.PRINT_SCREEN, DeviceKeys.SCROLL_LOCK, DeviceKeys.PAUSE_BREAK })
+                    _Sequence = new KeySequence([DeviceKeys.PRINT_SCREEN, DeviceKeys.SCROLL_LOCK, DeviceKeys.PAUSE_BREAK])
                 }
             }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled", new BooleanGSIBoolean("User/UnreadMessages"))),
-        };
+
+            new ("Voice Activity", new DiscordVoiceActivityLayerHandler
+            {
+                Properties = new DiscordVoiceActivityLayerHandlerProperties
+                {
+                    _Sequence = new KeySequence([
+                        DeviceKeys.INSERT, DeviceKeys.HOME, DeviceKeys.PAGE_UP, DeviceKeys.DELETE, DeviceKeys.END, DeviceKeys.PAGE_DOWN
+                    ])
+                }
+            }),
+        ];
     }
 }

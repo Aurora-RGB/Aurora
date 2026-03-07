@@ -1,13 +1,19 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using AuroraRgb.Profiles.Discord.GSI.Nodes;
 using AuroraRgb.Profiles.Generic;
 
 namespace AuroraRgb.Profiles.Discord.GSI;
 
-public partial class GameStateDiscord : GameState
+[method: JsonConstructor]
+public partial class GameStateDiscord(Dictionary<string, VoiceParticipantNode> participants) : GameState
 {
-    public static readonly GameStateDiscord Default = new();
-    
+    public GameStateDiscord() : this([])
+    {
+    }
+
+    public static readonly GameStateDiscord Default = new([]);
+
     [JsonPropertyName("provider")]
     public ProviderNode Provider { get; set; } = ProviderNode.Default;
 
@@ -22,4 +28,7 @@ public partial class GameStateDiscord : GameState
 
     [JsonPropertyName("voice")]
     public VoiceNode Voice { get; set; } = VoiceNode.Default;
+
+    [JsonPropertyName("voice_participants")]
+    public Dictionary<string, VoiceParticipantNode> Participants { get; set; } = participants;
 }
