@@ -259,7 +259,6 @@ public sealed class EqualizerLayerHandler : LayerHandler<EqualizerLayerHandlerPr
             deviceProxy.DeviceId = Properties.DeviceId;
             return deviceProxy;
         });
-        // TODO: add ValueDestroyed event
         _deviceProxy.ValueCreated += (_, _) =>
         {
             DeviceChanged(this, EventArgs.Empty);

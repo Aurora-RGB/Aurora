@@ -142,7 +142,7 @@ public sealed class Temporary<T>(Func<T> produce, bool callDispose = true) : IDi
 
         if (_aliveTimer != null)
         {
-            await _aliveTimer.DisposeAsync();
+            _ = _aliveTimer.DisposeAsync();
         }
         _aliveTimer = null;
     }

@@ -9,7 +9,7 @@ public sealed class AsyncTimer : IAsyncDisposable
     private readonly Func<CancellationToken, Task> _callback;
     private readonly TimeSpan _period;
     private readonly CancellationTokenSource _cts = new();
-    private readonly Task? _runningTask;
+    private readonly Task _runningTask;
 
     public AsyncTimer(Func<CancellationToken, Task> callback, TimeSpan period)
     {
@@ -17,29 +17,34 @@ public sealed class AsyncTimer : IAsyncDisposable
         _period = period;
 
         // Start the timer loop
-        _runningTask = TimerLoopAsync(_cts.Token);
+        _runningTask = Task.Run(TimerLoopAsync);
     }
 
-    private async Task TimerLoopAsync(CancellationToken token)
+    private async Task TimerLoopAsync()
     {
+        var cancelToken = _cts.Token;
         try
         {
-            while (!token.IsCancellationRequested)
+            while (!cancelToken.IsCancellationRequested)
             {
-                await Task.Delay(_period, token);
-                try
+                await Task.Delay(_period, cancelToken);
+                // run in a separate stack
+                await Task.Run(async () =>
                 {
-                    await _callback(token);
-                }
-                catch (OperationCanceledException) when (token.IsCancellationRequested)
-                {
-                    // Timer was canceled, exit gracefully
-                }
-                catch (Exception ex)
-                {
-                    // Log or handle callback exceptions
-                    Global.logger.Warning(ex, "Exception while executing callback");
-                }
+                    try
+                    {
+                        await _callback(_cts.Token);
+                    }
+                    catch (OperationCanceledException) when (_cts.Token.IsCancellationRequested)
+                    {
+                        // Timer was canceled, exit gracefully
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log or handle callback exceptions
+                        Global.logger.Warning(ex, "Exception while executing callback");
+                    }
+                }, cancelToken);
             }
         }
         catch (OperationCanceledException)
@@ -48,11 +53,10 @@ public sealed class AsyncTimer : IAsyncDisposable
         }
     }
 
-    public ValueTask DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         // don't block since this will be called from timer callback itself
-        _ = _cts.CancelAsync();
+        await _cts.CancelAsync();
         _cts.Dispose();
-        return ValueTask.CompletedTask;
     }
 }
