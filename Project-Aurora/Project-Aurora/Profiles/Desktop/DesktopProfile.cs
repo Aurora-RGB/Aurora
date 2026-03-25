@@ -9,6 +9,7 @@ using AuroraRgb.Settings.Overrides.Logic;
 using AuroraRgb.Settings.Overrides.Logic.String;
 using Common.Devices;
 using Common.Utils;
+using Microsoft.Scripting.Utils;
 
 namespace AuroraRgb.Profiles.Desktop;
 
@@ -35,9 +36,34 @@ public enum InteractiveEffects
 
 public class DesktopProfile : ApplicationProfile
 {
-    private void AddVolumeOverlay()
+    private Layer NightLightOverlay()
     {
-        OverlayLayers.Add(new Layer("Volume Overlay", new PercentGradientLayerHandler
+        return new Layer("Night Light Filter", new SolidFillLayerHandler
+            {
+                Properties = new SolidFillLayerHandlerProperties
+                {
+                    _PrimaryColor = Color.FromArgb(127, 255, 255, 0),
+                },
+            }, new OverrideLogicBuilder()
+                .SetDynamicBoolean(nameof(LayerHandlerProperties._Enabled),
+                    new BooleanGSIBoolean("Desktop/NightLightEnabled")
+                )
+                .SetLookupTable(nameof(LayerHandlerProperties.RenderMode),
+                    new OverrideLookupTableBuilder<RenderMode>()
+                        .AddEntry(RenderMode.Multiply, new BooleanConstant(true))
+                )
+                .SetDynamicColor(nameof(LayerHandlerProperties._PrimaryColor),
+                    new NumberConstant(1),
+                    new NumberConstant(1),
+                    new NumberGSINumeric("Desktop/NightLightColorG"),
+                    new NumberGSINumeric("Desktop/NightLightColorB")
+                )
+        );
+    }
+
+    private Layer VolumeOverlay()
+    {
+        return new Layer("Volume Overlay", new PercentGradientLayerHandler
         {
             Properties = new PercentGradientLayerHandlerProperties
             {
@@ -59,12 +85,12 @@ public class DesktopProfile : ApplicationProfile
                 VariablePath = new VariablePath("LocalPCInfo/SystemVolume"),
                 MaxVariablePath = new VariablePath("1")
             },
-        }));
+        });
     }
 
-    private void AddPause()
+    private Layer Pause()
     {
-        OverlayLayers.Add(new Layer("Media Pause", new SolidColorLayerHandler
+        return new Layer("Media Pause", new SolidColorLayerHandler
         {
             Properties = new LayerHandlerProperties
             {
@@ -73,14 +99,15 @@ public class DesktopProfile : ApplicationProfile
                     DeviceKeys.MEDIA_PLAY, DeviceKeys.MEDIA_PLAY_PAUSE
                 ]),
             },
-        }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled",
-            new BooleanGSIBoolean("LocalPCInfo/Media/MediaPlaying")
-        )));
+        }, new OverrideLogicBuilder()
+            .SetDynamicBoolean(nameof(LayerHandlerProperties._Enabled),
+                new BooleanGSIBoolean("LocalPCInfo/Media/MediaPlaying")
+            ));
     }
 
-    private void AddPlay()
+    private Layer Play()
     {
-        OverlayLayers.Add(new Layer("Media Play", new SolidColorLayerHandler
+        return new Layer("Media Play", new SolidColorLayerHandler
         {
             Properties = new LayerHandlerProperties
             {
@@ -89,17 +116,18 @@ public class DesktopProfile : ApplicationProfile
                     DeviceKeys.MEDIA_PLAY, DeviceKeys.MEDIA_PLAY_PAUSE
                 ]),
             },
-        }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled",
-            new BooleanAnd(
-            [
-                new BooleanGSIBoolean("LocalPCInfo/Media/HasMedia"), new BooleanNot(new BooleanGSIBoolean("LocalPCInfo/Media/MediaPlaying"))
-            ])
-        )));
+        }, new OverrideLogicBuilder()
+            .SetDynamicBoolean(nameof(LayerHandlerProperties._Enabled),
+                new BooleanAnd(
+                [
+                    new BooleanGSIBoolean("LocalPCInfo/Media/HasMedia"), new BooleanNot(new BooleanGSIBoolean("LocalPCInfo/Media/MediaPlaying"))
+                ])
+            ));
     }
 
-    private void AddNext()
+    private Layer Next()
     {
-        OverlayLayers.Add(new Layer("Media Next", new SolidColorLayerHandler
+        return new Layer("Media Next", new SolidColorLayerHandler
         {
             Properties = new LayerHandlerProperties
             {
@@ -110,12 +138,12 @@ public class DesktopProfile : ApplicationProfile
             },
         }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled",
             new BooleanGSIBoolean("LocalPCInfo/Media/HasNextMedia")
-        )));
+        ));
     }
 
-    private void AddPrevious()
+    private Layer Previous()
     {
-        OverlayLayers.Add(new Layer("Media Previous", new SolidColorLayerHandler
+        return new Layer("Media Previous", new SolidColorLayerHandler
         {
             Properties = new LayerHandlerProperties
             {
@@ -126,12 +154,12 @@ public class DesktopProfile : ApplicationProfile
             },
         }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled",
             new BooleanGSIBoolean("LocalPCInfo/Media/HasPreviousMedia")
-        )));
+        ));
     }
 
-    private void AddHasMedia()
+    private Layer HasMedia()
     {
-        OverlayLayers.Add(new Layer("Media Playing", new SolidColorLayerHandler
+        return new Layer("Media Playing", new SolidColorLayerHandler
         {
             Properties = new LayerHandlerProperties
             {
@@ -146,17 +174,20 @@ public class DesktopProfile : ApplicationProfile
             },
         }, new OverrideLogicBuilder().SetDynamicBoolean("_Enabled",
             new BooleanGSIBoolean("LocalPCInfo/Media/HasMedia")
-        )));
+        ));
     }
 
     private void AddOverlays()
     {
-        AddVolumeOverlay();
-        AddPause();
-        AddPlay();
-        AddNext();
-        AddPrevious();
-        AddHasMedia();
+        OverlayLayers.AddRange([
+            NightLightOverlay(),
+            VolumeOverlay(),
+            Pause(),
+            Play(),
+            Next(),
+            Previous(),
+            HasMedia(),
+        ]);
     }
 
     public override void Reset()
@@ -363,8 +394,8 @@ public class DesktopProfile : ApplicationProfile
             }),
 
             new("Chroma Integration", new RazerLayerHandler()),
-            new ("Lightsync Integration", new LogitechLayerHandler()),
-            new ("iCUE Integration", new IcueSdkLayerHandler()),
+            new("Lightsync Integration", new LogitechLayerHandler()),
+            new("iCUE Integration", new IcueSdkLayerHandler()),
 
             new("Gradient Wave", new GradientLayerHandler
             {
