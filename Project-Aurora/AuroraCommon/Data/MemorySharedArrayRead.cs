@@ -91,7 +91,10 @@ public sealed class MemorySharedArrayRead<T> : SignaledMemoryObject, IEnumerable
         _mmf.Dispose();
         _accessor.Dispose();
         _readHandle.Free();
-        _replicatedArrayHandle.Free();
+        if (_typeBlittable)
+        {
+            _replicatedArrayHandle.Free();
+        }
     }
 
     public IEnumerator<T> GetEnumerator()
