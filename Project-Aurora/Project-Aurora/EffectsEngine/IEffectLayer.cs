@@ -6,9 +6,17 @@ using Common.Devices;
 
 namespace AuroraRgb.EffectsEngine;
 
+public enum RenderMode
+{
+    AlphaBlend,
+    Multiply,
+}
+
 public interface EffectLayer : IDisposable
 {
     DeviceKeys[] ActiveKeys { get; }
+    
+    public RenderMode RenderMode { get; set; }
 
     /// <summary>
     /// Fills entire EffectLayer with a specified color.

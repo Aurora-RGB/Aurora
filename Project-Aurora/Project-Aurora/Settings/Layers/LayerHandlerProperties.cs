@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using AuroraRgb.EffectsEngine;
 using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Layers.Exceptions;
 using AuroraRgb.Settings.Overrides;
@@ -70,6 +71,14 @@ public class LayerHandlerProperties : IValueOverridable, INotifyPropertyChanged,
 
     [LogicOverridable("Excluded Keys")] public KeySequence _Exclusion { get; set; }
     [JsonIgnore] public KeySequence Exclusion => Logic?._Exclusion ?? _Exclusion ?? new KeySequence();
+
+    private RenderMode? _renderMode;
+    [LogicOverridable("Render Mode")]
+    public RenderMode RenderMode
+    {
+        get => Logic?.RenderMode ?? _renderMode ?? RenderMode.AlphaBlend;
+        set => _renderMode = value;
+    }
 
     #endregion
 

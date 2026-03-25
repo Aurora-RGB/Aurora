@@ -21,14 +21,14 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private static GraphicsUnit _graphicsUnit = GraphicsUnit.Pixel;
 
     private readonly Bitmap _bitmap;
-    private readonly GdiBitmap _gdiBitmap;
+    private readonly IGdiBitmap _gdiBitmap;
     private readonly RectangleF _dimension;
     private readonly Vector256<int> _zeroVector = Vector256<int>.Zero;
 
     private readonly Color _transparentColor = Color.Transparent;
     private Color _currentColor = Color.Black;
 
-    public GdiPartialCopyBitmapReader(Bitmap bitmap, GdiBitmap gdiBitmap)
+    public GdiPartialCopyBitmapReader(Bitmap bitmap, IGdiBitmap gdiBitmap)
     {
         _bitmap = bitmap;
         _gdiBitmap = gdiBitmap;

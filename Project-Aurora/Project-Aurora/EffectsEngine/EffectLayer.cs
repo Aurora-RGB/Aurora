@@ -33,6 +33,7 @@ public sealed class BitmapEffectLayer : EffectLayer
 
     private readonly string _name;
     private GdiBitmap _colormap;
+    private GdiBitmapMultiplyingBlend _multiplyingBlendColormap;
 
     private bool _invalidated = true;
 
@@ -41,12 +42,14 @@ public sealed class BitmapEffectLayer : EffectLayer
     private IBitmapReader? _bitmapReader;
 
     public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
+    public RenderMode RenderMode { get; set; }
 
     [Obsolete("This creates too much garbage memory")]
     public BitmapEffectLayer(string name)
     {
         _name = name;
         _colormap = new GdiBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _multiplyingBlendColormap = new GdiBitmapMultiplyingBlend(Effects.Canvas.Width, Effects.Canvas.Height);
         Dimension = new Rectangle(0, 0, Effects.Canvas.Width, Effects.Canvas.Height);
     }
 
@@ -632,6 +635,22 @@ public sealed class BitmapEffectLayer : EffectLayer
         return _colormap;
     }
 
+    public IGdiBitmap GetGraphics(RenderMode renderMode)
+    {
+        Invalidate();
+        switch (renderMode)
+        {
+            case RenderMode.AlphaBlend:
+                _colormap.Reset();
+                return _colormap;
+            case RenderMode.Multiply:
+                _multiplyingBlendColormap.Reset();
+                return _multiplyingBlendColormap;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
     public GdiBitmap GetBitmap()
     {
         return _colormap;
@@ -645,7 +664,7 @@ public sealed class BitmapEffectLayer : EffectLayer
             return this;
         }
 
-        var g = GetGraphics();
+        var g = GetGraphics(other.RenderMode);
         switch (other)
         {
             case BitmapEffectLayer bitmapEffectLayer:
@@ -958,6 +977,7 @@ public sealed class BitmapEffectLayer : EffectLayer
     {
         var oldBitmap = _colormap;
         _colormap = new GdiBitmap(Effects.Canvas.Width, Effects.Canvas.Height);
+        _multiplyingBlendColormap = new GdiBitmapMultiplyingBlend(Effects.Canvas.Width, Effects.Canvas.Height);
         _bitmapReader = null;
         oldBitmap.Dispose();
         _ksChanged = true;

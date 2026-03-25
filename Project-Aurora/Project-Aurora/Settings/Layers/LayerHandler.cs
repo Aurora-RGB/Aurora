@@ -147,6 +147,7 @@ public abstract class LayerHandler<TProperty, LayerType> : ILayerHandler
         renderedLayer.Exclude(EnableExclusionMask ? ExclusionMask : KeySequence.Empty);
 
         renderedLayer.SetOpacity(Properties.LayerOpacity);
+        renderedLayer.RenderMode = Properties.RenderMode;
 
         return renderedLayer;
     }

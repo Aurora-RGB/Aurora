@@ -126,6 +126,20 @@ public static class CommonColorUtils
         return ref resultCache;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static ref Color MultiplyColors(in Color background, in Color foreground, ref Color resultCache)
+    {
+        var r = (byte)(background.R * foreground.R / 255);
+        var g = (byte)(background.G * foreground.G / 255);
+        var b = (byte)(background.B * foreground.B / 255);
+
+        // Standard alpha compositing
+        var a = (byte)(foreground.A + background.A * (255 - foreground.A) / 255);
+
+        resultCache = FastColor(r, g, b, a);
+        return ref resultCache;
+    }
+
     public static SimpleColor CorrectWithAlpha(in SimpleColor color)
     {
         var scalar = color.A / 255.0f;

@@ -8,7 +8,7 @@ using AuroraRgb.Settings;
 
 namespace AuroraRgb.Bitmaps.GdiPlus;
 
-public sealed class GdiBitmap
+public sealed class GdiBitmap : IGdiBitmap
 {
     public static readonly GdiBitmap EmptyBitmap = new(1, 1);
 
@@ -29,7 +29,6 @@ public sealed class GdiBitmap
 
     private readonly Graphics _graphics;
 
-    private readonly Rectangle _dimension;
     private KeySequence _excludeSequence = new();
 
     private readonly ColorMatrix _colorMatrix = new()
@@ -40,7 +39,9 @@ public sealed class GdiBitmap
 
     private bool _disposed;
 
-    private TextureBrush TextureBrush
+    public Rectangle Dimension { get; }
+
+    public TextureBrush TextureBrush
     {
         get
         {
@@ -53,7 +54,7 @@ public sealed class GdiBitmap
                 return EmptyBitmap.TextureBrush;
             }
 
-            _textureBrush = new TextureBrush(Bitmap, _dimension, _imageAttributes);
+            _textureBrush = new TextureBrush(Bitmap, Dimension, _imageAttributes);
             return _textureBrush;
         }
     }
@@ -62,7 +63,7 @@ public sealed class GdiBitmap
     {
         Bitmap = new Bitmap(canvasWidth, canvasHeight);
         _graphics = Graphics.FromImage(Bitmap);
-        _dimension = new Rectangle(0, 0, canvasWidth, canvasHeight);
+        Dimension = new Rectangle(0, 0, canvasWidth, canvasHeight);
 
         _imageAttributes = new ImageAttributes();
         _imageAttributes.SetColorMatrix(_colorMatrix);
@@ -294,9 +295,9 @@ public sealed class GdiBitmap
         _graphics.Restore(graphicsState);
     }
 
-    public void DrawOver(GdiBitmap gdiBitmap)
+    public void DrawOver(IGdiBitmap gdiBitmap)
     {
-        _graphics.FillRectangle(gdiBitmap.TextureBrush, gdiBitmap._dimension);
+        _graphics.FillRectangle(gdiBitmap.TextureBrush, gdiBitmap.Dimension);
     }
 
     public void Dispose()

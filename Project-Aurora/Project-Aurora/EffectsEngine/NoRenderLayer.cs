@@ -24,7 +24,8 @@ public sealed class NoRenderLayer : EffectLayer
     
     // TODO optimize a lot by reducing the result of this
     public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
-    
+    public RenderMode RenderMode { get; set; }
+
     private readonly ZoneKeysCache _zoneKeysCache = new();
     private readonly ZoneKeysCache _excludedZoneKeysCache = new();
     private ZoneKeysCache? _onlyIncludedZoneKeysCache;
@@ -45,7 +46,7 @@ public sealed class NoRenderLayer : EffectLayer
     {
         foreach (var deviceKey in AllKeys)
         {
-            SetOver(deviceKey, in color);
+            SetOver(deviceKey, in color, RenderMode.AlphaBlend);
         }
     }
 
@@ -94,14 +95,27 @@ public sealed class NoRenderLayer : EffectLayer
  
         while (Unsafe.IsAddressLessThan(ref start, ref end)) {
             var foregroundColor = other.Get(start);
-            SetOver(start, in foregroundColor);
+            SetOver(start, in foregroundColor, other.RenderMode);
             start = ref Unsafe.Add(ref start, 1);
         }
 
         return this;
     }
 
-    private void SetOver(DeviceKeys key, ref readonly Color foregroundColor)
+    private void SetOver(DeviceKeys key, ref readonly Color foregroundColor, RenderMode renderMode)
+    {
+        switch (renderMode)
+        {
+            case RenderMode.AlphaBlend:
+                SetOverAlphaBlend(key, in foregroundColor);
+                break;
+            case RenderMode.Multiply:
+                SetOverMultiply(key, in foregroundColor);
+                break;
+        }
+    }
+
+    private void SetOverAlphaBlend(DeviceKeys key, ref readonly Color foregroundColor)
     {
         switch (foregroundColor.A)
         {
@@ -120,6 +134,13 @@ public sealed class NoRenderLayer : EffectLayer
 
         var backgroundColor = Get(key);
         ref var newColor = ref CommonColorUtils.AddColors(in backgroundColor, in foregroundColor, ref _colorCache);
+        Set(key, in newColor);
+    }
+
+    private void SetOverMultiply(DeviceKeys key, ref readonly Color foregroundColor)
+    {
+        var backgroundColor = Get(key);
+        ref var newColor = ref CommonColorUtils.MultiplyColors(in backgroundColor, in foregroundColor, ref _colorCache);
         Set(key, in newColor);
     }
 

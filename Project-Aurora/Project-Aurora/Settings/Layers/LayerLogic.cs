@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using AuroraRgb.EffectsEngine;
 
 namespace AuroraRgb.Settings.Layers;
 
@@ -58,6 +59,8 @@ public partial class LayerHandlerPropertiesLogic : INotifyPropertyChanged
         get => _layerOpacity;
         set => _layerOpacity = value;
     }
+
+    public RenderMode? RenderMode { get; set; }
 
     private KeySequence _exclusion;
     public KeySequence _Exclusion

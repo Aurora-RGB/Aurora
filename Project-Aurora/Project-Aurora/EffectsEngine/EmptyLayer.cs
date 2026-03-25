@@ -19,6 +19,7 @@ public sealed class EmptyLayer : EffectLayer
     }
 
     public DeviceKeys[] ActiveKeys { get; } = [];
+    public RenderMode RenderMode { get; set; }
 
     public void Fill(ref readonly Color color)
     {
