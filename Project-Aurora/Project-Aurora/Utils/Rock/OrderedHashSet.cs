@@ -16,7 +16,7 @@ namespace AuroraRgb.Utils.Rock;
 /// </remarks>
 [Serializable]
 [DebuggerDisplay("Count = {Count}")]
-public class OrderedHashSet<T> : ICollection<T> where T : notnull
+public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T : notnull
 {
     // factor used to increase hashset capacity
     private const int GrowthFactor = 2;
@@ -47,7 +47,7 @@ public class OrderedHashSet<T> : ICollection<T> where T : notnull
     }
 
     public OrderedHashSet(IEqualityComparer<T> comparer)
-        : this(0, comparer)
+        : this(2, comparer)
     {
     }
 

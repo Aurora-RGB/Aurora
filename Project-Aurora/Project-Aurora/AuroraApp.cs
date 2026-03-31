@@ -53,7 +53,7 @@ public sealed class AuroraApp : IDisposable
             new UpdateCleanup(),
             new PerformanceModeModule(),
             _devicesModule,
-            new InputsModule(),
+            new InputsModule(ProcessesModule.ActiveProcessMonitor),
             new MediaInfoModule(),
             new AudioCaptureModule(),
             new PointerUpdateModule(),

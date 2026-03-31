@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using AuroraRgb.Modules.ProcessMonitor;
 using AuroraRgb.Utils;
+using AuroraRgb.Utils.Rock;
 using Linearstar.Windows.RawInput;
 using Linearstar.Windows.RawInput.Native;
 using Microsoft.Win32;
@@ -15,6 +18,8 @@ namespace AuroraRgb.Modules.Inputs;
 /// </summary>
 public sealed class InputEvents : IInputEvents
 {
+    private readonly ActiveProcessMonitor _activeProcessMonitor;
+
     /// <summary>
     /// Event for a Key pressed Down on a keyboard
     /// </summary>
@@ -40,9 +45,9 @@ public sealed class InputEvents : IInputEvents
     /// </summary>
     public event EventHandler<MouseScrollEventArgs>? Scroll;
 
-    private readonly List<Keys> _pressedKeySequence = [];
+    private readonly OrderedHashSet<Keys> _pressedKeySequence = [];
 
-    private readonly List<MouseButtons> _pressedMouseButtons = [];
+    private readonly OrderedHashSet<MouseButtons> _pressedMouseButtons = [];
 
     private bool _disposed;
 
@@ -62,8 +67,10 @@ public sealed class InputEvents : IInputEvents
     private readonly nint _originalWndProc;
     private readonly IntPtr _hWnd;
 
-    public InputEvents()
+    public InputEvents(ActiveProcessMonitor activeProcessMonitor)
     {
+        _activeProcessMonitor = activeProcessMonitor;
+
         _hWnd = User32.CreateWindowEx(0, "STATIC", "", 0x80000000, 0, 0,
             0, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
         _originalWndProc = User32.GetWindowLongPtr(_hWnd, -4);
@@ -78,6 +85,7 @@ public sealed class InputEvents : IInputEvents
 
         // can't detect Win + L, just clear when it happens
         SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
+        _activeProcessMonitor.ActiveProcessChanged += OnActiveProcessChanged;
     }
 
     private void SystemEvents_SessionSwitch(object sender, SessionSwitchEventArgs e)
@@ -91,15 +99,43 @@ public sealed class InputEvents : IInputEvents
         }
     }
 
+    private void OnActiveProcessChanged(object? sender, EventArgs e)
+    {
+        ClearButtons();
+    }
+
     private void ClearButtons()
     {
         var pressedKeys = new List<Keys>(_pressedKeySequence);
         pressedKeys.Reverse();
-        _pressedKeySequence.Clear();
         PressedKeys = [];
         foreach (var pressedKey in pressedKeys)
         {
             KeyUp?.Invoke(this, new KeyboardKeyEventArgs(pressedKey, false, pressedKeys));
+        }
+        ClearHeldModifierKeys();
+        _pressedKeySequence.Clear();
+    }
+
+    private void ClearHeldModifierKeys()
+    {
+        Windows = false;
+        Control = false;
+        Alt = false;
+        Shift = false;
+
+        Keys[] modifierKeys =
+        [
+            Keys.LWin, Keys.RWin, Keys.LControlKey, Keys.RControlKey,
+            Keys.LShiftKey, Keys.RShiftKey
+        ];
+        foreach (var modifierKey in modifierKeys)
+        {
+            var removed = _pressedKeySequence.Remove(modifierKey);
+            if (removed)
+            {
+                KeyUp?.Invoke(this, new KeyboardKeyEventArgs(modifierKey, false, []));
+            }
         }
     }
 
@@ -292,5 +328,6 @@ public sealed class InputEvents : IInputEvents
         if (_disposed) return;
         _disposed = true;
         SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
+        _activeProcessMonitor.ActiveProcessChanged -= OnActiveProcessChanged;
     }
 }

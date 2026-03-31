@@ -44,19 +44,25 @@ public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerPrope
     private bool? _mergeModifierKey;
 
     [JsonProperty("_MergeModifierKey")]
-    public bool MergeModifierKey {
+    public bool MergeModifierKey
+    {
         get => (Logic?._mergeModifierKey ?? _mergeModifierKey) ?? false;
-        set { _mergeModifierKey = value; _shortcutKeysInvalidated = true; }
+        set
+        {
+            _mergeModifierKey = value;
+            _shortcutKeysInvalidated = true;
+        }
     }
-
-    [JsonIgnore]
-    private bool? _leafShortcutAlwaysOn;
 
     [JsonProperty("_LeafShortcutAlwaysOn")]
     public bool? LeafShortcutAlwaysOn
     {
-        get => (Logic?._leafShortcutAlwaysOn ?? _leafShortcutAlwaysOn) ?? false;
-        set { _leafShortcutAlwaysOn = value; _shortcutKeysInvalidated = true; }
+        get => (Logic?._leafShortcutAlwaysOn ?? field) ?? false;
+        set
+        {
+            field = value;
+            _shortcutKeysInvalidated = true;
+        }
     }
 
     [JsonIgnore]
@@ -70,29 +76,28 @@ public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerPrope
         set => _dimColor = value;
     }
 
-    [JsonIgnore]
-    private Keybind[] _shortcutKeys = Array.Empty<Keybind>();
-
     [JsonProperty("_ShortcutKeys")]
     public Keybind[] ShortcutKeys
     {
-        get => _shortcutKeys;
-        set { _shortcutKeys = value; _shortcutKeysInvalidated = true; }
-    }
+        get;
+        set
+        {
+            field = value;
+            _shortcutKeysInvalidated = true;
+        }
+    } = [];
 
     [JsonIgnore]
     private bool _shortcutKeysInvalidated = true;
-
-    [JsonIgnore]
-    private Tree<Keys> _shortcutKeysTree = new(Keys.None);
 
     [JsonIgnore]
     public Tree<Keys> ShortcutKeysTree
     {
         get
         {
-            if (!_shortcutKeysInvalidated) return _shortcutKeysTree;
-            _shortcutKeysTree = new Tree<Keys>(Keys.None);
+            if (!_shortcutKeysInvalidated) return field;
+
+            field = new Tree<Keys>(Keys.None);
 
             foreach (var keybind in ShortcutKeys)
             {
@@ -104,13 +109,13 @@ public partial class ShortcutAssistantLayerHandlerProperties : LayerHandlerPrope
                         keys[i] = KeyUtils.GetStandardKey(keys[i]);
                 }
 
-                _shortcutKeysTree.AddBranch(keys);
+                field.AddBranch(keys);
             }
 
             _shortcutKeysInvalidated = false;
-            return _shortcutKeysTree;
+            return field;
         }
-    }
+    } = new(Keys.None);
 
     [JsonIgnore]
     private ShortcutAssistantPresentationType? _presentationType;
@@ -154,9 +159,6 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
             _init = true;
             InputsModule.InputEvents.Result.KeyDown += OnKeyDown;
             InputsModule.InputEvents.Result.KeyUp += OnKeyUp;
-
-            heldKeys = _heldKeys;
-            return _heldKeys != null;
         }
 
         heldKeys = _heldKeys;
@@ -227,6 +229,7 @@ public class ShortcutAssistantLayerHandler() : LayerHandler<ShortcutAssistantLay
         {
             return EmptyLayer.Instance;
         }
+
         if (Properties.LeafShortcutAlwaysOn.GetValueOrDefault(false) && currentShortcutNode.IsLeaf)
         {
             // Go down one level

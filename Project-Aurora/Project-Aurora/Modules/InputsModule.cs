@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using AuroraRgb.Modules.Inputs;
+using AuroraRgb.Modules.ProcessMonitor;
 using Common.Utils;
 
 namespace AuroraRgb.Modules;
@@ -12,18 +13,26 @@ public sealed class InputsModule : AuroraModule
     /// </summary>
     public static Task<IInputEvents> InputEvents { get; } = Tcs.Task;
 
+    private readonly Task<ActiveProcessMonitor> _activeProcessMonitor;
+
+    public InputsModule(Task<ActiveProcessMonitor> activeProcessMonitor)
+    {
+        _activeProcessMonitor = activeProcessMonitor;
+    }
+
     public override async Task InitializeAsync()
     {
         await Initialize();
     }
 
-    protected override Task Initialize()
+    protected override async Task Initialize()
     {
         if (Global.Configuration.EnableInputCapture)
         {
             Global.logger.Information("Loading Input Hooking");
 
-            var inputEvents = new InputEvents();
+            var activeProcessMonitor = await _activeProcessMonitor;
+            var inputEvents = new InputEvents(activeProcessMonitor);
             Global.key_recorder = new KeyRecorder(inputEvents);
             Tcs.SetResult(inputEvents);
             Global.logger.Information("Loaded Input Hooking");
@@ -36,7 +45,6 @@ public sealed class InputsModule : AuroraModule
         }
 
         DesktopUtils.StartSessionWatch();
-        return Task.CompletedTask;
     }
 
     public override async ValueTask DisposeAsync()
