@@ -67,7 +67,11 @@ public partial class Window_ProcessSelection : IDisposable
     public bool CheckCustomPathExists { get; set; }
 
     /// <summary>The name and extension of the application the user has chosen (e.g. 'Aurora.exe').</summary>
-    public string ChosenExecutableName { get; private set; } = "";
+    public string ChosenExecutableName
+    {
+        get;
+        private set => field = value.ToLowerInvariant();
+    } = "";
 
     /// <summary>The full path of the process the user has chosen (e.g. 'C:\Program Files\Aurora\Aurora.exe').</summary>
     public string ChosenExecutablePath { get; private set; } = "";
