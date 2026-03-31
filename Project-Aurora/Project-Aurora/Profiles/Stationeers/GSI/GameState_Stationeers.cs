@@ -10,6 +10,6 @@ public partial class GameStateStationeers : GameState
     public Provider Provider { get; } = Provider.Default;
     [JsonProperty("gamestate")]
     public GameStateNode GameState { get; } = GameStateNode.Default;    
-    public PlayerNode Player { get; } = PlayerNode.Default;
+    public PlayerNodeStationeers Player { get; } = PlayerNodeStationeers.Default;
     public WorldNode World { get; } = WorldNode.Default;
 }

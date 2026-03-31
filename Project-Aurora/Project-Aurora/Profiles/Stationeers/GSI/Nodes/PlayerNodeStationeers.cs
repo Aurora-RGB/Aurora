@@ -2,9 +2,9 @@
 
 namespace AuroraRgb.Profiles.Stationeers.GSI.Nodes;
 
-public class PlayerNode
+public class PlayerNodeStationeers
 {
-    public static readonly PlayerNode Default = new();
+    public static readonly PlayerNodeStationeers Default = new();
 
     [JsonProperty("oxygentanklevel")]
     public int OxygenTankLevel { get; set; }
