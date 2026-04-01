@@ -127,7 +127,7 @@ public sealed class InputEvents : IInputEvents
         Keys[] modifierKeys =
         [
             Keys.LWin, Keys.RWin, Keys.LControlKey, Keys.RControlKey,
-            Keys.LShiftKey, Keys.RShiftKey
+            Keys.LShiftKey, Keys.RShiftKey, Keys.LMenu, Keys.RMenu
         ];
         foreach (var modifierKey in modifierKeys)
         {
