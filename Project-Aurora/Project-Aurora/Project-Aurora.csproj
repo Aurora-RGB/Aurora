@@ -116,7 +116,7 @@
         <PackageReference Include="WPFToolkits" Version="3.5.50211.1" />
         <PackageReference Include="CoordinateSharp" Version="2.20.1.1" />
 
-        <Reference Include="RGB.NET.Core, Version=2.0.1.2">
+        <Reference Include="RGB.NET.Core, Version=3.0.1.2">
             <HintPath>.\RGB.NET.Core.dll</HintPath>
             <Private>true</Private>
         </Reference>
