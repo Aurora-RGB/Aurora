@@ -18,8 +18,6 @@ public class IcueSdk
 
     private SdkHandler? _sdkHandler;
 
-    public RunningProcessMonitor? RunningProcessMonitor { get; set; }
-
     public void SetSdkHandler(SdkHandler gameHandlerSdkHandler, int gamePid)
     {
         IsGameConnected = true;

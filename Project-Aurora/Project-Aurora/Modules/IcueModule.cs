@@ -39,7 +39,7 @@ public sealed class IcueModule(Task<RunningProcessMonitor> processMonitorTask) :
         }
         else
         {
-            AuroraIcueServer.Dispose();
+            AuroraIcueServer.Stop();
         }
     }
 

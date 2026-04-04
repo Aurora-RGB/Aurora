@@ -25,25 +25,28 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
 
     public event EventHandler? StatusChanged;
 
-    private IcueServerStatus _serverStatus = IcueServerStatus.Disabled;
-
     public IcueServerStatus ServerStatus
     {
-        get => _serverStatus;
+        get;
         private set
         {
-            if (_serverStatus == value) return;
-            _serverStatus = value;
+            if (field == value) return;
+            field = value;
             StatusChanged?.Invoke(this, EventArgs.Empty);
         }
-    }
+    } = IcueServerStatus.Disabled;
 
     private IcueServer? _icueServer;
     private GameHandler? _gameHandler;
+    private RunningProcessMonitor? _processMonitor;
 
     public void RunServer(RunningProcessMonitor processMonitor)
     {
-        Sdk.RunningProcessMonitor = processMonitor;
+        _processMonitor = processMonitor;
+        
+        processMonitor.ProcessStarted += ProcessMonitorOnProcessStarted;
+        processMonitor.ProcessStopped += ProcessMonitorOnProcessStopped;
+        
         var runApproved = IcueInstallationUtils.IsIcueInstalled() && IcueInstallationUtils.IsIcueAutorunEnabled();
         if (runApproved || processMonitor.IsProcessRunning(IcueInstallationUtils.IcueExe))
         {
@@ -51,6 +54,58 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
             return;
         }
         
+        TryStartServer();
+    }
+
+    private void ProcessMonitorOnProcessStarted(object? sender, ProcessStarted e)
+    {
+        if (e.ProcessName != IcueInstallationUtils.IcueExe)
+        {
+            return;
+        }
+
+        switch (ServerStatus)
+        {
+            case IcueServerStatus.Conflicted:
+            case IcueServerStatus.Disabled:
+            case IcueServerStatus.PipesInUse:
+                return;
+            case IcueServerStatus.Waiting:
+                // proceed to close the server
+                break;
+        }
+        ServerStatus = IcueServerStatus.Conflicted;
+            
+        if (_icueServer == null) return;
+        _icueServer.GameConnected -= OnGameConnected;
+        _icueServer.Dispose();
+        _icueServer = null;
+    }
+
+    private void ProcessMonitorOnProcessStopped(object? sender, ProcessStopped e)
+    {
+        if (e.ProcessName != IcueInstallationUtils.IcueExe)
+        {
+            return;
+        }
+        
+        switch (ServerStatus)
+        {
+            case IcueServerStatus.Waiting:
+            case IcueServerStatus.Disabled:
+                return;
+            case IcueServerStatus.Conflicted:
+            case IcueServerStatus.PipesInUse:
+                // Aurora's turn to use the pipes
+                break;
+        }
+
+        var runApproved = IcueInstallationUtils.IsIcueInstalled() && IcueInstallationUtils.IsIcueAutorunEnabled();
+        if (runApproved)
+        {
+            ServerStatus = IcueServerStatus.Conflicted;
+        }
+
         TryStartServer();
     }
 
@@ -118,23 +173,43 @@ public sealed class AuroraIcueServer : IDisposable, IAsyncDisposable
         Sdk.ClearSdkHandler();
     }
 
-    public void Dispose()
+    public void Stop()
     {
+        if (_processMonitor != null)
+        {
+            _processMonitor.ProcessStarted -= ProcessMonitorOnProcessStarted;
+            _processMonitor.ProcessStopped -= ProcessMonitorOnProcessStopped;
+        }
+ 
         ServerStatus = IcueServerStatus.Disabled;
         if (_icueServer == null) return;
         _icueServer.GameConnected -= OnGameConnected;
         _icueServer.Dispose();
+        _icueServer = null;
+    }
+
+    public async Task StopAsync()
+    {
+        if (_processMonitor != null)
+        {
+            _processMonitor.ProcessStarted -= ProcessMonitorOnProcessStarted;
+            _processMonitor.ProcessStopped -= ProcessMonitorOnProcessStopped;
+        }
+
+        ServerStatus = IcueServerStatus.Disabled;
+        if (_icueServer == null) return;
+        _icueServer.GameConnected -= OnGameConnected;
+        await _icueServer.DisposeAsync();
+        _icueServer = null;
+    }
+
+    public void Dispose()
+    {
+        Stop();
     }
 
     public async ValueTask DisposeAsync()
     {
-        ServerStatus = IcueServerStatus.Disabled;
-        if (_icueServer == null)
-        {
-            return;
-        }
-
-        _icueServer.GameConnected -= OnGameConnected;
-        await _icueServer.DisposeAsync();
+        await StopAsync();
     }
 }
