@@ -13,6 +13,8 @@ public partial class WindowFirstTimeViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanContinueVisibility))]
     private bool? _autoGsiEnabled = Global.Configuration.AutoInstallGsi;
 
+    public bool AutoUpdateEnabled => Global.Configuration.UpdateBackground;
+
     public bool AutoGsiYes => AutoGsiEnabled == true;
     public bool AutoGsiNo => AutoGsiEnabled == false;
 

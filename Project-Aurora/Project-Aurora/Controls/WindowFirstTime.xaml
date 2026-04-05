@@ -40,6 +40,12 @@
                 <TextBlock>
                     You seem to be new around here...
                 </TextBlock>
+                <StackPanel>
+                    <CheckBox Name="AutoUpdateCheckBox" Click="AutoUpdate_OnClick"
+                              IsChecked="{Binding AutoUpdateEnabled, Mode=OneWay}">
+                        Enable automatic background updates
+                    </CheckBox>
+                </StackPanel>
                 <Separator Height="10"/>
             </StackPanel>
             <StackPanel Name="OfflineUsagePanel" Margin="2,0,2,5" Visibility="Collapsed">

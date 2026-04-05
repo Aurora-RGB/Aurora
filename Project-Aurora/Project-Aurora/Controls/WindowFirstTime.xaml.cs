@@ -86,4 +86,10 @@ public sealed partial class WindowFirstTime : IDisposable
 
         e.Cancel = true;
     }
+
+    private void AutoUpdate_OnClick(object sender, RoutedEventArgs e)
+    {
+        var enabled = AutoUpdateCheckBox.IsChecked ?? true;
+        Global.Configuration.UpdateBackground = enabled;
+    }
 }
