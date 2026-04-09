@@ -96,7 +96,7 @@ public sealed class RunningProcessMonitor : IDisposable {
             Process.Start("explorer", "https://www.project-aurora.com/Docs/diagnostics/repair-wmi/");
         }
         
-        _processingThread = new SingleConcurrentThread("Process Add/Remove Thread", ProcessQueues, ExceptionCallback);
+        _processingThread = new SingleConcurrentThread("Process Add/Remove Thread", ProcessQueues, ExceptionCallback, ThreadPriority.AboveNormal);
         _processingThread.Trigger();
     }
 

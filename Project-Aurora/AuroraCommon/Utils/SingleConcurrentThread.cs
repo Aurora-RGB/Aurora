@@ -16,11 +16,7 @@ public sealed class SingleConcurrentThread
     
     private const bool UsePool = true;
 
-    private readonly SmartThreadPool _worker = new(5000, 1)
-    {
-        Concurrency = 1,
-        MaxQueueLength = 5,
-    };
+    private readonly SmartThreadPool _worker;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new();
     private readonly SemaphoreSlim _semaphore = new(1, 2);
@@ -32,7 +28,7 @@ public sealed class SingleConcurrentThread
     {
     }
 
-    public SingleConcurrentThread(string threadName, Action updateAction, Action<object?, SingleThreadExceptionEventArgs>? exceptionCallback)
+    public SingleConcurrentThread(string threadName, Action updateAction, Action<object?, SingleThreadExceptionEventArgs>? exceptionCallback, ThreadPriority priority = ThreadPriority.Normal)
     {
         _updateAction = () =>
         {
@@ -45,7 +41,18 @@ public sealed class SingleConcurrentThread
                 exceptionCallback?.Invoke(this, new SingleThreadExceptionEventArgs(e));
             }
         };
-        _worker.Name = threadName;
+        _worker = new(new STPStartInfo
+        {
+            ThreadPoolName = threadName,
+            ThreadPriority = priority,
+            IdleTimeout = 5000,
+            MaxWorkerThreads = 1
+        })
+        {
+            Concurrency = 1,
+            MaxQueueLength = 5,
+            Name = threadName,
+        };
 
         _thread = new Thread(() =>
         {
@@ -65,7 +72,8 @@ public sealed class SingleConcurrentThread
             }
         })
         {
-          Name  = threadName
+          Name  = threadName,
+          Priority = priority,
         };
         _thread.Start();
     }

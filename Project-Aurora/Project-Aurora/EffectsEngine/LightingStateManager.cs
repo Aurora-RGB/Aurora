@@ -62,7 +62,7 @@ public sealed class LightingStateManager : IDisposable
         
         ApplicationManager = new ApplicationManager(runningProcessMonitor, activeProcessMonitor);
 
-        _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate, ExceptionCallback);
+        _updateTimer = new SingleConcurrentThread("LightingStateManager", TimerUpdate, ExceptionCallback, ThreadPriority.Highest);
     }
 
     private static void ExceptionCallback(object? sender, SingleThreadExceptionEventArgs eventArgs)

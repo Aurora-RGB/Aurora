@@ -28,7 +28,7 @@ public sealed partial class DeviceContainer : IDisposable
         Device = device;
         
         var args = new DoWorkEventArgs(null);
-        _worker = new SingleConcurrentThread(device.DeviceName + " Thread", () => { WorkerOnDoWork(args).Wait(); }, ExceptionCallback);
+        _worker = new SingleConcurrentThread(device.DeviceName + " Thread", () => { WorkerOnDoWork(args).Wait(); }, ExceptionCallback, ThreadPriority.AboveNormal);
 
         _deviceInformation = new MemorySharedStruct<DeviceInformation>(SharedObjectName, GetSharedDeviceInformation());
         _deviceInformation.UpdateRequested += (_, _) => { UpdateSharedMemory(); };
