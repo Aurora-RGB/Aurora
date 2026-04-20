@@ -81,9 +81,9 @@ public sealed class GdiBitmap : IGdiBitmap
         _graphics.PixelOffsetMode = PixelOffsetMode.HighSpeed;
     }
 
-    public IBitmapReader CreateReader()
+    public BitmapReader CreateReader()
     {
-        return new GdiPartialCopyBitmapReader(Bitmap, this);
+        return new BitmapReader(Bitmap, this);
     }
 
     public void Reset()

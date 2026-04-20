@@ -8,9 +8,9 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using Common.Utils;
 
-namespace AuroraRgb.Bitmaps.GdiPlus;
+namespace AuroraRgb.Bitmaps;
 
-public sealed class GdiPartialCopyBitmapReader : IBitmapReader
+public sealed class BitmapReader
 {
     private const int SmallestBufferLength = 32;
     private static readonly Dictionary<Size, BitmapData> Bitmaps = new(20);
@@ -28,7 +28,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     private readonly Color _transparentColor = Color.Transparent;
     private Color _currentColor = Color.Black;
 
-    public GdiPartialCopyBitmapReader(Bitmap bitmap, IGdiBitmap gdiBitmap)
+    public BitmapReader(Bitmap bitmap, IGdiBitmap gdiBitmap)
     {
         _bitmap = bitmap;
         _gdiBitmap = gdiBitmap;
@@ -38,8 +38,7 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
     /**
      * Optimized with SIMD instructions where available
      */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref readonly Color GetRegionColor(Rectangle rectangle)
+    public ref readonly Color GetRegionColor(in Rectangle rectangle)
     {
         if (rectangle.Width == 0 || rectangle.Height == 0 || !_dimension.Contains(rectangle))
             return ref _transparentColor;
@@ -76,7 +75,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
         return ref _currentColor;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private unsafe (long R, long G, long B, long A) ProcessPixels(in IntPtr scan0, int area)
     {
         var p = (byte*)scan0;
@@ -146,7 +144,6 @@ public sealed class GdiPartialCopyBitmapReader : IBitmapReader
         return (sumR, sumG, sumB, sumA);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long SumVector256(in Vector256<int> vector)
     {
         var sum = 0L;

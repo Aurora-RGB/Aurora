@@ -39,7 +39,7 @@ public sealed class BitmapEffectLayer : EffectLayer
 
     internal Rectangle Dimension;
 
-    private IBitmapReader? _bitmapReader;
+    private BitmapReader? _bitmapReader;
 
     public DeviceKeys[] ActiveKeys => Effects.Canvas.Keys;
     public RenderMode RenderMode { get; set; }
