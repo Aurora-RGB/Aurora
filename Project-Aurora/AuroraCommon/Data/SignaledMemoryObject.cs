@@ -23,6 +23,7 @@ public class SignaledMemoryObject : IDisposable
         ObjectUpdatedHandle =
             EventWaitHandleAcl.TryOpenExisting(updatedHandleName, rights, out var updatedHandle) ?
                 updatedHandle : EventWaitHandleAcl.Create(false, EventResetMode.AutoReset, updatedHandleName, out _, handleSecurity);
+        ObjectUpdatedHandle.Reset();    //in case it wasn't cleared automatically
 
         var requestedHandleName = fileName + "-request";
         UpdateRequestedHandle =
