@@ -4,5 +4,6 @@ public partial class GameStateObs : GameState
 {
     public bool IsConnected { get; set; } 
     public bool IsRecording { get; set; }
+    public bool IsRecordingReplay { get; set; }
     public bool IsStreaming { get; set; }
 }

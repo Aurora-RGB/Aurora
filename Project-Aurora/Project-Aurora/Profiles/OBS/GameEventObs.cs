@@ -23,6 +23,7 @@ public sealed class GameEventObs : GameEvent_Generic
         _obsWebsocket.Disconnected += ObsWebsocketOnDisconnected;
         _obsWebsocket.UnsupportedEvent += ObsWebsocketOnUnsupportedEvent;
         _obsWebsocket.RecordStateChanged += ObsWebsocketOnRecordStateChanged;
+        _obsWebsocket.ReplayBufferStateChanged += ObsWebsocketOnReplayBufferStateChanged;
         _obsWebsocket.StreamStateChanged += ObsWebsocketOnStreamStateChanged;
         _obsWebsocket.ConnectAsync(Global.Configuration.ObsWebsocketUrl, Global.SensitiveData.ObsWebSocketPassword);
     }
@@ -41,6 +42,7 @@ public sealed class GameEventObs : GameEvent_Generic
         if (GameState is not GameStateObs gameState) return;
         gameState.IsConnected = true;
         gameState.IsRecording = _obsWebsocket.GetRecordStatus().IsRecording;
+        gameState.IsRecordingReplay = _obsWebsocket.GetReplayBufferStatus();
         gameState.IsStreaming = _obsWebsocket.GetStreamStatus().IsActive;
     }
 
@@ -55,6 +57,7 @@ public sealed class GameEventObs : GameEvent_Generic
         if (GameState is not GameStateObs gameState) return;
         gameState.IsConnected = false;
         gameState.IsRecording = false;
+        gameState.IsRecordingReplay = false;
         gameState.IsStreaming = false;
 
         if (!_connecting || _connectionAttempts >= 5) return;
@@ -71,7 +74,17 @@ public sealed class GameEventObs : GameEvent_Generic
             return;
         }
 
-        gameState.IsRecording = e.OutputState.State == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        gameState.IsRecording = e.OutputState.State is OutputState.OBS_WEBSOCKET_OUTPUT_STARTED  or OutputState.OBS_WEBSOCKET_OUTPUT_RESUMED;
+    }
+
+    private void ObsWebsocketOnReplayBufferStateChanged(object? sender, ReplayBufferStateChangedEventArgs e)
+    {
+        if (GameState is not GameStateObs gameState)
+        {
+            return;
+        }
+        
+        gameState.IsRecordingReplay = e.OutputState.State is OutputState.OBS_WEBSOCKET_OUTPUT_STARTED or OutputState.OBS_WEBSOCKET_OUTPUT_RESUMED;
     }
 
     private void ObsWebsocketOnStreamStateChanged(object? sender, StreamStateChangedEventArgs e)
@@ -81,7 +94,7 @@ public sealed class GameEventObs : GameEvent_Generic
             return;
         }
 
-        gameState.IsStreaming = e.OutputState.State == OutputState.OBS_WEBSOCKET_OUTPUT_STARTED;
+        gameState.IsStreaming = e.OutputState.State is OutputState.OBS_WEBSOCKET_OUTPUT_STARTED or OutputState.OBS_WEBSOCKET_OUTPUT_RESUMED;
     }
 
     public Task<string> ReconnectWebSocket()
