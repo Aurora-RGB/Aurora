@@ -12,10 +12,13 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Condition that accesses a specific game state variable (of boolean type) and returns the state.
 /// </summary>
 [Evaluatable("Boolean State Variable", category: EvaluatableCategory.State)]
-public class BooleanGSIBoolean : BoolEvaluatable {
+public class BooleanGSIBoolean : BoolGsiEvaluatable
+{
 
     /// <summary>Creates an empty boolean state variable lookup.</summary>
-    public BooleanGSIBoolean() { }
+    public BooleanGSIBoolean()
+    {
+    }
 
     /// <summary>Creates a evaluatable that returns the boolean variable at the given path.</summary>
     public BooleanGSIBoolean(string variablePath)
@@ -23,28 +26,54 @@ public class BooleanGSIBoolean : BoolEvaluatable {
         VariablePath = new VariablePath(variablePath);
     }
 
-    /// <summary>The path to the variable the user wants to evaluate.</summary>
-    public VariablePath VariablePath { get; set; } = VariablePath.Empty;
-
     /// <summary>The control assigned to this condition. Stored as a reference
     /// so that the application be updated if required.</summary>
     [JsonIgnore]
-    private Control_ConditionGSIBoolean control;
-    public override Visual GetControl() => control ?? (control = new Control_ConditionGSIBoolean(this));
+    private Control_ConditionGSIBoolean? _control;
+    public override Visual GetControl() => _control ??= new Control_ConditionGSIBoolean(this);
 
-    /// <summary>Fetches the given boolean value from the game state and returns it.</summary>
-    protected override bool Execute(IGameState gameState) => gameState.GetBool(VariablePath);
+    protected override bool Calculate(IGameState gameState) => gameState.GetBool(VariablePath);
 
     public override Evaluatable<bool> Clone() => new BooleanGSIBoolean { VariablePath = VariablePath };
 }
-
 
 
 /// <summary>
 /// Condition that accesses some specified game state variables (of numeric type) and returns a comparison between them.
 /// </summary>
 [Evaluatable("Numeric State Variable", category: EvaluatableCategory.State)]
-public class BooleanGSINumeric : BoolEvaluatable {
+public class BooleanGSINumeric : BoolGsiEvaluatable {
+
+    // Path to the two GSI variables (or numbers themselves) and the operator to compare them with
+    public VariablePath Operand1Path
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = VariablePath.Empty;
+
+    public VariablePath Operand2Path
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = VariablePath.Empty;
+
+    public ComparisonOperator Operator
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = ComparisonOperator.EQ;
 
     /// <summary>Creates a blank numeric game state lookup evaluatable.</summary>
     public BooleanGSINumeric() { }
@@ -79,26 +108,20 @@ public class BooleanGSINumeric : BoolEvaluatable {
         Operator = op;
     }
 
-    // Path to the two GSI variables (or numbers themselves) and the operator to compare them with
-    public VariablePath Operand1Path { get; set; } = VariablePath.Empty;
-    public VariablePath Operand2Path { get; set; } = VariablePath.Empty;
-    public ComparisonOperator Operator { get; set; } = ComparisonOperator.EQ;
-
     // Control assigned to this condition
     [JsonIgnore]
-    private Control_ConditionGSINumeric? control;
-    public override Visual GetControl() => control ?? (control = new Control_ConditionGSINumeric(this));
+    private Control_ConditionGSINumeric? _control;
+    public override Visual GetControl() => _control ??= new Control_ConditionGSINumeric(this);
 
-    /// <summary>Parses the numbers, compares the result, and returns the result.</summary>
-    protected override bool Execute(IGameState gameState) {
+    protected override bool Calculate(IGameState gameState) {
         // Parse the operands (either as numbers or paths)
-        double op1 = gameState.GetNumber(Operand1Path);
-        double op2 = gameState.GetNumber(Operand2Path);
+        var op1 = gameState.GetNumber(Operand1Path);
+        var op2 = gameState.GetNumber(Operand2Path);
 
         // Evaluate the operands based on the selected operator and return the result.
         switch (Operator) {
-            case ComparisonOperator.EQ: return op1 == op2;
-            case ComparisonOperator.NEQ: return op1 != op2;
+            case ComparisonOperator.EQ: return Math.Abs(op1 - op2) < 0.00001;
+            case ComparisonOperator.NEQ: return Math.Abs(op1 - op2) > 0.00001;
             case ComparisonOperator.LT: return op1 < op2;
             case ComparisonOperator.LTE: return op1 <= op2;
             case ComparisonOperator.GT: return op1 > op2;
@@ -111,15 +134,16 @@ public class BooleanGSINumeric : BoolEvaluatable {
 }
 
 
-
 /// <summary>
 /// Condition that accesses a specified game state variable (of any enum type) and returns a comparison between it and a static enum of the same type.
 /// </summary>
 [Evaluatable("Enum State Variable", category: EvaluatableCategory.State)]
-public class BooleanGSIEnum : GsiEvaluatable<bool> {
+public class BooleanGSIEnum : BoolGsiEvaluatable {
 
     /// <summary>Creates a blank enum game state lookup evaluatable.</summary>
-    public BooleanGSIEnum() { }
+    public BooleanGSIEnum()
+    {
+    }
 
     /// <summary>Creates an enum game state lookup that returns true when the variable at the given path equals the given enum.</summary>
     public BooleanGSIEnum(string path, Enum val)
@@ -130,26 +154,23 @@ public class BooleanGSIEnum : GsiEvaluatable<bool> {
 
     // The value to compare the GSI enum against.
     [JsonConverter(typeof(EnumConverter))]
-    public Enum EnumValue { get; set; }
+    public Enum EnumValue
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    }
 
     // Control
     private Control_BooleanGSIEnum? _control;
     public override Visual GetControl() => _control ??= new Control_BooleanGSIEnum(this);
 
-    /// <summary>Parses the numbers, compares the result, and returns the result.</summary>
-    protected override bool Execute(IGameState gameState) {
+    protected override bool Calculate(IGameState gameState){
         var @enum = gameState.GetEnum(VariablePath);
         return @enum != null && @enum.Equals(EnumValue);
-    }
-
-    protected override bool ExecuteBool(IGameState gameState) => Execute(gameState);
-    protected override int ExecuteInt(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
-    protected override double ExecuteDouble(IGameState gameState)
-    {
-        throw new InvalidOperationException();
     }
 
     public override Evaluatable<bool> Clone() => new BooleanGSIEnum { VariablePath = VariablePath, EnumValue = EnumValue };

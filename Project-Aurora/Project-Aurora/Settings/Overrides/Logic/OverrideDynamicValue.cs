@@ -114,10 +114,10 @@ public class OverrideDynamicValue : IOverrideLogic
         var rectangle = (System.Drawing.Rectangle)_value.Value;
         var p = ConstructorParameters;
 
-        rectangle.X = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.X)].Evaluate(gameState));
-        rectangle.Y = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Y)].Evaluate(gameState));
-        rectangle.Width = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Width)].Evaluate(gameState));
-        rectangle.Height = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Height)].Evaluate(gameState));
+        rectangle.X = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.X)].EvaluateDouble(gameState));
+        rectangle.Y = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Y)].EvaluateDouble(gameState));
+        rectangle.Width = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Width)].EvaluateDouble(gameState));
+        rectangle.Height = Convert.ToInt32(p[nameof(System.Drawing.Rectangle.Height)].EvaluateDouble(gameState));
 
         overridden = true;
         return rectangle;
@@ -128,10 +128,10 @@ public class OverrideDynamicValue : IOverrideLogic
         var p = ConstructorParameters;
         overridden = true;
         return System.Drawing.Color.FromArgb(
-            ToColorComp(p["Alpha"].Evaluate(gameState)),
-            ToColorComp(p["Red"].Evaluate(gameState)),
-            ToColorComp(p["Green"].Evaluate(gameState)),
-            ToColorComp(p["Blue"].Evaluate(gameState))
+            ToColorComp(p["Alpha"].EvaluateDouble(gameState)),
+            ToColorComp(p["Red"].EvaluateDouble(gameState)),
+            ToColorComp(p["Green"].EvaluateDouble(gameState)),
+            ToColorComp(p["Blue"].EvaluateDouble(gameState))
         );
     }
 
@@ -153,11 +153,6 @@ public class OverrideDynamicValue : IOverrideLogic
     internal static readonly IReadOnlyDictionary<Type, Func<IGameState, OverrideDynamicValue, object?>> Creators =
         new Dictionary<Type, Func<IGameState, OverrideDynamicValue, object?>>
         {
-            // Numeric
-            { typeof(int), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
-            { typeof(long), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
-            { typeof(float), (state, evaluator) => evaluator.ConstructorParameters[Value].Evaluate(state) },
-
             // objects
             {
                 typeof(KeySequence), (state, evaluator) =>
@@ -165,11 +160,11 @@ public class OverrideDynamicValue : IOverrideLogic
                     var keySequence = (KeySequence)evaluator._value.Value;
                     var p = evaluator.ConstructorParameters;
                     var freeform = keySequence.Freeform;
-                    freeform.X = Convert.ToSingle(p["X"].Evaluate(state));
-                    freeform.Y = Convert.ToSingle(p["Y"].Evaluate(state));
-                    freeform.Width = Convert.ToSingle(p["Width"].Evaluate(state));
-                    freeform.Height = Convert.ToSingle(p["Height"].Evaluate(state));
-                    freeform.Angle = Convert.ToSingle(p["Angle"].Evaluate(state));
+                    freeform.X = Convert.ToSingle(p["X"].EvaluateDouble(state));
+                    freeform.Y = Convert.ToSingle(p["Y"].EvaluateDouble(state));
+                    freeform.Width = Convert.ToSingle(p["Width"].EvaluateDouble(state));
+                    freeform.Height = Convert.ToSingle(p["Height"].EvaluateDouble(state));
+                    freeform.Angle = Convert.ToSingle(p["Angle"].EvaluateDouble(state));
 
                     return keySequence;
                 }
@@ -231,7 +226,7 @@ public class OverrideDynamicValue : IOverrideLogic
     #region Dynamic Constructor Helper Methods
 
     /// <summary>Converts a double object (from 0-1) into a color component (int between 0 and 255).</summary>
-    private static int ToColorComp(object c) => double.IsNaN((double)c) ? 0 : Convert.ToInt32(MathUtils.Clamp((double)c, 0, 1) * 255);
+    private static int ToColorComp(double c) => double.IsNaN((double)c) ? 0 : Convert.ToInt32(MathUtils.Clamp((double)c, 0, 1) * 255);
 
     #endregion
 }

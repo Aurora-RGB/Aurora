@@ -8,14 +8,17 @@
              mc:Ignorable="d"
              MinWidth="30" MinHeight="30"
              VerticalAlignment="Top" HorizontalAlignment="Left"
+             Unloaded="Control_EvaluatablePresenter_OnUnloaded"
              AllowDrop="True">
     <UserControl.Resources>
         <logic:EvaluatableBackgroundSelector x:Key="EvaluatableBackgroundSelector" />
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter" />
     </UserControl.Resources>
 
-    <Border Padding="4" CornerRadius="4" BorderBrush="#2000" BorderThickness="1" Background="{Binding EvalType, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Converter={StaticResource EvaluatableBackgroundSelector}}">
+    <Border Padding="4" CornerRadius="4" BorderBrush="#2000" BorderThickness="1"
+            Background="{Binding EvalType, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}, Converter={StaticResource EvaluatableBackgroundSelector}}">
         <StackPanel Orientation="Horizontal">
+            <Border Width="6" Name="ChangeIndicator" Background="Red" Opacity="0.2"></Border>
             <!-- Dragger -->
             <Grid Width="17">
                 <Border Width="2" Margin="5,0,0,0" Height="16" Background="#2FFF" HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -27,8 +30,9 @@
             <ContentPresenter x:Name="EvaluatableControl" />
             
             <!-- Debug display -->
-            <Border Background="#4000" BorderBrush="#9000" BorderThickness="1" CornerRadius="3" Margin="4,0,0,0" Padding="4,2" MinWidth="50" VerticalAlignment="Center" ToolTip="Most recent value" Visibility="{Binding (logic:EvaluatablePresenterAddons.ShowDebugInfo), RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource BoolToVisConverter}}">
-                <TextBlock Text="{Binding Path=Expression.LastValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type logic:Control_EvaluatablePresenter}}}" />
+            <Border Background="#4000" BorderBrush="#9000" BorderThickness="1" CornerRadius="3" Margin="4,0,0,0"
+                    Padding="4,2" MinWidth="50" VerticalAlignment="Center" ToolTip="Most recent value" Visibility="{Binding (logic:EvaluatablePresenterAddons.ShowDebugInfo), RelativeSource={RelativeSource Mode=Self}, Converter={StaticResource BoolToVisConverter}}">
+                <TextBlock Name="DebugValText" Text="{Binding Path=Expression.LastValue, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type logic:Control_EvaluatablePresenter}}, Mode=OneWay, Delay=1}" />
             </Border>
         </StackPanel>
     </Border>

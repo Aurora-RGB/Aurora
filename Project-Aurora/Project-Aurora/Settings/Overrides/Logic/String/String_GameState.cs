@@ -15,18 +15,14 @@ public class StringGSIString : GsiEvaluatable<string>
         .WithBinding(GameStateParameterPicker.ApplicationProperty, new AttachedApplicationBinding())
         .WithBinding(GameStateParameterPicker.SelectedPathProperty, new Binding("VariablePath") { Source = this });
 
-    /// <summary>Attempts to return the string at the given state variable.</summary>
-    protected override string Execute(IGameState gameState) => gameState.GetString(VariablePath);
-    
+    protected override string Calculate(IGameState gameState) => gameState.GetString(VariablePath);
+
     // invalid op execute overrides
     protected override bool ExecuteBool(IGameState gameState)
     {
         throw new InvalidOperationException();
     }
-    protected override int ExecuteInt(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
+
     protected override double ExecuteDouble(IGameState gameState)
     {
         throw new InvalidOperationException();

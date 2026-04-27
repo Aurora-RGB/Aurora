@@ -10,10 +10,19 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Represents a constant string value that will always evaluate to the same value.
 /// </summary>
 [Evaluatable("String Constant", category: EvaluatableCategory.String)]
-public class StringConstant : StringEvaluatable {
+public class StringConstant : StringEvaluatable
+{
 
     /// <summary>The value of the constant.</summary>
-    public string Value { get; set; } = "";
+    public string Value
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = "";
 
     public StringConstant()
     {
@@ -28,9 +37,11 @@ public class StringConstant : StringEvaluatable {
     public override Visual GetControl() => new TextBox { MinWidth = 40, VerticalAlignment = System.Windows.VerticalAlignment.Center }
         .WithBinding(TextBox.TextProperty, new Binding("Value") { Source = this, Mode = BindingMode.TwoWay });
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => false;
+
     /// <summary>Simply return the constant value.</summary>
     protected override string Execute(IGameState gameState) => Value;
-                
+
     /// <summary>Clones this constant string value.</summary>
     public override Evaluatable<string> Clone() => new StringConstant { Value = Value };
 }

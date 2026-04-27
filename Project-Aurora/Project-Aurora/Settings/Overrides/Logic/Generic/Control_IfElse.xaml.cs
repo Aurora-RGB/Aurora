@@ -33,7 +33,7 @@ namespace AuroraRgb.Settings.Overrides.Logic.Generic {
 
         protected override void AddElseIfCase_Click(object? sender, RoutedEventArgs e) {
             context.ParentCondition.Cases.Insert(
-                context.ParentCondition.Cases.Count - (HasElseCase ? 2 : 1), // If there is an "Else" case, we need to insert this Else-If before that
+                context.ParentCondition.Cases.Count - 1, // If there is an "Else" case, we need to insert this Else-If before that
                 new IfElseGeneric<T>.Branch(new BooleanConstant(), EvaluatableDefaults.Get<T>())
             );
         }
@@ -44,7 +44,7 @@ namespace AuroraRgb.Settings.Overrides.Logic.Generic {
 
             // Check the clicked case to move up wasn't the first one or the last one (we don't want to move Elses around), move it up by
             // removing it and re-adding it to the collection
-            if (index > 0 && !(index == context.ParentCondition.Cases.Count - 1 && HasElseCase)) {
+            if (index > 0 && index != context.ParentCondition.Cases.Count - 1) {
                 context.ParentCondition.Cases.RemoveAt(index);
                 context.ParentCondition.Cases.Insert(index - 1, branch);
             }
@@ -69,9 +69,6 @@ namespace AuroraRgb.Settings.Overrides.Logic.Generic {
             if (context.ParentCondition.Cases.Count > 2)
                 context.ParentCondition.Cases.Remove(branch);
         }
-
-        private bool HasElseCase =>
-            context.ParentCondition.Cases[context.ParentCondition.Cases.Count - 1].Condition == null;
     }
 
 

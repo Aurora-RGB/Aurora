@@ -29,7 +29,19 @@ public class BooleanOr : BoolEvaluatable, IHasSubConditons {
 
     public override Visual GetControl() => new Control_SubconditionHolder(this, "Or");
 
-    protected override bool Execute(IGameState gameState) => SubConditions.Any(subcondition => subcondition.Evaluate(gameState));
+    protected override bool IsInvalidatedChild(IGameState gameState)
+    {
+        var invalidated = false;
+        for (var i = 0; i < SubConditions.Count; i++)
+        {
+            var sub = SubConditions[i];
+            invalidated |= sub.IsInvalidated(gameState);
+        }
+
+        return invalidated;
+    }
+
+    protected override bool Execute(IGameState gameState) => SubConditions.Any(subcondition => subcondition.EvaluateBool(gameState));
         
     public override Evaluatable<bool> Clone() => new BooleanOr { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => e.Clone())) };
 }
@@ -52,18 +64,32 @@ public class BooleanAnd : BoolEvaluatable, IHasSubConditons {
 
     public override Visual GetControl() => new Control_SubconditionHolder(this, "And");
 
-    protected override bool Execute(IGameState gameState) => ExecuteBool(gameState);
-    protected override bool ExecuteBool(IGameState gameState)
+    protected override bool IsInvalidatedChild(IGameState gameState)
     {
-        foreach (var sub in SubConditions)
+        var invalidated = false;
+        for (var i = 0; i < SubConditions.Count; i++)
         {
-            if (!sub.Evaluate(gameState))
+            var sub = SubConditions[i];
+            invalidated |= sub.IsInvalidated(gameState);
+        }
+
+        return invalidated;
+    }
+
+    protected override bool Execute(IGameState gameState)
+    {
+        for (var i = 0; i < SubConditions.Count; i++)
+        {
+            var sub = SubConditions[i];
+            if (!sub.EvaluateBool(gameState))
                 return false;
         }
+
         return true;
     }
 
-    public override Evaluatable<bool> Clone() => new BooleanAnd { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => { var x = e.Clone(); return x; })) };
+    public override Evaluatable<bool> Clone() =>
+        new BooleanAnd { SubConditions = new ObservableCollection<Evaluatable<bool>>(SubConditions.Select(e => { var x = e.Clone(); return x; })) };
 }
 
 
@@ -88,7 +114,9 @@ public class BooleanNot : BoolEvaluatable {
         .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(bool) }
             .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, new Binding(nameof(SubCondition)) { Source = this, Mode = BindingMode.TwoWay }));
 
-    protected override bool Execute(IGameState gameState) => !SubCondition.Evaluate(gameState);
+    protected override bool IsInvalidatedChild(IGameState gameState) => SubCondition.IsInvalidated(gameState);
+
+    protected override bool Execute(IGameState gameState) => !SubCondition.EvaluateBool(gameState);
 
     public override Evaluatable<bool> Clone() => new BooleanNot { SubCondition = SubCondition.Clone() };
 }
@@ -99,26 +127,42 @@ public class BooleanNot : BoolEvaluatable {
 /// the layer will always be visible.
 /// </summary>
 [Evaluatable("Boolean Constant", category: EvaluatableCategory.Logic)]
-public class BooleanConstant : BoolEvaluatable {
-
+public class BooleanConstant : BoolEvaluatable
+{
     /// <summary>Creates a new constant true boolean.</summary>
-    public BooleanConstant() { }
+    public BooleanConstant()
+    {
+    }
 
     /// <summary>Creates a new constant boolean with the given state.</summary>
-    public BooleanConstant(bool state)
+    public BooleanConstant(bool state) : this()
     {
         State = state;
     }
 
     /// <summary>The value held by this constant value.</summary>
-    public bool State { get; set; }
+    public bool State
+    {
+        get;
+        set
+        {
+            field = value;
+            Invalidate();
+        }
+    }
 
     // Create a checkbox to use to set the constant value
     public override Visual GetControl() => new CheckBox { Content = "True/False", VerticalAlignment = VerticalAlignment.Center }
-        .WithBinding(CheckBox.IsCheckedProperty, new Binding("State") { Source = this, Mode = BindingMode.TwoWay });
+        .WithBinding(CheckBox.IsCheckedProperty, new Binding(nameof(State)) { Source = this, Mode = BindingMode.TwoWay });
 
     // Simply return the current state
-    protected override bool Execute(IGameState _) => State;
+    protected override bool IsInvalidatedChild(IGameState gameState) => false;
+
+    protected override bool Execute(IGameState _)
+    {
+        return State;
+    }
+
     // Creates a new BooleanConstant
     public override Evaluatable<bool> Clone() => new BooleanConstant { State = State };
 }

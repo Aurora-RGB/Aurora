@@ -57,7 +57,7 @@ public class OverrideLookupTable : IOverrideLogic {
     /// </summary>
     public object? Evaluate(IGameState gameState) {
         foreach (var entry in LookupTable)
-            if (entry.Condition.Evaluate(gameState))
+            if (entry.Condition.EvaluateBool(gameState))
                 return entry.Value;
         return null;
     }
@@ -66,7 +66,7 @@ public class OverrideLookupTable : IOverrideLogic {
         for (var i = 0; i < LookupTable.Count; i++)
         {
             var entry = LookupTable[i];
-            if (entry.Condition.Evaluate(gameState))
+            if (entry.Condition.EvaluateBool(gameState))
             {
                 overridden = true;
                 if (entry.Value is bool b)
@@ -83,7 +83,7 @@ public class OverrideLookupTable : IOverrideLogic {
         for (var i = 0; i < LookupTable.Count; i++)
         {
             var entry = LookupTable[i];
-            if (entry.Condition.Evaluate(gameState))
+            if (entry.Condition.EvaluateBool(gameState))
             {
                 overridden = true;
                 if (entry.Value is double d)
@@ -100,7 +100,7 @@ public class OverrideLookupTable : IOverrideLogic {
         for (var i = 0; i < LookupTable.Count; i++)
         {
             var entry = LookupTable[i];
-            if (entry.Condition.Evaluate(gameState))
+            if (entry.Condition.EvaluateBool(gameState))
             {
                 overridden = true;
                 return entry.Value switch
@@ -120,7 +120,7 @@ public class OverrideLookupTable : IOverrideLogic {
         for (var i = 0; i < LookupTable.Count; i++)
         {
             var entry = LookupTable[i];
-            if (!entry.Condition.Evaluate(gameState)) continue;
+            if (!entry.Condition.EvaluateBool(gameState)) continue;
             overridden = true;
             return entry.Value switch
             {

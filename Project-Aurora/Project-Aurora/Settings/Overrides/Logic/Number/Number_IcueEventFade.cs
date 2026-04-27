@@ -35,7 +35,7 @@ public class NumberIcueEventFade : Evaluatable<double>
     protected override double Execute(IGameState gameState)
     {
         var eventName = EventName.Evaluate(gameState);
-        var timeoutSeconds = TimeoutSeconds.Evaluate(gameState);
+        var timeoutSeconds = TimeoutSeconds.EvaluateDouble(gameState);
         if (string.IsNullOrWhiteSpace(eventName) || timeoutSeconds <= 0)
             return 0.0;
         var timeout = (long)(timeoutSeconds * 1000);
@@ -47,10 +47,6 @@ public class NumberIcueEventFade : Evaluatable<double>
         return 1.0 - (double)timeSinceEvent / timeout;
     }
     protected override bool ExecuteBool(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
-    protected override int ExecuteInt(IGameState gameState)
     {
         throw new InvalidOperationException();
     }

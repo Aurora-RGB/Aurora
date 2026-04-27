@@ -10,7 +10,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Number;
 
 [Evaluatable("Number Global Variable", category: EvaluatableCategory.Global)]
-public class Number_Variable : DoubleEvaluatable
+public class Number_Variable : DoubleCachedEvaluatable
 {
     public Evaluatable<double> DefaultValue { get; set; } = new NumberConstant();
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();
@@ -21,11 +21,11 @@ public class Number_Variable : DoubleEvaluatable
         VariableName = variableName;
         DefaultValue = defaultValue;
     }
- 
-    protected override double Execute(IGameState gameState)
+
+    protected override double Calculate(IGameState gameState)
     {
         var key = VariableName.Evaluate(gameState);
-        var defaultValue = DefaultValue.Evaluate(gameState);
+        var defaultValue = DefaultValue.EvaluateDouble(gameState);
         return AuroraVariables.Instance.Numbers.GetValueOrDefault(key, defaultValue);
     }
 

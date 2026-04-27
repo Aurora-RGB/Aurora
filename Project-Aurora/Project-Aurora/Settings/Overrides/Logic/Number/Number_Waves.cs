@@ -28,11 +28,13 @@ public class NumberWaveFunction : DoubleEvaluatable {
         .WithBinding(Control_NumericUnaryOpHolder.OperandProperty, new Binding("Operand") { Source = this, Mode = BindingMode.TwoWay })
         .WithBinding(Control_NumericUnaryOpHolder.SelectedOperatorProperty, new Binding("WaveFunc") { Source = this, Mode = BindingMode.TwoWay });
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => true;
+
     /// <summary>
     /// Evaluates this wave function generator using the result of the operand and the given wave type.
     /// </summary>
     protected override double Execute(IGameState gameState) {
-        var op = Operand.Evaluate(gameState);
+        var op = Operand.EvaluateDouble(gameState);
         switch (WaveFunc) {
             // The wave functions are generated on https://www.desmos.com/calculator/x9xl6m9ryf
             case WaveFunctionType.Sine: return .5 * (Math.Sin((op + .75) * 2 * Math.PI) + 1); // Convert the function to take a value from 0-1 and return 0-1. This saves the user from doing complex radian conversion

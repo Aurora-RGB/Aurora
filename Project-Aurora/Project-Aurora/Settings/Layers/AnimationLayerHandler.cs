@@ -223,8 +223,8 @@ namespace AuroraRgb.Settings.Layers
             // Handling for numeric value change based triggers
             } else if (IsTriggerNumericValueBased(Properties.TriggerMode) || IsTriggerEvaluatableNumericValueBased(Properties.TriggerMode)) {
                 // Evaluate the evaluatable or the game state path and retrieve the double
-                double resolvedTriggerValue = IsTriggerEvaluatableNumericValueBased(Properties.TriggerMode)
-                    ? ((Evaluatable<double>)Properties.EvaluatableTrigger)?.Evaluate(gamestate) ?? 0 // Evaluatable may be null, so we need to account for that
+                var resolvedTriggerValue = IsTriggerEvaluatableNumericValueBased(Properties.TriggerMode)
+                    ? ((Evaluatable<double>)Properties.EvaluatableTrigger)?.EvaluateDouble(gamestate) ?? 0 // Evaluatable may be null, so we need to account for that
                     : gamestate.GetNumber(Properties.TriggerPath);
 
                 // Check to see if a gamestate value change should trigger the animation
@@ -250,8 +250,8 @@ namespace AuroraRgb.Settings.Layers
             // Handling for boolean value based triggers
             } else {
                 // Evaluatable the boolean, either as an evaluatable or a game state variable.
-                bool resolvedTriggerValue = IsTriggerEvaluatableBooleanValueBased(Properties.TriggerMode)
-                    ? ((Evaluatable<bool>)Properties.EvaluatableTrigger)?.Evaluate(gamestate) ?? false // Evaluatable may be null, so we need to account for that
+                var resolvedTriggerValue = IsTriggerEvaluatableBooleanValueBased(Properties.TriggerMode)
+                    ? ((Evaluatable<bool>)Properties.EvaluatableTrigger)?.EvaluateBool(gamestate) ?? false // Evaluatable may be null, so we need to account for that
                     : gamestate.GetBool(Properties.TriggerPath);
 
                 switch (Properties.TriggerMode) {

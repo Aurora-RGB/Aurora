@@ -10,7 +10,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Boolean Global Variable", category: EvaluatableCategory.Global)]
-public class Boolean_Variable : BoolEvaluatable
+public class Boolean_Variable : BoolCachedEvaluatable
 {
     public Evaluatable<bool> DefaultValue { get; set; } = new BooleanConstant();
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();
@@ -21,11 +21,11 @@ public class Boolean_Variable : BoolEvaluatable
         VariableName = variableName;
         DefaultValue = defaultValue;
     }
- 
-    protected override bool Execute(IGameState gameState)
+
+    protected override bool Calculate(IGameState gameState)
     {
         var key = VariableName.Evaluate(gameState);
-        var defaultValue = DefaultValue.Evaluate(gameState);
+        var defaultValue = DefaultValue.EvaluateBool(gameState);
         return AuroraVariables.Instance.Booleans.GetValueOrDefault(key, defaultValue);
     }
 

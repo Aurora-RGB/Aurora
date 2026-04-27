@@ -10,13 +10,32 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Logic that compares two strings using a selection of operators.
 /// </summary>
 [Evaluatable("String Comparison", category: EvaluatableCategory.String)]
-public class StringComparison : BoolEvaluatable {
+public class StringComparison : BoolEvaluatable
+{
 
     // Operands and operator
     public Evaluatable<string> Operand1 { get; set; } = new StringConstant();
     public Evaluatable<string> Operand2 { get; set; } = new StringConstant();
-    public StringComparisonOperator Operator { get; set; } = StringComparisonOperator.Equal;
-    public bool CaseInsensitive { get; set; }
+
+    public StringComparisonOperator Operator
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = StringComparisonOperator.Equal;
+
+    public bool CaseInsensitive
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    }
 
     public StringComparison()
     {
@@ -45,6 +64,8 @@ public class StringComparison : BoolEvaluatable {
             .WithBinding(Control_BinaryOperationHolder.SelectedOperatorProperty, new Binding("Operator") { Source = this, Mode = BindingMode.TwoWay }))
         .WithChild(new CheckBox { Content = "Ignore case" }
             .WithBinding(CheckBox.IsCheckedProperty, this, nameof(CaseInsensitive), BindingMode.TwoWay));
+
+    protected override bool IsInvalidatedChild(IGameState gameState) => Operand1.IsInvalidated(gameState) || Operand2.IsInvalidated(gameState);
 
     /// <summary>Compares the two strings with the given operator</summary>
     protected override bool Execute(IGameState gameState) {

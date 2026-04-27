@@ -14,17 +14,19 @@ namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 [Evaluatable("Flip-flop (Toggle)", category: EvaluatableCategory.Logic)]
 public class Boolean_FlipFlopT : BoolEvaluatable {
 
-    private bool state = false;
+    private bool _state;
 
     public Evaluatable<bool> Toggle { get; set; }
 
     public Boolean_FlipFlopT() : this(EvaluatableDefaults.Get<bool>()) { }
     public Boolean_FlipFlopT(Evaluatable<bool> toggle) => Toggle = toggle;
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Toggle.IsInvalidated(gameState);
+
     protected override bool Execute(IGameState gameState) {
-        if (Toggle.Evaluate(gameState))
-            state = !state;
-        return state;
+        if (Toggle.EvaluateBool(gameState))
+            _state = !_state;
+        return _state;
     }
 
     public override Visual GetControl() => new StackPanel()
@@ -45,7 +47,7 @@ public class Boolean_FlipFlopT : BoolEvaluatable {
 [Evaluatable("Flip-flop (Set-Reset)", category: EvaluatableCategory.Logic)]
 public class Boolean_FlipFlopSR : BoolEvaluatable {
 
-    private bool state;
+    private bool _state;
 
     public Evaluatable<bool> Set { get; set; }
     public Evaluatable<bool> Reset { get; set; }
@@ -53,12 +55,14 @@ public class Boolean_FlipFlopSR : BoolEvaluatable {
     public Boolean_FlipFlopSR() : this(EvaluatableDefaults.Get<bool>(),EvaluatableDefaults.Get<bool>()) { }
     public Boolean_FlipFlopSR(Evaluatable<bool> set, Evaluatable<bool> reset) { Set = set; Reset = reset; }
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Set.IsInvalidated(gameState) || Reset.IsInvalidated(gameState);
+
     protected override bool Execute(IGameState gameState) {
-        if (Reset.Evaluate(gameState))
-            state = false;
-        if (Set.Evaluate(gameState))
-            state = true;
-        return state;
+        if (Reset.EvaluateBool(gameState))
+            _state = false;
+        if (Set.EvaluateBool(gameState))
+            _state = true;
+        return _state;
     }
         
     public override Visual GetControl() => new StackPanel()

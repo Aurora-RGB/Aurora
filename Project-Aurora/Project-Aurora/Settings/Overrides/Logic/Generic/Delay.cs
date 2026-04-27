@@ -60,10 +60,6 @@ public class DelayBoolean : DelayGeneric<bool> {
     public DelayBoolean(Evaluatable<bool> source, double delay) : base(source, delay) { }
     public override Evaluatable<bool> Clone() => new DelayBoolean(Source, Delay);
     protected override bool ExecuteBool(IGameState gameState) => Execute(gameState);
-    protected override int ExecuteInt(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
     protected override double ExecuteDouble(IGameState gameState)
     {
         throw new InvalidOperationException();
@@ -80,10 +76,6 @@ public class DelayNumeric : DelayGeneric<double> {
     {
         throw new InvalidOperationException();
     }
-    protected override int ExecuteInt(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
     protected override double ExecuteDouble(IGameState gameState) => Execute(gameState);
 }
 
@@ -94,10 +86,6 @@ public class DelayString : DelayGeneric<string> {
     public DelayString(Evaluatable<string> source, double delay) : base(source, delay) { }
     public override Evaluatable<string> Clone() => new DelayString(Source, Delay);
     protected override bool ExecuteBool(IGameState gameState)
-    {
-        throw new InvalidOperationException();
-    }
-    protected override int ExecuteInt(IGameState gameState)
     {
         throw new InvalidOperationException();
     }

@@ -14,7 +14,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 [Evaluatable("Number Change Detector", category: EvaluatableCategory.Maths)]
 public class NumericChangeDetector : BoolEvaluatable {
 
-    private double? lastValue;
+    private double? _lastValue;
 
     public NumericChangeDetector() { }
     public NumericChangeDetector(Evaluatable<double> eval, bool detectRising = true, bool detectFalling = true, double threshold = 0) {
@@ -41,18 +41,20 @@ public class NumericChangeDetector : BoolEvaluatable {
             .WithChild(new DoubleUpDown { Minimum = 0 }
                 .WithBinding(DoubleUpDown.ValueProperty, this, nameof(DetectionThreshold))));
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Evaluatable.IsInvalidated(gameState);
+
     protected override bool Execute(IGameState gameState) {
-        var val = Evaluatable.Evaluate(gameState);
+        var val = Evaluatable.EvaluateDouble(gameState);
         var @out = false;
-        if (lastValue.HasValue) {
+        if (_lastValue.HasValue) {
             // If threshold is 0, we want it to be true on any change, so we can't use >= (as this will always be true). We also can't use > as this means a
             // threshold of 1 would not trigger on change 5 -> 6. By making it the smallest possible double when it's 0, it means that any change is detected
             // but 0 won't be - exactly what we want.
             var threshold = DetectionThreshold == 0 ? double.Epsilon : DetectionThreshold;
-            var delta = lastValue.Value - val;
+            var delta = _lastValue.Value - val;
             @out = (DetectRising && delta <= -threshold) || (DetectFalling && delta >= threshold);
         }
-        lastValue = val;
+        _lastValue = val;
         return @out;
     }
         
@@ -81,6 +83,8 @@ public class BooleanChangeDetector : BoolEvaluatable {
     public bool DetectTrue { get; set; } = true;
     public bool DetectFalse { get; set; } = true;
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Evaluatable.IsInvalidated(gameState);
+
     public override Visual GetControl() => new StackPanel()
         .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(bool) }
             .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, this, nameof(Evaluatable), BindingMode.TwoWay))
@@ -90,7 +94,7 @@ public class BooleanChangeDetector : BoolEvaluatable {
             .WithBinding(CheckBox.IsCheckedProperty, this, nameof(DetectFalse)));
 
     protected override bool Execute(IGameState gameState) {
-        var val = Evaluatable.Evaluate(gameState);
+        var val = Evaluatable.EvaluateBool(gameState);
         var result = (val  && lastValue == false  && DetectTrue) // Result is true if: the next value is true, the old value was false and we are detecting true
                      || (!val && lastValue == true && DetectFalse); // Or the next value is false, the old value was true and we are detecting false
         lastValue = val;

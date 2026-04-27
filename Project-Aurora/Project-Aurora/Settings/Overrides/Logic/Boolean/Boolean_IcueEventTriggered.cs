@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -10,7 +11,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Icue Event Triggered", category: EvaluatableCategory.Icue)]
-public class BooleanIcueEventTriggered : BoolEvaluatable
+public class BooleanIcueEventTriggered : BoolCachedEvaluatable
 {
     public Evaluatable<string> EventName { get; set; } = new StringConstant();
     public Evaluatable<double> TimeoutSeconds { get; set; } = new NumberConstant(2);
@@ -31,14 +32,14 @@ public class BooleanIcueEventTriggered : BoolEvaluatable
         TimeoutSeconds = new NumberConstant(timeoutSeconds);
     }
 
-    protected override bool Execute(IGameState gameState)
+    protected override bool Calculate(IGameState gameState)
     {
         var eventName = EventName.Evaluate(gameState);
-        var timeoutSeconds = TimeoutSeconds.Evaluate(gameState);
+        var timeoutSeconds = TimeoutSeconds.EvaluateDouble(gameState);
         if (string.IsNullOrWhiteSpace(eventName) || timeoutSeconds <= 0)
             return false;
         var timeout = (long)(timeoutSeconds * 1000);
-        var currentTimeMillis = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var currentTimeMillis = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var lastEventTimeMillis = IcueModule.AuroraIcueServer.Gsi.EventTimestamps.GetValueOrDefault(eventName, 0);
         return currentTimeMillis - lastEventTimeMillis <= timeout;
     }

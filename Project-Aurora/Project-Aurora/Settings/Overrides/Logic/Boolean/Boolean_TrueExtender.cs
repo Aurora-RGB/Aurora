@@ -17,6 +17,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 public class BooleanExtender : BoolEvaluatable {
 
     private readonly Stopwatch _sw = new();
+    private bool _lastTimerValue;
 
     public BooleanExtender() { }
     public BooleanExtender(Evaluatable<bool> evaluatable) { Evaluatable = evaluatable; }
@@ -37,16 +38,36 @@ public class BooleanExtender : BoolEvaluatable {
                 .WithBinding(Control_TimeAndUnit.TimeProperty, new Binding("ExtensionTime") { Source = this, Mode = BindingMode.TwoWay })
                 .WithBinding(Control_TimeAndUnit.UnitProperty, new Binding("TimeUnit") { Source = this, Mode = BindingMode.TwoWay })));
 
-    protected override bool Execute(IGameState gameState) {
-        var res = Evaluatable.Evaluate(gameState);
-        if (res) _sw.Restart();
-        switch (TimeUnit) {
-            case TimeUnit.Milliseconds: return _sw.IsRunning && _sw.Elapsed.TotalMilliseconds < ExtensionTime;
-            case TimeUnit.Seconds: return _sw.IsRunning && _sw.Elapsed.TotalSeconds < ExtensionTime;
-            case TimeUnit.Minutes: return _sw.IsRunning && _sw.Elapsed.TotalMinutes < ExtensionTime;
-            case TimeUnit.Hours: return _sw.IsRunning && _sw.Elapsed.TotalHours < ExtensionTime;
-            default: return false;
+    protected override bool IsInvalidatedChild(IGameState gameState)
+    {
+        if (Evaluatable.IsInvalidated(gameState))
+        {
+            return true;
         }
+
+        // check for timeout
+        var expired = IsTimerTrue();
+        return _lastTimerValue != expired;
+    }
+
+    protected override bool Execute(IGameState gameState) {
+        var res = Evaluatable.EvaluateBool(gameState);
+        if (res) _sw.Restart();
+        var isExpired = IsTimerTrue();
+        _lastTimerValue = isExpired;
+        return isExpired;
+    }
+
+    private bool IsTimerTrue()
+    {
+        return TimeUnit switch
+        {
+            TimeUnit.Milliseconds => _sw.IsRunning && _sw.Elapsed.TotalMilliseconds < ExtensionTime,
+            TimeUnit.Seconds => _sw.IsRunning && _sw.Elapsed.TotalSeconds < ExtensionTime,
+            TimeUnit.Minutes => _sw.IsRunning && _sw.Elapsed.TotalMinutes < ExtensionTime,
+            TimeUnit.Hours => _sw.IsRunning && _sw.Elapsed.TotalHours < ExtensionTime,
+            _ => false
+        };
     }
         
     public override Evaluatable<bool> Clone() => new BooleanExtender { Evaluatable = Evaluatable.Clone(), ExtensionTime = ExtensionTime, TimeUnit = TimeUnit };

@@ -1,5 +1,4 @@
 using System;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -7,7 +6,6 @@ using AuroraRgb.Profiles;
 using AuroraRgb.Settings.Overrides.Logic.Number;
 using AuroraRgb.Utils;
 using Common.Utils;
-using Xceed.Wpf.Toolkit;
 
 namespace AuroraRgb.Settings.Overrides.Logic;
 
@@ -15,7 +13,8 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// Evaluatable that performs a binary mathematical operation on two operands.
 /// </summary>
 [Evaluatable("Arithmetic Operation", category: EvaluatableCategory.Maths)]
-public class NumberMathsOperation : DoubleEvaluatable {
+public class NumberMathsOperation : DoubleEvaluatable
+{
 
     /// <summary>Creates a new maths operation that has no values pre-set.</summary>
     public NumberMathsOperation() { }
@@ -35,17 +34,28 @@ public class NumberMathsOperation : DoubleEvaluatable {
     // The operands and the operator
     public Evaluatable<double> Operand1 { get; set; } = new NumberConstant();
     public Evaluatable<double> Operand2 { get; set; } = new NumberConstant();
-    public MathsOperator Operator { get; set; } = MathsOperator.Add;
-        
+
+    public MathsOperator Operator
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = MathsOperator.Add;
+
     public override Visual GetControl() => new Control_BinaryOperationHolder(typeof(double), typeof(MathsOperator))
         .WithBinding(Control_BinaryOperationHolder.Operand1Property, new Binding("Operand1") { Source = this, Mode = BindingMode.TwoWay })
         .WithBinding(Control_BinaryOperationHolder.Operand2Property, new Binding("Operand2") { Source = this, Mode = BindingMode.TwoWay })
         .WithBinding(Control_BinaryOperationHolder.SelectedOperatorProperty, new Binding("Operator") { Source = this, Mode = BindingMode.TwoWay });
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Operand1.IsInvalidated(gameState) || Operand2.IsInvalidated(gameState);
+
     /// <summary>Resolves the two operands and then compares them using the user specified operator</summary>
     protected override double Execute(IGameState gameState) {
-        var op1 = Operand1.Evaluate(gameState);
-        var op2 = Operand2.Evaluate(gameState);
+        var op1 = Operand1.EvaluateDouble(gameState);
+        var op2 = Operand2.EvaluateDouble(gameState);
         switch (Operator) {
             case MathsOperator.Add: return op1 + op2;
             case MathsOperator.Sub: return op1 - op2;
@@ -64,12 +74,18 @@ public class NumberMathsOperation : DoubleEvaluatable {
 /// Returns the absolute value of the given evaluatable.
 /// </summary>
 [Evaluatable("Absolute", category: EvaluatableCategory.Maths)]
-public class NumberAbsValue : DoubleEvaluatable {
-
+public class NumberAbsValue : DoubleEvaluatable
+{
     /// <summary>Creates a new absolute operation with the default operand.</summary>
-    public NumberAbsValue() { }
+    public NumberAbsValue()
+    {
+    }
+
     /// <summary>Creates a new absolute evaluatable with the given operand.</summary>
-    public NumberAbsValue(Evaluatable<double> op) { Operand = op; }
+    public NumberAbsValue(Evaluatable<double> op)
+    {
+        Operand = op;
+    }
 
     /// <summary>The operand to absolute.</summary>
     public Evaluatable<double> Operand { get; set; } = new NumberConstant();
@@ -78,12 +94,13 @@ public class NumberAbsValue : DoubleEvaluatable {
     public override Visual GetControl() => new Control_NumericUnaryOpHolder("Absolute")
         .WithBinding(Control_NumericUnaryOpHolder.OperandProperty, new Binding("Operand") { Source = this, Mode = BindingMode.TwoWay });
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Operand.IsInvalidated(gameState);
+
     /// <summary>Evaluate the operand and return the absolute value of it.</summary>
-    protected override double Execute(IGameState gameState) => Math.Abs(Operand.Evaluate(gameState));
-        
+    protected override double Execute(IGameState gameState) => Math.Abs(Operand.EvaluateDouble(gameState));
+
     public override Evaluatable<double> Clone() => new NumberAbsValue { Operand = Operand.Clone() };
 }
-
 
 
 /// <summary>
@@ -110,7 +127,16 @@ public class BooleanMathsComparison : BoolEvaluatable {
     // The operands and the operator
     public Evaluatable<double> Operand1 { get; set; } = new NumberConstant();
     public Evaluatable<double> Operand2 { get; set; } = new NumberConstant();
-    public ComparisonOperator Operator { get; set; } = ComparisonOperator.EQ;
+
+    public ComparisonOperator Operator
+    {
+        get;
+        set
+        {
+            Invalidate();
+            field = value;
+        }
+    } = ComparisonOperator.EQ;
 
     // The control allowing the user to edit the evaluatable
     public override Visual GetControl() => new Control_BinaryOperationHolder(typeof(double), typeof(ComparisonOperator))
@@ -118,13 +144,15 @@ public class BooleanMathsComparison : BoolEvaluatable {
         .WithBinding(Control_BinaryOperationHolder.Operand2Property, new Binding("Operand2") { Source = this, Mode = BindingMode.TwoWay })
         .WithBinding(Control_BinaryOperationHolder.SelectedOperatorProperty, new Binding("Operator") { Source = this, Mode = BindingMode.TwoWay });
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Operand1.IsInvalidated(gameState) || Operand2.IsInvalidated(gameState);
+
     /// <summary>Resolves the two operands and then compares them with the user-specified operator.</summary>
     protected override bool Execute(IGameState gameState) {
-        var op1 = Operand1.Evaluate(gameState);
-        var op2 = Operand2.Evaluate(gameState);
+        var op1 = Operand1.EvaluateDouble(gameState);
+        var op2 = Operand2.EvaluateDouble(gameState);
         switch (Operator) {
-            case ComparisonOperator.EQ: return op1 == op2;
-            case ComparisonOperator.NEQ: return op1 != op2;
+            case ComparisonOperator.EQ: return Math.Abs(op1 - op2) < 0.00001;
+            case ComparisonOperator.NEQ: return Math.Abs(op1 - op2) > 0.00001;
             case ComparisonOperator.GT: return op1 > op2;
             case ComparisonOperator.GTE: return op1 >= op2;
             case ComparisonOperator.LT: return op1 < op2;
@@ -170,12 +198,15 @@ public class NumberMap : DoubleEvaluatable {
     // The control to edit the map parameters
     public override Visual GetControl() => new Control_NumericMap(this);
 
+    protected override bool IsInvalidatedChild(IGameState gameState) => Value.IsInvalidated(gameState) || FromMin.IsInvalidated(gameState) || FromMax.IsInvalidated(gameState)
+                                                                || ToMin.IsInvalidated(gameState) || ToMax.IsInvalidated(gameState);
+
     /// <summary>Evaluate the from range and to range and return the value in the new range.</summary>
     protected override double Execute(IGameState gameState) {
         // Evaluate all components
-        var value = Value.Evaluate(gameState);
-        double fromMin = FromMin.Evaluate(gameState), fromMax = FromMax.Evaluate(gameState);
-        double toMin = ToMin.Evaluate(gameState), toMax = ToMax.Evaluate(gameState);
+        var value = Value.EvaluateDouble(gameState);
+        double fromMin = FromMin.EvaluateDouble(gameState), fromMax = FromMax.EvaluateDouble(gameState);
+        double toMin = ToMin.EvaluateDouble(gameState), toMax = ToMax.EvaluateDouble(gameState);
 
         // Perform actual equation
         return MathUtils.Clamp((value - fromMin) * ((toMax - toMin) / (fromMax - fromMin)) + toMin, Math.Min(toMin, toMax), Math.Max(toMin, toMax));
@@ -187,32 +218,6 @@ public class NumberMap : DoubleEvaluatable {
         FromMin = FromMin.Clone(), FromMax = FromMax.Clone(),
         ToMin = ToMin.Clone(), ToMax = ToMax.Clone()
     };
-}
-
-
-
-/// <summary>
-/// Evaluatable that resolves to a numerical constant.
-/// </summary>
-[Evaluatable("Number Constant", category: EvaluatableCategory.Maths)]
-public class NumberConstant : DoubleEvaluatable {
-
-    /// <summary>Creates a new constant with the zero as the constant value.</summary>
-    public NumberConstant() { }
-    /// <summary>Creats a new constant with the given value as the constant value.</summary>
-    public NumberConstant(double value) { Value = value; }
-
-    // The constant value
-    public double Value { get; set; }
-
-    // The control allowing the user to edit the number value
-    public override Visual GetControl() => new DoubleUpDown { VerticalAlignment = VerticalAlignment.Center }
-        .WithBinding(DoubleUpDown.ValueProperty, new Binding("Value") { Source = this });
-
-    /// <summary>Simply returns the constant value specified by the user</summary>
-    protected override double Execute(IGameState gameState) => Value;
-
-    public override Evaluatable<double> Clone() => new NumberConstant { Value = Value };
 }
 
 [Evaluatable("Random Number", category: EvaluatableCategory.Maths)]
@@ -240,9 +245,9 @@ public class NumberRandom : DoubleEvaluatable
             .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, new Binding(nameof(Maximum)) { Source = this, Mode = BindingMode.TwoWay }));
 
     protected override double Execute(IGameState gameState) {
-        var min = Minimum.Evaluate(gameState);
-        var max = Maximum.Evaluate(gameState);
-        if (Condition.Evaluate(gameState))
+        var min = Minimum.EvaluateDouble(gameState);
+        var max = Maximum.EvaluateDouble(gameState);
+        if (Condition.EvaluateBool(gameState))
             _value = _random.NextDouble() * (max - min) + min;
 
         return _value;

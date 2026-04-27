@@ -9,7 +9,7 @@ using AuroraRgb.Utils;
 namespace AuroraRgb.Settings.Overrides.Logic.Boolean;
 
 [Evaluatable("Global Variable Exists", category: EvaluatableCategory.Global)]
-public class Boolean_VariableExists : BoolEvaluatable
+public class Boolean_VariableExists : BoolCachedEvaluatable
 {
     public Evaluatable<string> VariableName { get; set; } = new StringConstant();
 
@@ -22,7 +22,7 @@ public class Boolean_VariableExists : BoolEvaluatable
         VariableName = variableName;
     }
 
-    protected override bool Execute(IGameState gameState)
+    protected override bool Calculate(IGameState gameState)
     {
         var key = VariableName.Evaluate(gameState);
         return AuroraVariables.Instance.Booleans.ContainsKey(key) ||
