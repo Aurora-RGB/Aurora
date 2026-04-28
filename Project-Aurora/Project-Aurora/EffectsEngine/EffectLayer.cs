@@ -74,14 +74,13 @@ public sealed class BitmapEffectLayer : EffectLayer
 
         if (keyRectangle.IsEmpty)
             return TransparentColor;
-        ref readonly var color = ref GetColor(in keyRectangle.Rectangle);
-        return color;
+        return GetColor(in keyRectangle.Rectangle);
     }
 
-    private ref readonly Color GetColor(ref readonly Rectangle rectangle)
+    private Color GetColor(ref readonly Rectangle rectangle)
     {
         _bitmapReader ??= _colormap.CreateReader();
-        return ref _bitmapReader.GetRegionColor(rectangle);
+        return _bitmapReader.GetRegionColor(rectangle);
     }
 
     /// <summary>

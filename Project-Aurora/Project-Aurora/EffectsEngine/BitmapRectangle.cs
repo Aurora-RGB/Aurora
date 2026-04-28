@@ -11,7 +11,7 @@ public sealed class BitmapRectangle : IEqualityComparer<BitmapRectangle>, IEquat
     private readonly Rectangle _rectangle;
     public ref readonly Rectangle Rectangle => ref _rectangle;
 
-    public bool IsEmpty => _rectangle.IsEmpty;
+    public bool IsEmpty => _rectangle.Width == 0 || _rectangle.Height == 0;
 
     public int Bottom => _rectangle.Bottom;
     public int Top => _rectangle.Top;

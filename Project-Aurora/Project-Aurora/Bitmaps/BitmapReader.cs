@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
+using AuroraRgb.Bitmaps.GdiPlus;
 using Common.Utils;
 
 namespace AuroraRgb.Bitmaps;
@@ -13,20 +11,17 @@ namespace AuroraRgb.Bitmaps;
 public sealed class BitmapReader
 {
     private const int SmallestBufferLength = 32;
+
     private static readonly Dictionary<Size, BitmapData> Bitmaps = new(20);
 
     // ReSharper disable once CollectionNeverQueried.Local //to keep reference
     private static readonly Dictionary<Size, int[]> BitmapBuffers = new(20);
-    private static readonly Vector256<int> FullVector = Vector256.Create(0xFF);
-    private static GraphicsUnit _graphicsUnit = GraphicsUnit.Pixel;
+    private static readonly Color TransparentColor = Color.Transparent;
 
     private readonly Bitmap _bitmap;
     private readonly IGdiBitmap _gdiBitmap;
     private readonly RectangleF _dimension;
-    private readonly Vector256<int> _zeroVector = Vector256<int>.Zero;
-
-    private readonly Color _transparentColor = Color.Transparent;
-    private Color _currentColor = Color.Black;
+    private readonly GraphicsUnit _graphicsUnit = GraphicsUnit.Pixel;
 
     public BitmapReader(Bitmap bitmap, IGdiBitmap gdiBitmap)
     {
@@ -38,10 +33,10 @@ public sealed class BitmapReader
     /**
      * Optimized with SIMD instructions where available
      */
-    public ref readonly Color GetRegionColor(in Rectangle rectangle)
+    public Color GetRegionColor(in Rectangle rectangle)
     {
-        if (rectangle.Width == 0 || rectangle.Height == 0 || !_dimension.Contains(rectangle))
-            return ref _transparentColor;
+        if (!_dimension.Contains(rectangle))
+            return TransparentColor;
 
         var opacity = _gdiBitmap.Opacity;
         var area = rectangle.Width * rectangle.Height;
@@ -53,106 +48,22 @@ public sealed class BitmapReader
             Bitmaps[size] = buff;
         }
 
-        Array.Clear(BitmapBuffers[size]);
-
         var srcData = _bitmap.LockBits(
             rectangle,
-            (ImageLockMode)5, //ImageLockMode.UserInputBuffer | ImageLockMode.ReadOnly
+            ImageLockMode.ReadOnly,
             PixelFormat.Format32bppArgb,
             buff);
 
-        var bufferSize = Math.Max(area, SmallestBufferLength);
-        var totals = ProcessPixels(srcData.Scan0, bufferSize);
+        var totals = GdiBitmapVectorUtils.ProcessPixels(srcData.Scan0, rectangle.Width, rectangle.Height, srcData.Stride);
 
         _bitmap.UnlockBits(srcData);
 
-        _currentColor = CommonColorUtils.FastColor(
+        return CommonColorUtils.FastColor(
             (byte)(totals.R / divider),
             (byte)(totals.G / divider),
             (byte)(totals.B / divider),
             (byte)(totals.A / divider)
         );
-        return ref _currentColor;
-    }
-
-    private unsafe (long R, long G, long B, long A) ProcessPixels(in IntPtr scan0, int area)
-    {
-        var p = (byte*)scan0;
-        long sumB = 0, sumG = 0, sumR = 0, sumA = 0;
-
-        if (Avx2.IsSupported && area >= 32)
-        {
-            var vectorSumB = _zeroVector;
-            var vectorSumG = _zeroVector;
-            var vectorSumR = _zeroVector;
-            var vectorSumA = _zeroVector;
-
-            // Process 32 pixels at a time (32 * 4 bytes = 128 bytes)
-            var vectorCount = area / 32;
-            for (var i = 0; i < vectorCount; i++)
-            {
-                var offset = i * 128;
-                var vector1 = Avx.LoadVector256((int*)(p + offset));
-                var vector2 = Avx.LoadVector256((int*)(p + offset + 32));
-                var vector3 = Avx.LoadVector256((int*)(p + offset + 64));
-                var vector4 = Avx.LoadVector256((int*)(p + offset + 96));
-
-                vectorSumB = vectorSumB + Avx2.And(vector1, FullVector)
-                                        + Avx2.And(vector2, FullVector)
-                                        + Avx2.And(vector3, FullVector)
-                                        + Avx2.And(vector4, FullVector);
-
-                vectorSumG = vectorSumG + Avx2.And(Avx2.ShiftRightLogical(vector1, 8), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 8), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 8), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 8), FullVector);
-
-                vectorSumR = vectorSumR + Avx2.And(Avx2.ShiftRightLogical(vector1, 16), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 16), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 16), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 16), FullVector);
-
-                vectorSumA = vectorSumA + Avx2.And(Avx2.ShiftRightLogical(vector1, 24), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector2, 24), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector3, 24), FullVector)
-                                        + Avx2.And(Avx2.ShiftRightLogical(vector4, 24), FullVector);
-            }
-
-            // Sum up the vector lanes
-            sumB = SumVector256(vectorSumB);
-            sumG = SumVector256(vectorSumG);
-            sumR = SumVector256(vectorSumR);
-            sumA = SumVector256(vectorSumA);
-
-            // Process remaining pixels
-            var processed = vectorCount * 32;
-            var remaining = area - processed;
-            p += processed * 4;
-            area = remaining;
-        }
-
-        // Process remaining pixels or all pixels if AVX2 is not supported
-        var end = area * 4;
-        for (var j = 0; j < end; j += 4)
-        {
-            sumB += p[j + 0];
-            sumG += p[j + 1];
-            sumR += p[j + 2];
-            sumA += p[j + 3];
-        }
-
-        return (sumR, sumG, sumB, sumA);
-    }
-
-    private static long SumVector256(in Vector256<int> vector)
-    {
-        var sum = 0L;
-        for (var i = 0; i < 8; i++)
-        {
-            sum += vector.GetElement(i);
-        }
-
-        return sum;
     }
 
     private static BitmapData CreateBuffer(in Rectangle rectangle)
