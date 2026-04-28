@@ -75,6 +75,8 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
             return;
 
         var cancellationToken = _initializeCancelSource.Token;
+        await DesktopProfile.Initialize(cancellationToken);
+
         var defaultApps = EnumerateDefaultApps();
         var userApps = EnumerateUserApps();
 
@@ -83,11 +85,10 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
         foreach (var inst in profiles)
             await RegisterEvent(inst);
 
-        await DesktopProfile.Initialize(cancellationToken);
         LoadSettings();
 
         var runningProcessMonitor = await _runningProcessMonitor;
-        Predicate<string> processRunning = ProcessRunning;
+        Predicate<string> processRunning = runningProcessMonitor.IsProcessRunning;
         _isOverlayActiveProfile = evt => evt.IsOverlayEnabled &&
                                          Array.Exists(evt.Config.ProcessNames, processRunning);
 
@@ -96,8 +97,6 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
         (await InputsModule.InputEvents).KeyDown += CheckProfileKeybinds;
 
         Initialized = true;
-
-        bool ProcessRunning(string name) => runningProcessMonitor.IsProcessRunning(name);
     }
 
     private static IEnumerable<Application> EnumerateDefaultApps()
@@ -190,6 +189,7 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
             Global.Configuration.ProfileOrder.Add(profileId);
         }
 
+        // if called outside startup, like adding new application
         if (Initialized)
             await application.Initialize(_initializeCancelSource.Token);
     }
@@ -213,7 +213,10 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
 
             foreach (var s in keysToRemove)
             {
-                EventProcesses.Remove(s);
+                var processApps = EventProcesses[s];
+                processApps.RemoveWhere(app => app.Config.ID == profileId);
+                if (processApps.Count == 0)
+                    EventProcesses.Remove(s);
             }
 
             foreach (var exe in application.Config.ProcessNames)
@@ -231,7 +234,7 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     {
         if (!EventProcesses.TryGetValue(processKey, out var applicationList))
         {
-            applicationList = new SortedSet<Application>(new ApplicationPriorityComparer());
+            applicationList = new SortedSet<Application>(ApplicationPriorityComparer.Instance);
             EventProcesses[processKey] = applicationList;
         }
 
@@ -412,8 +415,8 @@ public sealed class ApplicationManager : IAsyncDisposable, IDisposable
     {
         if (_initTaskQueue.TryDequeue(out var action))
         {
-            await action.Invoke();
             _profileInitThread.Trigger();
+            await action.Invoke();
         }
     }
 

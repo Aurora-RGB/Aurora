@@ -2,18 +2,17 @@
 
 namespace AuroraRgb.Profiles;
 
-public class ApplicationPriorityComparer : IComparer<Application>
+public sealed class ApplicationPriorityComparer : IComparer<Application>
 {
+    public static readonly ApplicationPriorityComparer Instance = new();
+
+    private ApplicationPriorityComparer()
+    {
+    }
+
     public int Compare(Application? x, Application? y)
     {
-        if (x == null && y == null)
-            return 0;
-        if (x == null)
-            return 1;
-        if (y == null)
-            return -1;
-
         // Then compare by Priority
-        return Comparer<int>.Default.Compare(y.Config.Priority, x.Config.Priority);
+        return Comparer<int?>.Default.Compare(y?.Config.Priority, x?.Config.Priority);
     }
 }

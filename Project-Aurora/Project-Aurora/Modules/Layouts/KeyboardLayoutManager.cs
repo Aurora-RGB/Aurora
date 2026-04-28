@@ -280,8 +280,7 @@ public sealed class KeyboardLayoutManager : IDisposable
         double curHeight = 0;
         double widthMax = 1;
         double heightMax = 1;
-        var bitmapMap =
-            new Dictionary<DeviceKeys, BitmapRectangle>(Constants.MaxKeyId, EnumHashGetter.Instance as IEqualityComparer<DeviceKeys>);
+        var bitmapMap = new Dictionary<DeviceKeys, BitmapRectangle>(Constants.MaxKeyId);
 
         foreach (var key in virtualKeyboardGroup.GroupedKeys)
         {

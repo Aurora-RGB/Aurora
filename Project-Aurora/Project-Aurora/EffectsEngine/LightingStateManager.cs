@@ -130,7 +130,9 @@ public sealed class LightingStateManager : IDisposable
 
     private void TimerUpdate()
     {
+        // pause rendering if there is a memory leak
         GC.WaitForPendingFinalizers();
+
         if (Debugger.IsAttached)
         {
             Thread.Sleep(40);
