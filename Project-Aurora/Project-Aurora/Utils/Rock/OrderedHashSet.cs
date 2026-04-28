@@ -16,7 +16,7 @@ namespace AuroraRgb.Utils.Rock;
 /// </remarks>
 [Serializable]
 [DebuggerDisplay("Count = {Count}")]
-public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T : notnull
+public sealed class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T : unmanaged
 {
     // factor used to increase hashset capacity
     private const int GrowthFactor = 2;
@@ -37,25 +37,12 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
     #region Constructors
 
     public OrderedHashSet()
-        : this(EqualityComparer<T>.Default)
+        : this(2)
     {
     }
 
     public OrderedHashSet(int capacity)
-        : this(capacity, EqualityComparer<T>.Default)
     {
-    }
-
-    public OrderedHashSet(IEqualityComparer<T> comparer)
-        : this(2, comparer)
-    {
-    }
-
-    public OrderedHashSet(int capacity, IEqualityComparer<T>? comparer)
-    {
-        comparer ??= EqualityComparer<T>.Default;
-
-        Comparer = comparer;
         _mLastIndex = 0;
         Count = 0;
         _mFreeList = -1;
@@ -77,11 +64,6 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
         }
     }
 
-    public OrderedHashSet(IEnumerable<T> collection)
-        : this(collection, EqualityComparer<T>.Default)
-    {
-    }
-
     /// <summary>
     /// Implementation Notes: 
     /// Since resizes are relatively expensive (require rehashing), this attempts to minimize 
@@ -89,8 +71,8 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
     /// </summary> 
     /// <param name="collection"></param>
     /// <param name="comparer"></param>
-    public OrderedHashSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
-        : this(comparer)
+    public OrderedHashSet(IEnumerable<T> collection)
+         : this()
     {
         // to avoid excess resizes, first set size based on collection's count.
         var suggestedCapacity = 0;
@@ -160,19 +142,17 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
     /// <returns>true if item contained; false if not</returns> 
     public bool Contains(T item)
     {
-        if (_mBuckets.Length == 0)
-        {
-            return false;
-        }
-
         var hashCode = InternalGetHashCode(item);
         // see note at "HashSet" level describing why "- 1" appears in for loop
-        for (var i = _mBuckets[hashCode % _mBuckets.Length] - 1; i >= 0; i = _mSlots[i].Next)
+        for (var i = _mBuckets[hashCode % _mBuckets.Length] - 1; i >= 0;)
         {
-            if (_mSlots[i].HashCode == hashCode && Comparer.Equals(_mSlots[i].Value, item))
+            var slot = _mSlots[i];
+            if (slot.HashCode == hashCode)
             {
                 return true;
             }
+
+            i = slot.Next;
         }
 
         // either m_buckets is null or wasn't found 
@@ -251,7 +231,7 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
         var num = InternalGetHashCode(item);
         for (var i = _mBuckets[num % _mBuckets.Length] - 1; i >= 0; i = _mSlots[i].Next)
         {
-            if (_mSlots[i].HashCode == num && Comparer.Equals(_mSlots[i].Value, item))
+            if (_mSlots[i].HashCode == num)
             {
                 return i;
             }
@@ -272,7 +252,7 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
         var last = -1;
         for (var i = _mBuckets[bucket] - 1; i >= 0; last = i, i = _mSlots[i].Next)
         {
-            if (_mSlots[i].HashCode != hashCode || !Comparer.Equals(_mSlots[i].Value, item)) continue;
+            if (_mSlots[i].HashCode != hashCode) continue;
             if (last < 0)
             {
                 // first iteration; update buckets
@@ -600,12 +580,6 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
         return numRemoved;
     }
 
-    /// <summary> 
-    /// Gets the IEqualityComparer that is used to determine equality of keys for
-    /// the HashSet. 
-    /// </summary>
-    public IEqualityComparer<T> Comparer { get; private set; }
-
     #endregion
 
     #region Helper methods
@@ -664,7 +638,7 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
         var bucket = hashCode % _mBuckets.Length;
         for (var i = _mBuckets[hashCode % _mBuckets.Length] - 1; i >= 0; i = _mSlots[i].Next)
         {
-            if (_mSlots[i].HashCode == hashCode && Comparer.Equals(_mSlots[i].Value, value))
+            if (_mSlots[i].HashCode == hashCode)
             {
                 return false;
             }
@@ -717,13 +691,13 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
     //[MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool AddFast(T value)
     {
-        var hash = Comparer.GetHashCode(value);
+        var hash = InternalGetHashCode(value);
         var bucketIndex = hash % _mBuckets.Length;
 
         // search for existing
         for (var i = _mBuckets[bucketIndex] - 1; i >= 0; i = _mSlots[i].Next)
         {
-            if (_mSlots[i].HashCode == hash && Comparer.Equals(_mSlots[i].Value, value))
+            if (_mSlots[i].HashCode == hash && Equals(_mSlots[i].Value, value))
                 return false;
         }
 
@@ -768,9 +742,9 @@ public class OrderedHashSet<T> : ICollection<T>, IReadOnlyCollection<T> where T 
     /// <param name="item"></param>
     /// <returns>hash code</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private int InternalGetHashCode(T item)
+    private static int InternalGetHashCode(T item)
     {
-        return Comparer.GetHashCode(item);
+        return Unsafe.As<T, int>(ref item);
     }
 
     #endregion
