@@ -6,12 +6,18 @@ namespace AuroraRgb.Nodes;
 [GameStateDescription(Description)]
 public class AudioNode : Node
 {
+    public static AudioNode Instance { get; } = new();
+
     private const string Description = """
                                        Data provided by NAudio
                                        """;
 
     public static PlaybackDeviceNode PlaybackDevice { get; } = new();
     public static RecordingDeviceNode RecordingDevice { get; } = new();
+
+    private AudioNode()
+    {
+    }
 }
 
 public class PlaybackDeviceNode : Node

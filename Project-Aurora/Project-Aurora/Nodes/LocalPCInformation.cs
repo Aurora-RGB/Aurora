@@ -11,6 +11,8 @@ namespace AuroraRgb.Nodes;
 [GameStateDescription(Description)]
 public class LocalPcInformation : Node
 {
+    public static LocalPcInformation Instance { get; } = new();
+
     private const string Description = """
                                        Information is mostly provided by LibreHardwareMonitor
                                        
@@ -39,4 +41,8 @@ public class LocalPcInformation : Node
     public static BatteryNode Battery => _battery ??= new BatteryNode();
 
     public static List<string> NetworkAdapters => HardwareMonitor.NetworkAdapters;
+
+    private LocalPcInformation()
+    {
+    }
 }

@@ -37,7 +37,7 @@ public static class FastMemberExtensions {
 
                 // Otherwise if this is any other object, use FastMember to access the relevant property/field.
                 else
-                    curObj = curObj is IGameState gs ? gs.LazyObjectAccessor.Value[part] : ObjectAccessor.Create(curObj)[part];
+                    curObj = curObj is NewtonsoftGameState gs ? gs.LazyObjectAccessor.Value[part] : ObjectAccessor.Create(curObj)[part];
             }
 
             return curObj; // If we got here, there is a valid object at this path, return it.

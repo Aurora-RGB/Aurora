@@ -6,6 +6,8 @@ namespace AuroraRgb.Nodes;
 
 public class DesktopNode : Node
 {
+    public static DesktopNode Instance { get; } = new();
+
     /// <summary>
     /// Returns whether or not the device dession is in a locked state.
     /// </summary>
@@ -34,7 +36,7 @@ public class DesktopNode : Node
         @"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.settings\\windows.data.bluelightreduction.settings",
         "Data");
 
-    public DesktopNode()
+    private DesktopNode()
     {
         _accentColorWatcher.RegistryChanged += UpdateAccentColor;
         _accentColorWatcher.StartWatching();

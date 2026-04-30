@@ -9,6 +9,8 @@ namespace AuroraRgb.Nodes;
 [GameStateDescription(Description)]
 public class CelestialData : Node
 {
+    public static CelestialData Instance { get; } = new();
+
     private const string Description = """
                                        Provides the solar noon percentage, which indicates how close the sun is to the zenith.
                                        """;
@@ -24,7 +26,7 @@ public class CelestialData : Node
     private Coordinate Coordinate { get; set; } = new(0, 0, El);
     private bool _invalidated = true;
 
-    public CelestialData()
+    private CelestialData()
     {
         Global.SensitiveData.PropertyChanged += (_, propertyChangedEvent) =>
         {

@@ -32,43 +32,30 @@ public interface IGameState {
     TEnum GetEnum<TEnum>(VariablePath path) where TEnum : Enum;
 
     FrozenDictionary<string, Func<IGameState, object?>> PropertyMap { get; }
-
-    [Obsolete("Used for reflection access to NewtonsoftGameState properties")]
-    Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 }
 
 public abstract class GameState : IGameState
 {
-    private static LocalPcInformation? _localPcInfo;
-
     [PublicAPI] // game profiles can still access this
-    public static LocalPcInformation LocalPCInfo => _localPcInfo ??= new LocalPcInformation();
+    public static LocalPcInformation LocalPCInfo => LocalPcInformation.Instance;
 
-    private static AudioNode? _audio;
     [PublicAPI]
-    public static AudioNode Audio => _audio ??= new AudioNode();
+    public static AudioNode Audio => AudioNode.Instance;
     
-    private static DevicesNode? _devices;
     [PublicAPI]
-    public static DevicesNode Devices => _devices ??= new DevicesNode();
+    public static DevicesNode Devices => DevicesNode.Instance;
 
-    private DesktopNode? _desktop;
     [PublicAPI]
-    public DesktopNode Desktop => _desktop ??= new DesktopNode();
+    public static DesktopNode Desktop => DesktopNode.Instance;
 
-    private static MediaNode? _media;
     [PublicAPI]
-    public static MediaNode Media => _media ??= new MediaNode();
+    public static MediaNode Media => MediaNode.Instance;
 
-    private CelestialData? _celestialData;
-    public CelestialData CelestialData => _celestialData ??= new CelestialData();
+    [PublicAPI]
+    public static CelestialData CelestialData => CelestialData.Instance;
     
-    private static ProcessesNode? _processes;
     [PublicAPI]
-    public static ProcessesNode Processes => _processes ??= new ProcessesNode();
-    
-    [GameStateIgnore]
-    public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
+    public static ProcessesNode Processes => ProcessesNode.Instance;
 
     [JsonIgnore]
     [GameStateIgnore]
@@ -79,7 +66,6 @@ public abstract class GameState : IGameState
     /// </summary>
     protected GameState()
     {
-        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
     }
 
     #region GameState path resolution
@@ -132,11 +118,16 @@ public partial class NewtonsoftGameState : GameState
     /// </summary>
     [GameStateIgnore]
     public bool Announce { get; } = true;
+    
+    [GameStateIgnore]
+    [Obsolete("Used for reflection access to NewtonsoftGameState properties")]
+    public Lazy<ObjectAccessor> LazyObjectAccessor { get; }
 
     public NewtonsoftGameState()
     {
         Json = "{}";
         _parsedData = new(() => new JObject());
+        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
     }
 
     public NewtonsoftGameState(string json, bool announce) : this(json)
@@ -151,6 +142,7 @@ public partial class NewtonsoftGameState : GameState
 
         Json = json;
         _parsedData = new(() =>JObject.Parse(json));
+        LazyObjectAccessor = new Lazy<ObjectAccessor>(() => ObjectAccessor.Create(this));
     }
 
     /// <summary>
