@@ -84,8 +84,6 @@ public partial class Control_DefaultKeycapBackglowOnly
         {
             if(!_isImage)
                 KeyBorder.Background = new SolidColorBrush(Color.FromArgb(255, 30, 30, 30));
-            else
-                KeyBorder.Background = new SolidColorBrush(keyColor);
         }
         else
         {

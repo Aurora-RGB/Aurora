@@ -72,16 +72,15 @@ public partial class Control_DefaultKeycapBackglow
 
     protected override void DrawColor(Color keyColor)
     {
-        if (!_isImage)
-        {
-            KeyCap.Foreground = new SolidColorBrush(keyColor);
-            GridBackglow.Background = new SolidColorBrush(keyColor);
-        }
-        else
+        if (_isImage)
         {
             if (AssociatedKey != DeviceKeys.NONE)
                 SetGlowColor(keyColor);
+            return;
         }
+
+        KeyCap.Foreground = new SolidColorBrush(keyColor);
+        GridBackglow.Background = new SolidColorBrush(keyColor);
 
         if (KeyBorder.IsEnabled)
         {
