@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NAudio.CoreAudioApi;
@@ -35,6 +34,10 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
             catch (OperationCanceledException)
             {
                 return;
+            }
+            catch (Exception e)
+            {
+                Global.logger.Error(e, "Unexpected error in NAudio thread");
             }
         }
     })
@@ -306,7 +309,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
         DeviceChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    [MethodImpl(MethodImplOptions.Synchronized)]
     public void OnDeviceStateChanged(string deviceId, DeviceState newState)
     {
         if (DeviceId != deviceId)
@@ -339,7 +341,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
         }
     }
 
-    [MethodImpl(MethodImplOptions.Synchronized)]
     public void OnDeviceAdded(string pwstrDeviceId)
     {
         if (pwstrDeviceId != DeviceId) return;
@@ -347,7 +348,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
         SetDevice(mmDevice);
     }
 
-    [MethodImpl(MethodImplOptions.Synchronized)]
     public void OnDeviceRemoved(string deviceId)
     {
         if (Device?.ID == deviceId && Device?.State != DeviceState.Active)
@@ -359,7 +359,6 @@ public sealed class AudioDeviceProxy : IDisposable, IMMNotificationClient
     /// <summary>
     /// Update the device when changed by the system.
     /// </summary>
-    [MethodImpl(MethodImplOptions.Synchronized)]
     public void OnDefaultDeviceChanged(DataFlow flow, Role role, string? defaultDeviceId)
     {
         if (Flow != flow || !AudioDevices.DefaultDeviceId.Equals(DeviceId)) return;
