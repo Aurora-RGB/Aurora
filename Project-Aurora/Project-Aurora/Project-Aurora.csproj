@@ -84,9 +84,9 @@
         <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.3.9" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
         <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3" />
-        <PackageReference Include="NAudio.Core" Version="2.2.1" />
+        <PackageReference Include="NAudio.Core" Version="2.3.0" />
         <PackageReference Include="NAudio.Wasapi" Version="22.0.0" />
-        <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
+        <PackageReference Include="NAudio.WinMM" Version="2.3.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
         <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
         <PackageReference Include="obs-websocket-dotnet" Version="5.0.1" />
