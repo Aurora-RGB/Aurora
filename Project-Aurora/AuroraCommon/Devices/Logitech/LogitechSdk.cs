@@ -4,12 +4,17 @@ using Common.Utils;
 
 namespace Common.Devices.Logitech;
 
-public sealed class LogitechGhubSdk : ILogitechGsdk
+public sealed class LogitechSdk
 {
+    private const int LogiLedBitmapWidth = 21;
+    private const int LogiLedBitmapHeight = 6;
+    private const int LogiLedBitmapBytesPerKey = 4;
 
-    public bool LogiLedInit()
+    public const int LOGI_LED_BITMAP_SIZE = LogiLedBitmapWidth * LogiLedBitmapHeight * LogiLedBitmapBytesPerKey;
+
+    public bool LogiLedInitWithName(string name)
     {
-        return GhubImports.LogiLedInit();
+        return GhubImports.LogiLedInitWithName(name);
     }
 
     public bool LogiLedSetTargetDevice(LogiLedType deviceType)
@@ -23,7 +28,12 @@ public sealed class LogitechGhubSdk : ILogitechGsdk
         return GhubImports.LogiLedSetLighting(r, g, b);
     }
 
-    public bool LogiLedSetLightingFromBitmap(byte[] bitmap)
+    public bool LogiLedExcludeKeysFromBitmap(in KeyboardNames[] names)
+    {
+        return GhubImports.LogiLedExcludeKeysFromBitmap(names, names.Length);
+    }
+
+    public bool LogiLedSetLightingFromBitmap(in byte[] bitmap)
     {
         return GhubImports.LogiLedSetLightingFromBitmap(bitmap);
     }
@@ -66,12 +76,12 @@ public sealed class LogitechGhubSdk : ILogitechGsdk
 
 internal static partial class GhubImports
 {
-    private const string Dllpath = @"Logi\GHUB\LogitechLed.dll";
+    private const string Dllpath = @"x64\LogitechLedEnginesWrapper.dll";
 
-    [LibraryImport(Dllpath)]
+    [LibraryImport(Dllpath, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool LogiLedInit();
+    public static partial bool LogiLedInitWithName(string name);
 
     [LibraryImport(Dllpath)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
@@ -92,6 +102,11 @@ internal static partial class GhubImports
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool LogiLedRestoreLighting();
+
+    [LibraryImport(Dllpath)]
+    [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool LogiLedExcludeKeysFromBitmap(in KeyboardNames[] names, int length); 
 
     [LibraryImport(Dllpath)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

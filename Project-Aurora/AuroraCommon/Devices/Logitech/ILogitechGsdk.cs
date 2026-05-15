@@ -130,43 +130,10 @@ public enum DeviceType
 }
 
 
-
 public enum LogiLedType
 {
-    Monochrome = ILogitechGsdk.LOGI_DEVICETYPE_MONOCHROME,
-    Rgb = ILogitechGsdk.LOGI_DEVICETYPE_RGB,
-    PerKeyRgb = ILogitechGsdk.LOGI_DEVICETYPE_PERKEY_RGB,
-    All = ILogitechGsdk.LOGI_DEVICETYPE_MONOCHROME | ILogitechGsdk.LOGI_DEVICETYPE_RGB | ILogitechGsdk.LOGI_DEVICETYPE_PERKEY_RGB,
-}
-
-public enum LGDLL
-{
-    LGS,
-    GHUB
-}
-
-public interface ILogitechGsdk
-{
-    public const int  LOGI_DEVICETYPE_MONOCHROME_ORD  = 0;
-    public const int  LOGI_DEVICETYPE_RGB_ORD       =   1;
-    public const int  LOGI_DEVICETYPE_PERKEY_RGB_ORD =  2;
-    public const int  LOGI_DEVICETYPE_MONOCHROME  = 1 << LOGI_DEVICETYPE_MONOCHROME_ORD;
-    public const int  LOGI_DEVICETYPE_RGB  =        1 << LOGI_DEVICETYPE_RGB_ORD;
-    public const int  LOGI_DEVICETYPE_PERKEY_RGB =  1 << LOGI_DEVICETYPE_PERKEY_RGB_ORD;
-
-    public const int LOGI_LED_BITMAP_WIDTH = 21;
-    public const int LOGI_LED_BITMAP_HEIGHT = 6;
-    public const int LOGI_LED_BITMAP_BYTES_PER_KEY = 4;
-
-    public const int LOGI_LED_BITMAP_SIZE = LOGI_LED_BITMAP_WIDTH * LOGI_LED_BITMAP_HEIGHT * LOGI_LED_BITMAP_BYTES_PER_KEY;
-
-    bool LogiLedInit();
-    bool LogiLedSetTargetDevice(LogiLedType deviceType);
-    bool LogiLedSetLighting(SimpleColor color);
-    bool LogiLedSetLightingFromBitmap(byte[] bitmap);
-    bool LogiLedSetLightingForKeyWithKeyName(KeyboardNames keyCode, SimpleColor color);
-    bool LogiLedSetLightingForTargetZone(DeviceType deviceType, int zone, SimpleColor color);
-    void LogiLedShutdown();
-    bool LogiLedSaveCurrentLighting();
-    bool LogiLedRestoreLighting();
+    Monochrome = 1 << 0,
+    Rgb = 1 << 1,
+    PerKeyRgb = 1 << 2,
+    All = Monochrome | Rgb | PerKeyRgb,
 }
