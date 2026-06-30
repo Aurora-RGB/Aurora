@@ -12,6 +12,8 @@ public static class DeviceCommands
     public const string Unmap = "unmap";
     public const string Share = "share";
     public const string Recalibrate = "recalibrate";
+    public const string CalibrationPreview = "calibrationPreview";
+    public const string CalibrationEnd = "calibrationEnd";
 
     // Aurora Interface
     public const string RemappableDevices = "remappableDevices";

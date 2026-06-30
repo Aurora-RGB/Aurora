@@ -33,8 +33,7 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
     private static void UpdateReverse(Dictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
-        var calibrationName = CalibrationName(device);
-        var calibrated = Global.DeviceConfig.DeviceCalibrations.TryGetValue(calibrationName, out var calibration);
+        var lookup = GetLookup(device);
         foreach (var key in keyColors.Keys)
         {
             ref var color = ref CollectionsMarshal.GetValueRefOrNullRef(keyColors, key);
@@ -56,9 +55,9 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
             if (led == null)
                 continue;
 
-            if (calibrated)
+            if (lookup != null)
             {
-                UpdateLedCalibrated(led, in color, calibration);
+                UpdateLedCalibrated(led, in color, lookup);
             }
             else
             {
@@ -81,9 +80,8 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
 
     private void UpdateStraight(Dictionary<DeviceKeys, SimpleColor> keyColors, IRGBDevice device)
     {
-        var calibrationName = CalibrationName(device);
         deviceKeyRemap.TryGetValue(device, out var keyRemap);
-        var calibrated = Global.DeviceConfig.DeviceCalibrations.TryGetValue(calibrationName, out var calibration);
+        var lookup = GetLookup(device);
         foreach (var led in device)
         {
             if (!(keyRemap != null &&
@@ -91,9 +89,9 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
                 !RgbNetKeyMappings.KeyNames.TryGetValue(led.Id, out dk)) continue;
             if (!keyColors.TryGetValue(dk, out var color)) continue;
 
-            if (calibrated)
+            if (lookup != null)
             {
-                UpdateLedCalibrated(led, in color, calibration);
+                UpdateLedCalibrated(led, in color, lookup);
             }
             else
             {
@@ -112,19 +110,22 @@ public class RgbNetDeviceUpdater(ConcurrentDictionary<IRGBDevice, Dictionary<Led
         );
     }
 
-    private static void UpdateLedCalibrated(Led led, in SimpleColor color, SimpleColor calibration)
+    private static void UpdateLedCalibrated(Led led, in SimpleColor color, CalibrationLookup lookup)
     {
-        led.Color = new Color(
-            (byte)(color.A * calibration.A / 255),
-            (byte)(color.R * calibration.R / 255),
-            (byte)(color.G * calibration.G / 255),
-            (byte)(color.B * calibration.B / 255)
-        );
+        var c = lookup.Apply(color);
+        led.Color = new Color(c.A, c.R, c.G, c.B);
     }
 
-    private static string CalibrationName(IRGBDevice device)
+    private static CalibrationLookup? GetLookup(IRGBDevice device)
     {
-        return device.DeviceInfo.DeviceName;
+        var calibrationName = device.DeviceInfo.DeviceName;
+        if (!Global.DeviceConfig.DeviceColorCalibrations.TryGetValue(calibrationName, out var calibration) ||
+            calibration.IsIdentity)
+        {
+            return null;
+        }
+
+        return calibration.GetLookup();
     }
 
 }
