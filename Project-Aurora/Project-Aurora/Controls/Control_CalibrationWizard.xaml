@@ -1,0 +1,105 @@
+<Window x:Class="AuroraRgb.Controls.Control_CalibrationWizard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Closing="Window_OnClosing"
+        Title="Assisted Calibration" Height="470" Width="560">
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Setup -->
+        <StackPanel Grid.Row="0" Name="SetupPanel">
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,10"
+                       Text="Pick a reference device (the look you want) and a target device to match to it. Targets can only be dimmed, so choose your weakest/dimmest device as the reference." />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Reference" VerticalAlignment="Center" Margin="0,4" />
+                <ComboBox Grid.Row="0" Grid.Column="1" Name="ReferenceCombo" Margin="0,4" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Target" VerticalAlignment="Center" Margin="0,4" />
+                <ComboBox Grid.Row="1" Grid.Column="1" Name="TargetCombo" Margin="0,4" />
+            </Grid>
+            <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Opacity="0.8"
+                       Text="The wizard has two stages: (1) match the brightness of each channel, then (2) match the tonality of mixed colors (white + primaries + secondaries). A 3x3 color matrix is fitted from stage 2 so mixed colors match too." />
+            <TextBlock Name="SetupError" Foreground="#FFE57373" Margin="0,6,0,0" Visibility="Collapsed" />
+        </StackPanel>
+
+        <!-- Stage 1: per-channel brightness -->
+        <StackPanel Grid.Row="1" Name="Phase1Panel" Visibility="Collapsed" VerticalAlignment="Center">
+            <TextBlock Name="Phase1Step" FontWeight="Bold" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,4" />
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,16"
+                       Text="Stage 1 — brightness. Drag until the TARGET's brightness for this channel matches the REFERENCE, then press Next." />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="55" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="Target output" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <Slider Grid.Column="1" Name="OutputSlider" Minimum="0" Maximum="255" VerticalAlignment="Center"
+                        ValueChanged="OutputSlider_OnValueChanged" />
+                <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Text="{Binding ElementName=OutputSlider, Path=Value, StringFormat={}{0:F0}}" />
+            </Grid>
+        </StackPanel>
+
+        <!-- Stage 2: mixed-color tonality -->
+        <StackPanel Grid.Row="1" Name="Phase2Panel" Visibility="Collapsed" VerticalAlignment="Center">
+            <TextBlock Name="Phase2Step" FontWeight="Bold" FontSize="14" TextWrapping="Wrap" Margin="0,0,0,4" />
+            <TextBlock TextWrapping="Wrap" Margin="0,0,0,16"
+                       Text="Stage 2 — tonality. Tweak the TARGET's red/green/blue until the color's TONE matches the REFERENCE (not just brightness), then press Next." />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="45" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Red" Foreground="#FFE57373" VerticalAlignment="Center" />
+                <Slider Grid.Row="0" Grid.Column="1" Name="RedSlider" Minimum="0" Maximum="255" VerticalAlignment="Center"
+                        ValueChanged="RgbSlider_OnValueChanged" />
+                <TextBlock Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Text="{Binding ElementName=RedSlider, Path=Value, StringFormat={}{0:F0}}" />
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Green" Foreground="#FF81C784" VerticalAlignment="Center" />
+                <Slider Grid.Row="1" Grid.Column="1" Name="GreenSlider" Minimum="0" Maximum="255" VerticalAlignment="Center"
+                        ValueChanged="RgbSlider_OnValueChanged" />
+                <TextBlock Grid.Row="1" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Text="{Binding ElementName=GreenSlider, Path=Value, StringFormat={}{0:F0}}" />
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Blue" Foreground="#FF64B5F6" VerticalAlignment="Center" />
+                <Slider Grid.Row="2" Grid.Column="1" Name="BlueSlider" Minimum="0" Maximum="255" VerticalAlignment="Center"
+                        ValueChanged="RgbSlider_OnValueChanged" />
+                <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center"
+                           Text="{Binding ElementName=BlueSlider, Path=Value, StringFormat={}{0:F0}}" />
+            </Grid>
+            <DockPanel Name="AddColorPanel" Margin="0,16,0,0" Visibility="Collapsed" LastChildFill="False">
+                <TextBlock Text="Add a color to fix (R,G,B):" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBox Name="CustomColorBox" Width="110" VerticalAlignment="Center" />
+                <Button Content="Add" Width="60" Margin="8,0,0,0" Click="AddColor_OnClick" />
+            </DockPanel>
+        </StackPanel>
+
+        <!-- Buttons -->
+        <DockPanel Grid.Row="2" LastChildFill="False" Margin="0,12,0,0">
+            <Button DockPanel.Dock="Left" Name="CancelButton" Content="Cancel" Width="90" Height="28" Click="CancelButton_OnClick" />
+            <Button DockPanel.Dock="Right" Name="NextButton" Content="Start" Width="90" Height="28" Margin="6,0,0,0" Click="NextButton_OnClick" />
+            <Button DockPanel.Dock="Right" Name="BackButton" Content="Back" Width="90" Height="28" Visibility="Collapsed" Click="BackButton_OnClick" />
+        </DockPanel>
+    </Grid>
+</Window>

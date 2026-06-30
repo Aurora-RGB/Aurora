@@ -10,7 +10,16 @@
         Loaded="Control_DeviceCalibration_OnLoaded"
         Title="Device Calibrations" Height="800" Width="800">
 
-    <ScrollViewer PanningMode="VerticalOnly">
-        <StackPanel Orientation="Vertical" Name="DeviceList" />
-    </ScrollViewer>
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top" Margin="8,8,8,4" LastChildFill="False">
+            <Button DockPanel.Dock="Right" Name="WizardButton" Content="Assisted Calibration…"
+                    Height="28" Padding="10,0" Click="WizardButton_OnClick"
+                    ToolTip="Guided wizard to match a device to a reference device across the whole color range" />
+            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap"
+                       Text="Adjust sliders to fine-tune, or use Assisted Calibration to match devices step by step." />
+        </DockPanel>
+        <ScrollViewer PanningMode="VerticalOnly">
+            <StackPanel Orientation="Vertical" Name="DeviceList" />
+        </ScrollViewer>
+    </DockPanel>
 </fluentWpf:AcrylicWindow>

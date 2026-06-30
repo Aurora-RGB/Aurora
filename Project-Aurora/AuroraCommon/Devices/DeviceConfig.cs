@@ -16,7 +16,15 @@ public sealed partial class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
+    /// <summary>
+    /// Legacy multiplicative calibration kept only for migration into <see cref="DeviceColorCalibrations"/>.
+    /// </summary>
     public Dictionary<string, SimpleColor> DeviceCalibrations { get; set; } = new();
+
+    /// <summary>
+    /// Per-device color calibration keyed by device name.
+    /// </summary>
+    public Dictionary<string, DeviceCalibration> DeviceColorCalibrations { get; set; } = new();
 
     [JsonPropertyName("allow_peripheral_devices")]
     public bool AllowPeripheralDevices { get; set; } = true;
@@ -95,12 +103,23 @@ public sealed partial class DeviceConfig : INotifyPropertyChanged, IAuroraConfig
     {
         _enabledControllers ??= new ObservableCollection<string>(DefaultEnabledControllers);
 
+        MigrateCalibrations();
         MigrateDevices();
 
         PrioritizeDevice("Logitech (RGB.NET)", "Logitech");
 
         EnabledControllers.CollectionChanged += (_, _) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(EnabledControllers)));
+    }
+
+    private void MigrateCalibrations()
+    {
+        foreach (var (deviceName, color) in DeviceCalibrations)
+        {
+            DeviceColorCalibrations.TryAdd(deviceName, DeviceCalibration.FromLegacy(color));
+        }
+
+        DeviceCalibrations.Clear();
     }
 
     private void MigrateDevices()

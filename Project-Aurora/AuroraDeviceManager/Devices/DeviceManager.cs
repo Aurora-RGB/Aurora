@@ -158,6 +158,38 @@ public sealed class DeviceManager : IDisposable
     private CancellationTokenSource? _tokenSource;
     private const int BlinkCount = 7;
 
+    /// <summary>
+    /// Drives an RGB.NET device to a solid raw color (bypassing normal rendering and calibration)
+    /// so the assisted calibration wizard can show a test color. Held until the next preview or
+    /// <see cref="EndCalibration"/>.
+    /// </summary>
+    public void PreviewDeviceColor(string deviceId, SimpleColor color)
+    {
+        foreach (var auroraDevice in InitializedDeviceContainers.Select(container => container.Device).OfType<RgbNetDevice>())
+        {
+            foreach (var rgbNetDevice in auroraDevice.DeviceList.Where(rgbDevice => rgbDevice.DeviceInfo.DeviceName == deviceId))
+            {
+                auroraDevice.Disabled = true;
+                var rgbColor = new RgbNetColor(color.A, color.R, color.G, color.B);
+                foreach (var led in rgbNetDevice)
+                {
+                    led.Color = rgbColor;
+                }
+
+                rgbNetDevice.Update(true);
+            }
+        }
+    }
+
+    /// <summary>Re-enables normal rendering on all devices after an assisted calibration session.</summary>
+    public void EndCalibration()
+    {
+        foreach (var auroraDevice in InitializedDeviceContainers.Select(container => container.Device).OfType<RgbNetDevice>())
+        {
+            auroraDevice.Disabled = false;
+        }
+    }
+
     public void BlinkDevice(string deviceId, LedId led)
     {
         foreach (var auroraDevice in InitializedDeviceContainers.Select(container => container.Device).OfType<RgbNetDevice>())
@@ -221,18 +253,29 @@ public sealed class DeviceManager : IDisposable
     public async Task ShareRemappableDevices()
     {
         Global.Logger.Information("Updating CurrentDevices.json");
-        var rgbNetControllers = InitializedDeviceContainers.Select(dc => dc.Device).OfType<RgbNetDevice>();
+        var initializedDevices = InitializedDeviceContainers.Select(dc => dc.Device).ToList();
+        var rgbNetControllers = initializedDevices.OfType<RgbNetDevice>();
 
         var remappableDevices = (
             from rgbNetController in rgbNetControllers
             from device in rgbNetController.DeviceList
             let deviceId = device.DeviceInfo.DeviceName
             let isEnabled = !Global.DeviceConfig.DisabledControllerDevices.Contains(deviceId)
-            let calibration = Global.DeviceConfig.DeviceCalibrations.GetValueOrDefault(deviceId, SimpleColor.White)
+            let calibration = Global.DeviceConfig.DeviceColorCalibrations.GetValueOrDefault(deviceId, DeviceCalibration.Identity)
             let deviceSummary = $"{rgbNetController.DeviceName}: [{device.DeviceInfo.DeviceType}] {deviceId}"
             let rgbNetLeds = device.Select(l => l.Id).ToList()
             select new RemappableDevice(isEnabled, deviceId, deviceSummary, rgbNetLeds, calibration, !rgbNetController.NeedsLayout())
         ).ToList();
+
+        // Non-RGB.NET devices have no remappable leds but can still be calibrated.
+        var calibratableDevices =
+            from device in initializedDevices
+            where device is not RgbNetDevice
+            let deviceId = device.DeviceName
+            let calibration = Global.DeviceConfig.DeviceColorCalibrations.GetValueOrDefault(deviceId, DeviceCalibration.Identity)
+            select new RemappableDevice(true, deviceId, deviceId, [], calibration, false);
+
+        remappableDevices.AddRange(calibratableDevices);
 
         var currentDevices = new CurrentDevices(remappableDevices);
 
