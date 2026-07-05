@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.Numerics;
 using System.Windows.Controls;
 using AuroraRgb.EffectsEngine;
 using AuroraRgb.Modules.Razer;
@@ -59,6 +61,15 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
         set => _hueShift = value;
     }
 
+    private bool? _smoothingEnabled;
+    [JsonProperty("_SmoothingEnabled")]
+    [LogicOverridable("Enable Smoothing")]
+    public bool SmoothingEnabled
+    {
+        get => Logic?._smoothingEnabled ?? _smoothingEnabled ?? true;
+        set => _smoothingEnabled = value;
+    }
+
     private Dictionary<DeviceKeys, DeviceKeys> _keyCloneMap = new();
     [JsonProperty("_KeyCloneMap")]
     public Dictionary<DeviceKeys, DeviceKeys> KeyCloneMap
@@ -75,6 +86,7 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
         _brightnessChange = 0;
         _saturationChange = 0;
         _hueShift = 0;
+        _smoothingEnabled = true;
         _keyCloneMap = new Dictionary<DeviceKeys, DeviceKeys>();
     }
 }
@@ -91,29 +103,64 @@ public class RazerLayerHandler() : LayerHandler<RazerLayerHandlerProperties>("Ch
 
     private static readonly DeviceKeys[] DeviceKeysArray = Enum.GetValues<DeviceKeys>();
 
+    // The Chroma service writes the emulator buffers at ~10 Hz with occasional multi-frame
+    // gaps, so raw values step visibly. Each key eases toward the newest service colour per
+    // render tick, turning those steps into fades.
+    private const double SmoothingTau = 0.10;
+
+    private readonly Dictionary<DeviceKeys, Vector4> _smoothed = new();
+    private long _lastRenderTimestamp;
+
     public override EffectLayer Render(IGameState gameState)
     {
         if (!RzHelper.IsCurrentAppValid())
         {
+            _smoothed.Clear();
+            _lastRenderTimestamp = 0;
             return EmptyLayer.Instance;
         }
-        if (RzHelper.IsStale(this))
-            return EffectLayer;
+
+        var now = Stopwatch.GetTimestamp();
+        var dt = _lastRenderTimestamp == 0 ? SmoothingTau : (now - _lastRenderTimestamp) / (double)Stopwatch.Frequency;
+        _lastRenderTimestamp = now;
+        var alpha = Properties.SmoothingEnabled ? (float)(1 - Math.Exp(-dt / SmoothingTau)) : 1f;
 
         foreach (var key in DeviceKeysArray)
         {
             if (!TryGetColor(key, out var color))
                 continue;
-                
+
+            color = Smooth(key, color, alpha);
             EffectLayer.Set(key, in color);
         }
 
         foreach (var target in Properties.KeyCloneMap)
-            if(TryGetColor(target.Value, out var clr))
-                EffectLayer.Set(target.Key, in clr);
+        {
+            if (!_smoothed.TryGetValue(target.Value, out var source))
+                continue;
+            var color = ToColor(source);
+            EffectLayer.Set(target.Key, in color);
+        }
 
         return EffectLayer;
     }
+
+    private Color Smooth(DeviceKeys key, Color target, float alpha)
+    {
+        var targetVector = new Vector4(target.A, target.R, target.G, target.B);
+        if (alpha >= 1f || !_smoothed.TryGetValue(key, out var current))
+        {
+            _smoothed[key] = targetVector;
+            return target;
+        }
+
+        current += (targetVector - current) * alpha;
+        _smoothed[key] = current;
+        return ToColor(current);
+    }
+
+    private static Color ToColor(Vector4 argb) => Color.FromArgb(
+        (int)Math.Round(argb.X), (int)Math.Round(argb.Y), (int)Math.Round(argb.Z), (int)Math.Round(argb.W));
 
     private bool TryGetColor(DeviceKeys key, out Color color)
     {
