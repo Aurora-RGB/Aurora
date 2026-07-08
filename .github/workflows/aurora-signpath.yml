@@ -1,0 +1,173 @@
+name: Aurora CD
+
+on:
+  push:
+    branches: [ signpath ]
+
+env:
+  Configuration: Release
+
+jobs:
+  build:
+
+    runs-on: windows-latest  # For a list of available runner types, refer to
+    # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+
+    env:
+      Solution_Name: Project-Aurora/Project-Aurora.sln
+
+    steps:
+      - uses: rishabhgupta/split-by@v1
+        id: split
+        with:
+          string: ${{github.repository}}
+          split-by: '/'
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: true
+        
+        # Install the .NET Core workload
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: 10.0.x
+        
+        # Restore the application to populate the obj folder with RuntimeIdentifiers
+      - name: Restore the application
+        run: dotnet restore $env:Solution_Name
+
+      - name: Generate build number
+        id: buildnumber
+        shell: bash
+        run: |
+          echo "build_number=$(date -u +'%Y%m%d')" >> "$GITHUB_OUTPUT"
+
+      - name: Build
+        run: dotnet build $env:Solution_Name --configuration $env:Configuration --no-restore
+        env:
+          APPVEYOR_BUILD_VERSION: v${{steps.buildnumber.outputs.build_number}}
+          OWNER: ${{ steps.split.outputs._0 }}
+          REPOSITORY: ${{ steps.split.outputs._1 }}
+
+      - name: Create SignPath artifact
+        shell: pwsh
+        run: |
+          $publish = "Build\Release\win10-x64\"
+          $staging = "signpathstage"
+
+          Remove-Item $staging -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $staging | Out-Null
+          New-Item -ItemType Directory -Path "$staging/AuroraDeviceManager" | Out-Null
+
+          # Root files
+          @(
+            "Aurora-Updater.dll"
+            "Aurora-Updater.exe"
+            "Aurora.dll"
+            "Aurora.exe"
+            "AuroraCommon.dll"
+            "AuroraRgb.dll"
+            "AuroraRgb.exe"
+            "ColorBox.dll"
+            "iCUE-ReverseEngineer.dll"
+            "PluginCompiler.dll"
+            "PluginCompiler.exe"
+            "RazerSdkReader.dll"
+            "RGB.NET.Core.dll"
+            "Witcher3Gsi.dll"
+          ) | ForEach-Object {
+            Copy-Item "$publish/$_" "$staging/" -Force
+          }
+
+          # AuroraDeviceManager files
+          @(
+            "AuroraCommon.dll"
+            "AuroraDeviceManager.dll"
+            "AuroraDeviceManager.exe"
+            "Bloody.NET.dll"
+            "OpenRGB.NET.dll"
+            "RGB.NET.Core.dll"
+            "RGB.NET.Devices.Corsair.dll"
+            "RGB.NET.Devices.OpenRGB.dll"
+            "RGB.NET.YeeLightStates.dll"
+          ) | ForEach-Object {
+            Copy-Item "$publish/AuroraDeviceManager/$_" "$staging/AuroraDeviceManager/" -Force
+          }
+
+        # required for the artifact to be available on the GitHub server
+      - name: upload unsigned artifact
+        id: upload-unsigned-artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: signpathstage
+          name: 'SignPath-stage'
+
+      - name: Sign build
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORG_ID }}'
+          project-slug: '${{ vars.SIGNPATH_PROJ_SLUG }}'
+          signing-policy-slug: '${{ vars.SIGNPATH_POLICY_SLUG }}'
+          github-artifact-id: '${{ steps.upload-unsigned-artifact.outputs.artifact-id }}'
+          wait-for-completion: true
+          output-artifact-directory: './SignPath'
+
+      # Copy signed artifact from SignPath output to Build\Release\win10-x64\
+      - name: Copy signed artifact
+        shell: pwsh
+        run: |
+          $destination = "Build\Release\win10-x64"
+          $source = "SignPath"
+
+          Copy-Item "$source\*" $destination -Recurse -Force
+
+      # Create the app package by building and packaging the Windows Application Packaging project
+      - name: Building the installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        with:
+          path: Installer\installer.iss
+          options: /DEXTERNAL_VERSION=${{steps.buildnumber.outputs.build_number}}
+
+        # required for the artifact to be available on the GitHub server
+      - name: Upload unsigned installer
+        id: upload-unsigned-installer-artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: Aurora-setup-v${{steps.buildnumber.outputs.build_number}}.exe
+          name: Aurora-setup-v${{steps.buildnumber.outputs.build_number}}.exe
+          archive: false
+
+      # Sign installer
+      - name: Sign build
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: '${{ secrets.SIGNPATH_API_TOKEN }}'
+          organization-id: '${{ vars.SIGNPATH_ORG_ID }}'
+          project-slug: '${{ vars.SIGNPATH_PROJ_SLUG }}'
+          signing-policy-slug: '${{ vars.SIGNPATH_POLICY_SLUG }}'
+          github-artifact-id: '${{ steps.upload-unsigned-installer-artifact.outputs.artifact-id }}'
+          artifact-configuration-slug: 'installer_sign'
+          wait-for-completion: true
+          skip-decompress: true
+          output-artifact-directory: './'
+
+      - name: Archive Build
+        shell: pwsh
+        run: |
+          Compress-Archive .\Build\Release\win10-x64\* Aurora-v${{steps.buildnumber.outputs.build_number}}.zip
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          files: |
+            Aurora-setup-v${{steps.buildnumber.outputs.build_number}}.exe
+            Aurora-v${{steps.buildnumber.outputs.build_number}}.zip
+            SignPath\SignPath-stage.zip
+          tag_name: v${{steps.buildnumber.outputs.build_number}}
+          allow_override: true
