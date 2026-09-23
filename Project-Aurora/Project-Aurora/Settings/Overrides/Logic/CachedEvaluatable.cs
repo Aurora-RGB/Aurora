@@ -7,6 +7,12 @@ public abstract class CachedEvaluatable<T> : Evaluatable<T> where T : IEquatable
 {
     private T _lastValue;
 
+    public override object LastValue
+    {
+        get => _lastValue;
+        protected set => _lastValue = (T)value;
+    }
+
     protected override bool IsInvalidatedChild(IGameState gameState) => UpdateState(gameState);
 
     protected override T Execute(IGameState gameState)

@@ -12,7 +12,7 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 public interface IEvaluatable {
     /// <summary>The most recent value that was output from the evaluatable.</summary>
     object LastValue { get; }
-
+    
     long LastQuery { get; }
     
     bool EvaluateBool(IGameState gameState);
@@ -29,6 +29,7 @@ public interface IEvaluatable {
 public abstract partial class Evaluatable<T> : IEvaluatable, INotifyPropertyChanged {
     protected bool FieldsInvalidated { get; private set; } = true;
 
+    [Newtonsoft.Json.JsonIgnore]
     public long LastQuery { get; protected set; }
 
     /// <summary>The most recent value that was output from the evaluatable.</summary>

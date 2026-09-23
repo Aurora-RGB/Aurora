@@ -25,8 +25,7 @@ public class Number_Variable : DoubleCachedEvaluatable
     protected override double Calculate(IGameState gameState)
     {
         var key = VariableName.Evaluate(gameState);
-        var defaultValue = DefaultValue.EvaluateDouble(gameState);
-        return AuroraVariables.Instance.Numbers.GetValueOrDefault(key, defaultValue);
+        return AuroraVariables.Instance.Numbers.TryGetValue(key, out var val) ? val : DefaultValue.EvaluateDouble(gameState);
     }
 
     public override Visual GetControl()

@@ -100,6 +100,12 @@ public class IfElseNumeric : IfElseGeneric<double>
 {
     private double _lastValue;
 
+    public override object LastValue
+    {
+        get => _lastValue;
+        protected set  => _lastValue = (double)value;
+    }
+
     /// <summary>Creates a new If-Else evaluatable with default evaluatables.</summary>
     public IfElseNumeric()
     {

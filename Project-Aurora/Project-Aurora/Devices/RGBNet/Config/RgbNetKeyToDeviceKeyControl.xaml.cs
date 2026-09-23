@@ -60,9 +60,15 @@ public partial class RgbNetKeyToDeviceKeyControl
         BlinkCallback?.Invoke();
     }
 
-    private void Clear(object? sender, RoutedEventArgs e)
+    private void Reset(object? sender, RoutedEventArgs e)
     {
         DeviceKeyChanged?.Invoke(this, null);
+        UpdateMappedLedId();
+    }
+
+    private void Clear(object? sender, RoutedEventArgs e)
+    {
+        DeviceKeyChanged?.Invoke(this, DeviceKeys.NONE);
         UpdateMappedLedId();
     }
 

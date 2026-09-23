@@ -106,6 +106,9 @@ public sealed class DeviceManager : IDisposable
             FileName = Path.Combine(DeviceManagerFolder, DeviceManagerExe),
             WorkingDirectory = DeviceManagerFolder,
             ErrorDialog = true,
+            RedirectStandardError = false,
+            RedirectStandardOutput = false,
+            RedirectStandardInput = false,
         };
         _process = Process.Start(updaterProc);
         _process?.WaitForExitAsync().ContinueWith(DeviceManagerClosed);

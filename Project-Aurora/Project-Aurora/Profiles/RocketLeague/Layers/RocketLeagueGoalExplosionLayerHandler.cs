@@ -79,7 +79,7 @@ public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeague
         if (gameState is not GameStateRocketLeague state)
             return EmptyLayer.Instance;
 
-        if (state.Game.Status == RLStatus.Undefined)
+        if (state.GameStatus == RlStatus.Undefined || state.YourTeam is null || state.OpponentTeam is null)
             return EmptyLayer.Instance;
 
         if (state.YourTeam.Goals == -1 || state.OpponentTeam.Goals == -1 || _previousOwnTeamGoals > state.YourTeam.Goals || _previousOpponentGoals > state.OpponentTeam.Goals)
@@ -92,9 +92,9 @@ public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeague
         if (state.YourTeam.Goals > _previousOwnTeamGoals)//keep track of goals even if we dont play the animation
         {
             _previousOwnTeamGoals = state.YourTeam.Goals;
-            if (Properties.ShowFriendlyGoalExplosion && state.ColorsValid())
+            if (Properties.ShowFriendlyGoalExplosion)
             {
-                var playerColor = state.YourTeam.TeamColor;
+                var playerColor = state.YourTeam.ColorSecondary;
                 SetTracks(playerColor);
                 goalExplosionMix.Clear();
                 _showAnimationExplosion = true;
@@ -104,9 +104,9 @@ public class RocketLeagueGoalExplosionLayerHandler() : LayerHandler<RocketLeague
         if(state.OpponentTeam.Goals > _previousOpponentGoals)
         {
             _previousOpponentGoals = state.OpponentTeam.Goals;
-            if (Properties.ShowEnemyGoalExplosion && state.ColorsValid())
+            if (Properties.ShowEnemyGoalExplosion)
             {
-                var opponentColor = state.OpponentTeam.TeamColor;
+                var opponentColor = state.OpponentTeam.ColorSecondary;
                 SetTracks(opponentColor);
                 goalExplosionMix.Clear();
                 _showAnimationExplosion = true;

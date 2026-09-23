@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AuroraRgb.Modules.OnlineConfigs.Model;
+using AuroraRgb.Utils;
 using AuroraRgb.Utils.Json;
 
 namespace AuroraRgb.Modules.OnlineConfigs;
@@ -87,7 +88,7 @@ public static class OnlineConfigsRepository
     private static async Task<Stream> ReadOnlineJson(string file)
     {
         var url = "https://raw.githubusercontent.com/Aurora-RGB/Online-Settings/master/" + file;
-        using var httpClient = new HttpClient();
+        var httpClient = HttpUtils.HttpClient;
         var response = await httpClient.GetAsync(url);
         if (response.IsSuccessStatusCode)
         {

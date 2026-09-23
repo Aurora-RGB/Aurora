@@ -5,17 +5,24 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              x:Class="AuroraRgb.Profiles.RocketLeague.Control_RocketLeague"
-             mc:Ignorable="d" 
+             mc:Ignorable="d"
+             Loaded="Control_RocketLeague_OnLoaded"
              d:DesignHeight="300" Height="Auto" Width="Auto" d:DesignWidth="850">
     <Grid>
         <TabControl>
             <TabItem Header="Overview for Rocket League">
-                <Grid>
-                    <TextBlock Margin="10,5,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="770"><Run Text="Rocket League support works via a BakkesMod plugin. As a result, you need both BakkesMod and the plugin installed and enabled. Follow the links below to install."/></TextBlock>
-                    <Button Content="Download BakkesMod" HorizontalAlignment="Left" VerticalAlignment="Top" Width="172" Margin="10,80,0,0" Click="Button_DownloadBakkesMod"/>
-                    <Button Content="Download AuroraGSIPlugin" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150" Margin="200,80,0,0" Click="Button_BakkesPluginsLink"/>
-                    <Button Content="Install Plugin with BakkesMod" HorizontalAlignment="Left" VerticalAlignment="Top" Width="172" Margin="10,105,0,0" Click="Button_InstallPluginURI"/>
-                </Grid>
+                <StackPanel>
+                    <TextBlock Margin="10,5,0,0" VerticalAlignment="Top" TextWrapping="Wrap" HorizontalAlignment="Left" Width="770">
+                        Game data is provided by official Rocket League Stats API.
+                        <LineBreak/>
+                        You can change the default socket port in case you want to use a different one. Restart Aurora after changing the port in order for the changes to take effect.
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal" Margin="10,5,0,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <TextBlock Margin="10,0,0,0">Socket port:</TextBlock>
+                        <xctk:IntegerUpDown Name="PortTextBox" Text="49123" Margin="10,0,0,0"></xctk:IntegerUpDown>
+                    </StackPanel>
+                    <Button Content="Enable/Update Integration" HorizontalAlignment="Left" VerticalAlignment="Top" Width="172" Margin="10,40,0,0" Click="ButtonBase_OnClick"/>
+                </StackPanel>
             </TabItem>
             <TabItem Header="Preview">
                 <Grid>
@@ -23,7 +30,7 @@
                     <ComboBox x:Name="preview_team" HorizontalAlignment="Left" Margin="55,13,0,0" VerticalAlignment="Top" Width="120" IsSynchronizedWithCurrentItem="True" SelectionChanged="preview_team_SelectionChanged" SelectedIndex="0"/>
                     <Label Content="Status:" HorizontalAlignment="Left" Margin="200,10,0,0" VerticalAlignment="Top"/>
                     <ComboBox x:Name="preview_status" HorizontalAlignment="Left" Margin="250,14,0,0" VerticalAlignment="Top" Width="120" IsSynchronizedWithCurrentItem="True" SelectionChanged="preview_status_SelectionChanged" SelectedIndex="0"/>
-                    <Slider x:Name="preview_boost_amount" HorizontalAlignment="Left" Margin="102,45,0,0" VerticalAlignment="Top" Width="120" Maximum="1" TickFrequency="0.01" ValueChanged="preview_boost_amount_ValueChanged"/>
+                    <Slider HorizontalAlignment="Left" Margin="102,45,0,0" VerticalAlignment="Top" Width="120" Maximum="1" TickFrequency="0.01" ValueChanged="preview_boost_amount_ValueChanged"/>
                     <TextBlock x:Name="preview_boost_amount_label" HorizontalAlignment="Left" Margin="227,46,0,0" TextWrapping="Wrap" Text="0%" VerticalAlignment="Top"/>
                     <xctk:IntegerUpDown x:Name="preview_team1_score" HorizontalAlignment="Left" Height="24" Margin="98,73,0,0" VerticalAlignment="Top" Width="40" ValueChanged="preview_team1_score_ValueChanged" DefaultValue="0" Value="0" Minimum="0" Maximum="100"/>
                     <xctk:IntegerUpDown x:Name="preview_team2_score" HorizontalAlignment="Left" Height="24" Margin="98,104,0,0" VerticalAlignment="Top" Width="40" ValueChanged="preview_team2_score_ValueChanged" DefaultValue="0" Value="0" Minimum="0" Maximum="100"/>

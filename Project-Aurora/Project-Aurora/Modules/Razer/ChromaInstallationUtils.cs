@@ -93,7 +93,7 @@ public static class ChromaInstallationUtils
 
     private static async Task<string?> GetDownloadUrlAsync()
     {
-        using var client = new HttpClient();
+        var client = HttpUtils.HttpClient;
         var installerManifest = await client.GetFromJsonAsync(RazerInstallerManifest.GetUrl, RazerApiSourceGenerationContext.Default.RazerInstallerManifest);
 
         if (installerManifest == null)
@@ -115,7 +115,7 @@ public static class ChromaInstallationUtils
         if (url == null)
             return null;
 
-        using var client = new HttpClient();
+        var client = HttpUtils.HttpClient;
         await using var responseStream = await client.GetStreamAsync(url);
 
         var path = Path.ChangeExtension(Path.GetRandomFileName(), ".exe");

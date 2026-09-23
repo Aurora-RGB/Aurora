@@ -1,68 +1,56 @@
 ﻿using System.ComponentModel;
+using System.Linq;
+using System.Text.Json.Serialization;
 using AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
 
 namespace AuroraRgb.Profiles.RocketLeague.GSI;
 
-public enum RLStatus
+public enum RlStatus
 {
     [Description("Menu")]
     Undefined = -1,
-    [Description("Replay")]
-    Replay,
     [Description("In Game")]
     InGame,
-    [Description("Freeplay")]
-    Freeplay,
-    [Description("Training")]
-    Training,
-    [Description("Spectate")]
-    Spectate,
-    [Description("Local Match")]
-    Local
-};
-
-public class GameRocketLeague : AutoJsonNode<GameRocketLeague>
-{
-    public RLStatus Status { get; set; }
-
-    internal GameRocketLeague(string jsonData) : base(jsonData) { }
 }
 
-/// <summary>
-/// A class representing various information relating to Rocket League
-/// </summary>
-public partial class GameStateRocketLeague : NewtonsoftGameState
+public partial class GameStateRocketLeague : GameState
 {
-    public Match_RocketLeague Match => NodeFor<Match_RocketLeague>("match");
-    public Player_RocketLeague Player => NodeFor<Player_RocketLeague>("player");
-    public GameRocketLeague Game => NodeFor<GameRocketLeague>("game");
+    public RlData Data { get; set; } = RlData.Default;
 
-    /// <summary>
-    /// Creates a default GameState_RocketLeague instance.
-    /// </summary>
-    public GameStateRocketLeague() { }
+    public RlPlayer? Player => Data.Players
+        .FirstOrDefault(p => p.Shortcut == Data.Game.Target?.Shortcut);
 
-    /// <summary>
-    /// Creates a GameState instance based on the passed json data.
-    /// </summary>
-    /// <param name="jsonData">The passed json data</param>
-    public GameStateRocketLeague(string jsonData) : base(jsonData) { }
+    public RlGame Game => Data.Game;
 
-    /// <summary>
-    /// Returns true if all the color values for both teams are between zero and one.
-    /// </summary>
-    /// <returns></returns>
-    public bool ColorsValid()
+    public RlStatus GameStatus { get; set; } = RlStatus.Undefined;
+
+    public RlTeam? OpponentTeam => Data.Game.Teams
+        .FirstOrDefault(t => t.TeamNum != Data.Game.Target?.TeamNum);
+
+    public RlTeam? YourTeam => Data.Game.Teams
+        .FirstOrDefault(t => t.TeamNum == Data.Game.Target?.TeamNum);
+
+    public RlTeam? HighlightedTeam
     {
-        return Match.Orange.Red >= 0 && Match.Blue.Red <= 1 &&
-               Match.Orange.Green >= 0 && Match.Blue.Green <= 1 &&
-               Match.Orange.Blue >= 0 && Match.Blue.Blue <= 1 &&
-               Match.Orange.Red >= 0 && Match.Blue.Red <= 1 &&
-               Match.Orange.Green >= 0 && Match.Blue.Green <= 1 &&
-               Match.Orange.Blue >= 0 && Match.Blue.Blue <= 1;
+        get => YourTeam ?? field;
+        set;
     }
+}
 
-    public Team_RocketLeague OpponentTeam => Player.Team == 0 ? Match.Orange : Match.Blue;
+[method: JsonConstructor]
+public class RlData(
+    string matchGuid,
+    RlPlayer[] players,
+    RlGame? game)
+{
+    public static RlData Default => new(string.Empty, [], null);
 
-    public Team_RocketLeague YourTeam => Player.Team == 0 ? Match.Blue : Match.Orange;
+    [JsonPropertyName("MatchGuid")]
+    public string MatchGuid { get; } = matchGuid;
+
+    [JsonPropertyName("Players")]
+    public RlPlayer[] Players { get; } = players;
+
+    [JsonPropertyName("Game")]
+    public RlGame Game { get; } = game ?? RlGame.Default;
 }

@@ -11,12 +11,14 @@ public class LogitechDevice : DefaultDevice
 {
     public override string DeviceName => "Logitech";
 
-    private readonly byte[] _logitechBitmap = new byte[LogitechGSDK.LOGI_LED_BITMAP_SIZE];
-    private SimpleColor[] _speakers = new SimpleColor[4];
+    private readonly byte[] _logitechBitmap = new byte[LogitechSdk.LOGI_LED_BITMAP_SIZE];
+    private readonly SimpleColor[] _speakers = new SimpleColor[4];
     private SimpleColor _mousepad;
     private readonly SimpleColor[] _mouse = new SimpleColor[3];
     private readonly SimpleColor[] _headset = new SimpleColor[4];
     private DeviceKeys _genericKey;
+
+    private readonly LogitechSdk _logitechSdk = new();
 
     protected override async Task<bool> DoInitialize(CancellationToken cancellationToken)
     {
@@ -30,21 +32,18 @@ public class LogitechDevice : DefaultDevice
             return false;
         }
 
-        if (Global.DeviceConfig.VarRegistry.GetVariable<bool>($"{DeviceName}_override_dll"))
-            LogitechGSDK.GHUB = Global.DeviceConfig.VarRegistry.GetVariable<LGDLL>($"{DeviceName}_override_dll_option") == LGDLL.GHUB;
-        else
-            LogitechGSDK.GHUB = ghubRunning;
+        LogInfo("Trying to initialize Logitech using the dll");
 
-        LogInfo($"Trying to initialize Logitech using the dll for {(LogitechGSDK.GHUB ? "GHUB" : "LGS")}");
-
-        if (LogitechGSDK.LogiLedInit() && LogitechGSDK.LogiLedSaveCurrentLighting())
+        if (_logitechSdk.LogiLedInitWithName("AuroraRgb"))
         {
             //logitech says to wait a bit of time between Init() and SetLighting()
-            //This didnt seem to be needed in the past but I feel like 100ms might 
+            //This didn't seem to be needed in the past, but I feel like 100ms might 
             //fix some weird issues without any noticeable disadvantages
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100, cancellationToken);
+            _logitechSdk.LogiLedSetTargetDevice(LogiLedType.All);
+            _logitechSdk.LogiLedExcludeKeysFromBitmap([]);
             if (Global.DeviceConfig.VarRegistry.GetVariable<bool>($"{DeviceName}_set_default"))
-                LogitechGSDK.LogiLedSetLighting(Global.DeviceConfig.VarRegistry.GetVariable<SimpleColor>($"{DeviceName}_default_color"));
+                _logitechSdk.LogiLedSetLighting(Global.DeviceConfig.VarRegistry.GetVariable<SimpleColor>($"{DeviceName}_default_color"));
             IsInitialized = true;
             return true;
         }
@@ -57,15 +56,14 @@ public class LogitechDevice : DefaultDevice
 
     protected override Task Shutdown()
     {
-        LogitechGSDK.LogiLedRestoreLighting();
-        LogitechGSDK.LogiLedShutdown();
+        _logitechSdk.LogiLedShutdown();
         SystemEvents.SessionSwitch -= SystemEvents_SessionSwitch;
         IsInitialized = false;
         return Task.CompletedTask;
     }
 
     // Handle Logon Event
-    async void SystemEvents_SessionSwitch(object? sender, SessionSwitchEventArgs e)
+    private async void SystemEvents_SessionSwitch(object? sender, SessionSwitchEventArgs e)
     {
         switch (e.Reason)
         {
@@ -86,27 +84,16 @@ public class LogitechDevice : DefaultDevice
         }
     }
 
-    private static void SetAll(IList<SimpleColor> colors, SimpleColor color)
-    {
-        for (var i = 0; i < colors.Count; i++)
-        {
-            colors[i] = color;
-        }
-    }
-
     protected override Task<bool> UpdateDevice(Dictionary<DeviceKeys, SimpleColor> keyColors, DoWorkEventArgs e, bool forced = false)
     {
         if (!IsInitialized)
             return Task.FromResult(false);
 
-        //reset keys to peripheral_logo here so if we dont find any better color for them,
-        //at least the leds wont turn off :)
+        //reset keys to peripheral_logo here so if we don't find any better color for them,
+        //at least the leds won't turn off :)
         if (keyColors.TryGetValue(_genericKey, out var peripheralColor))
         {
-            SetAll(_speakers, peripheralColor);
-            _mousepad = peripheralColor;
-            SetAll(_mouse, peripheralColor);
-            SetAll(_headset, peripheralColor);
+            _logitechSdk.LogiLedSetLighting(peripheralColor);
         }
 
         foreach (var (key, color) in keyColors)
@@ -118,26 +105,34 @@ public class LogitechDevice : DefaultDevice
         {
             for (var i = 0; i < _mouse.Length; i++)
             {
-                LogitechGSDK.LogiLedSetLightingForTargetZone(DeviceType.Mouse, i, _mouse[i]);
+                _logitechSdk.LogiLedSetLightingForTargetZone(DeviceType.Mouse, i, _mouse[i]);
             }
 
-            LogitechGSDK.LogiLedSetLightingForTargetZone(DeviceType.Mousemat, 0, _mousepad);
+            _logitechSdk.LogiLedSetLightingForTargetZone(DeviceType.Mousemat, 0, _mousepad);
         }
         if (!Global.DeviceConfig.DevicesDisableHeadset)
         {
             for (var i = 0; i < _headset.Length; i++)
             {
-                LogitechGSDK.LogiLedSetLightingForTargetZone(DeviceType.Headset, i, _headset[i]);
+                _logitechSdk.LogiLedSetLightingForTargetZone(DeviceType.Headset, i, _headset[i]);
             }
 
             for (var i = 0; i < _speakers.Length; i++)//speakers have 4 leds
             {
-                LogitechGSDK.LogiLedSetLightingForTargetZone(DeviceType.Speaker, i, _speakers[i]);
+                _logitechSdk.LogiLedSetLightingForTargetZone(DeviceType.Speaker, i, _speakers[i]);
             }
         }
         if (!Global.DeviceConfig.DevicesDisableKeyboard)
         {
-            IsInitialized &= LogitechGSDK.LogiLedSetLightingFromBitmap(_logitechBitmap);
+            _logitechSdk.LogiLedSetLightingFromBitmap(_logitechBitmap);
+
+            foreach (var (key, nonBitmapKey) in LedMaps.KeyMap)
+            {
+                if (!keyColors.TryGetValue(key, out var color)) continue;
+                {
+                    _logitechSdk.LogiLedSetLightingForKeyWithKeyName(nonBitmapKey, color);
+                }
+            }
         }
 
         return Task.FromResult(IsInitialized);
@@ -145,17 +140,8 @@ public class LogitechDevice : DefaultDevice
 
     private void UpdateLed(SimpleColor color, DeviceKeys key)
     {
-        if (color is { A: 0 })
-        {
-            return;
-        }
-        if (key == DeviceKeys.Peripheral)
-        {
-            LogitechGSDK.LogiLedSetLighting(color);
-            return;
-        }
-
         #region keyboard
+
         if (LedMaps.BitmapMap.TryGetValue(key, out var index))
         {
             _logitechBitmap[index] = color.B;
@@ -164,8 +150,6 @@ public class LogitechDevice : DefaultDevice
             _logitechBitmap[index + 3] = color.A;
         }
 
-        if (!Global.DeviceConfig.DevicesDisableKeyboard && LedMaps.KeyMap.TryGetValue(key, out var logiKey))
-            IsInitialized &= LogitechGSDK.LogiLedSetLightingForKeyWithKeyName(logiKey, color);
         #endregion
 
         #region peripherals
@@ -193,8 +177,6 @@ public class LogitechDevice : DefaultDevice
     {
         variableRegistry.Register($"{DeviceName}_set_default", false, "Set Default Color");
         variableRegistry.Register($"{DeviceName}_default_color", SimpleColor.FromRgba(255, 255, 255), "Default Color");
-        variableRegistry.Register($"{DeviceName}_override_dll", false, "Override DLL", null, null, "Requires restart to take effect");
-        variableRegistry.Register($"{DeviceName}_override_dll_option", LGDLL.GHUB, "Override DLL Selection", null, null, "Requires restart to take effect");
         variableRegistry.Register($"{DeviceName}_devicekey", DeviceKeys.Peripheral_Logo, "Key to Use", DeviceKeys.MOUSEPADLIGHT15, DeviceKeys.Peripheral);
     }
 }

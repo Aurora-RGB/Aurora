@@ -12,6 +12,7 @@
         <Button Content="Test" Padding="10,0,10,0" ToolTip="This will blink the key on the keyboard" Click="TestBlink"/>
         <Border Name="ButtonBorder" BorderBrush="Aqua" BorderThickness="2" />
         <controls:Control_LedCaptureButton x:Name="LedCapturer" Width="180" />
-        <Button Width="30" Content="x" Padding="10,0,10,0" ToolTip="Reset to default mapping" Click="Clear"/>
+        <Button Width="30" Content="x" Padding="10,0,10,0" ToolTip="Reset to default mapping" Click="Reset"/>
+        <Button Width="30" Content="∅" Padding="10,0,10,0" ToolTip="Don't update LED" Click="Clear"/>
     </StackPanel>
 </UserControl>

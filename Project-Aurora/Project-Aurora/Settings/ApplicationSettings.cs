@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using AuroraRgb.Profiles.EliteDangerous;
 using AuroraRgb.Profiles.Generic_Application;
+using AuroraRgb.Profiles.RocketLeague;
 
 namespace AuroraRgb.Settings;
 
@@ -11,6 +12,7 @@ namespace AuroraRgb.Settings;
 [JsonSerializable(typeof(GenericApplicationSettings))]
 [JsonSerializable(typeof(PluginManagerSettings))]
 [JsonSerializable(typeof(EliteDangerousSettings))]
+[JsonSerializable(typeof(RlSettings))]
 [JsonSourceGenerationOptions(WriteIndented = true)]
 public partial class SettingsJsonContext : JsonSerializerContext;
 

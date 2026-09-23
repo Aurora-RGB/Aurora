@@ -24,11 +24,13 @@ public static class LedMaps
         [DeviceKeys.PRINT_SCREEN] = 52,
         [DeviceKeys.SCROLL_LOCK] = 56,
         [DeviceKeys.PAUSE_BREAK] = 60,
-        //64
-        //68
-        //72
-        //76
-        //80
+
+        [DeviceKeys.MEDIA_STOP] = 64, //64 a guess
+        [DeviceKeys.MEDIA_PREVIOUS] = 68, //68 a guess
+        [DeviceKeys.MEDIA_PLAY_PAUSE] = 72, //72 a guess
+        [DeviceKeys.MEDIA_NEXT] = 76, //76 a guess
+        [DeviceKeys.VOLUME_MUTE] = 80, //80 a guess
+
         [DeviceKeys.TILDE] = 84,
         [DeviceKeys.ONE] = 88,
         [DeviceKeys.TWO] = 92,
@@ -85,9 +87,14 @@ public static class LedMaps
         [DeviceKeys.APOSTROPHE] = 296,
         [DeviceKeys.HASHTAG] = 300,
         [DeviceKeys.ENTER] = 304,
+
         //308
+        [DeviceKeys.ADDITIONALLIGHT1] = 308,
         //312
+        [DeviceKeys.ADDITIONALLIGHT2] = 312,
         //316
+        [DeviceKeys.ADDITIONALLIGHT3] = 316,
+
         [DeviceKeys.NUM_FOUR] = 320,
         [DeviceKeys.NUM_FIVE] = 324,
         [DeviceKeys.NUM_SIX] = 328,
@@ -162,10 +169,16 @@ public static class LedMaps
             //g703 => 0 is scroll
             //gpro => 0 is everything
             //other mice are not documented on the sdk
+            [DeviceKeys.ADDITIONALLIGHT1] = (DeviceType.Keyboard, 1),
+            [DeviceKeys.ADDITIONALLIGHT2] = (DeviceType.Keyboard, 2),
+            [DeviceKeys.ADDITIONALLIGHT3] = (DeviceType.Keyboard, 3),
+            [DeviceKeys.ADDITIONALLIGHT4] = (DeviceType.Keyboard, 4),
+            [DeviceKeys.ADDITIONALLIGHT5] = (DeviceType.Keyboard, 5),
+
             [DeviceKeys.PERIPHERAL_DPI] = (DeviceType.Mouse, 0),
             [DeviceKeys.Peripheral_Logo] = (DeviceType.Mouse, 1),
             [DeviceKeys.Peripheral_ScrollWheel] = (DeviceType.Mouse, 2),
-            
+
             [DeviceKeys.PERIPHERAL_LIGHT1] = (DeviceType.Mouse, 1),
             [DeviceKeys.PERIPHERAL_LIGHT2] = (DeviceType.Mouse, 0),
             [DeviceKeys.PERIPHERAL_LIGHT3] = (DeviceType.Mouse, 2),

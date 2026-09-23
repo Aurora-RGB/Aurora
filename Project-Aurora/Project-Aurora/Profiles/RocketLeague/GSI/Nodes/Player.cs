@@ -1,44 +1,98 @@
-﻿namespace AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
+﻿using System.Text.Json.Serialization;
+
+namespace AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
 
 /// <summary>
 /// Class representing player information
 /// </summary>
-public class Player_RocketLeague : AutoJsonNode<Player_RocketLeague>
+[method: JsonConstructor]
+public class RlPlayer(
+    string name,
+    string primaryId,
+    int shortcut,
+    int teamNum,
+    int score,
+    int goals,
+    int shots,
+    int assists,
+    int saves,
+    int touches,
+    int carTouches,
+    int demos,
+    bool hasCar,
+    double speed,
+    int boost,
+    bool boosting,
+    bool onGround,
+    bool onWall,
+    bool powersliding,
+    bool demolished,
+    RlAttacker? attacker,
+    bool supersonic)
 {
-    /// <summary>
-    /// The Index of the team the player is on
-    /// </summary>
-    public int Team { get; set; } = -1;
+    [JsonPropertyName("Name")]
+    public string Name { get; } = name;
 
-    /// <summary>
-    /// Amount of boost (0-1)
-    /// </summary>
-    public float Boost { get; set; } = -1;
+    [JsonPropertyName("PrimaryId")]
+    public string PrimaryId { get; } = primaryId;
 
-    /// <summary>
-    /// Number of points the player has on the scoreboard
-    /// </summary>
-    public int Score { get; set; } = -1;
+    [JsonPropertyName("Shortcut")]
+    public int Shortcut { get; } = shortcut;
 
-    /// <summary>
-    /// Number of goals the player scored
-    /// </summary>
-    public int Goals { get; set; } = -1;
+    [JsonPropertyName("TeamNum")]
+    public int TeamNum { get; set; } = teamNum;
 
-    /// <summary>
-    /// Number of assists the player has
-    /// </summary>
-    public int Assists { get; set; } = -1;
+    [JsonPropertyName("Score")]
+    public int Score { get; } = score;
 
-    /// <summary>
-    /// Number of saves the player has
-    /// </summary>
-    public int Saves { get; set; } = -1;
+    [JsonPropertyName("Goals")]
+    public int Goals { get; } = goals;
 
-    /// <summary>
-    /// Number of shots the player has
-    /// </summary>
-    public int Shots { get; set; } = -1;
+    [JsonPropertyName("Shots")]
+    public int Shots { get; } = shots;
 
-    internal Player_RocketLeague(string jsonData) : base(jsonData) { }
+    [JsonPropertyName("Assists")]
+    public int Assists { get; } = assists;
+
+    [JsonPropertyName("Saves")]
+    public int Saves { get; } = saves;
+
+    [JsonPropertyName("Touches")]
+    public int Touches { get; } = touches;
+
+    [JsonPropertyName("CarTouches")]
+    public int CarTouches { get; } = carTouches;
+
+    [JsonPropertyName("Demos")]
+    public int Demos { get; } = demos;
+
+    [JsonPropertyName("bHasCar")]
+    public bool HasCar { get; } = hasCar;
+
+    [JsonPropertyName("Speed")]
+    public double Speed { get; } = speed;
+
+    [JsonPropertyName("Boost")]
+    public int Boost { get; set; } = boost;
+
+    [JsonPropertyName("bBoosting")]
+    public bool Boosting { get; } = boosting;
+
+    [JsonPropertyName("bOnGround")]
+    public bool OnGround { get; } = onGround;
+
+    [JsonPropertyName("bOnWall")]
+    public bool OnWall { get; } = onWall;
+
+    [JsonPropertyName("bPowersliding")]
+    public bool Powersliding { get; } = powersliding;
+
+    [JsonPropertyName("bDemolished")]
+    public bool Demolished { get; } = demolished;
+
+    [JsonPropertyName("Attacker")]
+    public RlAttacker? Attacker { get; } = attacker;
+
+    [JsonPropertyName("bSupersonic")]
+    public bool Supersonic { get; } = supersonic;
 }

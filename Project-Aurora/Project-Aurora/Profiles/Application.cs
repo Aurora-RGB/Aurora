@@ -702,7 +702,6 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             return;
         Disposed = true;
 
-        SaveProfile();
         Profile = null;
 
         if (Settings != null)
@@ -723,7 +722,6 @@ public class Application : ObjectSettings<ApplicationSettings>, ILightEvent, INo
             return;
         Disposed = true;
 
-        SaveProfile();
         Profile = null;
 
         if (Settings != null)

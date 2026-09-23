@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using AuroraRgb.Profiles;
@@ -12,9 +13,12 @@ namespace AuroraRgb.Settings.Overrides.Logic;
 /// <para>Can be used in conjunction with the <see cref="BooleanExtender"/> to make the 'true' last longer than a single eval tick.</para>
 /// </summary>
 [Evaluatable("Number Change Detector", category: EvaluatableCategory.Maths)]
-public class NumericChangeDetector : BoolEvaluatable {
+public class NumericChangeDetector : BoolEvaluatable
+{
+    private const long BufferTime = 160;
 
     private double? _lastValue;
+    private long _lastChangeTime;
 
     public NumericChangeDetector() { }
     public NumericChangeDetector(Evaluatable<double> eval, bool detectRising = true, bool detectFalling = true, double threshold = 0) {
@@ -41,8 +45,6 @@ public class NumericChangeDetector : BoolEvaluatable {
             .WithChild(new DoubleUpDown { Minimum = 0 }
                 .WithBinding(DoubleUpDown.ValueProperty, this, nameof(DetectionThreshold))));
 
-    protected override bool IsInvalidatedChild(IGameState gameState) => Evaluatable.IsInvalidated(gameState);
-
     protected override bool Execute(IGameState gameState) {
         var val = Evaluatable.EvaluateDouble(gameState);
         var @out = false;
@@ -54,13 +56,20 @@ public class NumericChangeDetector : BoolEvaluatable {
             var delta = _lastValue.Value - val;
             @out = (DetectRising && delta <= -threshold) || (DetectFalling && delta >= threshold);
         }
+
+        if (@out)
+        {
+            _lastChangeTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
         _lastValue = val;
-        return @out;
+        return @out || DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _lastChangeTime < BufferTime;
     }
         
-    public override Evaluatable<bool> Clone() => new NumericChangeDetector { Evaluatable = Evaluatable.Clone(), DetectRising = DetectRising, DetectFalling = DetectFalling, DetectionThreshold = DetectionThreshold };
+    public override Evaluatable<bool> Clone() => new NumericChangeDetector
+    {
+        Evaluatable = Evaluatable.Clone(), DetectRising = DetectRising, DetectFalling = DetectFalling, DetectionThreshold = DetectionThreshold
+    };
 }
-
 
 
 /// <summary>
@@ -69,7 +78,10 @@ public class NumericChangeDetector : BoolEvaluatable {
 [Evaluatable("Boolean Change Detector", category: EvaluatableCategory.Logic)]
 public class BooleanChangeDetector : BoolEvaluatable {
 
-    private bool? lastValue;
+    private const long BufferTime = 160;
+
+    private bool? _lastValue;
+    private long _lastChangeTime;
 
     public BooleanChangeDetector() { }
     public BooleanChangeDetector(Evaluatable<bool> eval) : this(eval, true, true) { }
@@ -83,8 +95,6 @@ public class BooleanChangeDetector : BoolEvaluatable {
     public bool DetectTrue { get; set; } = true;
     public bool DetectFalse { get; set; } = true;
 
-    protected override bool IsInvalidatedChild(IGameState gameState) => Evaluatable.IsInvalidated(gameState);
-
     public override Visual GetControl() => new StackPanel()
         .WithChild(new Control_EvaluatablePresenter { EvalType = typeof(bool) }
             .WithBinding(Control_EvaluatablePresenter.ExpressionProperty, this, nameof(Evaluatable), BindingMode.TwoWay))
@@ -95,10 +105,15 @@ public class BooleanChangeDetector : BoolEvaluatable {
 
     protected override bool Execute(IGameState gameState) {
         var val = Evaluatable.EvaluateBool(gameState);
-        var result = (val  && lastValue == false  && DetectTrue) // Result is true if: the next value is true, the old value was false and we are detecting true
-                     || (!val && lastValue == true && DetectFalse); // Or the next value is false, the old value was true and we are detecting false
-        lastValue = val;
-        return result;
+        var result = (val  && _lastValue == false  && DetectTrue) // Result is true if: the next value is true, the old value was false and we are detecting true
+                     || (!val && _lastValue == true && DetectFalse); // Or the next value is false, the old value was true and we are detecting false
+
+        if (result)
+        {
+            _lastChangeTime = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        }
+        _lastValue = val;
+        return result || DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - _lastChangeTime < BufferTime;
     }
 
     public override Evaluatable<bool> Clone() => new BooleanChangeDetector { Evaluatable = Evaluatable.Clone(), DetectTrue = DetectTrue, DetectFalse = DetectFalse };

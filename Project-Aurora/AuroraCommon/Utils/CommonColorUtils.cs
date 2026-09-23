@@ -368,6 +368,32 @@ public static class CommonColorUtils
         );
     }
 
+    public static Color ParseRgb(ReadOnlySpan<char> hex)
+    {
+        if (hex.Length != 6)
+            throw new ArgumentException("RGB hex string must be exactly 6 characters.");
+
+        var r = HexToByte(hex[0], hex[1]);
+        var g = HexToByte(hex[2], hex[3]);
+        var b = HexToByte(hex[4], hex[5]);
+
+        return FastColor(r, g, b);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static byte HexToByte(char high, char low)
+        => (byte)((HexValue(high) << 4) | HexValue(low));
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int HexValue(char c)
+    {
+        if ((uint)(c - '0') <= 9) return c - '0';
+        c = (char)(c | 0x20); // normalize to lowercase
+        if ((uint)(c - 'a') <= 5) return c - 'a' + 10;
+
+        throw new ArgumentException("Invalid hex character.");
+    }
+
     public static Color FastColor(int colors)
     {
         return Color.FromArgb(colors);

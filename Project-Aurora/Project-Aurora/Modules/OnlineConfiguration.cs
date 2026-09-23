@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using AuroraRgb.Modules.OnlineConfigs;
 using AuroraRgb.Modules.OnlineConfigs.Model;
 using AuroraRgb.Modules.ProcessMonitor;
+using AuroraRgb.Utils;
 using AuroraRgb.Utils.IpApi;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Win32;
@@ -23,14 +24,23 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
 
     private Dictionary<string, ShutdownProcess> _shutdownProcesses = new();
     private readonly TaskCompletionSource _layoutUpdateTaskSource = new();
+    private bool _initStarted;
+    private bool _initCancelled;
 
     public Task LayoutsUpdate => _layoutUpdateTaskSource.Task;
 
     protected override async Task Initialize()
     {
+        _initStarted = true;
+        if (_initCancelled)
+        {
+            _layoutUpdateTaskSource.TrySetResult();
+            return;
+        }
+
         var localSettings = await OnlineConfigsRepository.GetOnlineSettingsLocal();
         var localSettingsDate = localSettings.OnlineSettingsTime;
-        if (localSettingsDate > DateTimeOffset.MinValue)
+        if (localSettingsDate > DateTimeOffset.MinValue || _initCancelled)
         {
             // means online settings already exists, loading can continue immediately
             _layoutUpdateTaskSource.TrySetResult();
@@ -38,6 +48,7 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
 
         await DownloadAndExtract();
         _layoutUpdateTaskSource.TrySetResult();
+
         //TODO update layouts
         await Refresh();
 
@@ -45,7 +56,7 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
         SystemEvents.SessionSwitch += SystemEvents_SessionSwitch;
         (await runningProcessMonitor).ProcessStarted += OnRunningProcessesChanged;
 
-        if (Global.SensitiveData.Lat == 0 && Global.SensitiveData.Lon == 0)
+        if (Global.SensitiveData.Lat == 0 && Global.SensitiveData.Lon == 0 && !_initCancelled)
         {
             try
             {
@@ -140,21 +151,68 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
     {
         const string zipUrl = "https://github.com/Aurora-RGB/Online-Settings/archive/refs/heads/master.zip";
 
-        using var webClient = new WebClient();
-        using var zipStream = new MemoryStream(webClient.DownloadData(zipUrl));
-        await using var zipInputStream = new ZipInputStream(zipStream);
-        while (zipInputStream.GetNextEntry() is { } entry)
+        var http = HttpUtils.HttpClient;
+        var zipBytes = await http.GetByteArrayAsync(zipUrl);
+
+        using var zipStream = new MemoryStream(zipBytes);
+        using var zipFile = new ZipFile(zipStream);
+
+        foreach (ZipEntry entry in zipFile)
         {
             if (!entry.IsFile)
                 continue;
 
-            var entryName = entry.Name;
-            var fullPath = Path.Combine(".", entryName).Replace("\\Online-Settings-master", "");
+            // Remove the leading folder ("Online-Settings-master/")
+            var trimmedName = TrimRootFolder(entry.Name);
+            var fullPath = Path.Combine(".", trimmedName);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+            var directory = Path.GetDirectoryName(fullPath);
+            if (!string.IsNullOrEmpty(directory))
+                Directory.CreateDirectory(directory);
 
-            await using var entryFileStream = File.Create(fullPath);
-            await zipInputStream.CopyToAsync(entryFileStream);
+            await ExtractEntryAsync(zipFile, entry, fullPath);
+        }
+    }
+
+    private static string TrimRootFolder(string path)
+    {
+        var parts = path.Split('/', 2, StringSplitOptions.RemoveEmptyEntries);
+
+        return parts.Length == 2 ? parts[1] : path;
+    }
+
+    private static async Task ExtractEntryAsync(ZipFile zipFile, ZipEntry entry, string destinationPath)
+    {
+        await using var input = zipFile.GetInputStream(entry);
+        await ReplaceCopyTo(input, destinationPath);
+    }
+
+    private static async Task ReplaceCopyTo(Stream input, string destinationPath)
+    {
+        var tempPath = destinationPath + ".temp";
+
+        try
+        {
+            await using (var tempStream = File.Create(tempPath))
+            {
+                await input.CopyToAsync(tempStream);
+                await tempStream.FlushAsync();
+            }
+
+            // Replace original file
+            if (File.Exists(destinationPath))
+                File.Delete(destinationPath);
+
+            File.Move(tempPath, destinationPath);
+        }
+        catch (Exception ex)
+        {
+            Global.logger.Error(ex, "[OnlineConfiguration] Failed to extract file {File}", destinationPath);
+        }
+        finally
+        {
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
         }
     }
 
@@ -235,6 +293,12 @@ public sealed class OnlineConfiguration(Task<RunningProcessMonitor> runningProce
 
     public override async ValueTask DisposeAsync()
     {
+        _initCancelled = true;
+        if (_initStarted)
+        {
+            // wait for update to finish to prevent partial updates
+            await LayoutsUpdate;
+        }
         (await runningProcessMonitor).ProcessStarted -= OnRunningProcessesChanged;
     }
 }

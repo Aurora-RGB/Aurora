@@ -1,71 +1,86 @@
-﻿
-namespace AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json.Serialization;
 
-public enum RLPlaylist
-{
-    Undefined = -1,
-    Duel = 1,
-    Doubles = 2,
-    Standard = 3,
-    Chaos = 4,
-    PrivateMatch = 6,
-    OfflineSeason = 7,
-    OfflineSplitscreen = 8,
-    Training = 9,
-    RankedDuel = 10,
-    RankedDoubles = 11,
-    RankedSoloStandard = 12,
-    RankedStandard = 13,
-    MutatorMashup = 14,
-    Snowday = 15,
-    Rocketlabs = 16,
-    Hoops = 17,
-    Rumble = 18,
-    Workshop = 19,
-    TrainingEditor = 20,
-    CustomTraining = 21,
-    Tournament = 22,
-    Dropshot = 23,
-    RankedHoops = 27,
-    RankedRumble = 28,
-    RankedDropshot = 29,
-    RankedSnowday = 30
-}
+namespace AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
 
 /// <summary>
 /// Class representing match information
 /// </summary>
-public class Match_RocketLeague : AutoJsonNode<Match_RocketLeague>
+[method: JsonConstructor]
+public class RlGame(
+    IReadOnlyList<RlTeam> teams,
+    int timeSeconds,
+    bool overtime,
+    int frame,
+    double elapsed,
+    RlBall? ball,
+    bool isReplay,
+    bool hasWinner,
+    string? winner,
+    string? arena,
+    bool hasTarget,
+    RlTarget? target)
 {
-    /// <summary>
-    /// The current mode being played
-    /// </summary>
-    public RLPlaylist Playlist = RLPlaylist.Undefined;
+    public static RlGame Default => new(
+        [], 0, false, 0, 0.0, null,
+        false, false, null, null, false, null
+    );
+    
+    [JsonPropertyName("Teams")]
+    public IReadOnlyList<RlTeam> Teams { get; } = teams;
+    
+    [JsonIgnore]
+    public RlTeam? Blue => Teams.ElementAtOrDefault(0);
+    
+    [JsonIgnore]
+    public RlTeam? Orange => Teams.ElementAtOrDefault(1);
+    
+    [JsonIgnore]
+    public int TotalGoals => Teams.Sum(t => t.Goals);
 
-    /// <summary>
-    /// The Blue team playing in the match
-    /// </summary>
-    public Team_RocketLeague Blue => NodeFor<Team_RocketLeague>("team_0");
+    [JsonPropertyName("TimeSeconds")]
+    public int TimeSeconds { get; } = timeSeconds;
 
-    /// <summary>
-    /// The Blue team playing in the match
-    /// </summary>
-    public Team_RocketLeague Orange => NodeFor<Team_RocketLeague>("team_1");
+    [JsonPropertyName("bOvertime")]
+    public bool Overtime { get; } = overtime;
 
-    /// <summary>
-    /// Remaining seconds in the match
-    /// </summary>
-    [AutoJsonPropertyName("time")]
-    public int RemainingSeconds { get; set; } = -1;
+    [JsonPropertyName("Frame")]
+    public int Frame { get; } = frame;
 
-    internal Match_RocketLeague(string json_data) : base(json_data) { }
+    [JsonPropertyName("Elapsed")]
+    public double Elapsed { get; } = elapsed;
 
-    public int TotalGoals { 
-        get
-        {
-            if (Blue.Goals == -1 || Orange.Goals == -1)
-                return -1;
-            return Blue.Goals + Orange.Goals;
-        }
-    }
+    [JsonPropertyName("Ball")]
+    public RlBall? Ball { get; } = ball;
+
+    [JsonPropertyName("bReplay")]
+    public bool IsReplay { get; } = isReplay;
+
+    [JsonPropertyName("bHasWinner")]
+    public bool HasWinner { get; } = hasWinner;
+
+    [JsonPropertyName("Winner")]
+    public string? Winner { get; } = winner;
+
+    [JsonPropertyName("Arena")]
+    public string? Arena { get; } = arena;
+
+    [JsonPropertyName("bHasTarget")]
+    public bool HasTarget { get; } = hasTarget;
+
+    [JsonPropertyName("Target")]
+    public RlTarget? Target { get; } = target;
+}
+
+[method: JsonConstructor]
+public class RlBall(
+    double speed,
+    int teamNum)
+{
+    [JsonPropertyName("Speed")]
+    public double Speed { get; } = speed;
+
+    [JsonPropertyName("TeamNum")]
+    public int TeamNum { get; } = teamNum;
 }

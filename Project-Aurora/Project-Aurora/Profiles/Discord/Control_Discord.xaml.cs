@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Forms;
+using AuroraRgb.Utils;
 using MessageBox = System.Windows.MessageBox;
 
 namespace AuroraRgb.Profiles.Discord;
@@ -58,7 +59,7 @@ public partial class Control_Discord
         try
         {
             const string url = "https://raw.githubusercontent.com/Aurora-RGB/Discord-GSI/master/AuroraGSI.plugin.js";
-            using var httpClient = new HttpClient();
+            var httpClient = HttpUtils.HttpClient;
 
             var response = await httpClient.GetAsync(url);
 

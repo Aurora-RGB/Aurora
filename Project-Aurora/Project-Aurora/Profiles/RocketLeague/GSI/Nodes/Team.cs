@@ -1,47 +1,86 @@
 ﻿using System.Drawing;
+using System.Text.Json.Serialization;
 
 namespace AuroraRgb.Profiles.RocketLeague.GSI.Nodes;
 
-public class Team_RocketLeague : AutoJsonNode<Team_RocketLeague>
+[method: JsonConstructor]
+public class RlTeam(
+    string name,
+    int teamNum,
+    int goals,
+    Color colorPrimary,
+    Color colorSecondary)
 {
-    /// <summary>
-    /// Name of the team. Usually Blue or Orange, but can be different in custom games and for clan teams
-    /// </summary>
-    public string Name { get; set; } = string.Empty;
+    [JsonPropertyName("Name")]
+    public string Name { get; } = name;
 
-    /// <summary>
-    /// Number of goals the team scored
-    /// </summary>
-    public int Goals { get; set; }
+    [JsonPropertyName("TeamNum")]
+    public int TeamNum { get; } = teamNum;
 
-    /// <summary>
-    /// Red value of the teams color (0-1)
-    /// </summary>
-    public float Red { get; set; }
+    [JsonPropertyName("Score")]
+    public int Goals { get; set; } = goals;
 
-    /// <summary>
-    /// Green value of the teams color (0-1)
-    /// </summary>
-    public float Green { get; set; }
+    [JsonPropertyName("ColorPrimary")]
+    [JsonConverter(typeof(JsonHexColorConverter))]
+    public Color ColorPrimary { get; set; } = colorPrimary;
 
-    /// <summary>
-    /// Blue value of the teams color (0-1)
-    /// </summary>
-    public float Blue { get; set; }
+    [JsonIgnore]
+    public double PrimaryAlpha => ColorPrimary.A / 255.0;
 
-    internal Team_RocketLeague(string json) : base(json) { }
+    [JsonIgnore]
+    public double PrimaryRed => ColorPrimary.R / 255.0;
 
-    public Color TeamColor
-    {
-        get =>
-            Color.FromArgb((int)(Red * 255.0f),
-                (int)(Green * 255.0f),
-                (int)(Blue * 255.0f));
-        set
-        {
-            Red = value.R / 255.0f;
-            Green = value.G / 255.0f;
-            Blue = value.B / 255.0f;
-        }
-    }
+    [JsonIgnore]
+    public double PrimaryGreen => ColorPrimary.G / 255.0;
+
+    [JsonIgnore]
+    public double PrimaryBlue => ColorPrimary.B / 255.0;
+
+    [JsonPropertyName("ColorSecondary")]
+    [JsonConverter(typeof(JsonHexColorConverter))]
+    public Color ColorSecondary { get; } = colorSecondary;
+
+    [JsonIgnore]
+    public double SecondaryAlpha => ColorPrimary.A / 255.0;
+
+    [JsonIgnore]
+    public double SecondaryRed => ColorSecondary.R / 255.0;
+
+    [JsonIgnore]
+    public double SecondaryGreen => ColorSecondary.G / 255.0;
+
+    [JsonIgnore]
+    public double SecondaryBlue => ColorSecondary.B / 255.0;
+}
+
+[method: JsonConstructor]
+public class RlAttacker(
+    string name,
+    int shortcut,
+    int teamNum)
+{
+    [JsonPropertyName("Name")]
+    public string Name { get; } = name;
+
+    [JsonPropertyName("Shortcut")]
+    public int Shortcut { get; } = shortcut;
+
+    [JsonPropertyName("TeamNum")]
+    public int TeamNum { get; } = teamNum;
+}
+
+[method: JsonConstructor]
+public class RlTarget(
+    string name,
+    int shortcut,
+    int teamNum)
+{
+    [JsonPropertyName("Name")]
+    public string Name { get; } = name;
+
+    [JsonPropertyName("Shortcut")]
+    public int Shortcut { get; } = shortcut;
+
+    [JsonPropertyName("TeamNum")]
+    public int TeamNum { get; } = teamNum;
 }
