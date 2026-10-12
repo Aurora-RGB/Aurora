@@ -40,7 +40,7 @@ public sealed class Bo6Application() : Application(new LightEventConfig
             return;
         }
 
-        Config.ProcessNames = ["cod.exe"];
+        Config.ProcessNames = ["cod24-cod.exe"];
     }
 
     public override void Dispose()

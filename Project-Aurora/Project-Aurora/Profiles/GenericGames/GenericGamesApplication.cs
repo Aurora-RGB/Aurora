@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,10 +24,7 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
     {
         var baseInit = await base.Initialize(cancellationToken);
 
-        var excludedPrograms = GamebarGamesModule.GamebarConfigManager?.GetExcludedPrograms() ?? [];
-        Config.ProcessNames = GamebarGamesModule.GamebarGames.GameExes
-            .Except(excludedPrograms)
-            .ToArray();
+        Config.ProcessNames = CreateGameListArray();
 
         GamebarGamesModule.GamebarGames.GameListChanged += GamebarGamesOnGameListChanged;
         if (GamebarGamesModule.GamebarConfigManager != null)
@@ -39,9 +37,15 @@ public sealed class GenericGamesApplication() : Application(new LightEventConfig
 
     private void GamebarGamesOnGameListChanged(object? sender, EventArgs e)
     {
+        Config.ProcessNames = CreateGameListArray();
+    }
+
+    private static string[] CreateGameListArray()
+    {
         var excludedPrograms = GamebarGamesModule.GamebarConfigManager?.GetExcludedPrograms() ?? [];
-        Config.ProcessNames = GamebarGamesModule.GamebarGames.GameExes
+        return GamebarGamesModule.GamebarGames.GameExes
             .Except(excludedPrograms)
+            .Select(s => s.ToLowerInvariant())
             .ToArray();
     }
 

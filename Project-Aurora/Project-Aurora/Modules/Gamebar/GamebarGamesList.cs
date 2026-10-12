@@ -54,6 +54,8 @@ public sealed class GamebarGamesList : IDisposable
 
     public void StartWatching()
     {
+        RefreshGameList();
+
         _eventWatcher = new ManagementEventWatcher(_scope, _query);
         _eventWatcher.EventArrived += KeyWatcherOnEventArrived;
         try
@@ -81,9 +83,14 @@ public sealed class GamebarGamesList : IDisposable
 
     private void KeyWatcherOnEventArrived(object? sender, EventArrivedEventArgs e)
     {
+        RefreshGameList();
+        GameListChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void RefreshGameList()
+    {
         GameExes.Clear();
         GameExes.AddRange(GetGameExes());
-        GameListChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public void Dispose()
