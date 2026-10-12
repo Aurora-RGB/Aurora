@@ -19,7 +19,7 @@ public class MsiDevice : RgbNetDevice
         MsiDeviceProvider.PossibleX64NativePaths.Clear();
         MsiDeviceProvider.PossibleX64NativePaths.Add(absolutePath);
 
-        var isMsiRunning = ProcessUtils.IsProcessRunning("Mystic_Light_Service.exe");
+        var isMsiRunning = ProcessUtils.IsProcessRunning("Mystic_Light_Service");
         if (!isMsiRunning)
         {
             throw new DeviceProviderException(new ApplicationException("MSI Mystic Light is not running! (Mystic_Light_Service.exe)"), false);
