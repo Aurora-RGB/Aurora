@@ -8,5 +8,9 @@ namespace AuroraDeviceManager.Utils;
 [JsonSerializable(typeof(DeviceConfig))]
 [JsonSerializable(typeof(CurrentDevices))]
 [JsonSerializable(typeof(DeviceMappingConfig))]
+[JsonSerializable(typeof(DeviceCalibration))]
+[JsonSerializable(typeof(CalibrationCurve))]
+[JsonSerializable(typeof(ColorMatrix))]
+[JsonSerializable(typeof(ColorSample))]
 [JsonSerializable(typeof(VariableRegistryItem))]
 public partial class SourceGenerationContext : JsonSerializerContext;

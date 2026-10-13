@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Pipes;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using Common.Devices;
@@ -84,10 +85,23 @@ public sealed class DevicesPipe
         await SendCommand(command);
     }
 
-    public async Task Recalibrate(string deviceName, SimpleColor color)
+    public async Task Recalibrate(string deviceName, DeviceCalibration calibration)
     {
-        var command = DeviceCommands.Recalibrate + Constants.StringSplit + deviceName + Constants.StringSplit + color.ToArgb();
+        // compact (single line) so the command survives the line-based pipe protocol
+        var json = JsonSerializer.Serialize(calibration);
+        var command = DeviceCommands.Recalibrate + Constants.StringSplit + deviceName + Constants.StringSplit + json;
         await SendCommand( command);
+    }
+
+    public async Task CalibrationPreview(string deviceName, SimpleColor color)
+    {
+        var command = DeviceCommands.CalibrationPreview + Constants.StringSplit + deviceName + Constants.StringSplit + color.ToArgb();
+        await SendCommand(command);
+    }
+
+    public async Task EndCalibration()
+    {
+        await SendCommand(DeviceCommands.CalibrationEnd);
     }
 
     async Task SendCommand(string command)

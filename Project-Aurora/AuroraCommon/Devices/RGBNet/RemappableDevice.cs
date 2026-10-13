@@ -4,7 +4,7 @@ using RGB.NET.Core;
 namespace Common.Devices.RGBNet;
 
 [method: JsonConstructor]
-public class RemappableDevice(bool isEnabled, string deviceId, string deviceSummary, List<LedId> rgbNetLeds, SimpleColor calibration, bool remapEnabled)
+public class RemappableDevice(bool isEnabled, string deviceId, string deviceSummary, List<LedId> rgbNetLeds, DeviceCalibration calibration, bool remapEnabled)
 {
     public bool IsEnabled { get; } = isEnabled;
 
@@ -14,7 +14,7 @@ public class RemappableDevice(bool isEnabled, string deviceId, string deviceSumm
     // $"[{rgbDevice.DeviceInfo.DeviceType}] {rgbDevice.DeviceInfo.DeviceName}"
     public List<LedId> RgbNetLeds { get; } = rgbNetLeds;
 
-    public SimpleColor Calibration { get; } = calibration;
+    public DeviceCalibration Calibration { get; } = calibration;
 
     public bool RemapEnabled { get; } = remapEnabled;
 }

@@ -58,6 +58,9 @@ public abstract class RgbNetDevice : DefaultDevice
         return _devicesString;
     }
 
+    // RGB.NET controllers calibrate each sub-device individually in RgbNetDeviceUpdater.
+    protected override bool AppliesOwnCalibration => true;
+
     protected override async Task<bool> DoInitialize(CancellationToken cancellationToken)
     {
         Global.Logger.Information("Initializing {DeviceName}", DeviceName);
