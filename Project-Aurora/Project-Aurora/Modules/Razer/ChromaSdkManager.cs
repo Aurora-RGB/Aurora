@@ -47,14 +47,20 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
             return;
         }
 
-        Global.logger.Information("Chroma service opened. Enabling Chroma integration...");
+        Global.logger.Information("Chroma service opened. Restarting Chroma readers...");
 
         Task.Run(async () =>
         {
             await Task.Delay(TimeSpan.FromSeconds(2));
-            var chromaReader = TryLoadChroma();
-            ChromaReader = chromaReader;
-            StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));
+            if (ChromaReader != null)
+            {
+                ChromaReader.RestartReaders();
+            }
+            else
+            {
+                ChromaReader = TryLoadChroma();
+                StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(ChromaReader));
+            }
         });
     }
 
@@ -70,11 +76,9 @@ public sealed class ChromaSdkManager(AuroraChromaSettings auroraChromaSettings) 
             return;
         }
 
-        Global.logger.Information("Chroma service is closed. Disabling Chroma integration...");
-
-        ChromaReader.Dispose();
-        ChromaReader = null;
-        StateChanged?.Invoke(this, new ChromaSdkStateChangedEventArgs(null));
+        // Keep ChromaReader (and its ChromaMutex) alive so games do not see SynapseOnline=0
+        // during the service restart window and reset their lighting state to black.
+        Global.logger.Information("Chroma service is closed. Keeping mutex alive until service returns...");
     }
 
     private static ChromaReader TryLoadChroma()

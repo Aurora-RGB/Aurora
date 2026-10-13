@@ -28,7 +28,10 @@ public class ConnectedGrid : IRzGrid
                 //_provider?.Update();
                 IsDirty = false;
             }
-            return Provider?.GetColor(index) ?? IRzGrid.EmptyColor;
+            var provider = Provider;
+            if (provider == null || index < 0 || index >= provider.Count)
+                return IRzGrid.EmptyColor;
+            return provider.GetColor(index);
         }
     }
 }
