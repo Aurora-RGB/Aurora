@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -28,18 +28,20 @@ public abstract class RgbNetDevice : DefaultDevice
     protected RgbNetDevice()
     {
         _updater = new RgbNetDeviceUpdater(DeviceKeyRemap, false);
-        SystemEvents.SessionSwitch += (_, _) =>
-        {
-            _updater.Flush();
-            Thread.Sleep(3000);
-            _updater.Flush();
-        };
+        SystemEvents.SessionSwitch += SystemEventsOnSessionSwitch;
     }
 
     protected RgbNetDevice(bool needsLayout)
     {
         _needsLayout = needsLayout;
         _updater = new RgbNetDeviceUpdater(DeviceKeyRemap, needsLayout);
+    }
+
+    private void SystemEventsOnSessionSwitch(object? sender, SessionSwitchEventArgs e)
+    {
+        _updater.Flush();
+        Thread.Sleep(3000);
+        _updater.Flush();
     }
 
     private string GetDeviceStatus()
@@ -65,70 +67,93 @@ public abstract class RgbNetDevice : DefaultDevice
         var connectSleepTimeSeconds = Global.DeviceConfig.VarRegistry.GetVariable<int>($"{DeviceName}_connect_timeout");
         var remainingMillis = TimeSpan.FromSeconds(connectSleepTimeSeconds);
 
-        Provider.DevicesChanged += ProviderOnDevicesChanged;
-        var timeWatch = Stopwatch.StartNew();
-        do
+        var provider = Provider;
+        var initialized = false;
+        provider.DevicesChanged += ProviderOnDevicesChanged;
+        try
         {
-            try
+            var timeWatch = Stopwatch.StartNew();
+            do
             {
-                timeWatch.Stop();
-                await ConfigureProvider(cancellationToken);
-                timeWatch.Start();
-
-                Provider.Initialize(RGBDeviceType.All, true);
-
-                if (!HotplugEnabled() && DeviceList.Count == 0)
-                {
-                    await Task.Delay(1500, cancellationToken);
-                    const string message = "No device detected yet!";
-                    ErrorMessage = message;
-                    throw new DeviceProviderException(new ApplicationException(message), false);
-                }
-
-                IsInitialized = true;
-                ErrorMessage = null;
-                OnInitialized();
-                Provider.Exception += ProviderOnException;
-                return true;
-            }
-            catch (DeviceProviderException e)
-            {
-                Global.Logger.Error(e, "Device {DeviceProvider} init threw exception", DeviceName);
-                remainingMillis -= timeWatch.Elapsed;
-                timeWatch.Restart();
-
-                if (e.IsCritical || remainingMillis <= TimeSpan.Zero)
-                {
-                    if (remainingMillis <= TimeSpan.Zero)
-                    {
-                        Global.Logger.Error("{DeviceProvider} initialization timed out after {Timeout} seconds",
-                            DeviceName, connectSleepTimeSeconds);
-                    }
-
-                    ErrorMessage = $"{e.Message}";
-                    Provider.DevicesChanged -= ProviderOnDevicesChanged;
-                    return false;
-                }
-
-                ErrorMessage = $"{e.Message} ({remainingMillis.Seconds.ToString()})";
-
                 try
                 {
-                    await Task.Delay(3800, cancellationToken);
+                    timeWatch.Stop();
+                    await ConfigureProvider(cancellationToken);
+                    timeWatch.Start();
+
+                    provider.Initialize(RGBDeviceType.All, true);
+
+                    if (!HotplugEnabled() && DeviceList.Count == 0)
+                    {
+                        await Task.Delay(1500, cancellationToken);
+                        const string message = "No device detected yet!";
+                        ErrorMessage = message;
+                        throw new DeviceProviderException(new ApplicationException(message), false);
+                    }
+
+                    IsInitialized = true;
+                    ErrorMessage = null;
+                    OnInitialized();
+                    provider.Exception += ProviderOnException;
+                    initialized = true;
+                    return true;
+                }
+                catch (DeviceProviderException e)
+                {
+                    Global.Logger.Error(e, "Device {DeviceProvider} init threw exception", DeviceName);
+                    remainingMillis -= timeWatch.Elapsed;
+                    timeWatch.Restart();
+
+                    if (e.IsCritical || remainingMillis <= TimeSpan.Zero)
+                    {
+                        if (remainingMillis <= TimeSpan.Zero)
+                        {
+                            Global.Logger.Error("{DeviceProvider} initialization timed out after {Timeout} seconds",
+                                DeviceName, connectSleepTimeSeconds);
+                        }
+
+                        ErrorMessage = $"{e.Message}";
+                        return false;
+                    }
+
+                    ErrorMessage = $"{e.Message} ({remainingMillis.Seconds.ToString()})";
+
+                    try
+                    {
+                        await Task.Delay(3800, cancellationToken);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        ErrorMessage = null;
+                        return false;
+                    }
                 }
                 catch (TaskCanceledException)
                 {
-                    ErrorMessage = null;
                     return false;
                 }
-            }
-            catch (TaskCanceledException)
-            {
-                return false;
-            }
-        } while (!cancellationToken.IsCancellationRequested);
+            } while (!cancellationToken.IsCancellationRequested);
 
-        return false;
+            return false;
+        }
+        finally
+        {
+            // Cancellation and unexpected exceptions must release partial initialization too.
+            if (!initialized)
+            {
+                IsInitialized = false;
+                provider.DevicesChanged -= ProviderOnDevicesChanged;
+                provider.Exception -= ProviderOnException;
+                try
+                {
+                    provider.Dispose();
+                }
+                finally
+                {
+                    ClearDevices();
+                }
+            }
+        }
     }
 
     private async void ProviderOnException(object? sender, ExceptionEventArgs e)
@@ -158,6 +183,7 @@ public abstract class RgbNetDevice : DefaultDevice
     private void ProviderOnDeviceRemoved(IRGBDevice device)
     {
         DeviceList.Remove(device);
+        DeviceKeyRemap.TryRemove(device, out _);
 
         var deviceName = device.DeviceInfo.Manufacturer + " " + device.DeviceInfo.Model;
         _deviceCountMap.TryGetValue(deviceName, out var count);
@@ -187,12 +213,10 @@ public abstract class RgbNetDevice : DefaultDevice
         }
         Global.Logger.Information("[{DeviceType}] Device added: {DeviceName}", DeviceName, deviceName);
 
-        Task.Run(() =>
-        {
-            var rgbNetConfigDevices =
-                DeviceMappingConfig.Config.Devices.ToDictionary(device1 => device1.Name, device2 => device2);
-            RemapDeviceKeys(rgbNetConfigDevices, device);
-        });
+        // Keep mapping inside the device-list lock so removal cannot leave a queued mapping behind.
+        var rgbNetConfigDevices =
+            DeviceMappingConfig.Config.Devices.ToDictionary(device1 => device1.Name, device2 => device2);
+        RemapDeviceKeys(rgbNetConfigDevices, device);
     }
 
     private void RemapDeviceKeys(Dictionary<string, DeviceRemap> rgbNetConfigDevices, IRGBDevice rgbDevice)
@@ -215,16 +239,31 @@ public abstract class RgbNetDevice : DefaultDevice
             return Task.CompletedTask;
         }
 
-        if (Provider.IsInitialized)
+        var provider = Provider;
+        provider.DevicesChanged -= ProviderOnDevicesChanged;
+        provider.Exception -= ProviderOnException;
+        try
         {
-            Provider.Dispose();
+            provider.Dispose();
         }
-
-        Provider.DevicesChanged -= ProviderOnDevicesChanged;
-
-        IsInitialized = false;
-        ErrorMessage = null;
+        finally
+        {
+            ClearDevices();
+            IsInitialized = false;
+            ErrorMessage = null;
+        }
         return Task.CompletedTask;
+    }
+
+    private void ClearDevices()
+    {
+        lock (DeviceList)
+        {
+            DeviceList.Clear();
+            DeviceKeyRemap.Clear();
+            _deviceCountMap.Clear();
+            _devicesString = null;
+        }
     }
 
     public bool NeedsLayout()
@@ -283,6 +322,9 @@ public abstract class RgbNetDevice : DefaultDevice
 
     protected override void Dispose(bool disposing)
     {
+        if (disposing)
+            SystemEvents.SessionSwitch -= SystemEventsOnSessionSwitch;
+
         base.Dispose(disposing);
 
         if (IsInitialized)

@@ -17,6 +17,7 @@ public sealed partial class DeviceContainer : IDisposable
     private DeviceColorComposition _currentComp = new(new Dictionary<DeviceKeys, SimpleColor>());
 
     private readonly AsyncLock _actionLock = new();
+    private bool _disposed;
 
     private readonly MemorySharedStruct<DeviceInformation> _deviceInformation;
     private MemorySharedArrayWrite<DeviceVariable> _deviceVariables;
@@ -169,7 +170,20 @@ public sealed partial class DeviceContainer : IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
         _worker.Dispose(250);
+        try
+        {
+            (Device as IDisposable)?.Dispose();
+        }
+        finally
+        {
+            _deviceInformation.Dispose();
+            _deviceVariables.Dispose();
+        }
     }
 
     private void UpdateSharedMemory()

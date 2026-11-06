@@ -147,7 +147,14 @@ public sealed class DeviceManager : IDisposable
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
         _disposed = true;
+        SystemEvents.PowerModeChanged -= SystemEvents_PowerModeChanged;
+        _tokenSource?.Cancel();
+        _tokenSource?.Dispose();
+        _deviceInformations.Dispose();
         foreach (var deviceContainer in DeviceContainers)
         {
             deviceContainer.Dispose();
@@ -324,7 +331,7 @@ public sealed class DeviceManager : IDisposable
 
     private async Task SendCommand(byte[] command)
     {
-        var client = new NamedPipeClientStream(".", Constants.AuroraInterfacePipe, PipeDirection.Out, PipeOptions.Asynchronous);
+        using var client = new NamedPipeClientStream(".", Constants.AuroraInterfacePipe, PipeDirection.Out, PipeOptions.Asynchronous);
         await client.ConnectAsync(2000);
         if (!client.IsConnected)
             return;
@@ -333,6 +340,5 @@ public sealed class DeviceManager : IDisposable
         await client.WriteAsync(_end, 0, _end.Length);
         
         await client.FlushAsync();
-        client.Close();
     }
 }
