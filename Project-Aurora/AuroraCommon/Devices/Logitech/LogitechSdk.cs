@@ -65,7 +65,7 @@ public sealed class LogitechSdk
         return GhubImports.LogiLedRestoreLighting();
     }
 
-    private (int R, int G, int B) GetColorValues(SimpleColor clr)
+    private static (int R, int G, int B) GetColorValues(SimpleColor clr)
     {
         clr = CommonColorUtils.CorrectWithAlpha(clr);
         return ((int)(clr.R * 100.0 / 255.0),
@@ -76,7 +76,7 @@ public sealed class LogitechSdk
 
 internal static partial class GhubImports
 {
-    private const string Dllpath = @"x64\LogitechLedEnginesWrapper.dll";
+    private const string Dllpath = "x64/LogitechLedEnginesWrapper.dll";
 
     [LibraryImport(Dllpath, StringMarshalling = StringMarshalling.Utf8)]
     [UnmanagedCallConv(CallConvs = [typeof(CallConvCdecl)])]

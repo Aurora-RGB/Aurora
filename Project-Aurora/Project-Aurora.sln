@@ -23,6 +23,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EE713C46-845C-4C8B-B406-4B8A8DF9DBFD}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		..\.github\workflows\aurora-release.yml = ..\.github\workflows\aurora-release.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExeMover", "ExeMover\ExeMover.csproj", "{41D44E05-290D-4527-AA35-F95019934039}"

@@ -37,9 +37,17 @@ public sealed class NoRenderLayer : EffectLayer
 
     public void Fill(ref readonly Color color)
     {
+        var excludedKeys = _excludedZoneKeysCache.GetKeys();
         // set all _keyColors to Transparent
         foreach (var key in AllKeys)
+        {
+            if (excludedKeys.Contains(key))
+            {
+                continue;
+            }
             Set(key, in color);
+        }
+
     }
 
     public void FillOver(ref readonly Color color)
