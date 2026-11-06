@@ -31,7 +31,6 @@
                 <ComboBox SelectedValue="{Binding ProcessPriority}"
                           ItemsSource="{utils1:EnumToItemsSource {x:Type settings:AuroraProcessPriority}}" DisplayMemberPath="Text"
                           SelectedValuePath="Value" Margin="158,10,0,0" HorizontalAlignment="Left"
-                          SelectionChanged="HighPriorityCheckbox_Checked"
                           VerticalAlignment="Top" />
                 <!-- Startup delay -->
                 <TextBlock Text="Delay:" Margin="278,10,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />

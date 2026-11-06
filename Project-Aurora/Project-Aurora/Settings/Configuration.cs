@@ -54,6 +54,9 @@ public class Configuration : INotifyPropertyChanged, IAuroraConfig
     public bool GetDevReleases { get; set; }
     public bool GetPointerUpdates { get; set; } = true;
     public AuroraProcessPriority ProcessPriority { get; set; } = AuroraProcessPriority.EfficiencyMode;
+    public CpuAffinityMode CpuAffinityMode { get; set; } = CpuAffinityMode.Automatic;
+    // Persist group:logical-processor addresses; Windows CPU Set IDs can change after a restart.
+    public List<string> ManualCpuAffinity { get; set; } = [];
     public BitmapAccuracy BitmapAccuracy { get; set; } = BitmapAccuracy.Good;
     public bool EnableAudioCapture2 { get; set; } = true;
     public bool EnableAudioEnumeration { get; set; } = true;

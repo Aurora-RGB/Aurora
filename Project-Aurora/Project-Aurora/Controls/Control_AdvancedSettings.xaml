@@ -1,34 +1,80 @@
-﻿<UserControl x:Class="AuroraRgb.Controls.Control_AdvancedSettings"
+<UserControl x:Class="AuroraRgb.Controls.Control_AdvancedSettings"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:controls="clr-namespace:AuroraRgb.Controls"
+             xmlns:auroraRgb="clr-namespace:AuroraRgb"
+             xmlns:settings="clr-namespace:AuroraRgb.Settings"
+             xmlns:utils="clr-namespace:AuroraRgb.Utils"
              Loaded="Control_AdvancedSettings_OnLoaded"
+             Unloaded="Control_AdvancedSettings_OnUnloaded"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="700"
              d:DataContext="{d:DesignInstance controls:Control_AdvancedSettings}">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="300" />
-            <ColumnDefinition Width="*" />
-        </Grid.ColumnDefinitions>
-    
-        <StackPanel Margin="8, 8, 8, 8">
-            <TextBlock><Bold>GSI Web Interface Adapters*</Bold></TextBlock>
-            <TextBlock>Select which interfaces to expose Aurora's endpoints</TextBlock>
-            <ListBox ItemsSource="{Binding AvailableInterfaces}" Height="300" >
-                <ListBox.ItemTemplate>
-                    <HierarchicalDataTemplate>
-                        <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"/>
-                    </HierarchicalDataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </StackPanel>
-        <StackPanel Grid.Column="1" Margin="8, 8, 8, 8">
-            <TextBlock><Bold>Thread Affinities</Bold></TextBlock>
-            <TextBlock>*Coming Soon*</TextBlock>
-        </StackPanel>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300" />
+                <ColumnDefinition Width="420" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Margin="8, 8, 8, 8">
+                <TextBlock><Bold>GSI Web Interface Adapters*</Bold></TextBlock>
+                <TextBlock>Select which interfaces to expose Aurora's endpoints</TextBlock>
+                <ListBox ItemsSource="{Binding AvailableInterfaces}" Height="300" >
+                    <ListBox.ItemTemplate>
+                        <HierarchicalDataTemplate>
+                            <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"/>
+                        </HierarchicalDataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Margin="8, 8, 8, 8">
+                <TextBlock><Bold>Thread Affinities</Bold></TextBlock>
+                <TextBlock Margin="0,4,0,8" TextWrapping="Wrap"
+                           Text="Choose where Aurora runs. Applies to Aurora's threads, including new threads." />
+                <ComboBox SelectedValue="{Binding CpuAffinityMode, Source={x:Static auroraRgb:Global.Configuration}}"
+                          ItemsSource="{utils:EnumToItemsSource {x:Type settings:CpuAffinityMode}}"
+                          DisplayMemberPath="Text" SelectedValuePath="Value" />
+                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
+                           Text="Automatic uses efficiency cores when Windows reports them; otherwise Windows chooses. Physical cores selects one logical processor per core, avoiding SMT siblings." />
+                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
+                           Text="For gaming, combine Automatic with Efficiency Mode priority below. CPU selection guides Windows; it does not reserve cores or guarantee zero game interference." />
+                <TextBlock Margin="0,8,0,4" Text="Process priority" />
+                <ComboBox SelectedValue="{Binding ProcessPriority, Source={x:Static auroraRgb:Global.Configuration}}"
+                          ItemsSource="{utils:EnumToItemsSource {x:Type settings:AuroraProcessPriority}}"
+                          DisplayMemberPath="Text" SelectedValuePath="Value" />
+                <TextBlock Margin="0,4,0,8" TextWrapping="Wrap"
+                           Text="Efficiency Mode lowers Aurora's CPU priority and requests efficient scheduling (EcoQoS). Lighting updates may slow under heavy CPU load." />
+                <TextBlock x:Name="AffinityStatusText" TextWrapping="Wrap" Margin="0,0,0,8" />
+                <StackPanel>
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding CpuAffinityMode, Source={x:Static auroraRgb:Global.Configuration}}"
+                                             Value="{x:Static settings:CpuAffinityMode.Manual}">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="Manual processors (select at least one)" Margin="0,0,0,4" />
+                    <ListBox ItemsSource="{Binding AvailableProcessors}" MaxHeight="230"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}" IsChecked="{Binding IsChecked}"
+                                          IsEnabled="{Binding Available}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button Content="Apply processor selection" Click="ApplyCpuSelection_OnClick"
+                            HorizontalAlignment="Left" Margin="0,8,0,0" Padding="8,4" />
+                    <TextBlock x:Name="ManualSelectionMessage" TextWrapping="Wrap" Margin="0,4,0,0" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
 </UserControl>
