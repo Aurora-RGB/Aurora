@@ -90,7 +90,8 @@ public abstract class DefaultDevice : IDevice, IDisposable
             return Task.FromResult(false);
         }
         _updateWatch.Restart();
-        var updateResult = UpdateDevice(colorComposition.KeyColors, e, forced);
+        var keyColors = ApplyCalibration(colorComposition.KeyColors);
+        var updateResult = UpdateDevice(keyColors, e, forced);
 
         if (!updateResult.Result) return Task.FromResult(false);
         _lastUpdateTime = Watch.ElapsedMilliseconds;
@@ -103,6 +104,34 @@ public abstract class DefaultDevice : IDevice, IDisposable
     public virtual string? GetDevices()
     {
         return null;
+    }
+
+    /// <summary>
+    /// Whether the device applies color calibration itself (e.g. per sub-device). When false,
+    /// <see cref="DefaultDevice"/> applies the calibration registered for <see cref="DeviceName"/>.
+    /// </summary>
+    protected virtual bool AppliesOwnCalibration => false;
+
+    private Dictionary<DeviceKeys, SimpleColor>? _calibratedColors;
+
+    private Dictionary<DeviceKeys, SimpleColor> ApplyCalibration(Dictionary<DeviceKeys, SimpleColor> keyColors)
+    {
+        if (AppliesOwnCalibration ||
+            !Global.DeviceConfig.DeviceColorCalibrations.TryGetValue(DeviceName, out var calibration) ||
+            calibration.IsIdentity)
+        {
+            return keyColors;
+        }
+
+        var lookup = calibration.GetLookup();
+        var calibrated = _calibratedColors ??= new Dictionary<DeviceKeys, SimpleColor>(keyColors.Count);
+        calibrated.Clear();
+        foreach (var (key, color) in keyColors)
+        {
+            calibrated[key] = lookup.Apply(color);
+        }
+
+        return calibrated;
     }
 
     protected abstract Task<bool> DoInitialize(CancellationToken cancellationToken);

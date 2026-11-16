@@ -102,6 +102,12 @@ public partial class DeviceMapping
 
         foreach (var remappableDevicesDevice in remappableDevices.Devices)
         {
+            // calibration-only devices (e.g. non-RGB.NET) expose no remappable leds
+            if (remappableDevicesDevice.RgbNetLeds.Count == 0)
+            {
+                continue;
+            }
+
             _devices.Add(remappableDevicesDevice);
         }
 

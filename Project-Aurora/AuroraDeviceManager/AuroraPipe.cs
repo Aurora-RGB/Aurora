@@ -1,6 +1,7 @@
 ﻿using System.IO.Pipes;
 using System.Security.AccessControl;
 using System.Security.Principal;
+using System.Text.Json;
 using AuroraDeviceManager.Devices;
 using AuroraDeviceManager.Utils;
 using Common;
@@ -117,9 +118,22 @@ public sealed class AuroraPipe : IDisposable
                 case DeviceCommands.Recalibrate:
                 {
                     var deviceId = splits.Next();
-                    var color = SimpleColor.FromArgb(int.Parse(splits.Next()));
+                    var calibration = JsonSerializer.Deserialize(splits.Next(), SourceGenerationContext.Default.DeviceCalibration)
+                                      ?? DeviceCalibration.Identity;
 
-                    Global.DeviceConfig.DeviceCalibrations[deviceId] = color;
+                    Global.DeviceConfig.DeviceColorCalibrations[deviceId] = calibration;
+                    break;
+                }
+                case DeviceCommands.CalibrationPreview:
+                {
+                    var deviceId = splits.Next();
+                    var color = SimpleColor.FromArgb(int.Parse(splits.Next()));
+                    _deviceManager.PreviewDeviceColor(deviceId, color);
+                    break;
+                }
+                case DeviceCommands.CalibrationEnd:
+                {
+                    _deviceManager.EndCalibration();
                     break;
                 }
                 default:

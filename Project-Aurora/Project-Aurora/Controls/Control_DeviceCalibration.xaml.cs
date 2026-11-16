@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +23,9 @@ public sealed partial class Control_DeviceCalibration : IDisposable
     private readonly TransparencyComponent _transparencyComponent;
     private readonly Task<IpcListener?> _ipcListener;
     private readonly SemaphoreSlim _devicesUpdated = new(0);
+
+    private Task<DeviceConfig>? _loadDeviceConfig;
+    private IReadOnlyList<RemappableDevice> _rgbNetDevices = [];
 
     public Control_DeviceCalibration(Task<DeviceManager> deviceManager, Task<IpcListener?> ipcListener)
     {
@@ -55,13 +60,15 @@ public sealed partial class Control_DeviceCalibration : IDisposable
         Dispatcher.BeginInvoke(() => DeviceList.Children.Clear(), DispatcherPriority.Loaded);
         var remappableDevices = ReadDevices(json);
         var loadDeviceConfig = ConfigManager.LoadDeviceConfig();
+        _loadDeviceConfig = loadDeviceConfig;
+        _rgbNetDevices = remappableDevices.Devices.Where(d => d.RgbNetLeds.Count > 0).ToList();
 
         foreach (var device in remappableDevices.Devices)
         {
-            var color = SimpleColor.FromArgb(device.Calibration.ToArgb());
+            var calibration = device.Calibration;
             Dispatcher.BeginInvoke(async () =>
             {
-                var calibrationItem = new Control_DeviceCalibrationItem(await _deviceManager, await loadDeviceConfig, device, color);
+                var calibrationItem = new Control_DeviceCalibrationItem(await _deviceManager, await loadDeviceConfig, device, calibration);
                 DeviceList.Children.Add(calibrationItem);
             }, DispatcherPriority.Loaded);
         }
@@ -108,6 +115,22 @@ public sealed partial class Control_DeviceCalibration : IDisposable
         }
 
         await RefreshLists();
+    }
+
+    private async void WizardButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (_loadDeviceConfig is null || _rgbNetDevices.Count < 2)
+        {
+            MessageBox.Show("Assisted calibration needs at least two RGB.NET devices (a reference and a target).",
+                "Assisted Calibration", MessageBoxButton.OK, MessageBoxImage.Information);
+            return;
+        }
+
+        var wizard = new Control_CalibrationWizard(await _deviceManager, await _loadDeviceConfig, _rgbNetDevices)
+        {
+            Owner = GetWindow(this)
+        };
+        wizard.ShowDialog();
     }
 
     public void Dispose()
