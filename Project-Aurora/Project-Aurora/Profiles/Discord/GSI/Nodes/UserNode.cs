@@ -15,8 +15,7 @@ public class UserNode
 {
     public static readonly UserNode Default = new();
 
-    [JsonPropertyName("id")]
-    public long Id { get; set; }
+    [JsonPropertyName("id")] public string Id { get; set; } = string.Empty;
 
     [JsonIgnore]
     public DiscordStatus Status { get; private set; }
