@@ -124,14 +124,22 @@ internal static class MemorySharedEventThread
 
             try
             {
-                _actions = _actions.Concat([
-                    o.OnUpdated,
-                    o.OnUpdateRequested
-                ]).ToArray();
-                _handles = _handles.Concat([
-                    o.ObjectUpdatedHandle,
-                    o.UpdateRequestedHandle
-                ]).ToArray();
+                var newActions = new List<Action>();
+                var newHandles = new List<WaitHandle>();
+                if (o.WaitsForUpdated)
+                {
+                    newActions.Add(o.OnUpdated);
+                    newHandles.Add(o.ObjectUpdatedHandle);
+                }
+
+                if (o.WaitsForRequests)
+                {
+                    newActions.Add(o.OnUpdateRequested);
+                    newHandles.Add(o.UpdateRequestedHandle);
+                }
+
+                _actions = _actions.Concat(newActions).ToArray();
+                _handles = _handles.Concat(newHandles).ToArray();
 
                 _thread = CreateThread();
             }

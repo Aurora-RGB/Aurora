@@ -19,7 +19,7 @@ public sealed class MemorySharedStruct<T> : SignaledMemoryObject where T : struc
     private readonly IntPtr _writePointer;
     private readonly IntPtr _readPointer;
 
-    public MemorySharedStruct(string fileName) : base(fileName)
+    public MemorySharedStruct(string fileName) : base(fileName, waitForUpdated: true, waitForRequests: false)
     {
         try
         {
@@ -39,7 +39,7 @@ public sealed class MemorySharedStruct<T> : SignaledMemoryObject where T : struc
         _readPointer = _readHandle.AddrOfPinnedObject();
     }
 
-    public MemorySharedStruct(string fileName, T initialData) : base(fileName)
+    public MemorySharedStruct(string fileName, T initialData) : base(fileName, waitForUpdated: false, waitForRequests: true)
     {
         // Create a MemoryMappedFile
         _mmf = MemoryMappedFile.CreateOrOpen(fileName, ElementSize);

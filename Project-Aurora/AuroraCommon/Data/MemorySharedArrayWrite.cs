@@ -18,7 +18,7 @@ public sealed partial class MemorySharedArrayWrite<T> : SignaledMemoryObject whe
 
     private readonly IntPtr _elementWritePointer;
 
-    public MemorySharedArrayWrite(string fileName, int size) : base(fileName)
+    public MemorySharedArrayWrite(string fileName, int size) : base(fileName, waitForUpdated: false, waitForRequests: true)
     {
         Count = size;
 
