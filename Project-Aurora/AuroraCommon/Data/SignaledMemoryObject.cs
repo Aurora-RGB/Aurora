@@ -14,8 +14,20 @@ public class SignaledMemoryObject : IDisposable
 
     protected bool Disposed;
 
-    protected SignaledMemoryObject(string fileName)
+    /// <summary>
+    /// Whether this side waits for the "-updated" event (the readers do). The events are named kernel objects shared by every
+    /// process that opens the same memory and they are auto-reset: a Set wakes ONE waiter. A writer that also waited for
+    /// "-updated" took roughly every second frame away from the reader.
+    /// </summary>
+    internal bool WaitsForUpdated { get; }
+
+    /// <summary>Whether this side waits for the "-request" event (the writers do; a reader waiting for its own request would swallow it).</summary>
+    internal bool WaitsForRequests { get; }
+
+    protected SignaledMemoryObject(string fileName, bool waitForUpdated = true, bool waitForRequests = true)
     {
+        WaitsForUpdated = waitForUpdated;
+        WaitsForRequests = waitForRequests;
         var updatedHandleName = fileName + "-updated";
         var handleSecurity = GetEventWaitHandleSecurity();
 

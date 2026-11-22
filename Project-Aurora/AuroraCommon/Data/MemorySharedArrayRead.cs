@@ -25,7 +25,7 @@ public sealed class MemorySharedArrayRead<T> : SignaledMemoryObject, IEnumerable
 
     private readonly bool _typeBlittable;
 
-    public MemorySharedArrayRead(string fileName) : base(fileName)
+    public MemorySharedArrayRead(string fileName) : base(fileName, waitForUpdated: true, waitForRequests: false)
     {
         try
         {
