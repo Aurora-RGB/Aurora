@@ -23,7 +23,7 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
     [LogicOverridable("Enable Transparency")]
     public bool TransparencyEnabled
     {
-        get => Logic?._transparencyEnabled ?? false;
+        get => Logic?._transparencyEnabled ?? _transparencyEnabled ?? false;
         set => _transparencyEnabled = value;
     }
 
@@ -71,6 +71,7 @@ public partial class RazerLayerHandlerProperties : LayerHandlerProperties
     {
         base.Default();
 
+        _transparencyEnabled = false;
         _colorPostProcessEnabled = false;
         _brightnessChange = 0;
         _saturationChange = 0;
